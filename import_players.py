@@ -37,6 +37,9 @@ def import_players_from_csv(csv_path='players-data.csv', output_path='data/teams
             last_name = row[2].strip() if len(row) > 2 else ''
             nickname = row[3].strip() if len(row) > 3 else ''
             number = row[4].strip() if len(row) > 4 else ''
+            position = row[5].strip() if len(row) > 5 else ''
+            age = row[6].strip() if len(row) > 6 else ''
+            bio = row[7].strip() if len(row) > 7 else ''
             
             # Skip if no player name
             if not first_name and not last_name and not nickname:
@@ -61,16 +64,22 @@ def import_players_from_csv(csv_path='players-data.csv', output_path='data/teams
             except ValueError:
                 player_number = member_id % 100
             
+            if not position:
+                position = 'Player'
+            if not age or not age.isdigit():
+                age = 25
+            if not bio:
+                bio = f'Player for {team_name}'
             # Create player entry
             player = {
                 'id': member_id,
                 'name': full_name,
                 'nickname': display_nickname,
                 'number': player_number,
-                'position': 'Player',  # Default position
-                'age': 25,  # Default age
+                'position': position.upper(),  # Default position
+                'age': age,  # Default age
                 'head_photo': f'assets/images/players/heads/{member_id}.jpg',
-                'bio': f'Player for {team_name}'
+                'bio': bio
             }
             
             teams_data[team_name]['members'].append(player)
