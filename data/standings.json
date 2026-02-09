@@ -1,0 +1,62 @@
+[
+  {
+    "team_id": 1,
+    "team_name": "ניגריה",
+    "played": 3,
+    "won": 3,
+    "drawn": 0,
+    "lost": 0,
+    "goals_for": 9,
+    "goals_against": 2,
+    "goal_diff": 7,
+    "points": 9
+  },
+  {
+    "team_id": 4,
+    "team_name": "FC LX",
+    "played": 3,
+    "won": 1,
+    "drawn": 1,
+    "lost": 1,
+    "goals_for": 6,
+    "goals_against": 5,
+    "goal_diff": 1,
+    "points": 4
+  },
+  {
+    "team_id": 3,
+    "team_name": "kazan",
+    "played": 3,
+    "won": 1,
+    "drawn": 1,
+    "lost": 1,
+    "goals_for": 3,
+    "goals_against": 6,
+    "goal_diff": -3,
+    "points": 4
+  },
+  {
+    "team_id": 5,
+    "team_name": "Dar al fajir FC",
+    "played": 0,
+    "won": 0,
+    "drawn": 0,
+    "lost": 0,
+    "goals_for": 0,
+    "goals_against": 0,
+    "goal_diff": 0,
+    "points": 0
+  },
+  {
+    "team_id": 2,
+    "team_name": "Dar al fajir Fc",
+    "played": 3,
+    "won": 0,
+    "drawn": 0,
+    "lost": 3,
+    "goals_for": 2,
+    "goals_against": 7,
+    "goal_diff": -5,
+    "points": 0
+  }
+]

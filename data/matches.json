@@ -1,0 +1,165 @@
+[
+    {
+        "id": 1,
+        "date": "2026-03-15",
+        "location": "Main Stadium",
+        "phase": "group",
+        "team1_id": 1,
+        "team2_id": 2,
+        "score1": 3,
+        "score2": 1,
+        "goals": [
+            {
+                "member_id": 101,
+                "minute": 12
+            },
+            {
+                "member_id": 201,
+                "minute": 35
+            },
+            {
+                "member_id": 101,
+                "minute": 58
+            },
+            {
+                "member_id": 103,
+                "minute": 72
+            }
+        ]
+    },
+    {
+        "id": 2,
+        "date": "2026-03-15",
+        "location": "Main Stadium",
+        "phase": "group",
+        "team1_id": 3,
+        "team2_id": 4,
+        "score1": 2,
+        "score2": 2,
+        "goals": [
+            {
+                "member_id": 301,
+                "minute": 18
+            },
+            {
+                "member_id": 401,
+                "minute": 23
+            },
+            {
+                "member_id": 301,
+                "minute": 56
+            },
+            {
+                "member_id": 402,
+                "minute": 81
+            }
+        ]
+    },
+    {
+        "id": 3,
+        "date": "2026-03-17",
+        "location": "Community Field",
+        "phase": "group",
+        "team1_id": 1,
+        "team2_id": 3,
+        "score1": 4,
+        "score2": 0,
+        "goals": [
+            {
+                "member_id": 101,
+                "minute": 15
+            },
+            {
+                "member_id": 103,
+                "minute": 29
+            },
+            {
+                "member_id": 101,
+                "minute": 47
+            },
+            {
+                "member_id": 103,
+                "minute": 65
+            }
+        ]
+    },
+    {
+        "id": 4,
+        "date": "2026-03-17",
+        "location": "Community Field",
+        "phase": "group",
+        "team1_id": 2,
+        "team2_id": 4,
+        "score1": 1,
+        "score2": 3,
+        "goals": [
+            {
+                "member_id": 201,
+                "minute": 25
+            },
+            {
+                "member_id": 401,
+                "minute": 38
+            },
+            {
+                "member_id": 401,
+                "minute": 51
+            },
+            {
+                "member_id": 402,
+                "minute": 77
+            }
+        ]
+    },
+    {
+        "id": 5,
+        "date": "2026-03-19",
+        "location": "Main Stadium",
+        "phase": "group",
+        "team1_id": 1,
+        "team2_id": 4,
+        "score1": 2,
+        "score2": 1,
+        "goals": [
+            {
+                "member_id": 101,
+                "minute": 22
+            },
+            {
+                "member_id": 401,
+                "minute": 44
+            },
+            {
+                "member_id": 103,
+                "minute": 69
+            }
+        ]
+    },
+    {
+        "id": 6,
+        "date": "2026-03-19",
+        "location": "Main Stadium",
+        "phase": "group",
+        "team1_id": 2,
+        "team2_id": 3,
+        "score1": 0,
+        "score2": 1,
+        "goals": [
+            {
+                "member_id": 301,
+                "minute": 88
+            }
+        ]
+    },
+    {
+        "id": 7,
+        "date": "2026-03-22",
+        "location": "TBD",
+        "phase": "group",
+        "team1_id": 1,
+        "team2_id": 2,
+        "score1": null,
+        "score2": null,
+        "goals": []
+    }
+]

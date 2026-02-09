@@ -1,0 +1,582 @@
+[
+  {
+    "id": 1,
+    "name": "ניגריה",
+    "logo": "assets/images/teams/ניגריה.png",
+    "coach": "Coach",
+    "members": [
+      {
+        "id": 100,
+        "name": "אנדי שובש",
+        "nickname": "אנדי",
+        "number": 1,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/100.png",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 101,
+        "name": "הרון שמסי",
+        "nickname": "הרון",
+        "number": 77,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/101.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 102,
+        "name": "עלי שפסו",
+        "nickname": "עלי",
+        "number": 82,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/102.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 103,
+        "name": "אנדי לאוז",
+        "nickname": "אנדי",
+        "number": 13,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/103.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 104,
+        "name": "ריאן שמסי",
+        "nickname": "ריאן",
+        "number": 44,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/104.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 105,
+        "name": "נאתי גרכד",
+        "nickname": "נאתי",
+        "number": 30,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/105.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 106,
+        "name": "חמזה לבאי",
+        "nickname": "חמזה",
+        "number": 4,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/106.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 107,
+        "name": "סינאל שווג",
+        "nickname": "סינאל",
+        "number": 10,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/107.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 108,
+        "name": "נוח שמסי",
+        "nickname": "נוח",
+        "number": 19,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/108.jpg",
+        "bio": "Player for ניגריה"
+      },
+      {
+        "id": 109,
+        "name": "עבד שוגן",
+        "nickname": "עבד",
+        "number": 14,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/109.jpg",
+        "bio": "Player for ניגריה"
+      }
+    ]
+  },
+  {
+    "id": 2,
+    "name": "Dar al fajir Fc",
+    "logo": "assets/images/teams/dar_al_fajir_fc.png",
+    "coach": "Coach",
+    "members": [
+      {
+        "id": 110,
+        "name": "איסמאעיל שוגן",
+        "nickname": "איסמאעיל",
+        "number": 10,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/110.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 111,
+        "name": "נור חתוקאי",
+        "nickname": "נור",
+        "number": 11,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/111.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 112,
+        "name": "אסלאם סגס",
+        "nickname": "אסלאם",
+        "number": 12,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/112.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 113,
+        "name": "נורדין שמסי",
+        "nickname": "נורדין",
+        "number": 13,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/113.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 114,
+        "name": "עות'מאן שוגן",
+        "nickname": "עות'מאן",
+        "number": 14,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/114.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 115,
+        "name": "הארון פייסל",
+        "nickname": "הארון",
+        "number": 15,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/115.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 116,
+        "name": "יוסף הזאר",
+        "nickname": "יוסף",
+        "number": 16,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/116.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 117,
+        "name": "סאם תחאוכו",
+        "nickname": "סאם",
+        "number": 17,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/117.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 118,
+        "name": "סאם לבאי",
+        "nickname": "סאם",
+        "number": 18,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/118.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 119,
+        "name": "תאיימז נאפסו",
+        "nickname": "תאיימז",
+        "number": 19,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/119.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      },
+      {
+        "id": 120,
+        "name": "יוסף שוגן",
+        "nickname": "יוסף",
+        "number": 20,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/120.jpg",
+        "bio": "Player for Dar al fajir Fc"
+      }
+    ]
+  },
+  {
+    "id": 3,
+    "name": "kazan",
+    "logo": "assets/images/teams/kazan.png",
+    "coach": "Coach",
+    "members": [
+      {
+        "id": 121,
+        "name": "Ashmouz",
+        "nickname": "Ashmouz",
+        "number": 1,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/121.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 122,
+        "name": "Mu3jeza",
+        "nickname": "Mu3jeza",
+        "number": 14,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/122.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 123,
+        "name": "Hako",
+        "nickname": "Hako",
+        "number": 3,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/123.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 124,
+        "name": "$hoBash",
+        "nickname": "$hoBash",
+        "number": 17,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/124.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 125,
+        "name": "nash",
+        "nickname": "nash",
+        "number": 4,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/125.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 126,
+        "name": "Shogan",
+        "nickname": "Shogan",
+        "number": 8,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/126.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 127,
+        "name": "Khoranov",
+        "nickname": "Khoranov",
+        "number": 11,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/127.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 128,
+        "name": "NART",
+        "nickname": "NART",
+        "number": 10,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/128.jpg",
+        "bio": "Player for kazan"
+      },
+      {
+        "id": 129,
+        "name": "gezee",
+        "nickname": "gezee",
+        "number": 89,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/129.jpg",
+        "bio": "Player for kazan"
+      }
+    ]
+  },
+  {
+    "id": 4,
+    "name": "FC LX",
+    "logo": "assets/images/teams/fc_lx.png",
+    "coach": "Coach",
+    "members": [
+      {
+        "id": 130,
+        "name": "Fazy",
+        "nickname": "Fazy",
+        "number": 1,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/130.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 131,
+        "name": "Shamsi",
+        "nickname": "Shamsi",
+        "number": 7,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/131.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 132,
+        "name": "Napso",
+        "nickname": "Napso",
+        "number": 39,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/132.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 133,
+        "name": "Gosh",
+        "nickname": "Gosh",
+        "number": 11,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/133.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 134,
+        "name": "Bazdog 10",
+        "nickname": "Bazdog 10",
+        "number": 10,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/134.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 135,
+        "name": "Mogli 67",
+        "nickname": "Mogli 67",
+        "number": 67,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/135.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 136,
+        "name": "Coach",
+        "nickname": "Coach",
+        "number": 99,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/136.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 137,
+        "name": "Horshed",
+        "nickname": "Horshed",
+        "number": 3,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/137.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 138,
+        "name": "Napso",
+        "nickname": "Napso",
+        "number": 17,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/138.jpg",
+        "bio": "Player for FC LX"
+      },
+      {
+        "id": 139,
+        "name": "Khwaj",
+        "nickname": "Khwaj",
+        "number": 21,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/139.jpg",
+        "bio": "Player for FC LX"
+      }
+    ]
+  },
+  {
+    "id": 5,
+    "name": "Dar al fajir FC",
+    "logo": "assets/images/teams/dar_al_fajir_fc.png",
+    "coach": "Coach",
+    "members": [
+      {
+        "id": 140,
+        "name": "איסמאעיל שוגן",
+        "nickname": "איסמאעיל",
+        "number": 40,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/140.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 141,
+        "name": "אסלאם סגס",
+        "nickname": "אסלאם",
+        "number": 41,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/141.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 142,
+        "name": "אסלאן נאש",
+        "nickname": "אסלאן",
+        "number": 42,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/142.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 143,
+        "name": "הארון פייסל",
+        "nickname": "הארון",
+        "number": 43,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/143.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 144,
+        "name": "יוסף הזאר",
+        "nickname": "יוסף",
+        "number": 44,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/144.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 145,
+        "name": "נור חתוקאי",
+        "nickname": "נור",
+        "number": 45,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/145.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 146,
+        "name": "נורדין שמסי",
+        "nickname": "נורדין",
+        "number": 46,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/146.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 147,
+        "name": "סאם עוזיר לבאי",
+        "nickname": "סאם",
+        "number": 47,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/147.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 148,
+        "name": "סאם תחאוכו",
+        "nickname": "סאם",
+        "number": 48,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/148.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 149,
+        "name": "עות'מאן שוגן",
+        "nickname": "עות'מאן",
+        "number": 49,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/149.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 150,
+        "name": "תאיימז נאפסו",
+        "nickname": "תאיימז",
+        "number": 50,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/150.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 151,
+        "name": "יוסף שוגן",
+        "nickname": "יוסף",
+        "number": 51,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/151.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 152,
+        "name": "נארת שומאף",
+        "nickname": "נארת",
+        "number": 52,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/152.jpg",
+        "bio": "Player for Dar al fajir FC"
+      },
+      {
+        "id": 153,
+        "name": "נורדין שומאף",
+        "nickname": "נורדין",
+        "number": 53,
+        "position": "Player",
+        "age": 25,
+        "head_photo": "assets/images/players/heads/153.jpg",
+        "bio": "Player for Dar al fajir FC"
+      }
+    ]
+  }
+]

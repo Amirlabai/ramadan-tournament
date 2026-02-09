@@ -1,0 +1,17 @@
+{
+  "phase": "knockout",
+  "winners_bracket": [
+    {
+      "round": "quarterfinals",
+      "match_id": 204,
+      "team1_seed": 4,
+      "team1_id": 5,
+      "team1_name": "Dar al fajir FC",
+      "team2_seed": 5,
+      "team2_id": 2,
+      "team2_name": "Dar al fajir Fc",
+      "winner_id": null
+    }
+  ],
+  "consolation_bracket": []
+}
