@@ -231,7 +231,7 @@
                     <td colspan="6" style="background-color: var(--light-gray); padding: 20px;">
                         <div class="row">
                             <div class="col-md-3 text-center">
-                                <div class="player-card-template mx-auto" style="width: 120px; height: 160px; position: relative; --head-top-position: 40px;">
+                                <div class="player-card-template mx-auto" style="width: 120px; height: 160px; position: relative; --head-top-position: 40px;"> 
                                     <!-- Background: Player template body -->
                                     <img src="assets/images/player_template.png" alt="Player template" class="player-body" style="width: 100%; height: 100%; object-fit: contain; position: absolute; top: 0; left: 0;">
                                     <!-- Foreground: Player head photo overlay -->
