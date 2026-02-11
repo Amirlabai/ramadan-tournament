@@ -373,7 +373,7 @@ window.TEAMS_DATA = [
       {
         "id": 134,
         "name": "נאלבי",
-        "nickname": "נאלבי",
+        "nickname": "Nalby",
         "number": 1,
         "position": "Player",
         "head_photo": "assets/images/players/heads/134.jpg",
@@ -383,17 +383,17 @@ window.TEAMS_DATA = [
       {
         "id": 135,
         "name": "אדם",
-        "nickname": "אדם",
+        "nickname": "Tehaowkha",
         "number": 9,
         "position": "Player",
         "head_photo": "assets/images/players/heads/135.jpg",
         "bio": "Player for המוסד לביטוח לאומי",
-        "is_captain": false
+        "is_captain": true
       },
       {
         "id": 136,
         "name": "ביברס",
-        "nickname": "ביברס",
+        "nickname": "Sagas",
         "number": 6,
         "position": "Player",
         "head_photo": "assets/images/players/heads/136.jpg",
@@ -403,7 +403,7 @@ window.TEAMS_DATA = [
       {
         "id": 137,
         "name": "דניאל",
-        "nickname": "דניאל",
+        "nickname": "Dani",
         "number": 10,
         "position": "Player",
         "head_photo": "assets/images/players/heads/137.jpg",
@@ -413,7 +413,7 @@ window.TEAMS_DATA = [
       {
         "id": 138,
         "name": "בכר",
-        "nickname": "בכר",
+        "nickname": "Bkr",
         "number": 38,
         "position": "Player",
         "head_photo": "assets/images/players/heads/138.jpg",
@@ -423,7 +423,7 @@ window.TEAMS_DATA = [
       {
         "id": 139,
         "name": "אנדי",
-        "nickname": "אנדי",
+        "nickname": "Andy",
         "number": 8,
         "position": "Player",
         "head_photo": "assets/images/players/heads/139.jpg",
@@ -433,7 +433,7 @@ window.TEAMS_DATA = [
       {
         "id": 140,
         "name": "הילאל",
-        "nickname": "הילאל",
+        "nickname": "Branov",
         "number": 11,
         "position": "Player",
         "head_photo": "assets/images/players/heads/140.jpg",
@@ -443,7 +443,7 @@ window.TEAMS_DATA = [
       {
         "id": 141,
         "name": "אנדי",
-        "nickname": "אנדי",
+        "nickname": "Chosha",
         "number": 4,
         "position": "Player",
         "head_photo": "assets/images/players/heads/141.jpg",
@@ -453,7 +453,7 @@ window.TEAMS_DATA = [
       {
         "id": 142,
         "name": "ארמבי",
-        "nickname": "ארמבי",
+        "nickname": "Bay",
         "number": 3,
         "position": "Player",
         "head_photo": "assets/images/players/heads/142.jpg",
@@ -463,7 +463,7 @@ window.TEAMS_DATA = [
       {
         "id": 143,
         "name": "סלים",
-        "nickname": "סלים",
+        "nickname": "Soli",
         "number": 69,
         "position": "Player",
         "head_photo": "assets/images/players/heads/143.jpg",

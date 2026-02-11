@@ -68,7 +68,7 @@
         const latestNews = sortedNews[0];
         banner.innerHTML = `
             <h4>${latestNews.title}</h4>
-            <p>${latestNews.message}</p>
+            <p>${latestNews.message.replace(/\n/g, '<br>')}</p>
         `;
     }
 
