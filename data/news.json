@@ -1,23 +1,23 @@
 [
-    {
-        "id": 1,
-        "title": "Tournament Begins!",
-        "message": "The Ramadan Tournament kicks off March 15th. May the best team win!",
-        "date": "2026-03-10",
-        "priority": "high"
-    },
-    {
-        "id": 2,
-        "title": "Group Stage In Progress",
-        "message": "Exciting matches so far! Al-Falcons leading with impressive performance.",
-        "date": "2026-03-18",
-        "priority": "normal"
-    },
-    {
-        "id": 3,
-        "title": "Final Group Match",
-        "message": "Don't miss the last group stage match on March 22nd!",
-        "date": "2026-03-20",
-        "priority": "high"
-    }
+  {
+    "id": 1,
+    "title": "טורניר יוצאת לדרך!",
+    "message": "טורניר נאצ'מאז יוצאת לדרך והשחקנים מתלהבים, שישי ראשון משחק ראשון במרכז צעירים",
+    "date": "2026-03-10",
+    "priority": "high"
+  },
+  {
+    "id": 2,
+    "title": "Group Stage In Progress",
+    "message": "Exciting matches so far! Al-Falcons leading with impressive performance.",
+    "date": "2026-03-20",
+    "priority": "normal"
+  },
+  {
+    "id": 3,
+    "title": "Final Group Match",
+    "message": "Don't miss the last group stage match on March 22nd!",
+    "date": "2026-03-20",
+    "priority": "high"
+  }
 ]
