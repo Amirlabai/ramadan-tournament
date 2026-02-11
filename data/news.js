@@ -2,8 +2,8 @@
 window.NEWS_DATA = [
   {
     "id": 1,
-    "title": "Tournament Begins!",
-    "message": "The Ramadan Tournament kicks off March 15th. May the best team win!",
+    "title": "טורניר יוצאת לדרך!",
+    "message": "טורניר נאצ'מאז יוצאת לדרך והשחקנים מתלהבים, שישי ראשון משחק ראשון במרכז צעירים",
     "date": "2026-03-10",
     "priority": "high"
   },
@@ -11,7 +11,7 @@ window.NEWS_DATA = [
     "id": 2,
     "title": "Group Stage In Progress",
     "message": "Exciting matches so far! Al-Falcons leading with impressive performance.",
-    "date": "2026-03-18",
+    "date": "2026-03-20",
     "priority": "normal"
   },
   {
