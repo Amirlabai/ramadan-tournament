@@ -1,61 +1,31 @@
 // Auto-generated from matches.json
 window.MATCHES_DATA = [
-  {
-    "id": 9,
-    "date": "2026-02-19",
-    "location": "מרכז צעירים",
-    "team1_id": 2,
-    "team2_id": 7,
-    "score1": 2,
-    "score2": 1,
-    "phase": "group",
-    "goals": [
-      {
-        "member_id": 170
-      },
-      {
-        "member_id": 113
-      },
-      {
-        "member_id": 113
-      }
-    ]
-  },
-  {
-    "id": 10,
-    "date": "2026-02-19",
-    "location": "מרכז צעירים",
-    "team1_id": 8,
-    "team2_id": 1,
-    "score1": 0,
-    "score2": 1,
-    "phase": "group",
-    "goals": [
-      {
-        "member_id": 106
-      }
-    ]
-  },
-  {
-    "id": 11,
-    "date": "2026-02-21",
-    "location": "מרכז צעירים",
-    "team1_id": 3,
-    "team2_id": 6,
-    "score1": null,
-    "score2": null,
-    "phase": "group",
-    "goals": []
-  },
-  {
-    "id": 12,
-    "date": "2026-02-21",
-    "location": "מרכז צעירים",
-    "team1_id": 4,
-    "team2_id": 5,
-    "score1": null,
-    "score2": null,
-    "phase": "group",
-    "goals": []
-  }
+  { "id": 1, "date": "2026-02-19", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 2, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 2, "date": "2026-02-19", "location": "מרכז צעירים", "team1_id": 3, "team2_id": 4, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 3, "date": "2026-02-19", "location": "מרכז צעירים", "team1_id": 5, "team2_id": 6, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 4, "date": "2026-02-19", "location": "מרכז צעירים", "team1_id": 7, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 5, "date": "2026-02-21", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 3, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 6, "date": "2026-02-21", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 4, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 7, "date": "2026-02-21", "location": "מרכז צעירים", "team1_id": 5, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 8, "date": "2026-02-21", "location": "מרכז צעירים", "team1_id": 6, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 9, "date": "2026-02-23", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 4, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 10, "date": "2026-02-23", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 3, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 11, "date": "2026-02-23", "location": "מרכז צעירים", "team1_id": 5, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 12, "date": "2026-02-23", "location": "מרכז צעירים", "team1_id": 6, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 13, "date": "2026-02-25", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 5, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 14, "date": "2026-02-25", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 6, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 15, "date": "2026-02-25", "location": "מרכז צעירים", "team1_id": 3, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 16, "date": "2026-02-25", "location": "מרכז צעירים", "team1_id": 4, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 17, "date": "2026-02-27", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 6, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 18, "date": "2026-02-27", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 5, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 19, "date": "2026-02-27", "location": "מרכז צעירים", "team1_id": 3, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 20, "date": "2026-02-27", "location": "מרכז צעירים", "team1_id": 4, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 21, "date": "2026-03-01", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 22, "date": "2026-03-01", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 23, "date": "2026-03-01", "location": "מרכז צעירים", "team1_id": 3, "team2_id": 5, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 24, "date": "2026-03-01", "location": "מרכז צעירים", "team1_id": 4, "team2_id": 6, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 25, "date": "2026-03-03", "location": "מרכז צעירים", "team1_id": 1, "team2_id": 8, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 26, "date": "2026-03-03", "location": "מרכז צעירים", "team1_id": 2, "team2_id": 7, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 27, "date": "2026-03-03", "location": "מרכז צעירים", "team1_id": 3, "team2_id": 6, "score1": null, "score2": null, "phase": "group", "goals": [] },
+  { "id": 28, "date": "2026-03-03", "location": "מרכז צעירים", "team1_id": 4, "team2_id": 5, "score1": null, "score2": null, "phase": "group", "goals": [] }
 ];
