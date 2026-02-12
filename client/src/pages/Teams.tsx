@@ -80,15 +80,6 @@ const Teams = () => {
                                                                 style={{ cursor: 'pointer' }}
                                                             >
                                                                 {player.isCaptain && <span className="badge bg-warning text-dark position-absolute top-0 start-0 m-2">קפטן ⭐</span>}
-                                                                <img
-                                                                    src={`/${player.head_photo || 'assets/images/players/heads/default.jpg'}`}
-                                                                    alt={player.firstName}
-                                                                    className="rounded-circle mb-2"
-                                                                    style={{ width: '80px', height: '80px', objectFit: 'cover', border: '3px solid #FFD700' }}
-                                                                    onError={(e) => {
-                                                                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/80?text=?';
-                                                                    }}
-                                                                />
                                                                 <div className="fw-bold">{player.firstName} {player.lastName}</div>
                                                                 <div className="text-muted small">{player.nickname}</div>
                                                                 <div className="badge bg-success mt-1">#{player.number}</div>
