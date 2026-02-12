@@ -33,7 +33,7 @@ const Teams = () => {
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     return (
-        <div className="container">
+        <div className="container py-4">
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
             <div className="table-responsive">
                 <table className="table table-hover" id="teamsTable">

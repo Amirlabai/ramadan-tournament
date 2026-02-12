@@ -58,7 +58,7 @@ const Schedule = () => {
     );
 
     return (
-        <div className="schedule-page">
+        <div className="schedule-page container py-4">
             <h1 className="page-title">לוח משחקים</h1>
             <div className="matches-list">
                 {sortedMatches.map((match) => {

@@ -29,7 +29,7 @@ function App() {
           <Navbar />
 
           {/* Main Content */}
-          <div className="tab-content p-4">
+          <div className="tab-content">
             <main className="tab-pane fade show active">
               <Routes>
                 <Route path="/" element={<Dashboard />} />

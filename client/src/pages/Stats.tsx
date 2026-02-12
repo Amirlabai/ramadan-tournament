@@ -32,7 +32,7 @@ const Stats = () => {
     if (error) return <div className="error">{error}</div>;
 
     return (
-        <div className="stats-page">
+        <div className="stats-page container py-4">
             <h1 className="page-title">סטטיסטיקות</h1>
 
             <div className="stats-grid">
