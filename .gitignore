@@ -1,2 +1,20 @@
 status.md
 GEMINI.md
+.env
+exgemini.md
+exSTATUS.md
+
+# Dependencies
+node_modules/
+server/node_modules
+client/node_modules
+
+# Build outputs
+server/dist
+client/dist
+
+# Environment
+.env
+server/.env
+client/.env
+.env.example

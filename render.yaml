@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: ramadan-tournament-api
+    env: node
+    region: frankfurt  # or singapore for free tier
+    plan: free
+    buildCommand: npm install && npm run build --workspace=server
+    startCommand: npm start --workspace=server
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false  # Set manually in Render dashboard
+      - key: JWT_SECRET
+        sync: false  # Set manually in Render dashboard
+      - key: ADMIN_USERNAME
+        sync: false  # Set manually in Render dashboard
+      - key: ADMIN_PASSWORD
+        sync: false  # Set manually in Render dashboard
+      - key: PORT
+        value: 10000  # Render's default port
