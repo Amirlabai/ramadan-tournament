@@ -52,9 +52,7 @@ export const authAPI = {
 };
 
 export const adminAPI = {
-    uploadPlayers: (formData: FormData) => api.post('/admin/import-players', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-    }),
+    uploadPlayers: (formData: FormData) => api.post('/admin/import-players', formData),
 };
 
 export default api;
