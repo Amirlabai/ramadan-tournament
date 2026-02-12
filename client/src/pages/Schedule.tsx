@@ -54,7 +54,7 @@ const Schedule = () => {
     };
 
     const sortedMatches = [...matches].sort((a, b) =>
-        new Date(b.date).getTime() - new Date(a.date).getTime()
+        new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
     return (

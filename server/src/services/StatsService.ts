@@ -56,7 +56,7 @@ export class StatsService {
 
         // Process matches
         for (const match of matches) {
-            if (match.score1 === undefined || match.score2 === undefined) continue;
+            if (match.score1 == null || match.score2 == null) continue;
 
             const team1 = standings[match.team1Id];
             const team2 = standings[match.team2Id];
