@@ -12,8 +12,8 @@ export interface IMatch extends Document {
     phase: 'group' | 'knockout';
     team1Id: number;
     team2Id: number;
-    score1: number;
-    score2: number;
+    score1: number | null;
+    score2: number | null;
     goals: IGoal[];
     createdBy?: mongoose.Types.ObjectId;
     createdAt: Date;
@@ -54,11 +54,11 @@ const matchSchema = new Schema<IMatch>({
     },
     score1: {
         type: Number,
-        default: 0,
+        default: null,
     },
     score2: {
         type: Number,
-        default: 0,
+        default: null,
     },
     goals: [goalSchema],
     createdBy: {
