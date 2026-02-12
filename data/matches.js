@@ -1,4 +1,4 @@
-window.MATCHES = [
+window.MATCHES_DATA = [
   {
     "id": 1,
     "date": "2026-02-20",
