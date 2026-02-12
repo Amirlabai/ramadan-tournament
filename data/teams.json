@@ -109,8 +109,8 @@
   },
   {
     "id": 2,
-    "name": "פסז'",
-    "logo": "assets/images/teams/פסז'.png",
+    "name": "kazan",
+    "logo": "assets/images/teams/kazan.png",
     "coach": "Coach",
     "members": [
       {
@@ -118,9 +118,9 @@
         "name": "Ashmouz",
         "nickname": "Ashmouz",
         "number": 1,
-        "position": "Player",
+        "position": "שוער",
         "head_photo": "assets/images/players/heads/110.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -128,19 +128,19 @@
         "name": "Mu3jeza",
         "nickname": "Mu3jeza",
         "number": 14,
-        "position": "Player",
+        "position": "קשר אחורי",
         "head_photo": "assets/images/players/heads/111.jpg",
-        "bio": "Player for פסז'",
-        "is_captain": false
+        "bio": "Player for kazan",
+        "is_captain": true
       },
       {
         "id": 112,
         "name": "Hako",
         "nickname": "Hako",
         "number": 3,
-        "position": "Player",
+        "position": "בלם",
         "head_photo": "assets/images/players/heads/112.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -148,9 +148,9 @@
         "name": "$hoBash",
         "nickname": "$hoBash",
         "number": 17,
-        "position": "Player",
+        "position": "קשר",
         "head_photo": "assets/images/players/heads/113.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -158,9 +158,9 @@
         "name": "Natkho",
         "nickname": "Natkho",
         "number": 4,
-        "position": "Player",
+        "position": "בלם",
         "head_photo": "assets/images/players/heads/114.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -168,9 +168,9 @@
         "name": "Shogan",
         "nickname": "Shogan",
         "number": 8,
-        "position": "Player",
+        "position": "חלוץ",
         "head_photo": "assets/images/players/heads/115.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -178,9 +178,9 @@
         "name": "Khoranov",
         "nickname": "Khoranov",
         "number": 11,
-        "position": "Player",
+        "position": "קשר",
         "head_photo": "assets/images/players/heads/116.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -188,9 +188,9 @@
         "name": "NART",
         "nickname": "NART",
         "number": 10,
-        "position": "Player",
+        "position": "קשר",
         "head_photo": "assets/images/players/heads/117.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -198,9 +198,9 @@
         "name": "gezee",
         "nickname": "gezee",
         "number": 89,
-        "position": "Player",
+        "position": "חלוץ",
         "head_photo": "assets/images/players/heads/118.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       },
       {
@@ -208,9 +208,9 @@
         "name": "Diddy",
         "nickname": "Diddy",
         "number": 69,
-        "position": "Player",
+        "position": "בלם",
         "head_photo": "assets/images/players/heads/119.jpg",
-        "bio": "Player for פסז'",
+        "bio": "Player for kazan",
         "is_captain": false
       }
     ]

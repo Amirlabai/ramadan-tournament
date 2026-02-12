@@ -14,7 +14,7 @@ window.STANDINGS_DATA = [
   },
   {
     "team_id": 2,
-    "team_name": "פסז'",
+    "team_name": "kazan",
     "played": 0,
     "won": 0,
     "drawn": 0,
