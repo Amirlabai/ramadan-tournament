@@ -35,64 +35,73 @@ const Dashboard = () => {
         <div className="dashboard">
             <h1 className="page-title">דשבורד טורניר</h1>
 
-            {data.latestNews && (
-                <div className={`news-banner ${data.latestNews.priority === 'high' ? 'high-priority' : ''}`}>
+            {/* News Banner - Full Width Breakout */}
+        </div > {/* Close main container momentarily */ }
+
+    {
+        data.latestNews && (
+            <div className={`news-banner ${data.latestNews.priority === 'high' ? 'high-priority' : ''}`}>
+                <div className="container"> {/* Inner container to center text */}
                     <div className="news-content">
                         <h3>{data.latestNews.title}</h3>
                         <p>{data.latestNews.message}</p>
                         <span className="news-date">{formatDate(data.latestNews.date)}</span>
                     </div>
                 </div>
+            </div>
+        )
+    }
+
+    <div className="container py-4"> {/* Re-open container */}
+
+        <div className="dashboard-grid">
+            {data.nextMatch && (
+                <div className="dashboard-card next-match">
+                    <h2>המשחק הבא</h2>
+                    <div className="match-details">
+                        <div className="match-date">{formatDate(data.nextMatch.date)}</div>
+                        <div className="match-location">📍 {data.nextMatch.location}</div>
+                        <div className="match-teams">
+                            <span className="team">קבוצה {data.nextMatch.team1Id}</span>
+                            <span className="vs">נגד</span>
+                            <span className="team">קבוצה {data.nextMatch.team2Id}</span>
+                        </div>
+                    </div>
+                </div>
             )}
 
-            <div className="dashboard-grid">
-                {data.nextMatch && (
-                    <div className="dashboard-card next-match">
-                        <h2>המשחק הבא</h2>
-                        <div className="match-details">
-                            <div className="match-date">{formatDate(data.nextMatch.date)}</div>
-                            <div className="match-location">📍 {data.nextMatch.location}</div>
-                            <div className="match-teams">
-                                <span className="team">קבוצה {data.nextMatch.team1Id}</span>
-                                <span className="vs">נגד</span>
-                                <span className="team">קבוצה {data.nextMatch.team2Id}</span>
-                            </div>
+            {data.topScorer && (
+                <div className="dashboard-card top-scorer">
+                    <h2>מלך השערים</h2>
+                    <div className="scorer-info">
+                        <div className="scorer-name">{data.topScorer.playerName}</div>
+                        <div className="scorer-team">{data.topScorer.teamName}</div>
+                        <div className="scorer-goals">
+                            ⚽ {data.topScorer.goals} שערים
                         </div>
-                    </div>
-                )}
-
-                {data.topScorer && (
-                    <div className="dashboard-card top-scorer">
-                        <h2>מלך השערים</h2>
-                        <div className="scorer-info">
-                            <div className="scorer-name">{data.topScorer.playerName}</div>
-                            <div className="scorer-team">{data.topScorer.teamName}</div>
-                            <div className="scorer-goals">
-                                ⚽ {data.topScorer.goals} שערים
-                            </div>
-                        </div>
-                    </div>
-                )}
-            </div>
-
-            {data.recentMatches && data.recentMatches.length > 0 && (
-                <div className="dashboard-card recent-matches">
-                    <h2>משחקים אחרונים</h2>
-                    <div className="matches-list">
-                        {data.recentMatches.slice(0, 5).map((match) => (
-                            <div key={match._id} className="match-item">
-                                <span className="match-date">{formatDate(match.date)}</span>
-                                <div className="match-score">
-                                    <span>קבוצה {match.team1Id}</span>
-                                    <span className="score">{match.score1} - {match.score2}</span>
-                                    <span>קבוצה {match.team2Id}</span>
-                                </div>
-                            </div>
-                        ))}
                     </div>
                 </div>
             )}
         </div>
+
+        {data.recentMatches && data.recentMatches.length > 0 && (
+            <div className="dashboard-card recent-matches">
+                <h2>משחקים אחרונים</h2>
+                <div className="matches-list">
+                    {data.recentMatches.slice(0, 5).map((match) => (
+                        <div key={match._id} className="match-item">
+                            <span className="match-date">{formatDate(match.date)}</span>
+                            <div className="match-score">
+                                <span>קבוצה {match.team1Id}</span>
+                                <span className="score">{match.score1} - {match.score2}</span>
+                                <span>קבוצה {match.team2Id}</span>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        )}
+    </div>
     );
 };
 
