@@ -63,13 +63,14 @@ body {
 
 /* News Banner - Fixed Color */
 .news-banner {
-  background: linear-gradient(90deg, var(--secondary-yellow) 0%, #ffed4e 100%);
+  background: #ffae00;
+  /* Solid Gold/Yellow */
   border: 3px solid var(--primary-green);
   padding: 15px 30px;
   margin: 20px auto;
   max-width: 1200px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   animation: slideIn 0.5s ease-out;
 }
 
@@ -89,6 +90,8 @@ body {
   color: var(--dark-gray);
   margin-top: 0;
   margin-bottom: 0;
+  white-space: pre-wrap;
+  /* Preserve line breaks */
 }
 
 /* Navigation Tabs */
