@@ -65,10 +65,10 @@ def import_players_from_csv(csv_path='players-data.csv', output_path='data/teams
                 player_number = member_id % 100
             
             if not position:
-                position = 'Player'
+                position = 'מחמחם ספסל'
 
             if not bio:
-                bio = f'Player for {team_name}'
+                bio = f'משחק בעד {team_name}'
             # Create player entry
             player = {
                 'id': member_id,
