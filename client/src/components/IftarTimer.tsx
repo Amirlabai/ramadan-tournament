@@ -52,12 +52,6 @@ const IftarTimer = () => {
             return '00:00:00';
         }
 
-        const days = Math.round(diff / (1000 * 60 * 60 * 24));
-
-        if (days > 0) {
-            return `בתאבון!`;
-        }
-
         const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
         const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
         const s = Math.floor((diff % (1000 * 60)) / 1000);
