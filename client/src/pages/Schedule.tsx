@@ -66,22 +66,45 @@ const Schedule = () => {
         const matchDate = new Date(match.date);
         const now = new Date();
 
-        // Get current time in Jerusalem
-        const jerusalemNow = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Jerusalem" }));
+        // Get "Wall Clock" time for both in Jerusalem
+        const options: Intl.DateTimeFormatOptions = {
+            timeZone: 'Asia/Jerusalem',
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            hour: 'numeric',
+            hour12: false
+        };
 
-        // Check if it's the same day
-        const isSameDay = matchDate.getDate() === jerusalemNow.getDate() &&
-            matchDate.getMonth() === jerusalemNow.getMonth() &&
-            matchDate.getFullYear() === jerusalemNow.getFullYear();
+        const jlmFormatter = new Intl.DateTimeFormat('en-US', options);
 
-        if (isSameDay) {
-            // Live if it's 20:00 or later
-            if (jerusalemNow.getHours() >= 20) return 'live';
-            return 'upcoming';
-        }
+        const matchParts = jlmFormatter.formatToParts(matchDate);
+        const nowParts = jlmFormatter.formatToParts(now);
 
-        // If match date is in the past, consider it finished (or pending, but 'finished' styles it gray usually)
-        if (matchDate < jerusalemNow) return 'finished';
+        const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => parseInt(parts.find(p => p.type === type)?.value || '0');
+
+        const matchY = getPart(matchParts, 'year');
+        const matchM = getPart(matchParts, 'month');
+        const matchD = getPart(matchParts, 'day');
+
+        const nowY = getPart(nowParts, 'year');
+        const nowM = getPart(nowParts, 'month');
+        const nowD = getPart(nowParts, 'day');
+        const nowH = getPart(nowParts, 'hour');
+
+        // Compare dates (YMD)
+        if (matchY < nowY) return 'finished';
+        if (matchY > nowY) return 'upcoming';
+
+        if (matchM < nowM) return 'finished';
+        if (matchM > nowM) return 'upcoming';
+
+        if (matchD < nowD) return 'finished';
+        if (matchD > nowD) return 'upcoming';
+
+        // Same day
+        // Live if it's 20:00 or later (JLM time)
+        if (nowH >= 20) return 'live';
 
         return 'upcoming';
     };

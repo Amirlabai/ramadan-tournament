@@ -59,8 +59,46 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
         // Fetch all matches for that specific date
         if (nextMatchDate) {
             const date = new Date(nextMatchDate.date);
-            const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+
+            // Set start of day in Jerusalem timezone
+            // We want to find the UTC timestamp that corresponds to 00:00:00 JLM on that day
+            const options: Intl.DateTimeFormatOptions = {
+                timeZone: 'Asia/Jerusalem',
+                year: 'numeric',
+                month: 'numeric',
+                day: 'numeric',
+                hour12: false
+            };
+
+            const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(date);
+            const getPart = (type: string) => parts.find(p => p.type === type)?.value;
+            const year = parseInt(getPart('year')!);
+            const month = parseInt(getPart('month')!);
+            const day = parseInt(getPart('day')!);
+
+            // Create a date that IS 00:00:00 in JLM, then get its UTC time.
+            // Since we can't easily construct "JLM Date", we iterate or use a small helper logic
+            // But for query purposes, we can approximate or just use a wide range?
+            // No, strictly we want the JLM day.
+
+            // Helper to get UTC timestamp from JLM y/m/d h:m
+            const getUtcFromJlm = (y: number, m: number, d: number, h: number, min: number) => {
+                const target = Date.UTC(y, m - 1, d, h, min);
+                let estimated = new Date(target);
+                // Adjust until it matches
+                for (let i = 0; i < 3; i++) {
+                    const parts = new Intl.DateTimeFormat('en-US', { ...options, hour: 'numeric', minute: 'numeric' }).formatToParts(estimated);
+                    const p = (t: string) => parseInt(parts.find(x => x.type === t)?.value || '0');
+                    const actual = Date.UTC(p('year'), p('month') - 1, p('day'), p('hour'), p('minute'));
+                    const diff = actual - target;
+                    if (diff === 0) break;
+                    estimated = new Date(estimated.getTime() - diff);
+                }
+                return estimated;
+            };
+
+            const startOfDay = getUtcFromJlm(year, month, day, 0, 0); // 00:00 JLM
+            const endOfDay = getUtcFromJlm(year, month, day, 23, 59); // 23:59 JLM
 
             const rawNextMatches = await Match.find({
                 date: { $gte: startOfDay, $lte: endOfDay }
