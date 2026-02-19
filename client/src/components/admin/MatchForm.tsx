@@ -37,20 +37,110 @@ const MatchForm = ({ initialData, onSubmit, onCancel }: MatchFormProps) => {
         fetchTeams();
     }, []);
 
+    // Helper: Convert UTC Date to Jerusalem "Wall Clock" ISO string for input
+    const toJerusalemIsoString = (date: Date): string => {
+        // Get the parts of the date in Jerusalem time
+        const options: Intl.DateTimeFormatOptions = {
+            timeZone: 'Asia/Jerusalem',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+        };
+
+        const parts = new Intl.DateTimeFormat('en-US', options).formatToParts(date);
+        const getPart = (type: string) => parts.find(p => p.type === type)?.value;
+
+        // Construct YYYY-MM-DDTHH:mm string
+        return `${getPart('year')}-${getPart('month')}-${getPart('day')}T${getPart('hour')}:${getPart('minute')}`;
+    };
+
+    // Helper: Convert Jerusalem "Wall Clock" string to UTC Date
+    // This creates a Date object that represents the specific time in Jerusalem
+    const jerusalemStringToDate = (dateString: string): string => {
+        if (!dateString) return '';
+
+        // create a date object as if it were UTC
+        const [datePart, timePart] = dateString.split('T');
+        const [year, month, day] = datePart.split('-').map(Number);
+        const [hour, minute] = timePart.split(':').map(Number);
+
+        // Create a date object from these components
+        // We need to find the UTC timestamp that corresponds to this wall time in Jerusalem
+        // Approach: 
+        // 1. Create a UTC date with these components
+        // 2. Format it back to Jerusalem time to see the offset
+        // 3. Adjust
+
+        // Simpler approach: use a library or just construct it and let the server handle it? 
+        // No, client must send correct ISO string.
+
+        // Let's use the fact that we want "2026-03-20 20:00 Jerusalem"
+        // We can create a string with timezone offset if we knew it.
+        // But offset changes (DST).
+
+        // Brute force robust way:
+        // Create a date, assume local, then adjust? No, user local might be anything.
+
+        // Correct way without libraries (moment-timezone/date-fns-tz):
+        // 1. Guess UTC equivalent (same numbers)
+        // 2. Check what time it is in Jerusalem for that UTC
+        // 3. Adjust difference
+
+        // Actually, we can just construct a string with the timezone if environment supports it, 
+        // but Date constructor doesn't really support "Asia/Jerusalem".
+
+        // Workaround:
+        // We will send the string as is to the server? No, server expects ISO.
+
+        // Let's use the initialData logic's reverse.
+        // It's hard to do perfectly without a TZ library on client.
+        // However, for admin panel, we can approximate or use a loop to find exact time.
+
+        // Better: Construct a date string like "YYYY-MM-DDTHH:mm:00" and append a dummy offset, 
+        // then correct it? No.
+
+        // Let's try to find the offset for this specific time in Jerusalem.
+        // We can use Intl to find the offset? Not easily.
+
+        // Implementation:
+        // 1. Take the input "2026-03-20T20:00"
+        // 2. Create a specific Date from this assuming it's UTC: Date.UTC(2026, 2, 20, 20, 0)
+        // 3. Format this UTC date to Jerusalem time: "2026-03-20 22:00" (if offset is +2)
+        // 4. We wanted 20:00, we got 22:00. Difference is +2 hours.
+        // 5. Subtract 2 hours from the UTC timestamp.
+
+        const targetTime = Date.UTC(year, month - 1, day, hour, minute);
+        let estimated = new Date(targetTime);
+
+        // Iterate to converge (usually 1-2 steps)
+        for (let i = 0; i < 3; i++) {
+            const jerusalemStr = toJerusalemIsoString(estimated); // "2026-03-20T22:00"
+
+            const [jDate, jTime] = jerusalemStr.split('T');
+            const [jY, jM, jD] = jDate.split('-').map(Number);
+            const [jH, jMin] = jTime.split(':').map(Number);
+
+            const actualInJerusalem = Date.UTC(jY, jM - 1, jD, jH, jMin);
+            const diff = actualInJerusalem - targetTime;
+
+            if (diff === 0) break;
+            estimated = new Date(estimated.getTime() - diff);
+        }
+
+        return estimated.toISOString();
+    };
+
     useEffect(() => {
         if (initialData) {
-            // Format for datetime-local: YYYY-MM-DDTHH:mm
-            const dateObj = new Date(initialData.date);
-            // Adjust to Jerusalem time for editing
-            const offset = dateObj.getTimezoneOffset() * 60000; // Offset in milliseconds
-            const localISOTime = new Date(dateObj.getTime() - offset).toISOString().slice(0, 16);
-
             setFormData({
                 team1Id: initialData.team1Id.toString(),
                 team2Id: initialData.team2Id.toString(),
                 score1: initialData.score1?.toString() ?? '',
                 score2: initialData.score2?.toString() ?? '',
-                date: localISOTime,
+                date: toJerusalemIsoString(new Date(initialData.date)),
                 location: initialData.location,
                 phase: initialData.phase,
                 goals: initialData.goals || []
@@ -88,6 +178,7 @@ const MatchForm = ({ initialData, onSubmit, onCancel }: MatchFormProps) => {
                 team2Id: parseInt(formData.team2Id),
                 score1: formData.score1 === '' ? undefined : parseInt(formData.score1),
                 score2: formData.score2 === '' ? undefined : parseInt(formData.score2),
+                date: jerusalemStringToDate(formData.date) // Convert JLM time to UTC ISO
             };
             await onSubmit(payload);
             setSuccess(true);
