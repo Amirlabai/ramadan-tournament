@@ -35,12 +35,9 @@ export const getPlayerStats = async (req: Request, res: Response): Promise<void>
 
 export const getDashboard = async (req: Request, res: Response): Promise<void> => {
     try {
-        const [teams, topScorers, recentMatches] = await Promise.all([
+        const [teams, topScorers] = await Promise.all([
             import('../models/Team').then(m => m.Team.find().select('id name')),
-            StatsService.calculateTopScorers(),
-            Match.find({ score1: { $ne: null } })
-                .sort({ date: -1 })
-                .limit(5)
+            StatsService.calculateTopScorers()
         ]);
 
         // Create a map of team ID to name for match enrichment
@@ -100,9 +97,32 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             const startOfDay = getUtcFromJlm(year, month, day, 0, 0); // 00:00 JLM
             const endOfDay = getUtcFromJlm(year, month, day, 23, 59); // 23:59 JLM
 
-            const rawNextMatches = await Match.find({
-                date: { $gte: startOfDay, $lte: endOfDay }
-            }).sort({ date: 1 }).lean();
+            const rawNextMatches = await Match.aggregate([
+                {
+                    $match: {
+                        date: { $gte: startOfDay, $lte: endOfDay }
+                    }
+                },
+                { $sort: { date: 1 } },
+                {
+                    $lookup: {
+                        from: 'comments',
+                        localField: 'id',
+                        foreignField: 'matchId',
+                        as: 'comments'
+                    }
+                },
+                {
+                    $addFields: {
+                        commentCount: { $size: '$comments' }
+                    }
+                },
+                {
+                    $project: {
+                        comments: 0
+                    }
+                }
+            ]);
 
             nextMatches = rawNextMatches.map(match => ({
                 ...match,
@@ -111,8 +131,32 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             }));
         }
 
-        const enrichedRecentMatches = recentMatches.map((match: any) => ({
-            ...match.toObject(),
+        const recentMatchesWithComments = await Match.aggregate([
+            { $match: { score1: { $ne: null } } },
+            { $sort: { date: -1 } },
+            { $limit: 5 },
+            {
+                $lookup: {
+                    from: 'comments',
+                    localField: 'id',
+                    foreignField: 'matchId',
+                    as: 'comments'
+                }
+            },
+            {
+                $addFields: {
+                    commentCount: { $size: '$comments' }
+                }
+            },
+            {
+                $project: {
+                    comments: 0
+                }
+            }
+        ]);
+
+        const enrichedRecentMatches = recentMatchesWithComments.map((match: any) => ({
+            ...match,
             team1Name: teamMap.get(match.team1Id) || `קבוצה ${match.team1Id}`,
             team2Name: teamMap.get(match.team2Id) || `קבוצה ${match.team2Id}`
         }));

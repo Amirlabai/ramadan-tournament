@@ -262,3 +262,9 @@
     border-color: rgba(46, 125, 50, 0.5);
     transform: translateY(-2px);
 }
+
+.upcoming-match-item .badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    vertical-align: text-top;
+}

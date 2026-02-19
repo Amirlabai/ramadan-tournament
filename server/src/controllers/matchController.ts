@@ -5,7 +5,29 @@ import { AuthRequest } from '../middleware/auth';
 // Public: Get all matches
 export const getAllMatches = async (req: Request, res: Response): Promise<void> => {
     try {
-        const matches = await Match.find().sort({ date: -1 });
+        const matches = await Match.aggregate([
+            {
+                $lookup: {
+                    from: 'comments',
+                    localField: 'id',
+                    foreignField: 'matchId',
+                    as: 'comments'
+                }
+            },
+            {
+                $addFields: {
+                    commentCount: { $size: '$comments' }
+                }
+            },
+            {
+                $project: {
+                    comments: 0
+                }
+            },
+            {
+                $sort: { date: -1 }
+            }
+        ]);
         res.json(matches);
     } catch (error) {
         console.error('Get matches error:', error);

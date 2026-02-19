@@ -39,6 +39,7 @@ export interface Match {
     team1Name?: string;
     team2Name?: string;
     goals: Goal[];
+    commentCount?: number;
     createdAt: string;
 }
 

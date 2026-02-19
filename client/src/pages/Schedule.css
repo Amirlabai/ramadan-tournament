@@ -157,3 +157,9 @@
     border-color: rgba(255, 215, 0, 0.5);
     transform: translateY(-2px);
 }
+
+.match-card .badge {
+    font-size: 0.75em;
+    padding: 0.35em 0.65em;
+    vertical-align: text-top;
+}

@@ -166,7 +166,16 @@ const Schedule = () => {
                                     className="btn-comments"
                                     onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
                                 >
-                                    {expandedMatchId === match._id ? '🔼 הסתר תגובות' : '💬 תגובות'}
+                                    {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
+                                        <>
+                                            💬 תגובות
+                                            {match.commentCount && match.commentCount > 0 ? (
+                                                <span className="badge bg-danger ms-2 rounded-pill">
+                                                    {match.commentCount}
+                                                </span>
+                                            ) : null}
+                                        </>
+                                    )}
                                 </button>
                             </div>
 
