@@ -109,7 +109,11 @@ const Teams = () => {
                             </div>
                             <div className="modal-body text-center">
                                 <img
-                                    src={`/${selectedPlayer.head_photo || 'assets/images/players/heads/default.jpg'}`}
+                                    src={selectedPlayer.head_photo
+                                        ? (selectedPlayer.head_photo.startsWith('http')
+                                            ? selectedPlayer.head_photo
+                                            : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${selectedPlayer.head_photo}`)
+                                        : 'assets/images/players/heads/default.jpg'}
                                     alt={selectedPlayer.firstName}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
@@ -130,6 +134,19 @@ const Teams = () => {
                                 <div className="text-end">
                                     <h6 className="fw-bold text-success">אודות השחקן:</h6>
                                     <p>{selectedPlayer.bio || 'אין מידע נוסף אודות השחקן.'}</p>
+                                </div>
+                                <div className="mt-3">
+                                    {(selectedPlayer.hasPersonalId && selectedPlayer.birthYear) ? (
+                                        <a href="/player-zone" className="btn btn-sm btn-outline-success">
+                                            <i className="bi bi-camera me-1"></i> זה אתה? עדכן תמונה
+                                        </a>
+                                    ) : (
+                                        <div className="text-danger small">
+                                            <i className="bi bi-exclamation-triangle me-1"></i>
+                                            חסרים נתונים במערכת. <br />
+                                            לא ניתן לעדכן תמונה.
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                             <div className="modal-footer">

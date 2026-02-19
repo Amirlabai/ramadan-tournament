@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment } from '../controllers/adminController';
+import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto } from '../controllers/adminController';
 import { authenticate } from '../middleware/auth';
 import os from 'os';
 
@@ -17,5 +17,11 @@ router.delete('/banned-words/:id', authenticate, removeBannedWord);
 // Comment management
 router.get('/comments', authenticate, getAllComments);
 router.delete('/comments/:id', authenticate, deleteComment);
+
+// Photo approval
+router.get('/photos/pending', authenticate, getPendingPhotos);
+router.post('/photos/approve', authenticate, approvePhoto);
+router.post('/photos/reject', authenticate, rejectPhoto);
+router.post('/photos/delete', authenticate, deletePlayerPhoto);
 
 export default router;

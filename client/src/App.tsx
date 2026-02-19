@@ -9,8 +9,8 @@ import Navbar from './components/Navbar';
 import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
 import IftarTimer from './components/IftarTimer';
+import PlayerZone from './pages/PlayerZone';
 import './App.css';
-
 import { Analytics } from '@vercel/analytics/react';
 
 function App() {
@@ -49,6 +49,7 @@ function App() {
                 <Route path="/stats" element={<Stats />} />
                 <Route path="/admin/login" element={<Login />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/player-zone" element={<PlayerZone />} />
               </Routes>
             </main>
           </div>

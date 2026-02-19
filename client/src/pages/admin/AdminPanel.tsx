@@ -11,13 +11,14 @@ const AdminPanel = () => {
     const [news, setNews] = useState<News[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState<'matches' | 'news' | 'import' | 'banned-words' | 'comments'>('matches');
+    const [activeTab, setActiveTab] = useState<'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'photos' | 'players'>('matches');
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [bannedWords, setBannedWords] = useState<any[]>([]);
     const [newWord, setNewWord] = useState('');
     const [newWordLanguage, setNewWordLanguage] = useState('other');
     const [comments, setComments] = useState<any[]>([]);
+    const [pendingPhotos, setPendingPhotos] = useState<any[]>([]);
     const [searchFilter, setSearchFilter] = useState('');
     const navigate = useNavigate();
 
@@ -30,7 +31,7 @@ const AdminPanel = () => {
         formData.append('file', file);
 
         try {
-            await import('../../api/client').then(m => m.adminAPI.uploadPlayers(formData));
+            await adminAPI.uploadPlayers(formData);
             alert('ייבוא בוצע בהצלחה!');
             setFile(null);
             // Refresh logic if needed
@@ -78,6 +79,8 @@ const AdminPanel = () => {
             fetchBannedWords();
         } else if (activeTab === 'comments') {
             fetchComments();
+        } else if (activeTab === 'photos') {
+            fetchPendingPhotos();
         }
     }, [activeTab]);
 
@@ -224,6 +227,39 @@ const AdminPanel = () => {
         }
     };
 
+    const fetchPendingPhotos = async () => {
+        try {
+            const res = await adminAPI.getPendingPhotos();
+            setPendingPhotos(res.data);
+        } catch (err) {
+            console.error('Error fetching pending photos:', err);
+        }
+    };
+
+    const handleApprovePhoto = async (teamId: number, memberId: number) => {
+        if (!confirm('האם לאשר את התמונה?')) return;
+        try {
+            await adminAPI.approvePhoto(teamId, memberId);
+            setPendingPhotos(pendingPhotos.filter(p => !(p.teamId === teamId && p.memberId === memberId)));
+            alert('התמונה אושרה בהצלחה');
+        } catch (err) {
+            console.error(err);
+            alert('שגיאה באישור התמונה');
+        }
+    };
+
+    const handleRejectPhoto = async (teamId: number, memberId: number) => {
+        if (!confirm('האם לדחות את התמונה? הפעולה תמחוק את הקובץ.')) return;
+        try {
+            await adminAPI.rejectPhoto(teamId, memberId);
+            setPendingPhotos(pendingPhotos.filter(p => !(p.teamId === teamId && p.memberId === memberId)));
+            alert('התמונה נדחתה ונמחקה');
+        } catch (err) {
+            console.error(err);
+            alert('שגיאה בדחיית התמונה');
+        }
+    };
+
     if (loading) return <div className="loading">טוען...</div>;
 
     return (
@@ -265,6 +301,18 @@ const AdminPanel = () => {
                     onClick={() => setActiveTab('comments')}
                 >
                     ניהול תגובות ({comments.length})
+                </button>
+                <button
+                    className={`tab ${activeTab === 'photos' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('photos')}
+                >
+                    אישור תמונות ({pendingPhotos.length})
+                </button>
+                <button
+                    className={`tab ${activeTab === 'players' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('players')}
+                >
+                    ניהול שחקנים
                 </button>
             </div>
 
@@ -516,6 +564,174 @@ const AdminPanel = () => {
                                             );
                                         })
                                 )}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'photos' && (
+                <div className="tab-content">
+                    <div className="card">
+                        <h2>אישור תמונות שחקנים</h2>
+                        <div className="p-4">
+                            {pendingPhotos.length === 0 ? (
+                                <div className="text-center text-muted p-5">
+                                    <h4>אין תמונות שממתינות לאישור</h4>
+                                    <p>כל התמונות טופלו בהצלחה!</p>
+                                </div>
+                            ) : (
+                                <div className="row g-4">
+                                    {pendingPhotos.map((photo) => {
+                                        const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+                                        const photoUrl = `${apiUrl}${photo.pendingPhoto}`;
+
+                                        return (
+                                            <div key={`${photo.teamId}-${photo.memberId}`} className="col-12 col-md-6 col-lg-4">
+                                                <div className="card h-100 shadow-sm">
+                                                    <div className="card-header bg-light">
+                                                        <strong>{photo.firstName} {photo.lastName}</strong>
+                                                        <div className="small text-muted">{photo.teamName}</div>
+                                                    </div>
+                                                    <div className="card-body text-center">
+                                                        <div className="mb-3" style={{ height: '200px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f8f9fa' }}>
+                                                            <img
+                                                                src={photoUrl}
+                                                                alt={`${photo.firstName}`}
+                                                                style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                                                            />
+                                                        </div>
+                                                        {photo.currentPhoto && (
+                                                            <div className="small text-muted mb-2">
+                                                                ישנה תמונה קיימת במערכת
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="card-footer d-flex justify-content-between gap-2">
+                                                        <button
+                                                            className="btn btn-outline-danger flex-grow-1"
+                                                            onClick={() => handleRejectPhoto(photo.teamId, photo.memberId)}
+                                                        >
+                                                            <i className="bi bi-x-lg"></i> דחה
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-success flex-grow-1"
+                                                            onClick={() => handleApprovePhoto(photo.teamId, photo.memberId)}
+                                                        >
+                                                            <i className="bi bi-check-lg"></i> אשר
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'players' && (
+                <div className="tab-content">
+                    <div className="card">
+                        <h2>ניהול שחקנים ותמונות</h2>
+                        <div className="p-4">
+                            <div className="mb-4">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    placeholder="חפש שחקן לפי שם..."
+                                    value={searchFilter}
+                                    onChange={(e) => setSearchFilter(e.target.value)}
+                                />
+                            </div>
+
+                            <div className="row g-4">
+                                {teams.flatMap(team =>
+                                    team.players.map(player => ({ ...player, teamName: team.name, teamId: team.id }))
+                                )
+                                    .filter(player =>
+                                        !searchFilter ||
+                                        (player.firstName + ' ' + player.lastName).toLowerCase().includes(searchFilter.toLowerCase()) ||
+                                        player.teamName.toLowerCase().includes(searchFilter.toLowerCase())
+                                    )
+                                    .slice(0, 50) // Limit display for performance
+                                    .map(player => {
+                                        const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+                                        const hasPhoto = !!player.head_photo;
+                                        const photoUrl = hasPhoto
+                                            ? (player.head_photo!.startsWith('http') ? player.head_photo : `${apiUrl}${player.head_photo}`)
+                                            : null;
+
+                                        return (
+                                            <div key={`${player.teamId}-${player.memberId}`} className="col-12 col-md-6 col-lg-4">
+                                                <div className="card h-100 shadow-sm">
+                                                    <div className="card-header d-flex justify-content-between align-items-center">
+                                                        <div>
+                                                            <strong>{player.firstName} {player.lastName}</strong>
+                                                            <div className="small text-muted">{player.teamName}</div>
+                                                        </div>
+                                                        <span className="badge bg-secondary">#{player.number}</span>
+                                                    </div>
+                                                    <div className="card-body text-center">
+                                                        <div className="mb-3 mx-auto" style={{
+                                                            width: '120px',
+                                                            height: '120px',
+                                                            borderRadius: '50%',
+                                                            overflow: 'hidden',
+                                                            backgroundColor: '#f0f0f0',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            border: hasPhoto ? '3px solid #198754' : '1px solid #ddd'
+                                                        }}>
+                                                            {hasPhoto ? (
+                                                                <img
+                                                                    src={photoUrl!}
+                                                                    alt={player.firstName}
+                                                                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                                                />
+                                                            ) : (
+                                                                <i className="bi bi-person-fill" style={{ fontSize: '3rem', color: '#ccc' }}></i>
+                                                            )}
+                                                        </div>
+
+                                                        {player.pending_head_photo ? (
+                                                            <div className="badge bg-warning text-dark mb-2">ממתין לאישור תמונה</div>
+                                                        ) : (
+                                                            hasPhoto ? (
+                                                                <div className="text-success small mb-2"><i className="bi bi-check-circle-fill"></i> יש תמונה</div>
+                                                            ) : (
+                                                                <div className="text-muted small mb-2">אין תמונה</div>
+                                                            )
+                                                        )}
+                                                    </div>
+                                                    <div className="card-footer">
+                                                        <button
+                                                            className="btn btn-outline-danger w-100"
+                                                            disabled={!hasPhoto}
+                                                            onClick={async () => {
+                                                                if (!confirm(`האם אתה בטוח שברצונך למחוק את התמונה של ${player.firstName}?`)) return;
+                                                                try {
+                                                                    await adminAPI.deletePlayerPhoto(player.teamId, player.memberId);
+                                                                    // Refresh teams data
+                                                                    const res = await teamsAPI.getAll();
+                                                                    setTeams(res.data);
+                                                                    alert('התמונה נמחקה בהצלחה');
+                                                                } catch (err) {
+                                                                    console.error(err);
+                                                                    alert('שגיאה במחיקת התמונה');
+                                                                }
+                                                            }}
+                                                        >
+                                                            <i className="bi bi-trash"></i> מחק תמונה
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
                             </div>
                         </div>
                     </div>

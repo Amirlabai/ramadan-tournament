@@ -7,7 +7,10 @@ export interface Player {
     position: string;
     isCaptain: boolean;
     head_photo?: string;
+    pending_head_photo?: string;
     bio?: string;
+    hasPersonalId?: boolean;
+    birthYear?: number;
 }
 
 export interface Team {

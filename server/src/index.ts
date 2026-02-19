@@ -14,6 +14,8 @@ import statsRoutes from './routes/stats';
 import adminRoutes from './routes/admin';
 import commentRoutes from './routes/comments';
 import iftarRoutes from './routes/iftarRoutes';
+import playerRoutes from './routes/player';
+import path from 'path';
 
 const app = express();
 
@@ -27,6 +29,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
 // Rate limiting
 const limiter = rateLimit({
@@ -34,6 +37,7 @@ const limiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
 });
 app.use('/api/auth', limiter);
+app.use('/api/players', limiter); // Rate limit player auth too
 
 // Routes
 app.get('/api/health', (req, res) => {
@@ -48,6 +52,7 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/iftar', iftarRoutes);
+app.use('/api/players', playerRoutes);
 
 // Error handler
 app.use(errorHandler);

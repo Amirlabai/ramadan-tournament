@@ -3,6 +3,7 @@ import { parse } from 'csv-parse';
 import { Team } from '../models/Team';
 import { BannedWord } from '../models/BannedWord';
 import fs from 'fs';
+import path from 'path';
 
 interface PlayerCSV {
     team_name: string;
@@ -13,6 +14,8 @@ interface PlayerCSV {
     position: string;
     bio: string;
     captain: string;
+    personal_id: string;
+    birth_year: string;
 }
 
 export const importPlayers = async (req: Request, res: Response): Promise<void> => {
@@ -32,14 +35,15 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
         const parser = fs
             .createReadStream(req.file.path)
             .pipe(parse({
-                columns: ['team_name', 'first_name', 'last_name', 'nickname', 'number', 'position', 'bio', 'captain'],
+                columns: ['team_name', 'first_name', 'last_name', 'nickname', 'number', 'position', 'bio', 'captain', 'personal_id', 'birth_year'],
                 from_line: 2, // Skip header
                 trim: true,
-                skip_empty_lines: true
+                skip_empty_lines: true,
+                relax_column_count: true
             }));
 
         for await (const row of parser) {
-            const { team_name, first_name, last_name, nickname, number, position, bio, captain } = row as PlayerCSV;
+            const { team_name, first_name, last_name, nickname, number, position, bio, captain, personal_id, birth_year } = row as PlayerCSV;
 
             if (!team_name) continue;
             if (!first_name && !last_name && !nickname) continue;
@@ -81,7 +85,9 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
                 number: playerNumber,
                 position: position || 'מחמם ספסל',
                 isCaptain: captain === '1',
-                bio: bio || `משחק בעד ${team_name}`
+                bio: bio || `משחק בעד ${team_name}`,
+                personalId: personal_id || '',
+                birthYear: birth_year ? parseInt(birth_year) : undefined
             });
         }
 
@@ -197,5 +203,149 @@ export const deleteComment = async (req: Request, res: Response) => {
     } catch (error) {
         console.error('Error deleting comment:', error);
         res.status(500).json({ error: 'Failed to delete comment' });
+    }
+};
+
+// Photo Approval System
+export const getPendingPhotos = async (req: Request, res: Response) => {
+    try {
+        // Find all teams that have at least one player with a pending_head_photo
+        const teams = await Team.find({
+            "players.pending_head_photo": { $exists: true, $ne: "" }
+        });
+
+        const pendingPhotos: any[] = [];
+
+        teams.forEach(team => {
+            team.players.forEach(player => {
+                if (player.pending_head_photo) {
+                    pendingPhotos.push({
+                        teamId: team.id,
+                        teamName: team.name,
+                        memberId: player.memberId,
+                        firstName: player.firstName,
+                        lastName: player.lastName,
+                        nickname: player.nickname,
+                        currentPhoto: player.head_photo,
+                        pendingPhoto: player.pending_head_photo
+                    });
+                }
+            });
+        });
+
+        res.json(pendingPhotos);
+    } catch (error) {
+        console.error('Error fetching pending photos:', error);
+        res.status(500).json({ error: 'Failed to fetch pending photos' });
+    }
+};
+
+export const approvePhoto = async (req: Request, res: Response) => {
+    try {
+        const { teamId, memberId } = req.body;
+        const team = await Team.findOne({ id: teamId });
+
+        if (!team) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        const player = team.players.find(p => p.memberId === memberId);
+        if (!player) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        if (!player.pending_head_photo) {
+            return res.status(400).json({ error: 'No pending photo for this player' });
+        }
+
+        // Approve: Move pending to head_photo and clear pending
+        player.head_photo = player.pending_head_photo;
+        player.pending_head_photo = '';
+
+        await team.save();
+        res.json({ message: 'Photo approved successfully' });
+    } catch (error) {
+        console.error('Error approving photo:', error);
+        res.status(500).json({ error: 'Failed to approve photo' });
+    }
+};
+
+export const rejectPhoto = async (req: Request, res: Response) => {
+    try {
+        const { teamId, memberId } = req.body;
+        const team = await Team.findOne({ id: teamId });
+
+        if (!team) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        const player = team.players.find(p => p.memberId === memberId);
+        if (!player) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        if (!player.pending_head_photo) {
+            return res.status(400).json({ error: 'No pending photo for this player' });
+        }
+
+        // Reject: Delete the file and clear pending
+        // Construct file path from URL
+        // URL format: /uploads/players/filename
+        const filePath = player.pending_head_photo;
+        if (filePath.startsWith('/uploads/players/')) {
+            const fileName = filePath.split('/').pop();
+            if (fileName) {
+                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath);
+                }
+            }
+        }
+
+        player.pending_head_photo = '';
+        await team.save();
+        res.json({ message: 'Photo rejected successfully' });
+    } catch (error) {
+        console.error('Error rejecting photo:', error);
+        res.status(500).json({ error: 'Failed to reject photo' });
+    }
+};
+
+export const deletePlayerPhoto = async (req: Request, res: Response) => {
+    try {
+        const { teamId, memberId } = req.body;
+        const team = await Team.findOne({ id: teamId });
+
+        if (!team) {
+            return res.status(404).json({ error: 'Team not found' });
+        }
+
+        const player = team.players.find(p => p.memberId === memberId);
+        if (!player) {
+            return res.status(404).json({ error: 'Player not found' });
+        }
+
+        if (!player.head_photo) {
+            return res.status(400).json({ error: 'Player does not have a photo' });
+        }
+
+        // Delete the file if it's local
+        const filePath = player.head_photo;
+        if (filePath.startsWith('/uploads/players/')) {
+            const fileName = filePath.split('/').pop();
+            if (fileName) {
+                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath);
+                }
+            }
+        }
+
+        player.head_photo = '';
+        await team.save();
+        res.json({ message: 'Photo deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting player photo:', error);
+        res.status(500).json({ error: 'Failed to delete photo' });
     }
 };

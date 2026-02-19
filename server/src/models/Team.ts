@@ -9,7 +9,10 @@ export interface IPlayer {
     position: string;
     isCaptain: boolean;
     head_photo?: string;
+    pending_head_photo?: string;
     bio?: string;
+    personalId?: string;
+    birthYear?: number;
 }
 
 export interface ITeam extends Document {
@@ -28,7 +31,10 @@ const playerSchema = new Schema<IPlayer>({
     position: { type: String, default: '' },
     isCaptain: { type: Boolean, default: false },
     head_photo: { type: String, default: '' },
+    pending_head_photo: { type: String, default: '' },
     bio: { type: String, default: '' },
+    personalId: { type: String, select: false }, // Protected field
+    birthYear: { type: Number },
 }, { _id: false });
 
 const teamSchema = new Schema<ITeam>({

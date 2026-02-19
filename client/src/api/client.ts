@@ -55,6 +55,10 @@ export const adminAPI = {
     removeBannedWord: (id: string) => api.delete(`/admin/banned-words/${id}`),
     getComments: () => api.get('/admin/comments'),
     deleteComment: (id: string) => api.delete(`/admin/comments/${id}`),
+    getPendingPhotos: () => api.get('/admin/photos/pending'),
+    approvePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/approve', { teamId, memberId }),
+    rejectPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/reject', { teamId, memberId }),
+    deletePlayerPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/delete', { teamId, memberId }),
 };
 
 export const commentsAPI = {
@@ -64,6 +68,11 @@ export const commentsAPI = {
 
 export const iftarAPI = {
     getNext: () => api.get('/iftar/next'),
+};
+
+export const playerAPI = {
+    login: (personalId: string, birthYear: string) => api.post('/players/auth', { personalId, birthYear }),
+    uploadPhoto: (formData: FormData) => api.post('/players/upload', formData),
 };
 
 export default api;
