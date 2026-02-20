@@ -303,17 +303,17 @@ const MatchForm = ({ initialData, onSubmit, onCancel }: MatchFormProps) => {
                             }}
                         >
                             <option value="">בחר שחקן...</option>
-                            <optgroup label="קבוצה 1">
+                            <optgroup label={teams.find(t => t.id === parseInt(formData.team1Id))?.name}>
                                 {teams.find(t => t.id === parseInt(formData.team1Id))?.players.map(p => (
                                     <option key={p.memberId} value={p.memberId}>
-                                        {p.nickname || `${p.firstName} ${p.lastName}`} (#{p.number})
+                                        {p.firstName} {p.lastName} (#{p.number})
                                     </option>
                                 ))}
                             </optgroup>
-                            <optgroup label="קבוצה 2">
+                            <optgroup label={teams.find(t => t.id === parseInt(formData.team2Id))?.name}>
                                 {teams.find(t => t.id === parseInt(formData.team2Id))?.players.map(p => (
                                     <option key={p.memberId} value={p.memberId}>
-                                        {p.nickname || `${p.firstName} ${p.lastName}`} (#{p.number})
+                                        {p.firstName} {p.lastName} (#{p.number})
                                     </option>
                                 ))}
                             </optgroup>

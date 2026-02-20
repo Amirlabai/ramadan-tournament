@@ -42,7 +42,7 @@ const Schedule = () => {
         for (const team of teams) {
             const player = team.players?.find(p => p.memberId === memberId);
             if (player) {
-                return player.nickname;
+                return `${player.nickname}(${player.number})`;
             }
         }
         return '';
@@ -148,18 +148,25 @@ const Schedule = () => {
                                 <span className="match-location">{match.location}</span>
                             </div>
 
-                            {match.goals && match.goals.length > 0 && (
-                                <div className="match-goals">
-                                    <h4>כובשים:</h4>
-                                    <div className="goals-list">
-                                        {match.goals.map((goal, idx) => (
-                                            <span key={idx} className="goal-item">
-                                                {getPlayerNickname(goal.memberId)}
-                                            </span>
-                                        ))}
+                            {match.goals && match.goals.length > 0 && (() => {
+                                const goalCounts = match.goals.reduce<Record<number, number>>((acc, goal) => {
+                                    acc[goal.memberId] = (acc[goal.memberId] || 0) + 1;
+                                    return acc;
+                                }, {});
+                                return (
+                                    <div className="match-goals">
+                                        <h4>כובשים:</h4>
+                                        <div className="goals-list">
+                                            {Object.entries(goalCounts).map(([memberId, count]) => (
+                                                <span key={memberId} className="goal-item">
+                                                    {getPlayerNickname(Number(memberId))} <br />
+                                                    <center>{count > 1 && `x${count}`}</center>
+                                                </span>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                );
+                            })()}
 
                             <div className="match-actions">
                                 <button
