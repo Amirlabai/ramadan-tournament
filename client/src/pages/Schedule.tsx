@@ -38,6 +38,10 @@ const Schedule = () => {
         return team ? team.name : `קבוצה ${teamId}`;
     };
 
+    const getTeamNameById = (memberId: number) => {
+        const team = teams.find(t => t.players?.some(p => p.memberId === memberId));
+        return team ? team.name : `${memberId}`;
+    };
     const getPlayerNickname = (memberId: number) => {
         for (const team of teams) {
             const player = team.players?.find(p => p.memberId === memberId);
@@ -159,8 +163,9 @@ const Schedule = () => {
                                         <div className="goals-list">
                                             {Object.entries(goalCounts).map(([memberId, count]) => (
                                                 <span key={memberId} className="goal-item">
-                                                    {getPlayerNickname(Number(memberId))} <br />
-                                                    <center>{count > 1 && `x${count}`}</center>
+                                                    <center>{getPlayerNickname(Number(memberId))}<br />
+                                                        {count > 1 ? `⚽${count}` : '⚽'} <br />
+                                                        {getTeamNameById(Number(memberId))}</center>
                                                 </span>
                                             ))}
                                         </div>

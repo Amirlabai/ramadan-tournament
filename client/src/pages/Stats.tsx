@@ -79,7 +79,7 @@ const Stats = () => {
                 <div className="card top-scorers-list">
                     <h2>מלכי השערים</h2>
                     <div className="scorers-list">
-                        {topScorers.map((scorer, index) => (
+                        {topScorers.slice(0, 10).map((scorer, index) => (
                             <div key={scorer.memberId} className="scorer-item">
                                 <div className="scorer-rank">#{index + 1}</div>
                                 <div className="scorer-details">
