@@ -10,6 +10,7 @@ const Schedule = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+    const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
 
     useEffect(() => {
         const fetchData = async () => {
@@ -117,11 +118,43 @@ const Schedule = () => {
         new Date(a.date).getTime() - new Date(b.date).getTime()
     );
 
+    const filteredMatches = (() => {
+        const base = activeFilter === 'all'
+            ? sortedMatches
+            : sortedMatches.filter(m => getMatchStatus(m) === activeFilter);
+        return activeFilter === 'finished' ? [...base].reverse() : base;
+    })();
+
+    const filterOptions: { key: typeof activeFilter; label: string }[] = [
+        { key: 'all', label: 'הכל' },
+        { key: 'upcoming', label: 'עתיד' },
+        { key: 'live', label: 'Live' },
+        { key: 'finished', label: 'הסתיים' },
+    ];
+
     return (
         <div className="schedule-page container py-4">
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">לוח משחקים</h2>
+
+            <div className="schedule-filters">
+                {filterOptions.map(({ key, label }) => (
+                    <button
+                        key={key}
+                        className={`filter-btn ${activeFilter === key ? 'active' : ''} ${key !== 'all' ? key : ''}`}
+                        onClick={() => setActiveFilter(key)}
+                    >
+                        {label}
+                        {key !== 'all' && (
+                            <span className="filter-count">
+                                {sortedMatches.filter(m => getMatchStatus(m) === key).length}
+                            </span>
+                        )}
+                    </button>
+                ))}
+            </div>
+
             <div className="matches-list">
-                {sortedMatches.map((match) => {
+                {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
                     return (
                         <div key={match._id} className={`match-card card ${status}`}>
