@@ -113,7 +113,7 @@ const Teams = () => {
                                         ? (selectedPlayer.head_photo.startsWith('http')
                                             ? selectedPlayer.head_photo
                                             : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${selectedPlayer.head_photo}`)
-                                        : 'assets/images/players/heads/default.jpg'}
+                                        : '/assets/images/players/heads/default.png'}
                                     alt={selectedPlayer.firstName}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
