@@ -51,6 +51,7 @@ ramadan-tournament/
 │   │   ├── routes/           # API routes
 │   │   ├── middleware/       # Auth & validation
 │   │   └── scripts/          # Utility scripts
+├── sync_photos.py             # Photo recovery & sync script
 └── data/                      # Legacy data files
 ```
 
@@ -128,6 +129,18 @@ Access the admin panel → Comment Management tab to:
 - Search comments by content or author
 - Delete inappropriate comments
 
+### Photo Management & Recovery
+- **Photo Approval System**: Dedicated admin workflow for reviewing player-uploaded photos
+- **Robust Storage**: Cross-device file move support for Windows/Linux/Docker environments
+- **Photo Recovery Script**: `sync_photos.py` utility to download missing production photos to local disk
+
+#### Syncing Photos to Local
+If your local or production environment is missing player photos, use the sync tool:
+```bash
+python sync_photos.py
+```
+Requires `pymongo`, `requests`, and `python-dotenv`.
+
 ## Color Scheme
 
 - **Primary Green**: #2A6B11
@@ -160,6 +173,7 @@ Access the admin panel → Comment Management tab to:
 - TypeScript
 - JWT for authentication
 - Multer for file uploads
+- Robust cross-device file management
 - CSV parsing
 
 ## Deployment
@@ -203,5 +217,5 @@ This is a tournament-specific project. For issues or suggestions, please contact
 ---
 
 **Tournament Status**: Active  
-**Last Updated**: 2026-02-15  
-**Version**: 2.0.1
+**Last Updated**: 2026-02-23  
+**Version**: 2.3.0
