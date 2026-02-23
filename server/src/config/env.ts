@@ -9,6 +9,11 @@ export const config = {
     adminUsername: process.env.ADMIN_USERNAME || 'admin',
     adminPassword: process.env.ADMIN_PASSWORD || '',
     nodeEnv: process.env.NODE_ENV || 'development',
+    email: {
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASS || '',
+        admin: process.env.ADMIN_EMAIL || '',
+    },
 };
 
 // Validate required environment variables

@@ -6,6 +6,7 @@ import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 import fs from 'fs';
 import path from 'path';
+import nodemailer from 'nodemailer';
 
 export const authenticate = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -75,6 +76,47 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
     } catch (error) {
         console.error('Player auth error:', error);
         res.status(500).json({ error: 'Server error' });
+    }
+};
+
+const sendAdminNotification = async (playerName: string, teamName: string) => {
+    if (!config.email.user || !config.email.pass || !config.email.admin) {
+        console.warn('Email credentials not configured, skipping notification');
+        return;
+    }
+
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: config.email.user,
+            pass: config.email.pass
+        }
+    });
+
+    const mailOptions = {
+        from: config.email.user,
+        to: config.email.admin,
+        subject: `📸 תמונה חדשה לאישור: ${playerName}`,
+        html: `
+            <div dir="rtl" style="font-family: sans-serif;">
+                <h2>היי אמירוס, יש תמונה חדשה שמחכה לאישורך!</h2>
+                <p><strong>שחקן:</strong> ${playerName}</p>
+                <p><strong>קבוצה:</strong> ${teamName}</p>
+                <hr />
+                <p>כדי לאשר או לדחות את התמונה, היכנס לפאנל הניהול:</p>
+                <a href="https://ramadan-tournament-client.vercel.app/admin/login" 
+                   style="background-color: #2A6B11; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                   לפאנל הניהול
+                </a>
+            </div>
+        `
+    };
+
+    try {
+        await transporter.sendMail(mailOptions);
+        console.log(`Admin notification email sent for ${playerName}`);
+    } catch (error) {
+        console.error('Error sending admin notification email:', error);
     }
 };
 
@@ -156,6 +198,9 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         // Update DB - save to pending_head_photo
         team.players[playerIndex].pending_head_photo = publicUrl;
         await team.save();
+
+        // Send notification to admin (non-blocking)
+        sendAdminNotification(`${player.firstName} ${player.lastName}`, team.name);
 
         res.json({
             message: 'Photo uploaded successfully and is pending approval',
