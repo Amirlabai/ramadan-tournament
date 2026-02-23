@@ -209,28 +209,29 @@ export const deleteComment = async (req: Request, res: Response) => {
 // Photo Approval System
 export const getPendingPhotos = async (req: Request, res: Response) => {
     try {
-        // Find all teams that have at least one player with a pending_head_photo
-        const teams = await Team.find({
-            "players.pending_head_photo": { $exists: true, $ne: "" }
-        });
+        // Fetch all teams and filter in-memory for reliability
+        // This ensures consistency with the AdminPanel's 'players' tab logic
+        const teams = await Team.find({});
 
         const pendingPhotos: any[] = [];
 
         teams.forEach(team => {
-            team.players.forEach(player => {
-                if (player.pending_head_photo) {
-                    pendingPhotos.push({
-                        teamId: team.id,
-                        teamName: team.name,
-                        memberId: player.memberId,
-                        firstName: player.firstName,
-                        lastName: player.lastName,
-                        nickname: player.nickname,
-                        currentPhoto: player.head_photo,
-                        pendingPhoto: player.pending_head_photo
-                    });
-                }
-            });
+            if (team.players && Array.isArray(team.players)) {
+                team.players.forEach(player => {
+                    if (player.pending_head_photo && player.pending_head_photo.trim() !== "") {
+                        pendingPhotos.push({
+                            teamId: team.id,
+                            teamName: team.name,
+                            memberId: player.memberId,
+                            firstName: player.firstName,
+                            lastName: player.lastName,
+                            nickname: player.nickname,
+                            currentPhoto: player.head_photo,
+                            pendingPhoto: player.pending_head_photo
+                        });
+                    }
+                });
+            }
         });
 
         res.json(pendingPhotos);
