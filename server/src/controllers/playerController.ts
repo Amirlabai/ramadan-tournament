@@ -128,12 +128,22 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
-        // Rename/Move file
+        // Rename/Move file - Use a more robust approach for cross-device moves
         const fileExt = path.extname(req.file.originalname);
         const fileName = `player_${player.memberId}_${Date.now()}${fileExt}`;
         const finalPath = path.join(uploadsDir, fileName);
 
-        fs.renameSync(req.file.path, finalPath);
+        try {
+            fs.renameSync(req.file.path, finalPath);
+        } catch (renameError: any) {
+            if (renameError.code === 'EXDEV') {
+                // Cross-device link error, copy and delete instead
+                fs.copyFileSync(req.file.path, finalPath);
+                fs.unlinkSync(req.file.path);
+            } else {
+                throw renameError;
+            }
+        }
 
         // Update DB
         // Path relative to server root or public URL?
@@ -152,9 +162,12 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
             url: publicUrl
         });
 
-    } catch (error) {
+    } catch (error: any) {
         console.error('Photo upload error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(500).json({
+            error: 'Server error',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
         // Try cleanup
         if (req.file && fs.existsSync(req.file.path)) {
             try { fs.unlinkSync(req.file.path); } catch (e) { }
