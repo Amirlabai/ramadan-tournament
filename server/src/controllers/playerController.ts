@@ -96,10 +96,10 @@ const sendAdminNotification = async (playerName: string, teamName: string) => {
     const mailOptions = {
         from: config.email.user,
         to: config.email.admin,
-        subject: `📸 תמונה חדשה לאישור: ${playerName}`,
+        subject: `תמונה חדשה לאישור: ${playerName}`,
         html: `
             <div dir="rtl" style="font-family: sans-serif;">
-                <h2>היי אמירוס, יש תמונה חדשה שמחכה לאישורך!</h2>
+                <h2>היי אמיר, יש תמונה חדשה שמחכה לאישורך!</h2>
                 <p><strong>שחקן:</strong> ${playerName}</p>
                 <p><strong>קבוצה:</strong> ${teamName}</p>
                 <hr />
