@@ -3,6 +3,7 @@ status.md
 .env
 exgemini.md
 exSTATUS.md
+context.md
 
 # Dependencies
 node_modules/

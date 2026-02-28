@@ -8,10 +8,14 @@ interface IftarTime {
     islam_data: string;
 }
 
-const IftarTimer = () => {
+interface IftarTimerProps {
+    isActive: boolean;
+    onToggle: (active: boolean) => void;
+}
+
+const IftarTimer = ({ isActive, onToggle }: IftarTimerProps) => {
     const [nextIftar, setNextIftar] = useState<IftarTime | null>(null);
     const [timeLeft, setTimeLeft] = useState<string>('');
-    const [minimized, setMinimized] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true);
 
     const getMoonEmoji = (islamData: string): string => {
@@ -87,11 +91,11 @@ const IftarTimer = () => {
     if (loading || !nextIftar) return null;
 
     return (
-        <div className={`iftar-timer-container ${minimized ? 'minimized' : ''}`}>
-            {minimized ? (
+        <div className={`iftar-timer-container ${!isActive ? 'minimized' : ''}`}>
+            {!isActive ? (
                 <button
                     className="iftar-toggle-btn"
-                    onClick={() => setMinimized(false)}
+                    onClick={() => onToggle(true)}
                     title="הצג ספירה לאחור"
                 >
                     {getMoonEmoji(nextIftar.islam_data)}
@@ -100,7 +104,7 @@ const IftarTimer = () => {
                 <div className="iftar-bubble">
                     <button
                         className="iftar-close-btn"
-                        onClick={() => setMinimized(true)}
+                        onClick={() => onToggle(false)}
                         title="מזער"
                     >
                         ×

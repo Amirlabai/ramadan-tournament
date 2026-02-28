@@ -9,15 +9,26 @@ import Navbar from './components/Navbar';
 import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
 import IftarTimer from './components/IftarTimer';
+import AlarmsWidget from './components/AlarmsWidget';
 import PlayerZone from './pages/PlayerZone';
 import './App.css';
 import { Analytics } from '@vercel/analytics/react';
+import { useState } from 'react';
 
 function App() {
+  const [activeWidget, setActiveWidget] = useState<'none' | 'iftar' | 'alarms'>('none');
+
   return (
     <Router>
       <div className="app" dir="rtl">
-        <IftarTimer />
+        <IftarTimer
+          isActive={activeWidget === 'iftar'}
+          onToggle={(active) => setActiveWidget(active ? 'iftar' : 'none')}
+        />
+        <AlarmsWidget
+          isActive={activeWidget === 'alarms'}
+          onToggle={(active) => setActiveWidget(active ? 'alarms' : 'none')}
+        />
         {/* Header & News Banner Container */}
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">

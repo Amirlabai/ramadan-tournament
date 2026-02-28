@@ -1,0 +1,137 @@
+.alarms-widget-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.alarms-bubble {
+    background: linear-gradient(135deg, #1b4d0b 0%, #2a6b11 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    position: relative;
+    animation: fadeInAlarms 0.5s ease-out;
+    min-width: 220px;
+}
+
+.alarms-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 8px;
+}
+
+.alarms-icon {
+    font-size: 20px;
+}
+
+.alarms-title {
+    font-size: 0.9rem;
+    font-weight: bold;
+}
+
+.alarms-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.stat-item.main {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #ffff00;
+}
+
+.cities-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 4px;
+}
+
+.stat-item.city {
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.stat-value {
+    font-weight: bold;
+}
+
+.alarms-footer {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.alarms-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0 4px;
+}
+
+.alarms-toggle-btn {
+    background: #2a6b11;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.alarms-toggle-btn:hover {
+    transform: scale(1.1);
+}
+
+@keyframes fadeInAlarms {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .alarms-widget-container {
+        bottom: 15px;
+        right: 15px;
+    }
+
+    .alarms-bubble {
+        min-width: 180px;
+        padding: 12px;
+    }
+
+    .stat-item.main {
+        font-size: 1rem;
+    }
+}
