@@ -1,22 +1,32 @@
+/* ────────────────────────────────────────────────
+   Container & layout
+──────────────────────────────────────────────── */
 .alarms-widget-container {
     position: fixed;
     bottom: 20px;
     right: 20px;
     z-index: 1000;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
 }
 
+/* ────────────────────────────────────────────────
+   Main bubble
+──────────────────────────────────────────────── */
 .alarms-bubble {
     background: linear-gradient(135deg, #1b4d0b 0%, #2a6b11 100%);
     color: white;
     border-radius: 12px;
     padding: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
     position: relative;
-    animation: fadeInAlarms 0.5s ease-out;
-    min-width: 220px;
+    animation: fadeInAlarms 0.35s ease-out;
+    min-width: 230px;
 }
 
+/* ────────────────────────────────────────────────
+   Header
+──────────────────────────────────────────────── */
 .alarms-header {
     display: flex;
     align-items: center;
@@ -27,14 +37,17 @@
 }
 
 .alarms-icon {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 .alarms-title {
-    font-size: 0.9rem;
-    font-weight: bold;
+    font-size: 0.88rem;
+    font-weight: 600;
 }
 
+/* ────────────────────────────────────────────────
+   Stats section
+──────────────────────────────────────────────── */
 .alarms-stats {
     display: flex;
     flex-direction: column;
@@ -48,11 +61,18 @@
 }
 
 .stat-item.main {
-    font-size: 1.1rem;
+    font-size: 1.05rem;
     font-weight: bold;
     color: #ffff00;
 }
 
+.stat-value {
+    font-weight: bold;
+}
+
+/* ────────────────────────────────────────────────
+   City cards
+──────────────────────────────────────────────── */
 .cities-grid {
     display: flex;
     flex-direction: column;
@@ -60,33 +80,169 @@
     padding-top: 4px;
 }
 
-.stat-item.city {
+.city-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.07);
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.city-card:hover,
+.city-card.popover-open {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.city-card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     font-size: 0.9rem;
-    opacity: 0.9;
 }
 
-.stat-value {
+.city-name {
+    opacity: 0.92;
+}
+
+.city-count {
     font-weight: bold;
+    color: #ffff00;
+    font-size: 1rem;
 }
 
+/* ────────────────────────────────────────────────
+   Popover
+──────────────────────────────────────────────── */
+.city-popover {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    right: 0;
+    background: #0f2c05;
+    border: 1px solid rgba(255, 255, 0, 0.25);
+    border-radius: 10px;
+    padding: 12px;
+    min-width: 260px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+    z-index: 10;
+    animation: fadeInAlarms 0.2s ease-out;
+}
+
+.popover-title {
+    font-size: 0.75rem;
+    opacity: 0.75;
+    margin-bottom: 8px;
+    text-align: center;
+    letter-spacing: 0.02em;
+}
+
+/* ────────────────────────────────────────────────
+   Bar chart
+──────────────────────────────────────────────── */
+.bar-chart {
+    width: 100%;
+    overflow: hidden;
+}
+
+.bar-chart-bars {
+    display: flex;
+    align-items: flex-end;
+    height: 60px;
+    gap: 1px;
+    width: 100%;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    padding-bottom: 2px;
+}
+
+.bar-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    height: 100%;
+    position: relative;
+}
+
+.bar {
+    width: 100%;
+    background: #ffff00;
+    border-radius: 2px 2px 0 0;
+    min-height: 2px;
+    transition: opacity 0.15s;
+}
+
+.bar-wrapper:hover .bar {
+    opacity: 0.75;
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -14px;
+    font-size: 0.55rem;
+    opacity: 0.55;
+    white-space: nowrap;
+}
+
+.chart-empty {
+    font-size: 0.75rem;
+    opacity: 0.55;
+    text-align: center;
+    padding: 8px 0;
+}
+
+/* ────────────────────────────────────────────────
+   Prediction
+──────────────────────────────────────────────── */
+.popover-prediction {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 18px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 0, 0.2);
+    font-size: 0.78rem;
+}
+
+.prediction-label {
+    opacity: 0.75;
+}
+
+.prediction-value {
+    color: #ffff00;
+    font-weight: bold;
+    direction: ltr;
+}
+
+/* ────────────────────────────────────────────────
+   Footer
+──────────────────────────────────────────────── */
 .alarms-footer {
-    font-size: 0.7rem;
-    opacity: 0.7;
+    font-size: 0.68rem;
+    opacity: 0.6;
     margin-top: 10px;
     text-align: left;
 }
 
+/* ────────────────────────────────────────────────
+   Buttons
+──────────────────────────────────────────────── */
 .alarms-close-btn {
     position: absolute;
     top: 5px;
-    right: 5px;
+    left: 5px;
     background: none;
     border: none;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.55);
     font-size: 18px;
     cursor: pointer;
     line-height: 1;
     padding: 0 4px;
+    transition: color 0.15s;
+}
+
+.alarms-close-btn:hover {
+    color: white;
 }
 
 .alarms-toggle-btn {
@@ -109,10 +265,13 @@
     transform: scale(1.1);
 }
 
+/* ────────────────────────────────────────────────
+   Animation
+──────────────────────────────────────────────── */
 @keyframes fadeInAlarms {
     from {
         opacity: 0;
-        transform: translateY(20px);
+        transform: translateY(10px);
     }
     to {
         opacity: 1;
@@ -120,6 +279,9 @@
     }
 }
 
+/* ────────────────────────────────────────────────
+   Mobile
+──────────────────────────────────────────────── */
 @media (max-width: 768px) {
     .alarms-widget-container {
         bottom: 15px;
@@ -127,11 +289,17 @@
     }
 
     .alarms-bubble {
-        min-width: 180px;
+        min-width: 190px;
         padding: 12px;
     }
 
     .stat-item.main {
-        font-size: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .city-popover {
+        right: auto;
+        left: 0;
+        min-width: 230px;
     }
 }
