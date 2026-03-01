@@ -4,6 +4,7 @@ import type { News } from '../types';
 
 const NewsBanner = () => {
     const [newsItem, setNewsItem] = useState<News | null>(null);
+    const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         const fetchNews = async () => {
@@ -31,13 +32,23 @@ const NewsBanner = () => {
     if (!newsItem) return null;
 
     return (
-        <div className="news-banner">
+        <div
+            className={`news-banner ${isCollapsed ? 'collapsed' : ''}`}
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            style={{ cursor: 'pointer' }}
+        >
             <div id="newsBanner">
                 <h4>{newsItem.title}</h4>
-                <p>{newsItem.message}</p>
+                <div className="news-content">
+                    <p>{newsItem.message}</p>
+                </div>
+                {isCollapsed && (
+                    <div className="expand-indicator">לחץ להרחבה...</div>
+                )}
             </div>
         </div>
     );
 };
 
 export default NewsBanner;
+

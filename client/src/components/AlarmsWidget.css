@@ -116,9 +116,9 @@
 ──────────────────────────────────────────────── */
 .city-popover {
     position: fixed;
-    bottom: 230px;
-    right: 15px;
-    left: 20px;
+    bottom: 245px;
+    right: 20px;
+    width: 260px;
     background: #0f2c05;
     border: 1px solid rgba(255, 255, 0, 0.25);
     border-radius: 10px;
@@ -302,5 +302,16 @@
 
     .bar-chart-bars {
         height: 48px;
+    }
+
+    .bar-chart {
+        width: 100%;
+    }
+
+    .city-popover {
+        width: calc(100% - 30px);
+        right: 10px;
+        left: 15px;
+        bottom: 230px;
     }
 }
