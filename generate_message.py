@@ -119,7 +119,7 @@ def post_news_to_mongo(summary: str) -> None:
         "title": "Iran vs Israel",
         "message": summary,
         "date": datetime.now(timezone.utc),
-        "priority": "high",
+        "priority": "normal",
         "createdAt": datetime.now(timezone.utc),
     }
     collection.insert_one(doc)
