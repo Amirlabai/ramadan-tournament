@@ -29,6 +29,17 @@ const NewsBanner = () => {
         fetchNews();
     }, []);
 
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsCollapsed(true);
+            }
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
+
     if (!newsItem) return null;
 
     return (
