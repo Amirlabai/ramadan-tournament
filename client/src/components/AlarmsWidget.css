@@ -141,17 +141,19 @@
 ──────────────────────────────────────────────── */
 .bar-chart {
     width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    padding-bottom: 5px;
 }
 
 .bar-chart-bars {
     display: flex;
+    flex-direction: row-reverse;
     align-items: flex-end;
     height: 60px;
     gap: 1px;
     width: 100%;
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    padding-bottom: 2px;
+    overflow: visible;
 }
 
 .bar-wrapper {
