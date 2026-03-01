@@ -6,11 +6,11 @@ then writes directly to MongoDB.
 
 import os
 import sys
-import json
 import time
 import urllib.request
 import urllib.error
 import xml.etree.ElementTree as ET
+import google.generativeai as genai
 from datetime import datetime, timezone
 
 
@@ -66,11 +66,14 @@ def fetch_rss_headlines(max_total: int = 8) -> list[str]:
 
 # ── Gemini summarizer with retry ──────────────────────────────────────────────
 
-def summarize_in_hebrew(snippets: list[str], max_retries: int = 3) -> str:
-    """Summarize snippets in Hebrew using Gemini free tier. Retries on 429."""
+def summarize_in_hebrew(snippets: list[str]) -> str:
+    """Summarize snippets in Hebrew using Gemini SDK (handles rate limits internally)."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable is not set")
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel("gemini-2.5-flash")
 
     context = "\n".join(f"- {s}" for s in snippets) if snippets else "אין כותרות חדשות זמינות."
 
@@ -81,42 +84,14 @@ def summarize_in_hebrew(snippets: list[str], max_retries: int = 3) -> str:
         f"כותרות:\n{context}"
     )
 
-    payload = json.dumps({
-        "contents": [{"parts": [{"text": prompt}]}]
-    }).encode()
+    response = model.generate_content(prompt)
 
-    url = (
-        "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.0-flash:generateContent?key={api_key}"
-    )
+    if hasattr(response, "text") and response.text:
+        return response.text.strip()
+    if hasattr(response, "candidates") and response.candidates:
+        return response.candidates[0].content.parts[0].text.strip()
 
-    for attempt in range(1, max_retries + 1):
-        try:
-            req = urllib.request.Request(
-                url,
-                data=payload,
-                headers={"Content-Type": "application/json"},
-                method="POST",
-            )
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                result = json.loads(resp.read().decode())
-            text = result["candidates"][0]["content"]["parts"][0]["text"].strip()
-            if not text:
-                raise ValueError("Gemini returned an empty response")
-            return text
-
-        except urllib.error.HTTPError as e:
-            if e.code == 429:
-                wait = 2 ** attempt * 15  # 30s, 60s, 120s
-                print(f"Gemini 429 — waiting {wait}s before retry {attempt}/{max_retries}…",
-                      file=sys.stderr)
-                time.sleep(wait)
-            else:
-                raise
-        except Exception:
-            raise
-
-    raise RuntimeError(f"Gemini still rate-limited after {max_retries} retries")
+    raise ValueError("Gemini returned an empty response")
 
 
 # ── MongoDB write ─────────────────────────────────────────────────────────────
