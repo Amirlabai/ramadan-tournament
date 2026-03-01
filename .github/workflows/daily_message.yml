@@ -3,6 +3,8 @@ name: Daily Iran-Israel News
 on:
   schedule:
     - cron: '0 6 * * *'   # 06:00 UTC = 08:00 Israel time (standard), 09:00 DST
+    - cron: '0 12 * * *'
+    - cron: '0 20 * * *'
   workflow_dispatch:
 
 jobs:
