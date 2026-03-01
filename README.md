@@ -16,6 +16,9 @@ A full-stack tournament management system with real-time statistics, news manage
 - **Schedule**: Complete match schedule with live results
 - **Stats**: Player rankings, top scorers, and detailed statistics
 - **Anonymous Comments**: Engage with match discussions (with profanity filtering)
+- **Iftar Timer**: Live Ramadan countdown widget (iframe embed of [aymanlauz.github.io/ramadan-countdown](https://aymanlauz.github.io/ramadan-countdown/)) in bottom-left corner
+- **Rocket Alerts Widget**: Real-time rocket alert statistics for Kfar Kama & Reihaniya
+- **News Banner**: Collapsible top banner — auto-collapses on scroll, click to re-expand
 
 ### Admin Features
 - **Secure Authentication**: JWT-based admin login system
@@ -41,6 +44,9 @@ ramadan-tournament/
 │   ├── src/
 │   │   ├── api/              # API client and endpoints
 │   │   ├── components/       # Reusable components
+│   │   │   ├── IftarTimer.tsx/css   # Ramadan countdown iframe widget
+│   │   │   ├── AlarmsWidget.tsx/css # Rocket alerts stats widget
+│   │   │   └── NewsBanner.tsx       # Collapsible news banner
 │   │   ├── pages/            # Page components
 │   │   └── types/            # TypeScript interfaces
 │   └── public/               # Static assets
@@ -51,8 +57,12 @@ ramadan-tournament/
 │   │   ├── routes/           # API routes
 │   │   ├── middleware/       # Auth & validation
 │   │   └── scripts/          # Utility scripts
+├── .github/workflows/
+│   ├── daily_message.yml     # Daily Iran-Israel news automation
+│   └── fetch-alarms.yml      # Rocket alerts fetch (every 2 hours)
+├── generate_message.py        # Iran-Israel news generator script
 ├── sync_photos.py             # Photo recovery & sync script
-└── data/                      # Legacy data files
+└── requirements.txt           # Python dependencies (pymongo, google-generativeai)
 ```
 
 ## Quick Start
@@ -141,6 +151,20 @@ python sync_photos.py
 ```
 Requires `pymongo`, `requests`, and `python-dotenv`.
 
+## Automated News (GitHub Actions)
+
+A GitHub Actions workflow (`daily_message.yml`) runs 3× daily (08:00, 14:00, 22:00 IST) to:
+1. Scrape Iran-vs-Israel headlines from RSS feeds (BBC, Reuters, Jerusalem Post, Times of Israel)
+2. Summarize in Hebrew via **Gemini 2.5 Flash** (free tier)
+3. Write the result directly to MongoDB as a `news` document
+
+### Required GitHub Secrets
+
+| Secret           | Description                                             |
+| ---------------- | ------------------------------------------------------- |
+| `GEMINI_API_KEY` | Google AI Studio free API key                           |
+| `MONGODB_URI`    | MongoDB Atlas connection string (same as server `.env`) |
+
 ## Color Scheme
 
 - **Primary Green**: #2A6B11
@@ -217,5 +241,5 @@ This is a tournament-specific project. For issues or suggestions, please contact
 ---
 
 **Tournament Status**: Active  
-**Last Updated**: 2026-02-23  
-**Version**: 2.3.0
+**Last Updated**: 2026-03-02  
+**Version**: 2.5.0
