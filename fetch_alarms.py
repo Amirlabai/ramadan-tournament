@@ -6,6 +6,7 @@ from datetime import datetime
 
 CSV_URL = "https://raw.githubusercontent.com/yuval-harpaz/alarms/master/data/alarms.csv"
 START_DATE = datetime(2026, 2, 28)
+DESCRIPTION = "ירי רקטות וטילים"
 
 CITIES_INTEREST = {
     "כפר כמא": "Kfar Kama",
@@ -30,7 +31,8 @@ def fetch_and_filter():
         try:
             # Format: 2019-06-13 00:17:00
             row_time = datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S')
-            if row_time >= START_DATE:
+            row_description = row['description']
+            if row_time >= START_DATE and row_description == DESCRIPTION:
                 filtered_data.append(row)
                 stats["total"] += 1
                 
