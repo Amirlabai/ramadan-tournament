@@ -1,70 +1,84 @@
 """
 Daily Iran-Israel News Generator
-Searches for the latest Iran vs Israel news, summarizes it in Hebrew
-using Gemini (free tier), then writes directly to MongoDB.
+Fetches headlines from news RSS feeds, summarizes in Hebrew via Gemini,
+then writes directly to MongoDB.
 """
 
 import os
 import sys
 import json
+import time
 import urllib.request
-import urllib.parse
+import urllib.error
+import xml.etree.ElementTree as ET
 from datetime import datetime, timezone
 
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+# ── News fetching via RSS ─────────────────────────────────────────────────────
 
-def search_news(query: str, max_results: int = 5) -> list[str]:
-    """
-    Fetch recent headlines via DuckDuckGo Instant Answer API.
-    Falls back to an empty list on any error so the script degrades gracefully.
-    """
-    snippets = []
-    try:
-        params = urllib.parse.urlencode({
-            "q": query,
-            "format": "json",
-            "no_html": "1",
-            "skip_disambig": "1",
-        })
-        url = f"https://api.duckduckgo.com/?{params}"
-        req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-        with urllib.request.urlopen(req, timeout=10) as response:
-            data = json.loads(response.read().decode())
+RSS_FEEDS = [
+    # BBC Middle East
+    "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
+    # Reuters world
+    "https://feeds.reuters.com/reuters/worldNews",
+    # Jerusalem Post
+    "https://www.jpost.com/rss/rssfeedsheadlines.aspx",
+    # Times of Israel
+    "https://www.timesofisrael.com/feed/",
+]
 
-        # RelatedTopics contain recent results
-        for topic in data.get("RelatedTopics", [])[:max_results]:
-            text = topic.get("Text", "").strip()
-            if text:
-                snippets.append(text)
-
-        # Also grab the Abstract if there is one
-        abstract = data.get("AbstractText", "").strip()
-        if abstract:
-            snippets.insert(0, abstract)
-
-    except Exception as e:
-        print(f"Warning: DuckDuckGo search failed: {e}", file=sys.stderr)
-
-    return snippets
+KEYWORDS = {"iran", "israel", "iranian", "israeli", "idf", "irgc", "teheran",
+            "tehran", "jerusalem", "netanyahu", "khamenei"}
 
 
-def summarize_in_hebrew(snippets: list[str]) -> str:
-    """
-    Ask Gemini (free tier via REST) to summarize the snippets in Hebrew.
-    Returns the Hebrew summary string.
-    """
+def fetch_rss_headlines(max_total: int = 8) -> list[str]:
+    """Pull headlines from RSS feeds, keeping only Iran/Israel-related items."""
+    headlines = []
+    for url in RSS_FEEDS:
+        if len(headlines) >= max_total:
+            break
+        try:
+            req = urllib.request.Request(
+                url,
+                headers={"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"},
+            )
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                raw = resp.read()
+            root = ET.fromstring(raw)
+            # RSS items live under channel/item
+            for item in root.iter("item"):
+                title_el = item.find("title")
+                desc_el = item.find("description")
+                title = (title_el.text or "").strip()
+                desc = (desc_el.text or "").strip()
+                combined = f"{title} {desc}".lower()
+                if any(kw in combined for kw in KEYWORDS):
+                    headline = title if title else desc[:120]
+                    if headline and headline not in headlines:
+                        headlines.append(headline)
+                        if len(headlines) >= max_total:
+                            break
+        except Exception as e:
+            print(f"Warning: RSS fetch failed for {url}: {e}", file=sys.stderr)
+
+    return headlines
+
+
+# ── Gemini summarizer with retry ──────────────────────────────────────────────
+
+def summarize_in_hebrew(snippets: list[str], max_retries: int = 3) -> str:
+    """Summarize snippets in Hebrew using Gemini free tier. Retries on 429."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable is not set")
 
-    context = "\n".join(f"- {s}" for s in snippets) if snippets else "אין מידע חדש זמין."
+    context = "\n".join(f"- {s}" for s in snippets) if snippets else "אין כותרות חדשות זמינות."
 
     prompt = (
         "אתה עיתונאי ישראלי. "
-        "סכם את הידיעות הבאות על המתח בין ישראל לאיראן בעברית שוטפת ותמציתית, "
-        "2-4 משפטים. אל תתחיל ב'בטח' או ב'כמובן'. כתוב ישירות את הסיכום.\n\n"
-        f"ידיעות:\n{context}"
+        "סכם את הכותרות הבאות על המתחים בין ישראל לאיראן בעברית שוטפת ותמציתית — "
+        "2 עד 4 משפטים בלבד. כתוב ישירות, ללא הקדמות.\n\n"
+        f"כותרות:\n{context}"
     )
 
     payload = json.dumps({
@@ -75,23 +89,37 @@ def summarize_in_hebrew(snippets: list[str]) -> str:
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"gemini-2.0-flash:generateContent?key={api_key}"
     )
-    req = urllib.request.Request(
-        url,
-        data=payload,
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
 
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        result = json.loads(resp.read().decode())
+    for attempt in range(1, max_retries + 1):
+        try:
+            req = urllib.request.Request(
+                url,
+                data=payload,
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                result = json.loads(resp.read().decode())
+            text = result["candidates"][0]["content"]["parts"][0]["text"].strip()
+            if not text:
+                raise ValueError("Gemini returned an empty response")
+            return text
 
-    text = (
-        result["candidates"][0]["content"]["parts"][0]["text"].strip()
-    )
-    if not text:
-        raise ValueError("Gemini returned an empty response")
-    return text
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                wait = 2 ** attempt * 15  # 30s, 60s, 120s
+                print(f"Gemini 429 — waiting {wait}s before retry {attempt}/{max_retries}…",
+                      file=sys.stderr)
+                time.sleep(wait)
+            else:
+                raise
+        except Exception:
+            raise
 
+    raise RuntimeError(f"Gemini still rate-limited after {max_retries} retries")
+
+
+# ── MongoDB write ─────────────────────────────────────────────────────────────
 
 def post_news_to_mongo(summary: str) -> None:
     """Write the news item directly to MongoDB."""
@@ -102,15 +130,14 @@ def post_news_to_mongo(summary: str) -> None:
         raise ValueError("MONGODB_URI environment variable is not set")
 
     client = MongoClient(uri, serverSelectionTimeoutMS=10000)
-    db = client.get_default_database()  # database name is part of the URI
+    db = client.get_default_database()
 
     today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     collection = db["news"]
 
-    # Remove any existing Iran vs Israel entry for today to avoid duplicates
+    # Remove today's existing entry to avoid duplicates
     collection.delete_many({"title": "Iran vs Israel", "date": {"$regex": f"^{today_str}"}})
 
-    # Determine next id
     last = collection.find_one(sort=[("id", -1)])
     next_id = (last["id"] if last else 0) + 1
 
@@ -130,13 +157,15 @@ def post_news_to_mongo(summary: str) -> None:
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
-    # 1. Search for news
-    print("Searching for latest Iran-Israel news…")
-    snippets = search_news("Iran Israel latest news 2026", max_results=6)
-    print(f"Found {len(snippets)} snippet(s).")
+    # 1. Fetch RSS headlines
+    print("Fetching Iran-Israel headlines from RSS feeds…")
+    snippets = fetch_rss_headlines(max_total=8)
+    print(f"Found {len(snippets)} relevant headline(s).")
+    for s in snippets:
+        print(f"  • {s}")
 
     # 2. Summarize in Hebrew
-    print("Generating Hebrew summary via Gemini…")
+    print("\nGenerating Hebrew summary via Gemini…")
     try:
         summary = summarize_in_hebrew(snippets)
     except Exception as e:
@@ -145,7 +174,7 @@ def main() -> int:
 
     print(f"\nHebrew summary:\n{summary}\n")
 
-    # 3. Write directly to MongoDB
+    # 3. Write to MongoDB
     print("Writing to MongoDB…")
     try:
         post_news_to_mongo(summary)
