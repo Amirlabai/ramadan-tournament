@@ -87,10 +87,14 @@ def summarize_in_hebrew(snippets: list[str]) -> str:
 
     response = model.generate_content(prompt)
 
+    def _split_sentences(text: str) -> str:
+        parts = [s.strip() for s in text.split(".") if s.strip()]
+        return ".\n".join(parts) + "."
+
     if hasattr(response, "text") and response.text:
-        return response.text.strip()
+        return _split_sentences(response.text.strip())
     if hasattr(response, "candidates") and response.candidates:
-        return response.candidates[0].content.parts[0].text.strip()
+        return _split_sentences(response.candidates[0].content.parts[0].text.strip())
 
     raise ValueError("Gemini returned an empty response")
 
