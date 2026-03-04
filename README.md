@@ -214,7 +214,6 @@ Connected to GitHub for automatic deployments on push to main branch.
 ## Live Links
 
 - **Frontend**: [https://ramadan-tournament-client.vercel.app](https://ramadan-tournament-client.vercel.app)
-- **Backend API**: [https://ramadan-tournament-api.onrender.com](https://ramadan-tournament-api.onrender.com)
 
 ## API Documentation
 

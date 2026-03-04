@@ -3,6 +3,7 @@ import { getStandings, getTopScorers, getPlayerStats, getDashboard } from '../co
 
 const router = Router();
 
+router.get('/', getDashboard);
 router.get('/standings', getStandings);
 router.get('/top-scorers', getTopScorers);
 router.get('/player-stats', getPlayerStats);
