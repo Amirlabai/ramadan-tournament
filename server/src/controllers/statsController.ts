@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StatsService } from '../services/StatsService';
 import { News } from '../models/News';
 import { Match } from '../models/Match';
+import { Team } from '../models/Team';
 
 export const getStandings = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -36,14 +37,18 @@ export const getPlayerStats = async (req: Request, res: Response): Promise<void>
 export const getDashboard = async (req: Request, res: Response): Promise<void> => {
     try {
         const [teams, topScorers] = await Promise.all([
-            import('../models/Team').then(m => m.Team.find().select('id name')),
+            Team.find().select('id name logoUrl logoPosition'),
             StatsService.calculateTopScorers()
         ]);
 
-        // Create a map of team ID to name for match enrichment
-        const teamMap = new Map<number, string>();
+        // Create a map of team ID to full team data for match enrichment
+        const teamMap = new Map<number, any>();
         teams.forEach(team => {
-            teamMap.set(team.id, team.name);
+            teamMap.set(team.id, {
+                name: team.name,
+                logoUrl: (team as any).logoUrl,
+                logoPosition: (team as any).logoPosition || 'right'
+            });
         });
 
         // Find the date of the next upcoming match
@@ -124,11 +129,19 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
                 }
             ]);
 
-            nextMatches = rawNextMatches.map(match => ({
-                ...match,
-                team1Name: teamMap.get(match.team1Id) || `קבוצה ${match.team1Id}`,
-                team2Name: teamMap.get(match.team2Id) || `קבוצה ${match.team2Id}`
-            }));
+            nextMatches = rawNextMatches.map(match => {
+                const t1 = teamMap.get(match.team1Id);
+                const t2 = teamMap.get(match.team2Id);
+                return {
+                    ...match,
+                    team1Name: t1?.name || `קבוצה ${match.team1Id}`,
+                    team1LogoUrl: t1?.logoUrl,
+                    team1LogoPosition: t1?.logoPosition,
+                    team2Name: t2?.name || `קבוצה ${match.team2Id}`,
+                    team2LogoUrl: t2?.logoUrl,
+                    team2LogoPosition: t2?.logoPosition
+                };
+            });
         }
 
         const recentMatchesWithComments = await Match.aggregate([
@@ -155,11 +168,19 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             }
         ]);
 
-        const enrichedRecentMatches = recentMatchesWithComments.map((match: any) => ({
-            ...match,
-            team1Name: teamMap.get(match.team1Id) || `קבוצה ${match.team1Id}`,
-            team2Name: teamMap.get(match.team2Id) || `קבוצה ${match.team2Id}`
-        }));
+        const enrichedRecentMatches = recentMatchesWithComments.map((match: any) => {
+            const t1 = teamMap.get(match.team1Id);
+            const t2 = teamMap.get(match.team2Id);
+            return {
+                ...match,
+                team1Name: t1?.name || `קבוצה ${match.team1Id}`,
+                team1LogoUrl: t1?.logoUrl,
+                team1LogoPosition: t1?.logoPosition,
+                team2Name: t2?.name || `קבוצה ${match.team2Id}`,
+                team2LogoUrl: t2?.logoUrl,
+                team2LogoPosition: t2?.logoPosition
+            };
+        });
 
         res.json({
             topScorer: topScorers[0] || null,

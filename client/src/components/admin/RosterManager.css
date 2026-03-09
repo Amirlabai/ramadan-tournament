@@ -1,0 +1,230 @@
+.roster-manager {
+    color: var(--text);
+}
+
+.section-title {
+    font-size: 1.4rem;
+    color: var(--primary-green);
+    margin-bottom: 1.5rem;
+    border-right: 4px solid var(--primary-green);
+    padding-right: 0.75rem;
+    font-weight: 700;
+}
+
+.avatar-sm {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Teams Accordion */
+.teams-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.team-row {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+}
+
+.team-row:hover {
+    border-color: rgba(42, 107, 17, 0.3);
+    background: rgba(42, 107, 17, 0.05);
+}
+
+.team-row.expanded {
+    border-color: var(--primary);
+    background: rgba(42, 107, 17, 0.08);
+}
+
+.team-header {
+    padding: 1rem 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.team-info-main {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.team-badge {
+    background: var(--primary);
+    color: white;
+    padding: 0.2rem 0.6rem;
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 0.85rem;
+}
+
+.team-name {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--primary-green);
+}
+
+.player-count {
+    color: var(--text-light);
+    font-size: 0.9rem;
+}
+
+/* Players Grid */
+.players-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.admin-player-card {
+    background: white;
+    border: 1px solid var(--medium-gray);
+    border-radius: 10px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+    transition: all 0.2s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.admin-player-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 8px rgba(42, 107, 17, 0.15);
+}
+
+.player-card-photo {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid var(--primary);
+    position: relative;
+}
+
+.player-card-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.player-card-photo .bi-person-fill {
+    font-size: 2rem;
+    color: #444;
+}
+
+.delete-photo-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(220, 53, 69, 0.9);
+    border: none;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 0;
+}
+
+.admin-player-card:hover .delete-photo-btn {
+    opacity: 1;
+}
+
+.player-card-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.player-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--primary-green);
+}
+
+.player-meta {
+    font-size: 0.8rem;
+    color: var(--text-light);
+}
+
+.unmap-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.6rem;
+    background: #fee2e2 !important;
+    border: 1px solid #fca5a5 !important;
+    color: #b91c1c !important;
+    font-size: 0.75rem;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer !important;
+    transition: all 0.2s;
+    margin-right: 0.5rem;
+    pointer-events: auto !important;
+}
+
+.unmap-btn:hover {
+    background: #fca5a5 !important;
+    border-color: #ef4444 !important;
+}
+
+[dir="rtl"] .unmap-btn {
+    margin-right: 0;
+    margin-left: 0.5rem;
+}
+
+.mapped-user-tag {
+    font-size: 0.75rem;
+    color: var(--primary-green);
+    display: inline-flex;
+    align-items: center;
+    background: rgba(42, 107, 17, 0.05);
+    border: 1px solid rgba(42, 107, 17, 0.15);
+    border-radius: 6px;
+    padding: 0.2rem 0.5rem;
+    margin-top: 0.5rem;
+    font-weight: 600;
+}
+
+.user-tag-name {
+    padding: 2px 8px;
+    white-space: nowrap;
+}
+
+.mapped-user-tag button:hover {
+    background-color: var(--danger) !important;
+    color: white !important;
+    transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+    .players-grid {
+        grid-template-columns: 1fr;
+    }
+}

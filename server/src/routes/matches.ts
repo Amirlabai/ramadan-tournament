@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getAllMatches, createMatch, updateMatch, deleteMatch } from '../controllers/matchController';
-import { authenticate } from '../middleware/auth';
+import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 
@@ -8,8 +8,8 @@ const router = Router();
 router.get('/', getAllMatches);
 
 // Admin routes
-router.post('/', authenticate, createMatch);
-router.put('/:id', authenticate, updateMatch);
-router.delete('/:id', authenticate, deleteMatch);
+router.post('/', authenticate, authorize(['Admin', 'admin']), createMatch);
+router.put('/:id', authenticate, authorize(['Admin', 'admin']), updateMatch);
+router.delete('/:id', authenticate, authorize(['Admin', 'admin']), deleteMatch);
 
 export default router;

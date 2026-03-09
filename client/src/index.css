@@ -620,3 +620,35 @@ body {
     height: 160px;
   }
 }
+
+/* Theme Utilities */
+.bg-theme-green {
+  background-color: var(--primary-green) !important;
+  color: white !important;
+}
+
+.text-theme-green {
+  color: var(--primary-green) !important;
+}
+
+.border-theme-green {
+  border-color: var(--primary-green) !important;
+}
+
+.btn-theme-green {
+  background-color: var(--primary-green);
+  color: white;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-theme-green:hover,
+.btn-theme-green:focus {
+  background-color: #1a4d0a;
+  color: white;
+}
+
+.btn-theme-green:disabled {
+  background-color: #6c9a5b;
+  color: rgba(255, 255, 255, 0.8);
+}

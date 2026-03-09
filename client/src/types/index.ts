@@ -37,7 +37,11 @@ export interface Match {
     score1: number;
     score2: number;
     team1Name?: string;
+    team1LogoUrl?: string;
+    team1LogoPosition?: 'left' | 'right' | 'none';
     team2Name?: string;
+    team2LogoUrl?: string;
+    team2LogoPosition?: 'left' | 'right' | 'none';
     goals: Goal[];
     commentCount?: number;
     createdAt: string;
@@ -79,10 +83,24 @@ export interface DashboardData {
     topScorer: TopScorer | null;
 }
 
+export interface MappedPlayerInfo {
+    teamId: number;
+    teamName?: string;
+    logoUrl?: string;
+    logoPosition?: 'left' | 'right' | 'none';
+    memberId: number;
+    playerName?: string;
+    status: 'pending' | 'approved' | 'rejected';
+}
+
 export interface User {
     _id: string;
-    username: string;
-    role: 'admin';
+    email: string;
+    displayName: string;
+    role: 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';
+    avatarUrl?: string;
+    mappedPlayerInfo?: MappedPlayerInfo;
+    playerProfile?: Partial<Player>;
 }
 
 export interface AuthResponse {

@@ -1,5 +1,5 @@
 .admin-panel {
-    max-width: 1000px;
+    max-width: 1300px;
     margin: 0 auto;
 }
 
@@ -46,7 +46,7 @@
 }
 
 .tab-content h2 {
-    color: var(--white);
+    color: var(--primary);
     margin-bottom: 1rem;
 }
 
@@ -150,5 +150,266 @@
     /* Adjust form layouts for mobile if they are not already using bootstrap grid correctly */
     .card {
         padding: 1rem !important;
+    }
+}
+
+/* ── Matches Table ──────────────────────────────────────────────────────────── */
+
+.matches-table-wrapper {
+    overflow-x: auto;
+}
+
+.matches-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 0.9rem;
+}
+
+.matches-table thead th {
+    background: var(--primary, #2A6B11);
+    color: #fff;
+    padding: 0.6rem 0.75rem;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.matches-table tbody tr.match-table-row {
+    transition: background 0.15s;
+}
+
+.matches-table tbody tr.match-table-row:hover {
+    background: rgba(255, 255, 0, 0.06);
+}
+
+.matches-table tbody tr.match-table-row td,
+.matches-table tbody tr.goals-edit-row td {
+    padding: 0.5rem 0.75rem;
+    vertical-align: middle;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.matches-table tbody tr.editing-row td {
+    background: rgba(42, 107, 17, 0.15);
+}
+
+/* Score cell */
+.matches-table .score-cell {
+    min-width: 90px;
+}
+
+.score-display {
+    font-weight: 700;
+    font-size: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.score-input {
+    width: 48px !important;
+    text-align: center;
+    padding: 0.2rem 0.3rem;
+}
+
+/* Goals cell */
+.matches-table .goals-cell {
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Actions cell */
+.matches-table .actions-cell {
+    width: 110px;
+}
+
+/* Phase badge */
+.phase-badge {
+    font-size: 0.7rem;
+    padding: 0.3em 0.6em;
+    border-radius: 8px;
+}
+
+.phase-badge.phase-group {
+    background: #1e40af;
+    color: #fff;
+}
+
+.phase-badge.phase-knockout {
+    background: #991b1b;
+    color: #fff;
+}
+
+/* Goals sub-row */
+.goals-edit-row td {
+    background: rgba(0, 0, 0, 0.18) !important;
+}
+
+.goals-editor {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.goals-editor-label {
+    font-weight: 600;
+    font-size: 0.8rem;
+    color: var(--text-light);
+    white-space: nowrap;
+}
+
+.goals-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    flex: 1;
+}
+
+.goal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: rgba(42, 107, 17, 0.45);
+    border: 1px solid #2A6B11;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.78rem;
+}
+
+.goal-remove {
+    background: none;
+    border: none;
+    color: #f87171;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1;
+    padding: 0;
+    margin: 0;
+}
+
+.add-goal-select {
+    max-width: 200px;
+}
+
+/* ── Mobile: stack table rows as cards ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+
+    /* Widen panel padding back to full width on phone */
+    .admin-panel {
+        padding: 0 0.5rem;
+    }
+
+    /* Hide table header — labels come from data-label instead */
+    .matches-table thead {
+        display: none;
+    }
+
+    /* Make table, body, rows and cells all block-level */
+    .matches-table,
+    .matches-table tbody,
+    .matches-table tr.match-table-row,
+    .matches-table tr.goals-edit-row {
+        display: block;
+        width: 100%;
+    }
+
+    /* Each row becomes a card */
+    .matches-table tr.match-table-row {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        padding: 0.25rem 0;
+    }
+
+    .matches-table tr.editing-row {
+        background: rgba(42, 107, 17, 0.12);
+    }
+
+    /* Each cell: label on the left, value on the right (RTL = reversed) */
+    .matches-table td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.45rem 0.75rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        white-space: normal;
+        /* allow wrapping */
+        text-align: right;
+    }
+
+    .matches-table td:last-child {
+        border-bottom: none;
+    }
+
+    /* Show the column label from data-label as a prefix */
+    .matches-table td::before {
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 600;
+        color: rgba(255, 255, 255, 0.45);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        white-space: nowrap;
+        margin-left: 0.75rem;
+        /* RTL: pushes label to the visual left */
+        flex-shrink: 0;
+    }
+
+    /* Inputs & selects take available width */
+    .matches-table td input,
+    .matches-table td select {
+        flex: 1;
+        min-width: 0;
+    }
+
+    /* Score inputs stay compact */
+    .matches-table .score-cell {
+        min-width: unset;
+    }
+
+    .score-input {
+        width: 44px !important;
+    }
+
+    /* Goals cell — allow text to wrap */
+    .matches-table .goals-cell {
+        max-width: unset;
+        white-space: normal;
+    }
+
+    /* Goals sub-row */
+    .matches-table tr.goals-edit-row {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(42, 107, 17, 0.4);
+        border-radius: 0 0 8px 8px;
+        margin-top: -0.75rem;
+        margin-bottom: 0.75rem;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .matches-table tr.goals-edit-row td {
+        display: block;
+        border-bottom: none;
+    }
+
+    .goals-editor {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .add-goal-select {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    /* Actions cell — center the buttons */
+    .matches-table .actions-cell {
+        justify-content: center;
+        width: auto;
     }
 }

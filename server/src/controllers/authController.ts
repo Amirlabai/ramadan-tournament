@@ -1,23 +1,164 @@
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User } from '../models/User';
+import { OAuth2Client } from 'google-auth-library';
+import { User, IUser } from '../models/User';
+import { Team } from '../models/Team';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 
-export const login = async (req: Request, res: Response): Promise<void> => {
-    try {
-        const { username, password } = req.body;
+const generateToken = (user: IUser) => {
+    return jwt.sign(
+        { userId: user._id, role: user.role },
+        config.jwtSecret,
+        { expiresIn: '7d' }
+    );
+};
 
-        if (!username || !password) {
-            res.status(400).json({ error: 'Username and password are required' });
+// Helper: Hydrate player profile from the Team database if user is an approved player
+const hydrateUserPayload = async (userDoc: any) => {
+    const payload = {
+        id: userDoc._id,
+        username: userDoc.username,
+        email: userDoc.email,
+        displayName: userDoc.displayName,
+        role: userDoc.role,
+        avatarUrl: userDoc.avatarUrl,
+        mappedPlayerInfo: userDoc.mappedPlayerInfo ? { ...userDoc.mappedPlayerInfo.toObject() } : null,
+        playerProfile: userDoc.playerProfile // fallback to custom player data
+    };
+
+    // If there's a pending or approved mapping, resolve names for the UI
+    if (payload.mappedPlayerInfo && payload.mappedPlayerInfo.teamId > 0) {
+        const team = await Team.findOne({ id: payload.mappedPlayerInfo.teamId });
+        if (team) {
+            (payload.mappedPlayerInfo as any).teamName = team.name;
+            (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;
+            (payload.mappedPlayerInfo as any).logoPosition = team.logoPosition;
+
+            if (payload.mappedPlayerInfo.memberId > 0) {
+                const player = team.players.find(p => p.memberId === payload.mappedPlayerInfo.memberId);
+                if (player) {
+                    (payload.mappedPlayerInfo as any).playerName = `${player.firstName} ${player.lastName}`;
+
+                    // If approved, also hydrate the full player profile data for tournament-active roles
+                    const isMappableRole = ['Player', 'Captain', 'Admin', 'admin'].includes(userDoc.role);
+                    if (isMappableRole && userDoc.mappedPlayerInfo.status === 'approved') {
+                        payload.playerProfile = {
+                            firstName: player.firstName,
+                            lastName: player.lastName,
+                            nickname: player.nickname,
+                            number: player.number,
+                            position: player.position,
+                            bio: player.bio
+                        };
+                    }
+                }
+            }
+        }
+    }
+
+    return payload;
+};
+
+export const register = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, password, displayName } = req.body;
+
+        if (!email || !password || !displayName) {
+            res.status(400).json({ error: 'Email, password, and display name are required' });
             return;
         }
 
-        // Find user
-        const user = await User.findOne({ username });
-        if (!user) {
+        // Type safety
+        if (typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string') {
+            res.status(400).json({ error: 'Invalid input types' });
+            return;
+        }
+
+        // Length limits
+        if (email.length > 254 || password.length < 6 || password.length > 128 || displayName.trim().length < 2 || displayName.length > 50) {
+            res.status(400).json({ error: 'Invalid input lengths. Display name: 2-50 chars, password: 6-128 chars.' });
+            return;
+        }
+
+        // Basic email format check
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            res.status(400).json({ error: 'Invalid email format' });
+            return;
+        }
+
+        // Check if user exists
+        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            res.status(400).json({ error: 'Email is already registered' });
+            return;
+        }
+
+        // Hash password
+        const salt = await bcrypt.genSalt(10);
+        const passwordHash = await bcrypt.hash(password, salt);
+
+        // Create user
+        const user = new User({
+            email: email.toLowerCase().trim(),
+            password: passwordHash,
+            displayName: displayName.trim(),
+            role: 'User'
+        });
+
+        await user.save();
+
+        const token = generateToken(user);
+        res.status(201).json({
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                displayName: user.displayName,
+                role: user.role,
+                avatarUrl: user.avatarUrl
+            }
+        });
+    } catch (error) {
+        console.error('Registration error:', error);
+        res.status(500).json({ error: 'Server error during registration' });
+    }
+};
+
+export const login = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, username, password } = req.body;
+
+        if ((!email && !username) || !password) {
+            res.status(400).json({ error: 'Email/Username and password are required' });
+            return;
+        }
+
+        // Type safety — prevent object injection attacks
+        if ((email && typeof email !== 'string') || (username && typeof username !== 'string') || typeof password !== 'string') {
+            res.status(400).json({ error: 'Invalid input types' });
+            return;
+        }
+
+        // Length limits
+        if (password.length > 128) {
+            res.status(400).json({ error: 'Invalid credentials' });
+            return;
+        }
+
+        // Find user by either email or legacy username, explicitly querying the password field
+        const query = email ? { email: (email as string).toLowerCase().trim() } : { username };
+        const user = await User.findOne(query).select('+password');
+
+        if (!user || (!user.password && !user.googleId)) {
             res.status(401).json({ error: 'Invalid credentials' });
+            return;
+        }
+
+        if (!user.password) {
+            res.status(401).json({ error: 'Please login with Google for this account' });
             return;
         }
 
@@ -28,20 +169,11 @@ export const login = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // Generate JWT
-        const token = jwt.sign(
-            { userId: user._id },
-            config.jwtSecret,
-            { expiresIn: '7d' }
-        );
+        const token = generateToken(user);
 
         res.json({
             token,
-            user: {
-                id: user._id,
-                username: user.username,
-                role: user.role,
-            },
+            user: await hydrateUserPayload(user)
         });
     } catch (error) {
         console.error('Login error:', error);
@@ -49,16 +181,87 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     }
 };
 
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+export const googleLogin = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { token } = req.body;
+
+        if (!token) {
+            res.status(400).json({ error: 'Google ID token is required' });
+            return;
+        }
+
+        const ticket = await client.verifyIdToken({
+            idToken: token,
+            audience: process.env.GOOGLE_CLIENT_ID
+        });
+        const payload = ticket.getPayload();
+
+        if (!payload || !payload.email) {
+            res.status(400).json({ error: 'Invalid Google token' });
+            return;
+        }
+
+        const email = payload.email.toLowerCase();
+        const googleId = payload.sub;
+
+        // Search by googleId first (the most reliable key), then fall back to email
+        let user = await User.findOne({ googleId });
+
+        if (!user) {
+            user = await User.findOne({ email });
+        }
+
+        if (!user) {
+            // Brand new Google user — register them
+            user = new User({
+                email,
+                googleId,
+                displayName: payload.name || email.split('@')[0],
+                avatarUrl: payload.picture,
+                googlePictureUrl: payload.picture,
+                role: 'User'
+            });
+            await user.save();
+        } else {
+            // Existing user — ensure googleId is linked and Google picture URL is current
+            let changed = false;
+            if (!user.googleId) { user.googleId = googleId; changed = true; }
+            // Always refresh the Google picture URL (it can change)
+            if (payload.picture && user.googlePictureUrl !== payload.picture) {
+                user.googlePictureUrl = payload.picture;
+                changed = true;
+            }
+            // Only set avatarUrl from Google if user has no avatar yet
+            if (payload.picture && !user.avatarUrl) {
+                user.avatarUrl = payload.picture;
+                changed = true;
+            }
+            if (changed) await user.save();
+        }
+
+        const jwtToken = generateToken(user);
+        res.json({
+            token: jwtToken,
+            user: await hydrateUserPayload(user)
+        });
+    } catch (error) {
+        console.error('Google login error:', error);
+        res.status(500).json({ error: 'Google Authentication failed' });
+    }
+};
+
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId).select('-password');
+        const user = await User.findById(req.userId);
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
         }
 
-        res.json(user);
+        res.json(await hydrateUserPayload(user));
     } catch (error) {
         console.error('Get user error:', error);
         res.status(500).json({ error: 'Server error' });

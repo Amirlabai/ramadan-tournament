@@ -1,0 +1,63 @@
+.claim-modal {
+    z-index: 1060;
+    backdrop-filter: blur(5px);
+}
+
+.modal-backdrop {
+    z-index: 1050;
+    opacity: 0.8 !important;
+}
+
+.claim-modal .modal-content {
+    background-color: var(--light-gray, #F5F5F5);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: var(--dark-gray, #333);
+}
+
+.claim-modal .modal-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, #1a4d0a 100%);
+    color: white;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+}
+
+.claim-modal .modal-title {
+    color: white !important;
+}
+
+.claim-modal .btn-close {
+    filter: invert(1) brightness(200%);
+    opacity: 0.8;
+    margin: -0.5rem auto -0.5rem -0.5rem;
+}
+
+.claim-modal .form-label {
+    color: var(--dark-gray, #333);
+    font-weight: 600;
+}
+
+.claim-modal .form-select {
+    background-color: white;
+    color: var(--dark-gray, #333);
+    border: 1px solid var(--medium-gray, #ccc);
+}
+
+.claim-modal .form-select:focus {
+    background-color: white;
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.25rem rgba(42, 107, 17, 0.25);
+    color: var(--dark-gray);
+}
+
+.claim-modal option {
+    background-color: white;
+    color: #333;
+}
+
+/* Modal Player Selection Highlights */
+.claim-modal .player-card-sel {
+    border: 2px solid var(--primary-green) !important;
+    background-color: rgba(42, 107, 17, 0.1) !important;
+}

@@ -19,6 +19,8 @@ export interface ITeam extends Document {
     id: number;
     name: string;
     players: IPlayer[];
+    logoUrl?: string;
+    logoPosition?: 'left' | 'right' | 'none';
     createdAt: Date;
 }
 
@@ -49,6 +51,8 @@ const teamSchema = new Schema<ITeam>({
         trim: true,
     },
     players: [playerSchema],
+    logoUrl: { type: String, default: '' },
+    logoPosition: { type: String, enum: ['left', 'right', 'none'], default: 'right' },
     createdAt: {
         type: Date,
         default: Date.now,

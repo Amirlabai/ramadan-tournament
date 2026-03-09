@@ -19,6 +19,17 @@ api.interceptors.request.use((config) => {
 export const teamsAPI = {
     getAll: () => api.get('/teams'),
     getById: (id: number) => api.get(`/teams/${id}`),
+    getAvailablePlayers: (teamId: number) => api.get(`/teams/${teamId}/available-players`),
+    getRequests: (id: number) => api.get(`/teams/${id}/requests`),
+    approveRequest: (id: number, userId: string, status: 'approved' | 'rejected') =>
+        api.post(`/teams/${id}/requests`, { userId, status }),
+    updateMetadata: (id: number, data: { name?: string; logoPosition?: 'left' | 'right' | 'none' }) =>
+        api.patch(`/teams/${id}/metadata`, data),
+    uploadLogo: (id: number, formData: FormData) =>
+        api.post(`/teams/${id}/logo`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        }),
+    deleteLogo: (id: number) => api.delete(`/teams/${id}/logo`),
 };
 
 export const matchesAPI = {
@@ -43,11 +54,28 @@ export const statsAPI = {
 };
 
 export const authAPI = {
-    login: (username: string, password: string) =>
-        api.post('/auth/login', { username, password }),
+    login: (credentials: any) =>
+        api.post('/auth/login', credentials),
+    register: (data: any) =>
+        api.post('/auth/register', data),
+    googleLogin: (token: string) =>
+        api.post('/auth/google', { token }),
     getCurrentUser: () => api.get('/auth/me'),
 };
 
+export const usersAPI = {
+    requestMapping: (data: { teamId: number; memberId?: number; playerProfile?: object }) =>
+        api.post('/users/map-player', data),
+    uploadAvatar: (formData: FormData) =>
+        api.post('/users/avatar', formData),
+    deleteAvatar: () =>
+        api.delete('/users/avatar'),
+    updatePlayerProfile: (data: { firstName?: string; lastName?: string; nickname?: string; number?: number; position?: string }) =>
+        api.patch('/users/player-profile', data),
+    requestTeam: (teamName: string, description: string) =>
+        api.post('/users/request-team', { teamName, description }),
+    leaveTeam: () => api.post('/users/leave-team'),
+};
 export const adminAPI = {
     uploadPlayers: (formData: FormData) => api.post('/admin/import-players', formData),
     getBannedWords: () => api.get('/admin/banned-words'),
@@ -59,6 +87,12 @@ export const adminAPI = {
     approvePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/approve', { teamId, memberId }),
     rejectPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/reject', { teamId, memberId }),
     deletePlayerPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/delete', { teamId, memberId }),
+    getTeamRequests: () => api.get('/admin/team-requests'),
+    approveTeamRequest: (userId: string, action: 'approved' | 'rejected') =>
+        api.post(`/admin/team-requests/${userId}`, { action }),
+    getUserMappings: () => api.get('/admin/user-mappings'),
+    updateUserMapping: (userId: string, data: { teamId?: number; status?: string; role?: string }) =>
+        api.patch(`/admin/user-mappings/${userId}`, data),
 };
 
 export const commentsAPI = {

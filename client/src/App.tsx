@@ -5,6 +5,7 @@ import Schedule from './pages/Schedule';
 import Stats from './pages/Stats';
 import Login from './pages/admin/Login';
 import AdminPanel from './pages/admin/AdminPanel';
+import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
@@ -58,8 +59,10 @@ function App() {
                 <Route path="/teams" element={<Teams />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/stats" element={<Stats />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="/admin/login" element={<Login />} />
                 <Route path="/admin" element={<AdminPanel />} />
+                <Route path="/profile" element={<Profile />} />
                 <Route path="/player-zone" element={<PlayerZone />} />
               </Routes>
             </main>

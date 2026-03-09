@@ -1,14 +1,21 @@
 import { useEffect, useState } from 'react';
 import { statsAPI } from '../api/client';
+import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import CommentSection from '../components/CommentSection';
+import PlayerClaimModal from '../components/PlayerClaimModal';
 import './Dashboard.css';
+
+const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 const Dashboard = () => {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+    const [showClaimModal, setShowClaimModal] = useState(false);
+
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchDashboard = async () => {
@@ -48,9 +55,53 @@ const Dashboard = () => {
         }).format(date);
     };
 
+    // Show banner if User is logged in, has the 'User' role, and hasn't submitted a mapping request yet (or was rejected)
+    const needsPlayerMapping = user && user.role === 'User' && (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected');
+    const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
+
+    const renderTeamNameWithLogo = (teamName: string, logoUrl?: string, logoPosition?: string) => {
+        const logo = logoUrl ? (logoUrl.startsWith('http') ? logoUrl : `${VITE_API_URL}${logoUrl}`) : null;
+        const position = logoPosition || 'right';
+
+        if (!logo || position === 'none') return <span className="team-name">{teamName}</span>;
+
+        return (
+            <div className={`d-flex align-items-center gap-2 ${position === 'left' ? 'flex-row-reverse' : ''}`}>
+                <span className="team-name">{teamName}</span>
+                <img src={logo} alt="" style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+            </div>
+        );
+    };
+
     return (
         <div className="dashboard-page">
             <div className="container py-4">
+
+                {needsPlayerMapping && (
+                    <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
+                        <div>
+                            <strong>שחקן בטורניר? </strong>
+                            <span className="ms-2">שייך את המשתמש שלך לפרופיל השחקן כדי לצפות בסטטיסטיקות אישיות.</span>
+                        </div>
+                        <button className="btn btn-warning btn-sm fw-bold px-4 rounded-pill" onClick={() => setShowClaimModal(true)}>
+                            לשיוך השחקן
+                        </button>
+                    </div>
+                )}
+
+                {isPendingApproval && (
+                    <div className="alert alert-info d-flex align-items-center mb-4 shadow-sm border-0" role="alert" style={{ backgroundColor: 'rgba(13, 202, 240, 0.1)', color: '#0dcaf0' }}>
+                        <i className="bi bi-hourglass-split me-2 fs-5"></i>
+                        <div>
+                            <strong>בקשת שיוך ממתינה לאישור קפטן</strong>
+                            <div className="small opacity-75">
+                                קבוצת {user.mappedPlayerInfo?.teamName || `#${user.mappedPlayerInfo?.teamId}`},
+                                {user.mappedPlayerInfo?.playerName ? ` השחקן ${user.mappedPlayerInfo.playerName}` : ` שחקן מזהה #${user.mappedPlayerInfo?.memberId}`}
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">דף הבית</h2>
                 <div className="dashboard-grid">
                     {data.nextMatches && data.nextMatches.length > 0 && (
@@ -60,13 +111,13 @@ const Dashboard = () => {
                                 {data.nextMatches.map((match) => (
                                     <div key={match._id} className="upcoming-match-item">
                                         <div className="team-right">
-                                            <span className="team-name">{match.team1Name || `קבוצה ${match.team1Id}`}</span>
+                                            {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
                                         </div>
                                         <div className="match-vs">
                                             <span className="vs-badge">נגד</span>
                                         </div>
                                         <div className="team-left">
-                                            <span className="team-name">{match.team2Name || `קבוצה ${match.team2Id}`}</span>
+                                            {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
                                         <div className="match-meta" style={{ textAlign: 'right', direction: 'rtl' }}>
                                             <div><strong>תאריך:</strong> {formatDate(match.date)}</div>
@@ -109,9 +160,13 @@ const Dashboard = () => {
                                 <div key={match._id} className="match-item">
                                     <span className="match-date">{formatDate(match.date)}</span>
                                     <div className="match-score">
-                                        <span>{match.team1Name || `קבוצה ${match.team1Id}`}</span>
-                                        <span className="score">{match.score1} - {match.score2}</span>
-                                        <span>{match.team2Name || `קבוצה ${match.team2Id}`}</span>
+                                        <div className="flex-1 d-flex justify-content-end">
+                                            {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
+                                        </div>
+                                        <span className="score px-3">{match.score1} - {match.score2}</span>
+                                        <div className="flex-1 d-flex justify-content-start">
+                                            {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
+                                        </div>
                                     </div>
                                 </div>
                             ))}
@@ -132,6 +187,8 @@ const Dashboard = () => {
                     </div>
                 )}
             </div>
+
+            {showClaimModal && <PlayerClaimModal onClose={() => setShowClaimModal(false)} />}
         </div>
     );
 };

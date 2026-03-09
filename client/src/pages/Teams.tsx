@@ -135,19 +135,6 @@ const Teams = () => {
                                     <h6 className="fw-bold text-success">אודות השחקן:</h6>
                                     <p>{selectedPlayer.bio || 'אין מידע נוסף אודות השחקן.'}</p>
                                 </div>
-                                <div className="mt-3">
-                                    {(selectedPlayer.hasPersonalId && selectedPlayer.birthYear) ? (
-                                        <a href="/player-zone" className="btn btn-sm btn-outline-success">
-                                            <i className="bi bi-camera me-1"></i> זה אתה? עדכן תמונה
-                                        </a>
-                                    ) : (
-                                        <div className="text-danger small">
-                                            <i className="bi bi-exclamation-triangle me-1"></i>
-                                            חסרים נתונים במערכת. <br />
-                                            לא ניתן לעדכן תמונה.
-                                        </div>
-                                    )}
-                                </div>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setSelectedPlayer(null)}>סגור</button>
