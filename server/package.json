@@ -11,6 +11,15 @@
         "migrate": "tsx src/scripts/migrate-data.ts"
     },
     "dependencies": {
+        "@types/bcrypt": "^5.0.2",
+        "@types/bcryptjs": "^2.4.6",
+        "@types/cookie-parser": "^1.4.10",
+        "@types/cors": "^2.8.17",
+        "@types/express": "^4.17.21",
+        "@types/jsonwebtoken": "^9.0.10",
+        "@types/multer": "^2.0.0",
+        "@types/node": "^20.11.5",
+        "@types/nodemailer": "^7.0.11",
         "bcrypt": "^5.1.1",
         "bcryptjs": "^3.0.3",
         "cookie-parser": "^1.4.7",
@@ -30,15 +39,6 @@
         "zod": "^3.22.4"
     },
     "devDependencies": {
-        "@types/bcrypt": "^5.0.2",
-        "@types/bcryptjs": "^2.4.6",
-        "@types/cookie-parser": "^1.4.10",
-        "@types/cors": "^2.8.17",
-        "@types/express": "^4.17.21",
-        "@types/jsonwebtoken": "^9.0.10",
-        "@types/multer": "^2.0.0",
-        "@types/node": "^20.11.5",
-        "@types/nodemailer": "^7.0.11",
         "tsx": "^4.7.0"
     }
 }
