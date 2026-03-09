@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { usersAPI, teamsAPI } from '../api/client';
+import { usersAPI, teamsAPI, statsAPI } from '../api/client';
+import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import './Profile.css';
@@ -31,6 +32,10 @@ const Profile = () => {
     const [teamSettingsSaving, setTeamSettingsSaving] = useState(false);
     const [teamSettingsMsg, setTeamSettingsMsg] = useState('');
     const [teamLogoLoading, setTeamLogoLoading] = useState(false);
+
+    // Stats data
+    const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
+    const [playerGoals, setPlayerGoals] = useState<number | null>(null);
 
     const startEditPlayer = () => {
         setPlayerForm({
@@ -68,6 +73,35 @@ const Profile = () => {
             navigate('/login');
         }
     }, [user, loading, navigate]);
+
+    useEffect(() => {
+        const fetchStats = async () => {
+            if (user && (user.role === 'Player' || user.role === 'Captain') && user.mappedPlayerInfo?.teamId) {
+                try {
+                    const [standingsRes, scorersRes] = await Promise.all([
+                        statsAPI.getStandings(),
+                        statsAPI.getTopScorers()
+                    ]);
+
+                    const teamId = user.mappedPlayerInfo.teamId;
+                    const memberId = user.mappedPlayerInfo.memberId;
+
+                    const standing = standingsRes.data.find((s: Standing) => s.teamId === teamId);
+                    if (standing) setTeamStanding(standing);
+
+                    const scorer = scorersRes.data.find((s: TopScorer) => s.memberId === memberId);
+                    setPlayerGoals(scorer ? scorer.goals : 0);
+
+                } catch (error) {
+                    console.error('Error fetching profile stats:', error);
+                }
+            }
+        };
+
+        if (user) {
+            fetchStats();
+        }
+    }, [user]);
 
     if (loading) {
         return <div className="text-center mt-5"><span className="spinner-border text-success"></span></div>;
@@ -382,6 +416,84 @@ const Profile = () => {
                             </div>
                         )}
                         {!editingPlayer && playerMsg && <div className="alert alert-success py-2 mt-3">{playerMsg}</div>}
+                    </div>
+                )}
+
+                {/* Team & Player Stats Card */}
+                {(teamStanding || playerGoals !== null) && (
+                    <div className="card mb-4 p-4 profile-stats-card">
+                        <h4 className="mb-4 d-flex align-items-center">
+                            <i className="bi bi-bar-chart-fill me-2 text-primary" />
+                            סטטיסטיקות טורניר — {(user as any).mappedPlayerInfo?.teamName}
+                        </h4>
+
+                        <div className="row g-3 text-center">
+                            {/* Individual Goals */}
+                            {playerGoals !== null && (
+                                <div className="col-6 col-md-3">
+                                    <div className="stat-box bg-light rounded p-3 h-100 border border-success border-opacity-25">
+                                        <div className="stat-value display-6 fw-bold text-success mb-1">{playerGoals}</div>
+                                        <div className="stat-label text-muted small fw-semibold">שערי שחקן</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Points */}
+                            {teamStanding && (
+                                <div className="col-6 col-md-3">
+                                    <div className="stat-box bg-light rounded p-3 h-100">
+                                        <div className="stat-value display-6 fw-bold text-theme-green mb-1">{teamStanding.points}</div>
+                                        <div className="stat-label text-muted small fw-semibold">נקודות קבוצה</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Position & Played */}
+                            {teamStanding && (
+                                <div className="col-6 col-md-3">
+                                    <div className="stat-box bg-light rounded p-3 h-100">
+                                        <div className="stat-value fs-4 fw-bold mb-1">{teamStanding.played}</div>
+                                        <div className="stat-label text-muted small fw-semibold">משחקים ששוחקו</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* W/D/L */}
+                            {teamStanding && (
+                                <div className="col-6 col-md-3">
+                                    <div className="stat-box bg-light rounded p-3 h-100">
+                                        <div className="stat-value fs-5 fw-bold mb-1" dir="ltr">
+                                            <span className="text-success">{teamStanding.won}</span> /&nbsp;
+                                            <span className="text-warning">{teamStanding.drawn}</span> /&nbsp;
+                                            <span className="text-danger">{teamStanding.lost}</span>
+                                        </div>
+                                        <div className="stat-label text-muted small fw-semibold">נצחונות / תיקו / הפסדים</div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Goals Info */}
+                            {teamStanding && (
+                                <div className="col-12 mt-3">
+                                    <div className="d-flex justify-content-around bg-light rounded p-3 border">
+                                        <div>
+                                            <div className="small text-muted mb-1">שערי זכות (GF)</div>
+                                            <div className="fw-bold fs-5 text-success">{teamStanding.goalsFor}</div>
+                                        </div>
+                                        <div>
+                                            <div className="small text-muted mb-1">שערי חובה (GA)</div>
+                                            <div className="fw-bold fs-5 text-danger">{teamStanding.goalsAgainst}</div>
+                                        </div>
+                                        <div>
+                                            <div className="small text-muted mb-1">הפרש שערים (GD)</div>
+                                            <div className="fw-bold fs-5" dir="ltr">
+                                                {teamStanding.goalDifference > 0 ? '+' : ''}{teamStanding.goalDifference}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
                 )}
 

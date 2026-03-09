@@ -10,7 +10,7 @@ export interface StandingsEntry {
     lost: number;
     goalsFor: number;
     goalsAgainst: number;
-    goalDiff: number;
+    goalDifference: number;
     points: number;
 }
 
@@ -53,7 +53,7 @@ export class StatsService {
                 lost: 0,
                 goalsFor: 0,
                 goalsAgainst: 0,
-                goalDiff: 0,
+                goalDifference: 0,
                 points: 0,
             };
         });
@@ -97,13 +97,13 @@ export class StatsService {
         // Calculate goal difference and sort
         const standingsList = Object.values(standings).map((entry) => ({
             ...entry,
-            goalDiff: entry.goalsFor - entry.goalsAgainst,
+            goalDifference: entry.goalsFor - entry.goalsAgainst,
         }));
 
         // Sort by points, then goal diff, then goals for
         standingsList.sort((a, b) => {
             if (b.points !== a.points) return b.points - a.points;
-            if (b.goalDiff !== a.goalDiff) return b.goalDiff - a.goalDiff;
+            if (b.goalDifference !== a.goalDifference) return b.goalDifference - a.goalDifference;
             return b.goalsFor - a.goalsFor;
         });
 
