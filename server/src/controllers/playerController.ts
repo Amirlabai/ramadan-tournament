@@ -170,22 +170,14 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
             fs.mkdirSync(uploadsDir, { recursive: true });
         }
 
-        // Rename/Move file - Use a more robust approach for cross-device moves
+        // Use copyFileSync + unlinkSync instead of renameSync.
+        // renameSync fails with EXDEV on Render because /tmp and /uploads are on different file systems.
         const fileExt = path.extname(req.file.originalname);
         const fileName = `player_${player.memberId}_${Date.now()}${fileExt}`;
         const finalPath = path.join(uploadsDir, fileName);
 
-        try {
-            fs.renameSync(req.file.path, finalPath);
-        } catch (renameError: any) {
-            if (renameError.code === 'EXDEV') {
-                // Cross-device link error, copy and delete instead
-                fs.copyFileSync(req.file.path, finalPath);
-                fs.unlinkSync(req.file.path);
-            } else {
-                throw renameError;
-            }
-        }
+        fs.copyFileSync(req.file.path, finalPath);
+        fs.unlinkSync(req.file.path);
 
         // Update DB
         // Path relative to server root or public URL?

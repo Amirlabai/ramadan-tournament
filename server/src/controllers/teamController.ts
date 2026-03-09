@@ -282,8 +282,11 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         const fileName = `team_${teamId}_${Date.now()}${path.extname(file.originalname)}`;
         const filePath = path.join(uploadDir, fileName);
 
-        // Move file from temp to final location
-        fs.renameSync(file.path, filePath);
+        // Move file from temp to final location.
+        // fs.renameSync fails on Render (EXDEV) because /tmp and /uploads are on different
+        // file systems. copyFileSync works across devices; unlink cleans up the temp file.
+        fs.copyFileSync(file.path, filePath);
+        fs.unlinkSync(file.path);
 
         // Update team logo URL
         team.logoUrl = `/uploads/logos/${fileName}`;

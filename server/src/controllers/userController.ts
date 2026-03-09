@@ -237,15 +237,10 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
         const filename = `avatar_${req.userId}_${Date.now()}${ext}`;
         const finalPath = path.join(uploadsDir, filename);
 
-        // Cross-device move support (same as player photos)
-        try {
-            fs.renameSync(req.file.path, finalPath);
-        } catch (e: any) {
-            if (e.code === 'EXDEV') {
-                fs.copyFileSync(req.file.path, finalPath);
-                fs.unlinkSync(req.file.path);
-            } else throw e;
-        }
+        // Use copyFileSync + unlinkSync instead of renameSync.
+        // renameSync fails with EXDEV on Render because /tmp and /uploads are on different file systems.
+        fs.copyFileSync(req.file.path, finalPath);
+        fs.unlinkSync(req.file.path);
 
         user.avatarUrl = `/uploads/players/${filename}`;
         await user.save();
