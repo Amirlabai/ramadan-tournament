@@ -3,6 +3,7 @@ import type { Match, Team, Goal } from '../../types';
 
 interface MatchTableRowProps {
     match: Match;
+    index?: number;
     teams: Team[];
     onSave: (id: number, data: any) => Promise<void>;
     onDelete: (id: number) => void;
@@ -44,7 +45,7 @@ const jerusalemStringToISO = (s: string): string => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false }: MatchTableRowProps) => {
+const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode = false }: MatchTableRowProps) => {
     const [isEditing, setIsEditing] = useState(startInEditMode);
     const [saving, setSaving] = useState(false);
     const [draft, setDraft] = useState({
@@ -133,6 +134,8 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
 
     const phaseLabel = (p: string) => p === 'group' ? 'שלב הבתים' : 'נוקאאוט';
 
+    const rowClass = index !== undefined && index % 2 === 0 ? 'row-even' : 'row-odd';
+
     // ── Read-only row ──────────────────────────────────────────────────────────
     if (!isEditing) {
         const goalSummary = (match.goals ?? []).length > 0
@@ -140,7 +143,7 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
             : '—';
 
         return (
-            <tr className="match-table-row">
+            <tr className={`match-table-row ${rowClass}`}>
                 <td data-label="תאריך ושעה" className="text-nowrap">{formatDate(match.date)}</td>
                 <td data-label="מיקום">{match.location}</td>
                 <td data-label="שלב"><span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span></td>
@@ -163,7 +166,7 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
     // ── Editing row ───────────────────────────────────────────────────────────
     return (
         <>
-            <tr className="match-table-row editing-row">
+            <tr className={`match-table-row editing-row ${rowClass}`}>
                 {/* Date */}
                 <td data-label="תאריך ושעה">
                     <input
@@ -223,7 +226,7 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
             </tr>
 
             {/* Goals management — expanded row */}
-            <tr className="goals-edit-row">
+            <tr className={`goals-edit-row ${rowClass}`}>
                 <td colSpan={8} className="p-2">
                     <div className="goals-editor">
                         <span className="goals-editor-label">כובשים:</span>

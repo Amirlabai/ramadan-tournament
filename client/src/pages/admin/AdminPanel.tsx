@@ -337,10 +337,11 @@ const AdminPanel = () => {
                                             startInEditMode
                                         />
                                     )}
-                                    {matches.map(match => (
+                                    {matches.map((match, index) => (
                                         <MatchTableRow
                                             key={match._id}
                                             match={match}
+                                            index={index}
                                             teams={teams}
                                             onSave={handleSaveMatch}
                                             onDelete={deleteMatch}
