@@ -144,13 +144,13 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
                 <td data-label="תאריך ושעה" className="text-nowrap">{formatDate(match.date)}</td>
                 <td data-label="מיקום">{match.location}</td>
                 <td data-label="שלב"><span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span></td>
-                <td data-label="קבוצה 1">{getTeamName(match.team1Id)}</td>
+                <td data-label="קבוצה 1" className="team-cell">{getTeamName(match.team1Id)}</td>
                 <td data-label="תוצאה" className="score-cell text-center">
                     <span className="score-display">
                         {match.score1 ?? '—'} : {match.score2 ?? '—'}
                     </span>
                 </td>
-                <td data-label="קבוצה 2">{getTeamName(match.team2Id)}</td>
+                <td data-label="קבוצה 2" className="team-cell">{getTeamName(match.team2Id)}</td>
                 <td data-label="כובשים" className="goals-cell">{goalSummary}</td>
                 <td data-label="פעולות" className="actions-cell text-nowrap">
                     <button className="btn btn-sm btn-warning ms-1" onClick={() => setIsEditing(true)}>ערוך</button>
@@ -190,23 +190,23 @@ const MatchTableRow = ({ match, teams, onSave, onDelete, startInEditMode = false
                     </select>
                 </td>
                 {/* Team 1 */}
-                <td data-label="קבוצה 1">
+                <td data-label="קבוצה 1" className="team-cell">
                     <select className="form-select form-select-sm" value={draft.team1Id} onChange={e => set('team1Id', e.target.value)}>
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </td>
                 {/* Score */}
                 <td data-label="תוצאה" className="score-cell">
-                    <div className="d-flex align-items-center gap-1">
-                        <input type="number" min="0" className="form-control form-control-sm score-input"
+                    <div className="d-flex align-items-center gap-1 justify-content-center">
+                        <input type="number" min="0" className="form-control form-control-sm score-input text-center"
                             value={draft.score1} onChange={e => set('score1', e.target.value)} />
                         <span>:</span>
-                        <input type="number" min="0" className="form-control form-control-sm score-input"
+                        <input type="number" min="0" className="form-control form-control-sm score-input text-center"
                             value={draft.score2} onChange={e => set('score2', e.target.value)} />
                     </div>
                 </td>
                 {/* Team 2 */}
-                <td data-label="קבוצה 2">
+                <td data-label="קבוצה 2" className="team-cell">
                     <select className="form-select form-select-sm" value={draft.team2Id} onChange={e => set('team2Id', e.target.value)}>
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>

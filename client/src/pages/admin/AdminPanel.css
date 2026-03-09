@@ -370,10 +370,64 @@
     /* Score inputs stay compact */
     .matches-table .score-cell {
         min-width: unset;
+        flex: 1;
+        justify-content: center;
+        border-bottom: none;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .matches-table .score-cell::before {
+        display: none;
     }
 
     .score-input {
         width: 44px !important;
+    }
+
+    .matches-table .team-cell {
+        flex: 1;
+        justify-content: center;
+        border-bottom: none;
+    }
+
+    .matches-table .team-cell::before {
+        display: none;
+    }
+
+    /* Wrap Team 1, Score, and Team 2 into flex siblings */
+    .matches-table tr.match-table-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    /* Full width for Date, Location, Phase, Goals, Actions */
+    .matches-table tr.match-table-row td:nth-child(1),
+    .matches-table tr.match-table-row td:nth-child(2),
+    .matches-table tr.match-table-row td:nth-child(3),
+    .matches-table tr.match-table-row td:nth-child(7),
+    .matches-table tr.match-table-row td:nth-child(8),
+    .matches-table tr.goals-edit-row td {
+        grid-column: 1 / -1;
+    }
+
+    /* Target the Team 1, Score, Team 2 cells inside the row so they share a line */
+    .matches-table tr.match-table-row td:nth-child(4),
+    .matches-table tr.match-table-row td:nth-child(5),
+    .matches-table tr.match-table-row td:nth-child(6) {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding-top: 0.75rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .matches-table tr.editing-row td:nth-child(4),
+    .matches-table tr.editing-row td:nth-child(5),
+    .matches-table tr.editing-row td:nth-child(6) {
+        border-bottom: 1px solid rgba(42, 107, 17, 0.2);
     }
 
     /* Goals cell — allow text to wrap */
