@@ -255,7 +255,7 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
                                 <optgroup label={getTeamName(parseInt(draft.team1Id))}>
                                     {team1Players.map(p => (
                                         <option key={p.memberId} value={p.memberId}>
-                                            {p.nickname || `${p.firstName} ${p.lastName}`}
+                                            {`${p.nickname} (${p.firstName} ${p.lastName})`}
                                         </option>
                                     ))}
                                 </optgroup>
@@ -264,7 +264,7 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
                                 <optgroup label={getTeamName(parseInt(draft.team2Id))}>
                                     {team2Players.map(p => (
                                         <option key={p.memberId} value={p.memberId}>
-                                            {p.nickname || `${p.firstName} ${p.lastName}`}
+                                            {`${p.nickname} (${p.firstName} ${p.lastName})`}
                                         </option>
                                     ))}
                                 </optgroup>
