@@ -33,7 +33,7 @@
 .match-meta {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-wrap: wrap;
     color: var(--text-light);
     font-size: 0.875rem;
@@ -66,7 +66,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     gap: 1rem;
 }
 
@@ -74,18 +74,18 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.05rem;
     flex: 1;
 }
 
 .team-name {
-    font-size: 1.25rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-align: center;
 }
 
 .team-score {
-    font-size: 2rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: var(--primary);
 }
@@ -97,8 +97,8 @@
 }
 
 .match-goals {
-    margin-top: 1rem;
-    padding-top: 1rem;
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
     border-top: 1px solid var(--border);
 }
 
@@ -118,7 +118,7 @@
     background: var(--bg);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: 0.875rem;
+    font-size: 0.7rem;
 }
 
 @media (max-width: 768px) {
@@ -127,7 +127,7 @@
     }
 
     .team-name {
-        font-size: 1rem;
+        font-size: 0.8rem;
     }
 
     .match-teams-score {

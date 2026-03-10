@@ -149,7 +149,7 @@
 
     /* Adjust form layouts for mobile if they are not already using bootstrap grid correctly */
     .card {
-        padding: 1rem !important;
+        padding: 0.5rem !important;
     }
 }
 
