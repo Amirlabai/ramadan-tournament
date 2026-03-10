@@ -18,6 +18,8 @@ export interface Team {
     id: number;
     name: string;
     players: Player[];
+    logoUrl?: string;
+    logoPosition?: 'left' | 'right' | 'none';
     createdAt: string;
 }
 

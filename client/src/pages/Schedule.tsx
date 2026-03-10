@@ -4,6 +4,8 @@ import type { Match, Team } from '../types';
 import CommentSection from '../components/CommentSection';
 import './Schedule.css';
 
+const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+
 const Schedule = () => {
     const [matches, setMatches] = useState<Match[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
@@ -37,6 +39,17 @@ const Schedule = () => {
     const getTeamName = (teamId: number) => {
         const team = teams.find(t => t.id === teamId);
         return team ? team.name : `קבוצה ${teamId}`;
+    };
+
+    const getTeamLogo = (teamId: number) => {
+        const team = teams.find(t => t.id === teamId);
+        if (!team || !team.logoUrl) return null;
+        return team.logoUrl.startsWith('http') ? team.logoUrl : `${VITE_API_URL}${team.logoUrl}`;
+    };
+
+    const getTeamLogoPosition = (teamId: number) => {
+        const team = teams.find(t => t.id === teamId);
+        return team?.logoPosition || 'right';
     };
 
     const getTeamNameById = (memberId: number) => {
@@ -164,7 +177,13 @@ const Schedule = () => {
 
                             <div className="match-teams-score">
                                 <div className="team-side">
+                                    {getTeamLogoPosition(match.team1Id) === 'right' && getTeamLogo(match.team1Id) && (
+                                        <img src={getTeamLogo(match.team1Id)!} alt="logo" className="team-logo-inline me-2" />
+                                    )}
                                     <span className="team-name">{getTeamName(match.team1Id)}</span>
+                                    {getTeamLogoPosition(match.team1Id) === 'left' && getTeamLogo(match.team1Id) && (
+                                        <img src={getTeamLogo(match.team1Id)!} alt="logo" className="team-logo-inline ms-2" />
+                                    )}
                                     {status !== 'upcoming' && (
                                         <span className="team-score">{match.score1}</span>
                                     )}
@@ -173,7 +192,13 @@ const Schedule = () => {
                                 <div className="vs-divider">VS</div>
 
                                 <div className="team-side">
+                                    {getTeamLogoPosition(match.team2Id) === 'right' && getTeamLogo(match.team2Id) && (
+                                        <img src={getTeamLogo(match.team2Id)!} alt="logo" className="team-logo-inline me-2" />
+                                    )}
                                     <span className="team-name">{getTeamName(match.team2Id)}</span>
+                                    {getTeamLogoPosition(match.team2Id) === 'left' && getTeamLogo(match.team2Id) && (
+                                        <img src={getTeamLogo(match.team2Id)!} alt="logo" className="team-logo-inline ms-2" />
+                                    )}
                                     {status !== 'upcoming' && (
                                         <span className="team-score">{match.score2}</span>
                                     )}

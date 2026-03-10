@@ -59,7 +59,17 @@ const Teams = () => {
                                         style={{ cursor: 'pointer' }}
                                     >
                                         <td>{team.id}</td>
-                                        <td className="fw-bold fs-5">{team.name}</td>
+                                        <td className="fw-bold fs-8">
+                                            <div className="d-flex align-items-center gap-2" style={{ width: 'max-content' }}>
+                                                {team.logoPosition === 'right' && team.logoUrl && (
+                                                    <img src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                )}
+                                                <span>{team.name}</span>
+                                                {team.logoPosition === 'left' && team.logoUrl && (
+                                                    <img src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                )}
+                                            </div>
+                                        </td>
                                         <td>{team.players.length}</td>
                                         <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
                                         <td>
