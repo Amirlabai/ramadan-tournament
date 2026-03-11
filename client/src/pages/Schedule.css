@@ -118,10 +118,18 @@
     background: var(--bg);
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
 }
 
 @media (max-width: 768px) {
+    .match-meta {
+        gap: 0.25rem;
+    }
+
+    .goal-item {
+        font-size: 0.7rem;
+    }
+
     .match-card {
         padding: 0.5rem;
     }
