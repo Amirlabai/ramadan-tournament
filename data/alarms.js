@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-11 16:48:35",
+  "last_updated": "2026-03-11 18:54:55",
   "stats": {
-    "total": 46674,
+    "total": 46675,
     "cities": {
       "כפר כמא": 30,
       "ריחאנייה": 16
@@ -373791,6 +373791,14 @@ window.ALARMS_DATA = {
       "cities": "זרעית",
       "threat": "0",
       "id": "6067",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-11 17:43:03",
+      "cities": "יפתח",
+      "threat": "0",
+      "id": "6068",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
