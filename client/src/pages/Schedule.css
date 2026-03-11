@@ -136,7 +136,7 @@
 }
 
 .match-actions {
-    padding-top: 1rem;
+    padding-top: 0.25rem;
     display: flex;
     justify-content: right;
 }

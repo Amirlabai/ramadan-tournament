@@ -24,6 +24,7 @@ const AdminPanel = () => {
     const [newWord, setNewWord] = useState('');
     const [newWordLanguage, setNewWordLanguage] = useState('other');
     const [comments, setComments] = useState<any[]>([]);
+    const [matchFilter, setMatchFilter] = useState<'all' | 'upcoming' | 'live' | 'finished' | 'today'>('all');
 
     const [searchFilter, setSearchFilter] = useState('');
     const navigate = useNavigate();
@@ -166,6 +167,25 @@ const AdminPanel = () => {
         return team ? team.name : `קבוצה ${teamId}`;
     };
 
+    const getMatchStatus = (match: Match) => {
+        if (match.score1 != null && match.score2 != null) return 'finished';
+        const matchDate = new Date(match.date);
+        const now = new Date();
+        
+        // Jerusalem time comparison
+        const isToday = matchDate.getDate() === now.getDate() &&
+                       matchDate.getMonth() === now.getMonth() &&
+                       matchDate.getFullYear() === now.getFullYear();
+        
+        if (isToday) {
+            // Live if it's 20:00 or later (JLM time - simplified for admin)
+            const currentHour = now.getHours();
+            return currentHour >= 20 ? 'live' : 'upcoming';
+        }
+        
+        return matchDate < now ? 'finished' : 'upcoming';
+    };
+
     const fetchBannedWords = async () => {
         try {
             const response = await adminAPI.getBannedWords();
@@ -289,6 +309,28 @@ const AdminPanel = () => {
 
             {activeTab === 'matches' && (
                 <div className="tab-content">
+                    <div className="admin-filters mb-3">
+                        <button 
+                            className={`filter-btn ${matchFilter === 'all' ? 'active' : ''}`}
+                            onClick={() => setMatchFilter('all')}
+                        >
+                            הכל
+                        </button>
+                        <button 
+                            className={`filter-btn ${matchFilter === 'today' ? 'active' : ''}`}
+                            onClick={() => setMatchFilter('today')}
+                        >
+                            היום
+                            <span className="filter-count">
+                                {matches.filter(m => {
+                                    const d = new Date(m.date);
+                                    const now = new Date();
+                                    return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                                }).length}
+                            </span>
+                        </button>
+                    </div>
+
                     <div className="card">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <h2>משחקים</h2>
@@ -337,16 +379,26 @@ const AdminPanel = () => {
                                             startInEditMode
                                         />
                                     )}
-                                    {matches.map((match, index) => (
-                                        <MatchTableRow
-                                            key={match._id}
-                                            match={match}
-                                            index={index}
-                                            teams={teams}
-                                            onSave={handleSaveMatch}
-                                            onDelete={deleteMatch}
-                                        />
-                                    ))}
+                                    {matches
+                                        .filter(match => {
+                                            if (matchFilter === 'all') return true;
+                                            if (matchFilter === 'today') {
+                                                const d = new Date(match.date);
+                                                const now = new Date();
+                                                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+                                            }
+                                            return getMatchStatus(match) === matchFilter;
+                                        })
+                                        .map((match, index) => (
+                                            <MatchTableRow
+                                                key={match._id}
+                                                match={match}
+                                                index={index}
+                                                teams={teams}
+                                                onSave={handleSaveMatch}
+                                                onDelete={deleteMatch}
+                                            />
+                                        ))}
                                 </tbody>
                             </table>
                         </div>

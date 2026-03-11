@@ -41,7 +41,7 @@ const Teams = () => {
                         <tr>
                             <th>ID</th>
                             <th>שם הקבוצה</th>
-                            <th>מספר שחקנים</th>
+                            <th className="d-none d-md-table-cell">מספר שחקנים</th>
                             <th>קפטן</th>
                             <th></th>
                         </tr>
@@ -70,7 +70,7 @@ const Teams = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td>{team.players.length}</td>
+                                        <td className="d-none d-md-table-cell">{team.players.length}</td>
                                         <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
                                         <td>
                                             <span className="expand-icon">

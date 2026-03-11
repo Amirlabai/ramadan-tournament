@@ -42,8 +42,8 @@ body {
 .header-news-wrapper {
   position: relative;
   overflow: hidden;
-  /* Contains the SVG corners */
   width: 100%;
+  max-width: 100%;
 }
 
 .banner-foreground {
@@ -180,7 +180,7 @@ body {
   padding: 1.5rem 1rem;
   margin: 0 0 2rem 0;
   width: 100%;
-  max-width: 100%;
+  max-width: 100vw;
   border-radius: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.5s ease-out;
@@ -411,46 +411,7 @@ body {
   margin-top: 5px;
 }
 
-/* Match Schedule */
-.schedule-timeline {
-  max-width: 900px;
-  margin: 0 auto;
-}
-
-.match-item {
-  background: var(--white);
-  border-left: 4px solid var(--primary-green);
-  padding: 20px;
-  margin-bottom: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.match-item.upcoming {
-  border-left-color: var(--secondary-yellow);
-  background-color: rgba(255, 255, 0, 0.05);
-}
-
-.match-date {
-  color: var(--primary-green);
-  font-weight: 700;
-  margin-bottom: 10px;
-}
-
-.match-teams {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-size: 18px;
-  font-weight: 600;
-}
-
-.match-score {
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--primary-green);
-  padding: 0 20px;
-}
+/* Match Schedule styles are handled in Dashboard.css and Schedule.css */
 
 /* Tables */
 .table {
@@ -534,14 +495,6 @@ body {
 }
 
 /* RTL Specific Styles */
-[dir="rtl"] .match-item {
-  border-left: none;
-  border-right: 4px solid var(--primary-green);
-}
-
-[dir="rtl"] .match-item.upcoming {
-  border-right-color: var(--secondary-yellow);
-}
 
 [dir="rtl"] .modal-header .btn-close {
   margin-left: 0;
@@ -561,15 +514,6 @@ body {
   .tournament-tabs .nav-link {
     padding: 10px 15px;
     font-size: 14px;
-  }
-
-  .match-teams {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .match-score {
-    padding: 10px 0;
   }
 
   /* Phone compatibility for banner SVGs */

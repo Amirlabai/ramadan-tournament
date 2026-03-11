@@ -42,12 +42,10 @@ const Stats = () => {
                         <table>
                             <thead>
                                 <tr>
-                                    <th>מיקום</th>
+                                    <th>דירוג</th>
                                     <th>קבוצה</th>
-                                    <th>משחקים</th>
-                                    <th>נצחונות</th>
-                                    <th>תיקו</th>
-                                    <th>הפסדים</th>
+                                    <th>משחק</th>
+                                    <th>W/D/L</th>
                                     <th>GF</th>
                                     <th>GA</th>
                                     <th>GD</th>
@@ -60,9 +58,7 @@ const Stats = () => {
                                         <td className="position">{index + 1}</td>
                                         <td className="team-name">{team.teamName}</td>
                                         <td>{team.played}</td>
-                                        <td>{team.won}</td>
-                                        <td>{team.drawn}</td>
-                                        <td>{team.lost}</td>
+                                        <td>{team.won}/{team.drawn}/{team.lost}</td>
                                         <td>{team.goalsFor}</td>
                                         <td>{team.goalsAgainst}</td>
                                         <td className={team.goalDifference > 0 ? 'positive' : team.goalDifference < 0 ? 'negative' : ''}>

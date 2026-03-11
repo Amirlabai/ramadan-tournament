@@ -54,7 +54,7 @@ tr.qualified {
     color: var(--primary);
 }
 
-.team-name {
+.stats-page .team-name {
     text-align: right;
     font-weight: 600;
 }
@@ -127,7 +127,7 @@ tr.qualified {
 .goals-count {
     font-size: 1.5rem;
     font-weight: bold;
-    color: var(--secondary);
+    color: var(--primary);
 }
 
 .goals-label {
@@ -146,5 +146,29 @@ tr.qualified {
     th,
     td {
         padding: 0.5rem 0.25rem;
+    }
+}
+
+@media (max-width: 468px) {
+    th {
+        font-size: 0.75rem;
+    }
+
+    .stats-page .team-name {
+        font-size: 0.75rem;
+        text-align: center;
+    }
+
+    .points {
+        font-size: 0.75rem;
+    }
+
+    .position {
+        font-size: 0.75rem;
+    }
+
+    .positive,
+    .negative {
+        font-size: 0.75rem;
     }
 }

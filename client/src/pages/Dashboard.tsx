@@ -39,6 +39,7 @@ const Dashboard = () => {
     const formatDate = (dateString: string) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('he-IL', {
+            weekday: 'short',
             day: 'numeric',
             month: 'numeric',
             year: 'numeric',

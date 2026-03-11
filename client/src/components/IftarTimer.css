@@ -9,9 +9,9 @@
 .iftar-bubble {
     position: relative;
     width: 430px;
-    max-width: calc(100vw - 40px);
+    max-width: calc(100vw - 32px);
     height: 860px;
-    max-height: calc(100dvh - 80px);
+    max-height: calc(100dvh - 100px);
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);

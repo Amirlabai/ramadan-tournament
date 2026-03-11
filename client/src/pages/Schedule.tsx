@@ -72,6 +72,7 @@ const Schedule = () => {
             year: 'numeric',
             month: 'numeric',
             day: 'numeric',
+            weekday: 'long',
             hour: '2-digit',
             minute: '2-digit',
             timeZone: 'Asia/Jerusalem'
