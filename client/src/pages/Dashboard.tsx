@@ -17,20 +17,42 @@ const Dashboard = () => {
 
     const { user } = useAuth();
 
+    const fetchDashboard = async (isBackground = false) => {
+        try {
+            if (!isBackground) setLoading(true);
+            const response = await statsAPI.getDashboard();
+            setData(response.data);
+            setError('');
+        } catch (err) {
+            if (!isBackground) setError('שגיאה בטעינת נתונים');
+            console.error(err);
+        } finally {
+            if (!isBackground) setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchDashboard = async () => {
-            try {
-                const response = await statsAPI.getDashboard();
-                setData(response.data);
-            } catch (err) {
-                setError('שגיאה בטעינת נתונים');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchDashboard();
-    }, []);
+
+        // Polling logic: Every 30 seconds
+        const interval = setInterval(() => {
+            // Check if we have data and if any next match is today
+            const hasMatchToday = data?.nextMatches?.some(match => {
+                const d = new Date(match.date);
+                const now = new Date();
+                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+
+            // Always poll during typical tournament hours (e.g., 18:00 - 23:59 JLM) or if match is today
+            const now = new Date();
+            const hour = now.getHours();
+            if (hasMatchToday || (hour >= 18 && hour <= 23)) {
+                fetchDashboard(true);
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, [data?.nextMatches?.length]);
 
     if (loading) return <div className="loading">טוען...</div>;
     if (error) return <div className="error">{error}</div>;
@@ -104,13 +126,13 @@ const Dashboard = () => {
                 )}
 
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">דף הבית</h2>
-                <div className="dashboard-grid">
-                    {data.nextMatches && data.nextMatches.length > 0 && (
-                        <div className="dashboard-card next-matches-card">
-                            <h2>המשחקים הבאים</h2>
-                            <div className="next-matches-list">
-                                {data.nextMatches.map((match) => (
-                                    <div key={match._id} className="upcoming-match-item">
+                {data.nextMatches && data.nextMatches.length > 0 && (
+                    <div className="dashboard-card next-matches-card">
+                        <h2>המשחקים הבאים</h2>
+                        <div className="next-matches-list">
+                            {data.nextMatches.map((match) => (
+                                <div key={match._id} className="upcoming-match-item">
+                                    <div className="match-main-info">
                                         <div className="team-right">
                                             {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
                                         </div>
@@ -120,37 +142,37 @@ const Dashboard = () => {
                                         <div className="team-left">
                                             {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
-                                        <div className="match-meta" style={{ textAlign: 'right', direction: 'rtl' }}>
-                                            <div><strong>תאריך:</strong> {formatDate(match.date)}</div>
-                                            <div><strong>שעה:</strong> {formatTime(match.date)}</div>
-                                            <div><strong>מיקום:</strong> {match.location}</div>
-                                        </div>
-                                        <div className="match-actions">
-                                            <button
-                                                className="btn-comments"
-                                                onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
-                                            >
-                                                {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
-                                                    <>
-                                                        💬 תגובות
-                                                        {match.commentCount && match.commentCount > 0 ? (
-                                                            <span className="badge bg-danger ms-2 rounded-pill">
-                                                                {match.commentCount}
-                                                            </span>
-                                                        ) : null}
-                                                    </>
-                                                )}
-                                            </button>
-                                        </div>
-                                        {expandedMatchId === match._id && (
-                                            <CommentSection matchId={match.id} />
-                                        )}
                                     </div>
-                                ))}
-                            </div>
+                                    <div className="match-meta" style={{ textAlign: 'right', direction: 'rtl' }}>
+                                        <div><strong>תאריך:</strong> {formatDate(match.date)}</div>
+                                        <div><strong>שעה:</strong> {formatTime(match.date)}</div>
+                                        <div><strong>מיקום:</strong> {match.location}</div>
+                                    </div>
+                                    <div className="match-actions">
+                                        <button
+                                            className="btn-comments"
+                                            onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
+                                        >
+                                            {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
+                                                <>
+                                                    💬 תגובות
+                                                    {match.commentCount && match.commentCount > 0 ? (
+                                                        <span className="badge bg-danger ms-2 rounded-pill">
+                                                            {match.commentCount}
+                                                        </span>
+                                                    ) : null}
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                    {expandedMatchId === match._id && (
+                                        <CommentSection matchId={match.id} />
+                                    )}
+                                </div>
+                            ))}
                         </div>
-                    )}
-                </div>
+                    </div>
+                )}
 
 
                 {data.recentMatches && data.recentMatches.length > 0 && (

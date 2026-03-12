@@ -41,8 +41,6 @@
 .dashboard-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    /* Slightly smaller min-width */
-    gap: 1.5rem;
 }
 
 .next-matches-card,
@@ -77,14 +75,18 @@
 }
 
 .upcoming-match-item {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    grid-template-areas:
-        "team-right vs team-left"
-        "meta meta meta";
+    display: flex;
+    flex-direction: column;
     padding: 1rem;
     border-bottom: 1px solid #eee;
+}
+
+.match-main-info {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: "team-right vs team-left";
     align-items: center;
+    width: 100%;
 }
 
 .upcoming-match-item:last-child {
@@ -119,12 +121,15 @@
 }
 
 .dashboard-page .match-meta {
-    grid-area: meta;
-    text-align: left;
-    margin-top: 0.5rem;
+    text-align: right;
+    margin-top: 0.75rem;
     color: #666;
     font-size: 0.9rem;
     direction: rtl;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: flex-start;
 }
 
 .dashboard-page .match-date,
@@ -243,6 +248,14 @@
 }
 
 @media (max-width: 768px) {
+
+    .next-matches-card h2,
+    .top-scorer h2,
+    .recent-matches h2 {
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
@@ -256,22 +269,47 @@
 
 @media (max-width: 480px) {
     .upcoming-match-item {
+        padding: 0.75rem;
+    }
+
+    .match-main-info {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-between;
         align-items: center;
         gap: 0.25rem;
-        text-align: center;
     }
 
     .team-right,
     .team-left {
-        text-align: center;
-        font-size: 0.95rem;
+        flex: 1;
+        font-size: 0.9rem;
+        word-break: break-word;
+    }
+
+    .team-right {
+        text-align: right;
+    }
+
+    .team-left {
+        text-align: left;
+    }
+
+    .match-vs {
+        padding: 0 0.5rem;
+    }
+
+    .vs-badge {
+        font-size: 0.85rem;
     }
 
     .dashboard-page .match-meta {
-        text-align: center !important;
+        text-align: right !important;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 0.25rem;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
     }
 }
 

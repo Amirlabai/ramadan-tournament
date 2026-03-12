@@ -14,24 +14,46 @@ const Schedule = () => {
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
 
+    const fetchData = async (isBackground = false) => {
+        try {
+            if (!isBackground) setLoading(true);
+            const [matchesRes, teamsRes] = await Promise.all([
+                matchesAPI.getAll(),
+                teamsAPI.getAll()
+            ]);
+            setMatches(matchesRes.data);
+            setTeams(teamsRes.data);
+            setError('');
+        } catch (err) {
+            if (!isBackground) setError('שגיאה בטעינת נתונים');
+            console.error(err);
+        } finally {
+            if (!isBackground) setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const [matchesRes, teamsRes] = await Promise.all([
-                    matchesAPI.getAll(),
-                    teamsAPI.getAll()
-                ]);
-                setMatches(matchesRes.data);
-                setTeams(teamsRes.data);
-            } catch (err) {
-                setError('שגיאה בטעינת נתונים');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchData();
-    }, []);
+
+        // Polling logic: Every 30 seconds
+        const interval = setInterval(() => {
+            // Check if any match in the current data is for today
+            const hasMatchToday = matches.some(match => {
+                const d = new Date(match.date);
+                const now = new Date();
+                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            });
+
+            // Poll during tournament hours or if match is today
+            const now = new Date();
+            const hour = now.getHours();
+            if (hasMatchToday || (hour >= 18 && hour <= 23)) {
+                fetchData(true);
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, [matches.length]);
 
     if (loading) return <div className="loading">טוען...</div>;
     if (error) return <div className="error">{error}</div>;
