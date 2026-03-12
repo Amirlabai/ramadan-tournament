@@ -497,9 +497,25 @@ body {
   transform: translateY(-2px);
 }
 
+.roster-player-card.top-scorer-highlight {
+  border-color: var(--primary-green) !important;
+  border-width: 3px;
+  background-color: rgba(42, 107, 17, 0.03);
+  box-shadow: 0 4px 12px rgba(42, 107, 17, 0.15);
+}
+
 .roster-player-card .badge {
-  display: block;
+  display: inline-block;
   margin-bottom: 5px;
+}
+
+.player-card-stats {
+  font-family: 'Inter', sans-serif;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.player-card-stats .fw-bold {
+  font-size: 0.95rem;
 }
 
 /* Modal */

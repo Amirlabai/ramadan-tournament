@@ -11,6 +11,8 @@ export interface Player {
     bio?: string;
     hasPersonalId?: boolean;
     birthYear?: number;
+    totalGoals?: number;
+    gamesPlayed?: number;
 }
 
 export interface Team {

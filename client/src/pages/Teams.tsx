@@ -8,19 +8,31 @@ const Teams = () => {
     const [error, setError] = useState('');
     const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
 
+    const fetchTeams = async (isBackground = false) => {
+        try {
+            if (!isBackground) setLoading(true);
+            const response = await teamsAPI.getAll();
+            setTeams(response.data);
+            if (!isBackground) setError('');
+        } catch (err) {
+            if (!isBackground) setError('שגיאה בטעינת קבוצות');
+            console.error(err);
+        } finally {
+            if (!isBackground) setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchTeams = async () => {
-            try {
-                const response = await teamsAPI.getAll();
-                setTeams(response.data);
-            } catch (err) {
-                setError('שגיאה בטעינת קבוצות');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchTeams();
+
+        const interval = setInterval(() => {
+            const hour = new Date().getHours();
+            if (hour >= 18 && hour <= 23) {
+                fetchTeams(true);
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
     const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
@@ -82,21 +94,51 @@ const Teams = () => {
                                         <tr className="team-details-row">
                                             <td colSpan={5} className="bg-light p-3">
                                                 <div className="row g-3">
-                                                    {team.players.map(player => (
-                                                        <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
-                                                            <div
-                                                                className="roster-player-card position-relative"
-                                                                onClick={(e) => { e.stopPropagation(); setSelectedPlayer(player); }}
-                                                                style={{ cursor: 'pointer' }}
-                                                            >
-                                                                {player.isCaptain && <span className="badge text-dark position-absolute top-0 start-0 m-2">⭐</span>}
-                                                                <div className="fw-bold">{player.nickname}</div>
-                                                                <div className="text-muted small">{player.firstName} {player.lastName}</div>
-                                                                <div className="badge bg-success mt-1">{player.number}</div>
-                                                                <div className="small text-secondary">{player.position}</div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                    {(() => {
+                                                        const topScorerInTeam = [...team.players].sort((a, b) => {
+                                                            const goalsA = a.totalGoals || 0;
+                                                            const goalsB = b.totalGoals || 0;
+                                                            if (goalsB !== goalsA) return goalsB - goalsA;
+                                                            const avgA = (a.totalGoals && a.gamesPlayed) ? a.totalGoals / a.gamesPlayed : 0;
+                                                            const avgB = (b.totalGoals && b.gamesPlayed) ? b.totalGoals / b.gamesPlayed : 0;
+                                                            return avgB - avgA;
+                                                        })[0];
+
+                                                        return team.players.map(player => {
+                                                            const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
+                                                            
+                                                            return (
+                                                                <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
+                                                                    <div
+                                                                        className={`roster-player-card position-relative ${isTopScorer ? 'top-scorer-highlight' : ''}`}
+                                                                        onClick={(e) => { e.stopPropagation(); setSelectedPlayer(player); }}
+                                                                        style={{ cursor: 'pointer' }}
+                                                                    >
+                                                                        {player.isCaptain && <span className="badge text-dark position-absolute top-0 start-0 m-2">⭐</span>}
+                                                                        {isTopScorer && <span className="badge text-dark position-absolute top-0 end-0 m-2" title="מלך השערים של הקבוצה">⚽</span>}
+                                                                        <div className="fw-bold">{player.nickname}</div>
+                                                                        <div className="text-muted small">{player.firstName} {player.lastName}</div>
+                                                                        <div className="badge bg-success mt-1">{player.number}</div>
+                                                                        <div className="small text-secondary">{player.position}</div>
+                                                                        <div className="mt-2 pt-2 border-top player-card-stats">
+                                                                            <div className="d-flex justify-content-between small">
+                                                                                <span className="text-muted">שערים:</span>
+                                                                                <span className="fw-bold text-success">{player.totalGoals || 0}</span>
+                                                                            </div>
+                                                                            <div className="d-flex justify-content-between small">
+                                                                                <span className="text-muted">ממוצע:</span>
+                                                                                <span className="fw-bold text-primary">
+                                                                                    {(player.totalGoals && player.gamesPlayed) 
+                                                                                        ? (player.totalGoals / player.gamesPlayed).toFixed(2) 
+                                                                                        : '0.00'}
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        });
+                                                    })()}
                                                 </div>
                                             </td>
                                         </tr>
@@ -139,6 +181,24 @@ const Teams = () => {
                                     <span className="badge bg-success fs-6">{selectedPlayer.number}</span>
                                     <span className="badge bg-secondary fs-6">{selectedPlayer.position}</span>
                                     {selectedPlayer.isCaptain && <span className="badge bg-warning text-dark fs-6">קפטן</span>}
+                                </div>
+                                <div className="d-flex justify-content-center gap-4 mb-3 py-2 bg-light rounded">
+                                    <div className="text-center">
+                                        <div className="small text-muted">סה"כ שערים</div>
+                                        <div className="fs-4 fw-bold text-success">{selectedPlayer.totalGoals || 0}</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="small text-muted">משחקים</div>
+                                        <div className="fs-4 fw-bold text-dark">{selectedPlayer.gamesPlayed || 0}</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="small text-muted">ממוצע למשחק</div>
+                                        <div className="fs-4 fw-bold text-primary">
+                                            {(selectedPlayer.totalGoals && selectedPlayer.gamesPlayed) 
+                                                ? (selectedPlayer.totalGoals / selectedPlayer.gamesPlayed).toFixed(2) 
+                                                : '0.00'}
+                                        </div>
+                                    </div>
                                 </div>
                                 <hr />
                                 <div className="text-end">

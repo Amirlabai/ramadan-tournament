@@ -9,23 +9,35 @@ const Stats = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
+    const fetchStats = async (isBackground = false) => {
+        try {
+            if (!isBackground) setLoading(true);
+            const [standingsRes, scorersRes] = await Promise.all([
+                statsAPI.getStandings(),
+                statsAPI.getTopScorers()
+            ]);
+            setStandings(standingsRes.data);
+            setTopScorers(scorersRes.data);
+            if (!isBackground) setError('');
+        } catch (err) {
+            if (!isBackground) setError('שגיאה בטעינת סטטיסטיקות');
+            console.error(err);
+        } finally {
+            if (!isBackground) setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchStats = async () => {
-            try {
-                const [standingsRes, scorersRes] = await Promise.all([
-                    statsAPI.getStandings(),
-                    statsAPI.getTopScorers()
-                ]);
-                setStandings(standingsRes.data);
-                setTopScorers(scorersRes.data);
-            } catch (err) {
-                setError('שגיאה בטעינת סטטיסטיקות');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchStats();
+
+        const interval = setInterval(() => {
+            const hour = new Date().getHours();
+            if (hour >= 18 && hour <= 23) {
+                fetchStats(true);
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
     }, []);
 
     if (loading) return <div className="loading">טוען...</div>;
@@ -83,8 +95,13 @@ const Stats = () => {
                                     <div className="scorer-team">{scorer.teamName}</div>
                                 </div>
                                 <div className="scorer-goals">
-                                    <span className="goals-count">{scorer.goals}</span>
-                                    <span className="goals-label">שערים</span>
+                                    <div className="goals-main">
+                                        <span className="goals-count">{scorer.goals}</span>
+                                        <span className="goals-label">שערים</span>
+                                    </div>
+                                    <div className="goals-avg" style={{ fontSize: '0.75rem', color: '#666' }}>
+                                        ממוצע: {(scorer as any).gamesPlayed > 0 ? (scorer.goals / (scorer as any).gamesPlayed).toFixed(2) : '0.00'}
+                                    </div>
                                 </div>
                             </div>
                         ))}

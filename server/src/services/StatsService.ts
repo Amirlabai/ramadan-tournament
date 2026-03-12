@@ -117,22 +117,36 @@ export class StatsService {
         const teams = await Team.find();
         const matches = await Match.find();
 
-        // Create member index
-        const members: { [key: number]: { name: string; team: string; position: string } } = {};
+        // Create member index and team mapping
+        const members: { [key: number]: { name: string; teamName: string; position: string; teamId: number } } = {};
+        const teamMatchesCount: { [key: number]: number } = {};
+
         teams.forEach((team) => {
+            teamMatchesCount[team.id] = 0;
             team.players.forEach((player) => {
                 members[player.memberId] = {
                     name: `${player.firstName} ${player.lastName}`.trim() || player.nickname,
-                    team: team.name,
+                    teamName: team.name,
                     position: player.position,
+                    teamId: team.id
                 };
             });
         });
 
+        // Track games played for each team
+        matches.forEach(match => {
+            if (match.score1 !== null && match.score2 !== null) {
+                if (teamMatchesCount[match.team1Id] !== undefined) teamMatchesCount[match.team1Id]++;
+                if (teamMatchesCount[match.team2Id] !== undefined) teamMatchesCount[match.team2Id]++;
+            }
+        });
+
         // Count goals
-        const scorerStats: { [key: number]: TopScorer } = {};
+        const scorerStats: { [key: number]: TopScorer & { gamesPlayed: number } } = {};
 
         matches.forEach((match) => {
+            if (match.score1 === null || match.score2 === null) return;
+            
             match.goals.forEach((goal) => {
                 const memberId = goal.memberId;
                 const memberInfo = members[memberId];
@@ -141,17 +155,24 @@ export class StatsService {
                     scorerStats[memberId] = {
                         memberId,
                         playerName: memberInfo?.name || 'Unknown',
-                        teamName: memberInfo?.team || 'Unknown',
+                        teamName: memberInfo?.teamName || 'Unknown',
                         position: memberInfo?.position || 'Unknown',
                         goals: 0,
+                        gamesPlayed: memberInfo ? teamMatchesCount[memberInfo.teamId] : 0
                     };
                 }
                 scorerStats[memberId].goals += 1;
             });
         });
 
-        // Sort by goals
-        const topScorers = Object.values(scorerStats).sort((a, b) => b.goals - a.goals);
+        // Sort by goals, then by average (goals / gamesPlayed)
+        const topScorers = Object.values(scorerStats).sort((a, b) => {
+            if (b.goals !== a.goals) return b.goals - a.goals;
+            
+            const avgA = a.gamesPlayed > 0 ? a.goals / a.gamesPlayed : 0;
+            const avgB = b.gamesPlayed > 0 ? b.goals / b.gamesPlayed : 0;
+            return avgB - avgA;
+        });
 
         return topScorers;
     }
@@ -164,9 +185,11 @@ export class StatsService {
         const matches = await Match.find();
 
         const playerStats: { [key: number]: PlayerStats } = {};
+        const teamPlayerMap: { [key: number]: number[] } = {};
 
-        // Initialize all players
+        // Initialize all players and create a map of team to player memberIds
         teams.forEach((team) => {
+            teamPlayerMap[team.id] = team.players.map(p => p.memberId);
             team.players.forEach((player) => {
                 playerStats[player.memberId] = {
                     memberId: player.memberId,
@@ -176,22 +199,27 @@ export class StatsService {
             });
         });
 
-        // Count goals and estimate games played
+        // Count goals and games played
         matches.forEach((match) => {
-            const teamPlayers = new Set<number>();
+            // Only count matches that have scores (meaning they were played)
+            if (match.score1 !== null && match.score2 !== null) {
+                // Increment gamesPlayed for all players on both teams
+                const team1Players = teamPlayerMap[match.team1Id] || [];
+                const team2Players = teamPlayerMap[match.team2Id] || [];
 
-            match.goals.forEach((goal) => {
-                const memberId = goal.memberId;
-                if (playerStats[memberId]) {
-                    playerStats[memberId].goals += 1;
-                    teamPlayers.add(memberId);
-                }
-            });
+                team1Players.forEach(id => {
+                    if (playerStats[id]) playerStats[id].gamesPlayed += 1;
+                });
+                team2Players.forEach(id => {
+                    if (playerStats[id]) playerStats[id].gamesPlayed += 1;
+                });
 
-            // Mark games played for scorers (simplified - real system would have lineup data)
-            if (match.score1 !== undefined && match.score2 !== undefined) {
-                teamPlayers.forEach((memberId) => {
-                    playerStats[memberId].gamesPlayed += 1;
+                // Count goals
+                match.goals.forEach((goal) => {
+                    const memberId = goal.memberId;
+                    if (playerStats[memberId]) {
+                        playerStats[memberId].goals += 1;
+                    }
                 });
             }
         });

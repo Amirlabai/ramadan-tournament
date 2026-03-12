@@ -4,18 +4,30 @@ import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
+import { StatsService } from '../services/StatsService';
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
     try {
-        const teams = await Team.find().sort({ id: 1 }).select('+players.personalId');
+        const [teams, stats] = await Promise.all([
+            Team.find().sort({ id: 1 }).select('+players.personalId'),
+            StatsService.calculatePlayerStats()
+        ]);
 
-        const sanitizedTeams = teams.map(team => {
+        const statsMap = new Map<number, any>(stats.map(s => [s.memberId, s]));
+
+        const sanitizedTeams = teams.map((team: any) => {
             const teamObj = team.toObject();
             teamObj.players = teamObj.players.map((player: any) => {
+                const playerStats = statsMap.get(player.memberId);
                 const hasPersonalId = !!player.personalId && player.personalId !== '';
                 // Remove the actual personalId from the response
                 const { personalId, ...playerData } = player;
-                return { ...playerData, hasPersonalId };
+                return {
+                    ...playerData,
+                    hasPersonalId,
+                    totalGoals: playerStats?.goals || 0,
+                    gamesPlayed: playerStats?.gamesPlayed || 0
+                };
             });
             return teamObj;
         });
@@ -29,18 +41,29 @@ export const getTeams = async (req: Request, res: Response): Promise<void> => {
 
 export const getTeamById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const team = await Team.findOne({ id: parseInt(req.params.id) }).select('+players.personalId');
+        const [team, stats] = await Promise.all([
+            Team.findOne({ id: parseInt(req.params.id) }).select('+players.personalId'),
+            StatsService.calculatePlayerStats()
+        ]);
 
         if (!team) {
             res.status(404).json({ error: 'Team not found' });
             return;
         }
 
+        const statsMap = new Map<number, any>(stats.map((s: any) => [s.memberId, s]));
+
         const teamObj = team.toObject();
         teamObj.players = teamObj.players.map((player: any) => {
+            const playerStats = statsMap.get(player.memberId);
             const hasPersonalId = !!player.personalId && player.personalId !== '';
             const { personalId, ...playerData } = player;
-            return { ...playerData, hasPersonalId };
+            return {
+                ...playerData,
+                hasPersonalId,
+                totalGoals: playerStats?.goals || 0,
+                gamesPlayed: playerStats?.gamesPlayed || 0
+            };
         });
 
         res.json(teamObj);
