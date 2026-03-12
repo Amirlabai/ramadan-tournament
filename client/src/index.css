@@ -274,6 +274,24 @@ body {
   font-weight: 700;
 }
 
+/* Specific styling for login/profile link - Always Highlighted */
+.tournament-tabs .nav-link.login-link {
+  color: var(--text);
+  background-color: hsl(51, 100%, 50%, 0.4);
+  font-weight: 600;
+}
+
+.tournament-tabs .nav-link.login-link:hover {
+  background-color: rgba(255, 174, 0, 0.15);
+  transform: translateY(-1px);
+}
+
+.tournament-tabs .nav-link.login-link.active {
+  color: var(--primary-green) !important;
+  background-color: rgba(42, 107, 17, 0.1) !important;
+  border-bottom-color: var(--primary-green) !important;
+}
+
 /* Dashboard Cards */
 .dashboard-card {
   border: none;
@@ -512,8 +530,8 @@ body {
   }
 
   .tournament-tabs .nav-link {
-    padding: 10px 15px;
-    font-size: 14px;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.75rem;
   }
 
   /* Phone compatibility for banner SVGs */

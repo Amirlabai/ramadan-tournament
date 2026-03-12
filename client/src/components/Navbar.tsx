@@ -34,13 +34,13 @@ const Navbar = () => {
             {/* Personal profile for all authenticated users */}
             {user ? (
                 <li className="nav-item" role="presentation">
-                    <Link to="/profile" className={`nav-link ${isActive('/profile') ? 'active' : ''}`} role="tab">
+                    <Link to="/profile" className={`nav-link login-link ${isActive('/profile') ? 'active' : ''}`} role="tab">
                         {user.displayName}
                     </Link>
                 </li>
             ) : (
                 <li className="nav-item" role="presentation">
-                    <Link to="/login" className={`nav-link ${isActive('/login') ? 'active' : ''}`} role="tab">
+                    <Link to="/login" className={`nav-link login-link ${isActive('/login') ? 'active' : ''}`} role="tab">
                         התחברות
                     </Link>
                 </li>

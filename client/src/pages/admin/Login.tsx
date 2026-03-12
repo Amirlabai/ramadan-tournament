@@ -146,7 +146,7 @@ const Login = () => {
                     <div className="text-center mt-3">
                         <button
                             type="button"
-                            className="btn btn-link link-light text-decoration-none"
+                            className="btn btn-link link-secondary text-decoration-none"
                             onClick={() => {
                                 setIsLoginView(!isLoginView);
                                 setError('');

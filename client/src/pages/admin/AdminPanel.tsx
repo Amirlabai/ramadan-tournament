@@ -171,18 +171,18 @@ const AdminPanel = () => {
         if (match.score1 != null && match.score2 != null) return 'finished';
         const matchDate = new Date(match.date);
         const now = new Date();
-        
+
         // Jerusalem time comparison
         const isToday = matchDate.getDate() === now.getDate() &&
-                       matchDate.getMonth() === now.getMonth() &&
-                       matchDate.getFullYear() === now.getFullYear();
-        
+            matchDate.getMonth() === now.getMonth() &&
+            matchDate.getFullYear() === now.getFullYear();
+
         if (isToday) {
             // Live if it's 20:00 or later (JLM time - simplified for admin)
             const currentHour = now.getHours();
             return currentHour >= 20 ? 'live' : 'upcoming';
         }
-        
+
         return matchDate < now ? 'finished' : 'upcoming';
     };
 
@@ -258,7 +258,7 @@ const AdminPanel = () => {
     return (
         <div className="admin-panel">
             <div className="admin-header">
-                <h1>פאנל {user?.role === 'Captain' ? 'קפטן' : 'ניהול'}</h1>
+                <h2>פאנל {user?.role === 'Captain' ? 'קפטן' : 'ניהול'}</h2>
                 <button onClick={handleLogout} className="btn btn-danger">
                     התנתק
                 </button>
@@ -310,13 +310,13 @@ const AdminPanel = () => {
             {activeTab === 'matches' && (
                 <div className="tab-content">
                     <div className="admin-filters mb-3">
-                        <button 
+                        <button
                             className={`filter-btn ${matchFilter === 'all' ? 'active' : ''}`}
                             onClick={() => setMatchFilter('all')}
                         >
                             הכל
                         </button>
-                        <button 
+                        <button
                             className={`filter-btn ${matchFilter === 'today' ? 'active' : ''}`}
                             onClick={() => setMatchFilter('today')}
                         >

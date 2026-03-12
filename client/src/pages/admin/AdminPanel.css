@@ -7,25 +7,21 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 2rem;
-}
-
-.admin-header h1 {
-    color: var(--text);
-    margin: 0;
+    margin: 1rem 0;
 }
 
 .tabs {
     display: flex;
     gap: 1rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1rem;
     border-bottom: 2px solid var(--border);
     flex-wrap: wrap;
     /* Allow tabs to wrap on small screens */
 }
 
+
 .tab {
-    padding: 0.75rem 1.5rem;
+    padding: 0.75rem 1rem;
     background: none;
     border: none;
     border-bottom: 3px solid transparent;
@@ -148,12 +144,15 @@
 }
 
 @media (max-width: 768px) {
+    .tab-content h2 {
+        margin-bottom: 0.5rem;
+    }
+
     .admin-panel {
         padding: 0 1rem;
     }
 
     .admin-header {
-        flex-direction: column;
         gap: 1rem;
         align-items: flex-start;
     }
@@ -164,8 +163,8 @@
     }
 
     .tab {
-        padding: 0.5rem 1rem;
-        font-size: 0.9rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
         flex-grow: 1;
         /* Make tabs fill available space */
         text-align: center;
