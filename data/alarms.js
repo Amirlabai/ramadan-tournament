@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-12 10:46:02",
+  "last_updated": "2026-03-12 12:40:50",
   "stats": {
-    "total": 48642,
+    "total": 48643,
     "cities": {
       "כפר כמא": 30,
       "ריחאנייה": 18
@@ -389535,6 +389535,14 @@ window.ALARMS_DATA = {
       "cities": "תימורים",
       "threat": "0",
       "id": "6093",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-12 12:26:34",
+      "cities": "זרעית",
+      "threat": "0",
+      "id": "6095",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
