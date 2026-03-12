@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-12 18:59:45",
+  "last_updated": "2026-03-12 20:56:48",
   "stats": {
-    "total": 48972,
+    "total": 48975,
     "cities": {
       "כפר כמא": 30,
       "ריחאנייה": 18
@@ -392175,6 +392175,30 @@ window.ALARMS_DATA = {
       "cities": "משגב עם",
       "threat": "0",
       "id": "6107",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-12 19:56:43",
+      "cities": "שלומי",
+      "threat": "0",
+      "id": "6108",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-12 20:15:59",
+      "cities": "יראון",
+      "threat": "0",
+      "id": "6109",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-12 20:28:18",
+      "cities": "שלומי",
+      "threat": "0",
+      "id": "6110",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
