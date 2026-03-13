@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-13 07:13:45",
+  "last_updated": "2026-03-13 08:56:51",
   "stats": {
-    "total": 49700,
+    "total": 49703,
     "cities": {
       "כפר כמא": 33,
       "ריחאנייה": 18
@@ -397999,6 +397999,30 @@ window.ALARMS_DATA = {
       "cities": "משגב עם",
       "threat": "0",
       "id": "6122",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-13 08:07:08",
+      "cities": "אזור תעשייה שחורת",
+      "threat": "0",
+      "id": "6123",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-13 08:07:08",
+      "cities": "אילות",
+      "threat": "0",
+      "id": "6123",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-13 08:07:08",
+      "cities": "אילת",
+      "threat": "0",
+      "id": "6123",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
