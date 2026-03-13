@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import CommentSection from '../components/CommentSection';
@@ -15,6 +15,12 @@ const Schedule = () => {
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const getTeamIdByMemberId = (memberId: number) => {
+        const team = teams.find(t => t.players?.some(p => p.memberId === memberId));
+        return team?.id;
+    };
 
     useEffect(() => {
         const state = location.state as { filter?: typeof activeFilter };
@@ -254,7 +260,17 @@ const Schedule = () => {
                                         <h4>כובשים:</h4>
                                         <div className="goals-list">
                                             {Object.entries(goalCounts).map(([memberId, count]) => (
-                                                <span key={memberId} className="goal-item">
+                                                <span 
+                                                    key={memberId} 
+                                                    className="goal-item"
+                                                    onClick={() => {
+                                                        const teamId = getTeamIdByMemberId(Number(memberId));
+                                                        if (teamId) {
+                                                            navigate('/teams', { state: { expandTeamId: teamId } });
+                                                        }
+                                                    }}
+                                                    style={{ cursor: 'pointer' }}
+                                                >
                                                     <center>{getPlayerNickname(Number(memberId))}<br />
                                                         {count > 1 ? `⚽${count}` : '⚽'} <br />
                                                         {getTeamNameById(Number(memberId))}</center>

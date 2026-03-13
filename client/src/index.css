@@ -35,7 +35,6 @@ body {
   color: var(--dark-gray);
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 
 /* Header & News Wrapper */
@@ -249,6 +248,9 @@ body {
   background-color: var(--white);
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .tournament-tabs .nav-link {

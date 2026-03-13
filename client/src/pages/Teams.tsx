@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { teamsAPI } from '../api/client';
 import type { Team } from '../types';
 
@@ -7,6 +8,40 @@ const Teams = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
+    const [shouldScroll, setShouldScroll] = useState(false);
+    const location = useLocation();
+
+    useEffect(() => {
+        const state = location.state as { expandTeamId?: number };
+        if (state?.expandTeamId) {
+            setExpandedTeam(state.expandTeamId);
+            setShouldScroll(true);
+            // Clear state so it doesn't persist on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
+
+    useEffect(() => {
+        if (!loading && shouldScroll && expandedTeam) {
+            // Short delay to ensure DOM is fully ready after loading state change
+            const timer = setTimeout(() => {
+                const element = document.getElementById(`team-row-${expandedTeam}`);
+                if (element) {
+                    const rect = element.getBoundingClientRect();
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    // Align to top with 100px offset to account for sticky header and provide margin
+                    const targetY = rect.top + scrollTop - 100;
+
+                    window.scrollTo({
+                        top: targetY,
+                        behavior: 'smooth'
+                    });
+                    setShouldScroll(false);
+                }
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [loading, shouldScroll, expandedTeam]);
 
     const fetchTeams = async (isBackground = false) => {
         try {
@@ -66,7 +101,8 @@ const Teams = () => {
                             return (
                                 <>
                                     <tr
-                                        className="team-row"
+                                        id={`team-row-${team.id}`}
+                                        className={`team-row ${isExpanded ? 'bg-light' : ''}`}
                                         onClick={() => toggleTeam(team.id)}
                                         style={{ cursor: 'pointer' }}
                                     >
