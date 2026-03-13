@@ -64,7 +64,7 @@ const Schedule = () => {
             // Poll during tournament hours or if match is today
             const now = new Date();
             const hour = now.getHours();
-            if (hasMatchToday || (hour >= 18 && hour <= 23)) {
+            if (hasMatchToday || (hour >= 20 && hour <= 23)) {
                 fetchData(true);
             }
         }, 30000);
@@ -260,8 +260,8 @@ const Schedule = () => {
                                         <h4>כובשים:</h4>
                                         <div className="goals-list">
                                             {Object.entries(goalCounts).map(([memberId, count]) => (
-                                                <span 
-                                                    key={memberId} 
+                                                <span
+                                                    key={memberId}
                                                     className="goal-item"
                                                     onClick={() => {
                                                         const teamId = getTeamIdByMemberId(Number(memberId));

@@ -32,7 +32,7 @@ const Stats = () => {
 
         const interval = setInterval(() => {
             const hour = new Date().getHours();
-            if (hour >= 18 && hour <= 23) {
+            if (hour >= 20 && hour <= 23) {
                 fetchStats(true);
             }
         }, 30000);

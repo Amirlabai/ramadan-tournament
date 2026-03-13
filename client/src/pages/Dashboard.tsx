@@ -48,7 +48,7 @@ const Dashboard = () => {
             // Always poll during typical tournament hours (e.g., 18:00 - 23:59 JLM) or if match is today
             const now = new Date();
             const hour = now.getHours();
-            if (hasMatchToday || (hour >= 18 && hour <= 23)) {
+            if (hasMatchToday || (hour >= 20 && hour <= 23)) {
                 fetchDashboard(true);
             }
         }, 30000);
@@ -182,8 +182,8 @@ const Dashboard = () => {
                         <h2>משחקים אחרונים</h2>
                         <div className="matches-list">
                             {data.recentMatches.slice(0, 5).map((match) => (
-                                <div 
-                                    key={match._id} 
+                                <div
+                                    key={match._id}
                                     className="match-item"
                                     onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
                                 >
