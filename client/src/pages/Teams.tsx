@@ -108,7 +108,7 @@ const Teams = () => {
                                     >
                                         <td>{team.id}</td>
                                         <td className="fw-bold fs-8">
-                                            <div className="d-flex align-items-center gap-2" style={{ width: 'max-content' }}>
+                                            <div className="d-flex align-items-center gap-2">
                                                 {team.logoPosition === 'right' && team.logoUrl && (
                                                     <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
