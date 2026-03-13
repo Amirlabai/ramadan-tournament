@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
@@ -16,6 +17,7 @@ const Dashboard = () => {
     const [showClaimModal, setShowClaimModal] = useState(false);
 
     const { user } = useAuth();
+    const navigate = useNavigate();
 
     const fetchDashboard = async (isBackground = false) => {
         try {
@@ -180,7 +182,11 @@ const Dashboard = () => {
                         <h2>משחקים אחרונים</h2>
                         <div className="matches-list">
                             {data.recentMatches.slice(0, 5).map((match) => (
-                                <div key={match._id} className="match-item">
+                                <div 
+                                    key={match._id} 
+                                    className="match-item"
+                                    onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
+                                >
                                     <span className="match-date">{formatDate(match.date)}</span>
                                     <div className="match-score">
                                         <div className="flex-1 d-flex justify-content-end">

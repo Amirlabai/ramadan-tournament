@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import CommentSection from '../components/CommentSection';
@@ -13,6 +14,16 @@ const Schedule = () => {
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
+    const location = useLocation();
+
+    useEffect(() => {
+        const state = location.state as { filter?: typeof activeFilter };
+        if (state?.filter) {
+            setActiveFilter(state.filter);
+            // Clear state so it doesn't persist on refresh
+            window.history.replaceState({}, document.title);
+        }
+    }, [location.state]);
 
     const fetchData = async (isBackground = false) => {
         try {
