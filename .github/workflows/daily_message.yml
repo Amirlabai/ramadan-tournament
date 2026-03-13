@@ -1,14 +1,20 @@
-name: Daily Iran-Israel News
+name: Tournament Stats Tracker
 
 on:
   schedule:
-    - cron: '0 6 * * *'   # 06:00 UTC = 08:00 Israel time (standard), 09:00 DST
-    - cron: '0 12 * * *'
+    # Jerusalem is UTC+3 (DST) / UTC+2 (standard). During Ramadan (March 2026) Jerusalem is UTC+2.
+    # 20:00 Jerusalem = 18:00 UTC
+    # 21:00 Jerusalem = 19:00 UTC
+    # 22:00 Jerusalem = 20:00 UTC
+    # 23:00 Jerusalem = 21:00 UTC
+    - cron: '0 18 * * *'
+    - cron: '0 19 * * *'
     - cron: '0 20 * * *'
+    - cron: '0 21 * * *'
   workflow_dispatch:
 
 jobs:
-  post-news:
+  track-stats:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -22,7 +28,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Generate and post news
+      - name: Track stats and post news
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           MONGODB_URI:    ${{ secrets.MONGODB_URI }}

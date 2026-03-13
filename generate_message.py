@@ -1,73 +1,172 @@
 """
-Daily Iran-Israel News Generator
-Fetches headlines from news RSS feeds, summarizes in Hebrew via Gemini,
-then writes directly to MongoDB.
+Tournament Stats Tracker & News Generator
+Fetches current standings and top scorers from MongoDB,
+compares against the last snapshot to detect changes,
+then writes an AI-generated Hebrew summary to the news feed.
 """
 
 import os
 import sys
-import time
-import urllib.request
-import urllib.error
-import xml.etree.ElementTree as ET
+import json
 import google.generativeai as genai
 from datetime import datetime, timezone
+from pymongo import MongoClient
 
 
-# ── News fetching via RSS ─────────────────────────────────────────────────────
+# ── MongoDB connection ────────────────────────────────────────────────────────
 
-RSS_FEEDS = [
-    # BBC Middle East
-    "https://feeds.bbci.co.uk/news/world/middle_east/rss.xml",
-    # Reuters world
-    "https://feeds.reuters.com/reuters/worldNews",
-    # Jerusalem Post
-    "https://www.jpost.com/rss/rssfeedsheadlines.aspx",
-    # Times of Israel
-    "https://www.timesofisrael.com/feed/",
-]
-
-KEYWORDS = {"iran", "israel", "iranian", "israeli", "idf", "irgc", "teheran",
-            "tehran", "jerusalem", "netanyahu", "khamenei"}
+def get_db():
+    uri = os.environ.get("MONGODB_URI")
+    if not uri:
+        raise ValueError("MONGODB_URI environment variable is not set")
+    client = MongoClient(uri, serverSelectionTimeoutMS=10000)
+    return client, client.get_default_database()
 
 
-def fetch_rss_headlines(max_total: int = 8) -> list[str]:
-    """Pull headlines from RSS feeds, keeping only Iran/Israel-related items."""
-    headlines = []
-    for url in RSS_FEEDS:
-        if len(headlines) >= max_total:
-            break
-        try:
-            req = urllib.request.Request(
-                url,
-                headers={"User-Agent": "Mozilla/5.0 (compatible; NewsBot/1.0)"},
+# ── Stats calculation (mirrors StatsService.ts) ───────────────────────────────
+
+def calculate_standings(db) -> list[dict]:
+    teams = {t["id"]: t for t in db["teams"].find()}
+    matches = list(db["matches"].find({"phase": "group"}))
+
+    standings = {}
+    for tid, team in teams.items():
+        standings[tid] = {
+            "teamId": tid,
+            "teamName": team["name"],
+            "played": 0, "won": 0, "drawn": 0, "lost": 0,
+            "goalsFor": 0, "goalsAgainst": 0, "points": 0,
+        }
+
+    for match in matches:
+        s1, s2 = match.get("score1"), match.get("score2")
+        if s1 is None or s2 is None:
+            continue
+        t1 = standings.get(match["team1Id"])
+        t2 = standings.get(match["team2Id"])
+        if not t1 or not t2:
+            continue
+
+        t1["played"] += 1; t2["played"] += 1
+        t1["goalsFor"] += s1; t1["goalsAgainst"] += s2
+        t2["goalsFor"] += s2; t2["goalsAgainst"] += s1
+
+        if s1 > s2:
+            t1["won"] += 1; t1["points"] += 3; t2["lost"] += 1
+        elif s2 > s1:
+            t2["won"] += 1; t2["points"] += 3; t1["lost"] += 1
+        else:
+            t1["drawn"] += 1; t1["points"] += 1
+            t2["drawn"] += 1; t2["points"] += 1
+
+    result = sorted(
+        standings.values(),
+        key=lambda x: (-x["points"], -(x["goalsFor"] - x["goalsAgainst"]), -x["goalsFor"])
+    )
+    for i, entry in enumerate(result):
+        entry["rank"] = i + 1
+        entry["goalDifference"] = entry["goalsFor"] - entry["goalsAgainst"]
+    return result
+
+
+def calculate_top_scorers(db, top_n: int = 5) -> list[dict]:
+    teams = list(db["teams"].find())
+    matches = list(db["matches"].find())
+
+    members = {}
+    team_matches = {}
+    for team in teams:
+        team_matches[team["id"]] = 0
+        for p in team.get("players", []):
+            name = f"{p.get('firstName', '')} {p.get('lastName', '')}".strip() or p.get("nickname", "")
+            members[p["memberId"]] = {"name": name, "teamName": team["name"], "teamId": team["id"]}
+
+    scorer_goals = {}
+    for match in matches:
+        if match.get("score1") is None or match.get("score2") is None:
+            continue
+        if match["team1Id"] in team_matches:
+            team_matches[match["team1Id"]] += 1
+        if match["team2Id"] in team_matches:
+            team_matches[match["team2Id"]] += 1
+        for goal in match.get("goals", []):
+            mid = goal["memberId"]
+            scorer_goals[mid] = scorer_goals.get(mid, 0) + 1
+
+    scorers = []
+    for mid, goals in scorer_goals.items():
+        info = members.get(mid, {})
+        played = team_matches.get(info.get("teamId", -1), 0)
+        scorers.append({
+            "memberId": mid,
+            "playerName": info.get("name", "Unknown"),
+            "teamName": info.get("teamName", "Unknown"),
+            "goals": goals,
+            "gamesPlayed": played,
+        })
+
+    scorers.sort(key=lambda x: (-x["goals"], -(x["goals"] / x["gamesPlayed"]) if x["gamesPlayed"] > 0 else 0))
+    return scorers[:top_n]
+
+
+# ── Snapshot comparison ───────────────────────────────────────────────────────
+
+def load_last_snapshot(db) -> dict | None:
+    doc = db["stats_snapshots"].find_one(sort=[("savedAt", -1)])
+    return doc if doc else None
+
+
+def save_snapshot(db, standings: list, scorers: list) -> None:
+    db["stats_snapshots"].insert_one({
+        "standings": standings,
+        "topScorers": scorers,
+        "savedAt": datetime.now(timezone.utc),
+    })
+
+
+def detect_changes(old: dict | None, standings: list, scorers: list) -> list[str]:
+    """Return a list of plain-text change descriptions (empty = no changes)."""
+    if old is None:
+        return ["נתוני הטורניר נשמרו לראשונה. סטטיסטיקות עדכניות זמינות."]
+
+    changes = []
+
+    # --- Standings changes ---
+    old_standings = {s["teamId"]: s for s in old.get("standings", [])}
+    for entry in standings:
+        tid = entry["teamId"]
+        old_e = old_standings.get(tid)
+        if old_e is None:
+            continue
+        if entry["points"] != old_e["points"]:
+            diff = entry["points"] - old_e["points"]
+            changes.append(
+                f"קבוצת {entry['teamName']} הוסיפה {diff} נקודות ועומדת על {entry['points']} נקודות (מקום #{entry['rank']})"
             )
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                raw = resp.read()
-            root = ET.fromstring(raw)
-            # RSS items live under channel/item
-            for item in root.iter("item"):
-                title_el = item.find("title")
-                desc_el = item.find("description")
-                title = (title_el.text or "").strip()
-                desc = (desc_el.text or "").strip()
-                combined = f"{title} {desc}".lower()
-                if any(kw in combined for kw in KEYWORDS):
-                    headline = title if title else desc[:120]
-                    if headline and headline not in headlines:
-                        headlines.append(headline)
-                        if len(headlines) >= max_total:
-                            break
-        except Exception as e:
-            print(f"Warning: RSS fetch failed for {url}: {e}", file=sys.stderr)
+        if entry["rank"] != old_e.get("rank", entry["rank"]):
+            changes.append(
+                f"קבוצת {entry['teamName']} זזה למקום #{entry['rank']} בטבלה"
+            )
 
-    return headlines
+    # --- Top scorer changes ---
+    old_scorers = {s["memberId"]: s for s in old.get("topScorers", [])}
+    for scorer in scorers:
+        mid = scorer["memberId"]
+        old_s = old_scorers.get(mid)
+        if old_s is None:
+            continue
+        if scorer["goals"] != old_s["goals"]:
+            new_goals = scorer["goals"] - old_s["goals"]
+            changes.append(
+                f"{scorer['playerName']} מ{scorer['teamName']} כבש {new_goals} שער{'ים' if new_goals > 1 else ''} ועומד על {scorer['goals']} שערים"
+            )
+
+    return changes
 
 
-# ── Gemini summarizer with retry ──────────────────────────────────────────────
+# ── Gemini summary ────────────────────────────────────────────────────────────
 
-def summarize_in_hebrew(snippets: list[str]) -> str:
-    """Summarize snippets in Hebrew using Gemini SDK (handles rate limits internally)."""
+def generate_summary(changes: list[str]) -> str:
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("GEMINI_API_KEY environment variable is not set")
@@ -75,49 +174,33 @@ def summarize_in_hebrew(snippets: list[str]) -> str:
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel("gemini-2.5-flash")
 
-    context = "\n".join(f"- {s}" for s in snippets) if snippets else "אין כותרות חדשות זמינות."
-
+    bullets = "\n".join(f"- {c}" for c in changes)
     prompt = (
-        "אתה עיתונאי ישראלי. "
-        "סכם את הכותרות הבאות על המתחים בין ישראל לאיראן בעברית שוטפת ותמציתית — "
-        "2 עד 4 משפטים בלבד. כתוב ישירות, ללא הקדמות.\n\n"
-        "מנהיג העליון של איראן נהרג כבר בתחילת המלחמה כבר."
-        f"כותרות:\n{context}"
+        "אתה כתב ספורט בטורניר כדורגל. "
+        "תאר את השינויים הבאים בעברית קצרה וישירה — 2 עד 3 משפטים בלבד. "
+        "כתוב בסגנון ניוז-פלאש, ללא הקדמות. ודא שהמשפטים ממוספרים או מופרדים בנקודה.\n\n"
+        f"שינויים:\n{bullets}"
     )
 
     response = model.generate_content(prompt)
-
-    def _split_sentences(text: str) -> str:
-        parts = [s.strip() for s in text.split(".") if s.strip()]
-        return ".\n".join(parts) + "."
-
+    text = ""
     if hasattr(response, "text") and response.text:
-        return _split_sentences(response.text.strip())
-    if hasattr(response, "candidates") and response.candidates:
-        return _split_sentences(response.candidates[0].content.parts[0].text.strip())
+        text = response.text.strip()
+    elif hasattr(response, "candidates") and response.candidates:
+        text = response.candidates[0].content.parts[0].text.strip()
 
-    raise ValueError("Gemini returned an empty response")
+    if not text:
+        raise ValueError("Gemini returned an empty response")
+
+    # Split sentences onto separate lines
+    parts = [s.strip() for s in text.split(".") if s.strip()]
+    return ".\n".join(parts) + "."
 
 
 # ── MongoDB write ─────────────────────────────────────────────────────────────
 
-def post_news_to_mongo(summary: str) -> None:
-    """Write the news item directly to MongoDB."""
-    from pymongo import MongoClient
-
-    uri = os.environ.get("MONGODB_URI")
-    if not uri:
-        raise ValueError("MONGODB_URI environment variable is not set")
-
-    client = MongoClient(uri, serverSelectionTimeoutMS=10000)
-    db = client.get_default_database()
-
-    today_str = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+def post_news(db, summary: str) -> None:
     collection = db["news"]
-
-    # Remove today's existing entry to avoid duplicates
-    collection.delete_many({"title": "Iran vs Israel", "date": {"$regex": f"^{today_str}"}})
-
     last = collection.find_one(sort=[("id", -1)])
     next_id = (last["id"] if last else 0) + 1
 
@@ -131,39 +214,65 @@ def post_news_to_mongo(summary: str) -> None:
     }
     collection.insert_one(doc)
     print(f"Inserted news doc with id={next_id}")
-    client.close()
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main() -> int:
-    # 1. Fetch RSS headlines
-    print("Fetching Iran-Israel headlines from RSS feeds…")
-    snippets = fetch_rss_headlines(max_total=8)
-    print(f"Found {len(snippets)} relevant headline(s).")
-    for s in snippets:
-        print(f"  • {s}")
+    print("Connecting to MongoDB…")
+    client, db = get_db()
 
-    # 2. Summarize in Hebrew
-    print("\nGenerating Hebrew summary via Gemini…")
     try:
-        summary = summarize_in_hebrew(snippets)
-    except Exception as e:
-        print(f"✗ Failed to generate summary: {e}", file=sys.stderr)
-        return 2
+        # 1. Calculate current stats
+        print("Calculating standings and top scorers…")
+        standings = calculate_standings(db)
+        scorers = calculate_top_scorers(db, top_n=5)
 
-    print(f"\nHebrew summary:\n{summary}\n")
+        print("Standings:")
+        for s in standings:
+            print(f"  #{s['rank']} {s['teamName']} — {s['points']}pts")
+        print("Top scorers:")
+        for sc in scorers:
+            print(f"  {sc['playerName']} ({sc['teamName']}) — {sc['goals']} goals")
 
-    # 3. Write to MongoDB
-    print("Writing to MongoDB…")
-    try:
-        post_news_to_mongo(summary)
-    except Exception as e:
-        print(f"✗ Failed to write to MongoDB: {e}", file=sys.stderr)
-        return 3
+        # 2. Load previous snapshot and compare
+        last_snapshot = load_last_snapshot(db)
+        changes = detect_changes(last_snapshot, standings, scorers)
 
-    print("✓ News posted successfully!")
-    return 0
+        if not changes:
+            print("No changes detected. Nothing to post.")
+            save_snapshot(db, standings, scorers)
+            return 0
+
+        print(f"\nDetected {len(changes)} change(s):")
+        for c in changes:
+            print(f"  • {c}")
+
+        # 3. Summarize via Gemini
+        print("\nGenerating Hebrew summary via Gemini…")
+        try:
+            summary = generate_summary(changes)
+        except Exception as e:
+            print(f"✗ Failed to generate summary: {e}", file=sys.stderr)
+            return 2
+
+        print(f"\nSummary:\n{summary}\n")
+
+        # 4. Post to news feed
+        print("Writing to MongoDB news…")
+        try:
+            post_news(db, summary)
+        except Exception as e:
+            print(f"✗ Failed to write news: {e}", file=sys.stderr)
+            return 3
+
+        # 5. Save new snapshot
+        save_snapshot(db, standings, scorers)
+        print("✓ Stats tracked and news posted successfully!")
+        return 0
+
+    finally:
+        client.close()
 
 
 if __name__ == "__main__":
