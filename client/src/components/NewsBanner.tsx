@@ -31,7 +31,7 @@ const NewsBanner = () => {
 
     useEffect(() => {
         const handleScroll = () => {
-            if (window.scrollY > 50) {
+            if (window.scrollY > 200) {
                 setIsCollapsed(true);
             }
         };

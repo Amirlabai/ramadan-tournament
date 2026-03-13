@@ -91,7 +91,7 @@ const Dashboard = () => {
         return (
             <div className={`d-flex align-items-center gap-2 ${position === 'left' ? 'flex-row-reverse' : ''}`}>
                 <span className="team-name">{teamName}</span>
-                <img src={logo} alt="" style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+                <img className="team-logo-inline" src={logo} alt="" style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
             </div>
         );
     };

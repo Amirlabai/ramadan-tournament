@@ -1,0 +1,53 @@
+.scroll-to-top {
+    position: fixed;
+    bottom: 20px;
+    /* Above the alarms widget (bottom: 20px + ~50px height) */
+    right: 80px;
+    z-index: 999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    transform: translateY(10px);
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.scroll-btn {
+    background: var(--primary-green);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    padding-bottom: 5px;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.scroll-btn:hover {
+    background: var(--primary-green);
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+@media (max-width: 768px) {
+    .scroll-to-top {
+        right: auto;
+        left: 50%;
+        transform: translate(-50%, 10px);
+    }
+
+    .scroll-to-top.visible {
+        transform: translate(-50%, 0);
+    }
+}

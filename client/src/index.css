@@ -180,7 +180,7 @@ body {
   padding: 1.5rem 1rem;
   margin: 0 0 2rem 0;
   width: 100%;
-  max-width: 100vw;
+  max-width: 100%;
   border-radius: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   animation: slideIn 0.5s ease-out;
@@ -541,6 +541,10 @@ body {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .player-card-stats .fw-bold {
+    font-size: 0.7rem;
+  }
+
   .tournament-header h1 {
     font-size: 2rem;
   }

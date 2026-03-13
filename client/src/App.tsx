@@ -11,6 +11,7 @@ import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
 import IftarTimer from './components/IftarTimer';
 import AlarmsWidget from './components/AlarmsWidget';
+import ScrollToTop from './components/ScrollToTop';
 import PlayerZone from './pages/PlayerZone';
 import './App.css';
 import { Analytics } from '@vercel/analytics/react';
@@ -71,6 +72,8 @@ function App() {
 
         {/* Footer */}
         <Footer />
+        
+        <ScrollToTop />
 
         <Analytics />
       </div>

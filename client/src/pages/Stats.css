@@ -66,13 +66,17 @@ tr.qualified {
 }
 
 .positive {
-    color: var(--secondary);
-    font-weight: 600;
+    background-color: var(--primary);
+    color: var(--bg);
+    border-radius: 15%;
+    transform: scale(0.8);
 }
 
 .negative {
-    color: var(--danger);
-    font-weight: 600;
+    background-color: var(--danger);
+    color: var(--bg);
+    border-radius: 15%;
+    transform: scale(0.8);
 }
 
 .scorers-list {
@@ -147,23 +151,15 @@ tr.qualified {
         grid-template-columns: 1fr;
     }
 
-    table {
-        font-size: 0.875rem;
-    }
-
     th,
     td {
+        font-size: 0.6rem;
         padding: 0.5rem 0.25rem;
     }
-}
 
-@media (max-width: 468px) {
-    th {
-        font-size: 0.75rem;
-    }
 
     .stats-page .team-name {
-        font-size: 0.75rem;
+        font-size: 0.65rem;
         text-align: center;
     }
 

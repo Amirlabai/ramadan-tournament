@@ -239,7 +239,7 @@ const RosterManager = () => {
                                         {(team as any).logoUrl && (
                                             <div className="position-relative d-flex align-items-center">
                                                 <img src={(team as any).logoUrl.startsWith('http') ? (team as any).logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${(team as any).logoUrl}`}
-                                                    alt="" style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+                                                    alt="" className="team-logo-inline" />
                                                 <button className="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute top-0 start-0"
                                                     style={{ width: '14px', height: '14px', borderRadius: '50%', transform: 'translate(-50%, -50%)', fontSize: '8px' }}
                                                     onClick={(e) => { e.stopPropagation(); handleDeleteTeamLogo(team.id); }} title="מחק לוגו">

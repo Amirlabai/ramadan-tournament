@@ -74,11 +74,11 @@ const Teams = () => {
                                         <td className="fw-bold fs-8">
                                             <div className="d-flex align-items-center gap-2" style={{ width: 'max-content' }}>
                                                 {team.logoPosition === 'right' && team.logoUrl && (
-                                                    <img src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                                 <span>{team.name}</span>
                                                 {team.logoPosition === 'left' && team.logoUrl && (
-                                                    <img src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                             </div>
                                         </td>
@@ -106,7 +106,7 @@ const Teams = () => {
 
                                                         return team.players.map(player => {
                                                             const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
-                                                            
+
                                                             return (
                                                                 <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
                                                                     <div
@@ -127,9 +127,9 @@ const Teams = () => {
                                                                             </div>
                                                                             <div className="d-flex justify-content-between small">
                                                                                 <span className="text-muted">ממוצע:</span>
-                                                                                <span className="fw-bold text-primary">
-                                                                                    {(player.totalGoals && player.gamesPlayed) 
-                                                                                        ? (player.totalGoals / player.gamesPlayed).toFixed(2) 
+                                                                                <span className="text-muted">
+                                                                                    {(player.totalGoals && player.gamesPlayed)
+                                                                                        ? (player.totalGoals / player.gamesPlayed).toFixed(2)
                                                                                         : '0.00'}
                                                                                 </span>
                                                                             </div>
@@ -194,8 +194,8 @@ const Teams = () => {
                                     <div className="text-center">
                                         <div className="small text-muted">ממוצע למשחק</div>
                                         <div className="fs-4 fw-bold text-primary">
-                                            {(selectedPlayer.totalGoals && selectedPlayer.gamesPlayed) 
-                                                ? (selectedPlayer.totalGoals / selectedPlayer.gamesPlayed).toFixed(2) 
+                                            {(selectedPlayer.totalGoals && selectedPlayer.gamesPlayed)
+                                                ? (selectedPlayer.totalGoals / selectedPlayer.gamesPlayed).toFixed(2)
                                                 : '0.00'}
                                         </div>
                                     </div>
