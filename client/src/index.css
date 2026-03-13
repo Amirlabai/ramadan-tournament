@@ -595,6 +595,11 @@ body {
 }
 
 @media (max-width: 576px) {
+  .tournament-tabs .nav-link {
+    padding: 0.25rem 0.25rem;
+    font-size: 0.6rem;
+  }
+
   .news-banner {
     padding: 10px 15px;
   }
