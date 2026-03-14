@@ -7,9 +7,6 @@ on:
     # 21:00 Jerusalem = 19:00 UTC
     # 22:00 Jerusalem = 20:00 UTC
     # 23:00 Jerusalem = 21:00 UTC
-    - cron: '0 18 * * *'
-    - cron: '0 19 * * *'
-    - cron: '0 20 * * *'
     - cron: '0 21 * * *'
   workflow_dispatch:
 

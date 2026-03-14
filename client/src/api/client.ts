@@ -102,6 +102,7 @@ export const adminAPI = {
     getUserMappings: () => api.get('/admin/user-mappings'),
     updateUserMapping: (userId: string, data: { teamId?: number; status?: string; role?: string }) =>
         api.patch(`/admin/user-mappings/${userId}`, data),
+    triggerNewsAutomation: () => api.post('/admin/trigger-automation'),
 };
 
 export const commentsAPI = {

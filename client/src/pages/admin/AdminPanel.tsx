@@ -25,6 +25,7 @@ const AdminPanel = () => {
     const [newWordLanguage, setNewWordLanguage] = useState('other');
     const [comments, setComments] = useState<any[]>([]);
     const [matchFilter, setMatchFilter] = useState<'all' | 'upcoming' | 'live' | 'finished' | 'today'>('all');
+    const [automationLoading, setAutomationLoading] = useState(false);
 
     const [searchFilter, setSearchFilter] = useState('');
     const navigate = useNavigate();
@@ -249,6 +250,28 @@ const AdminPanel = () => {
         }
     };
 
+    const handleTriggerAutomation = async () => {
+        setAutomationLoading(true);
+        try {
+            const res = await adminAPI.triggerNewsAutomation();
+            if (res.data.status === 'posted') {
+                alert(`עדכון בוצע בהצלחה!\n\n${res.data.message}`);
+                // Refresh news feed
+                const newsRes = await newsAPI.getAll();
+                setNews(newsRes.data);
+            } else if (res.data.status === 'no_changes') {
+                alert('לא נמצאו שינויים המצדיקים עדכון חדשות.');
+            } else {
+                alert(`שגיאה: ${res.data.message}`);
+            }
+        } catch (err: any) {
+            console.error('Automation error:', err);
+            alert('נכשל בהפעלת האוטומציה: ' + (err.response?.data?.message || err.message));
+        } finally {
+            setAutomationLoading(false);
+        }
+    };
+
 
 
 
@@ -412,9 +435,18 @@ const AdminPanel = () => {
                         <div className="card">
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h2>חדשות</h2>
-                                <button className="btn btn-primary" onClick={() => { setEditingNews(null); setShowNewsForm(true); }}>
-                                    + הוסף חדשה
-                                </button>
+                                <div className="d-flex gap-2">
+                                    <button 
+                                        className="btn btn-outline-success" 
+                                        onClick={handleTriggerAutomation}
+                                        disabled={automationLoading}
+                                    >
+                                        {automationLoading ? 'מעבד...' : '⚡ צור עדכון יומי (AI)'}
+                                    </button>
+                                    <button className="btn btn-primary" onClick={() => { setEditingNews(null); setShowNewsForm(true); }}>
+                                        + הוסף חדשה
+                                    </button>
+                                </div>
                             </div>
                             <div className="items-list">
                                 {news.map(item => (

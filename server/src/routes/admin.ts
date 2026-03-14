@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
-import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto } from '../controllers/adminController';
+import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
 import { getPendingTeamRequests, approveTeamRequest, getUserMappings, updateUserMapping } from '../controllers/userController';
 import { authenticate, authorize } from '../middleware/auth';
 import os from 'os';
@@ -33,4 +33,7 @@ router.post('/team-requests/:userId', authenticate, authorize(['Admin', 'admin']
 router.get('/user-mappings', authenticate, authorize(['Admin', 'admin']), getUserMappings);
 router.patch('/user-mappings/:userId', authenticate, authorize(['Admin', 'admin']), updateUserMapping);
 
-export default router;
+// News automation
+router.post('/trigger-automation', authenticate, authorize(['Admin', 'admin']), triggerAutomation);
+
+export default router;
