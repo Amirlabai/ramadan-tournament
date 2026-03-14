@@ -30,7 +30,16 @@ export const teamsAPI = {
             headers: { 'Content-Type': 'multipart/form-data' }
         }),
     deleteLogo: (id: number) => api.delete(`/teams/${id}/logo`),
+    addPlayer: (teamId: number, data: {
+        firstName: string; lastName?: string; nickname?: string;
+        number: number; position?: string; isCaptain?: boolean; birthYear?: number;
+    }) => api.post(`/teams/${teamId}/players`, data),
+    deletePlayer: (teamId: number, memberId: number) =>
+        api.delete(`/teams/${teamId}/players/${memberId}`),
+    movePlayer: (teamId: number, memberId: number, targetTeamId: number) =>
+        api.patch(`/teams/${teamId}/players/${memberId}/move`, { targetTeamId }),
 };
+
 
 export const matchesAPI = {
     getAll: () => api.get('/matches'),

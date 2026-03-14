@@ -1,7 +1,19 @@
 import { Router } from 'express';
 import os from 'os';
 import multer from 'multer';
-import { getTeams, getTeamById, getAvailablePlayers, getTeamRequests, approveTeamRequest, updateTeamMetadata, uploadTeamLogo, deleteTeamLogo } from '../controllers/teamController';
+import {
+    getTeams,
+    getTeamById,
+    getAvailablePlayers,
+    getTeamRequests,
+    approveTeamRequest,
+    updateTeamMetadata,
+    uploadTeamLogo,
+    deleteTeamLogo,
+    addPlayer,
+    deletePlayer,
+    movePlayer,
+} from '../controllers/teamController';
 import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
@@ -19,5 +31,10 @@ router.post('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain
 router.patch('/:id/metadata', authenticate, authorize(['Admin', 'admin', 'Captain']), updateTeamMetadata);
 router.post('/:id/logo', authenticate, authorize(['Admin', 'admin', 'Captain']), upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, authorize(['Admin', 'admin', 'Captain']), deleteTeamLogo);
+
+// Admin tools: Player management
+router.post('/:id/players', authenticate, authorize(['Admin', 'admin']), addPlayer);
+router.delete('/:id/players/:memberId', authenticate, authorize(['Admin', 'admin']), deletePlayer);
+router.patch('/:id/players/:memberId/move', authenticate, authorize(['Admin', 'admin']), movePlayer);
 
 export default router;

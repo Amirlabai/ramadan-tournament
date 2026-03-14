@@ -228,3 +228,71 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ── Add-player inline form ────────────────────────────── */
+.add-player-form {
+    background: rgba(42, 107, 17, 0.07);
+    border: 1px dashed rgba(42, 107, 17, 0.35);
+    border-radius: 8px;
+    animation: fadeSlideIn 0.2s ease;
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Add Player header button ──────────────────────────── */
+.add-player-btn {
+    font-size: 0.78rem;
+    padding: 0.25rem 0.65rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    transition: all 0.2s;
+}
+
+.add-player-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(42, 107, 17, 0.35);
+}
+
+/* ── Per-player admin actions row ─────────────────────── */
+.admin-player-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+}
+
+.player-move-select {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    background: #1d2b1d;
+    color: #ccc;
+    border: 1px solid rgba(255,255,255,0.12);
+    max-width: 150px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.player-move-select:hover,
+.player-move-select:focus {
+    border-color: var(--primary-green);
+    outline: none;
+}
+
+.player-delete-btn {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+    line-height: 1;
+}
+
+@media (max-width: 576px) {
+    .player-move-select {
+        max-width: 120px;
+        font-size: 0.68rem;
+    }
+}

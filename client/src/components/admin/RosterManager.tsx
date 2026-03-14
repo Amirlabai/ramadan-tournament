@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminAPI, teamsAPI } from '../../api/client';
+import { useAuth } from '../../contexts/AuthContext';
 import type { Team } from '../../types';
 import './RosterManager.css';
 
@@ -31,13 +32,38 @@ interface MappedUser {
     resolvedPlayerName?: string;
 }
 
+interface AddPlayerForm {
+    firstName: string;
+    lastName: string;
+    nickname: string;
+    number: string;
+    position: string;
+    isCaptain: boolean;
+}
+
+const EMPTY_FORM: AddPlayerForm = {
+    firstName: '',
+    lastName: '',
+    nickname: '',
+    number: '',
+    position: '',
+    isCaptain: false,
+};
+
 const RosterManager = () => {
+    const { user } = useAuth();
+    const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+
     const [teams, setTeams] = useState<Team[]>([]);
     const [userMappings, setUserMappings] = useState<MappedUser[]>([]);
     const [teamRequests, setTeamRequests] = useState<TeamRequest[]>([]);
     const [loading, setLoading] = useState(true);
     const [expandedTeams, setExpandedTeams] = useState<Set<number>>(new Set());
     const [actionLoading, setActionLoading] = useState<string | null>(null);
+
+    // Add-player form state: keyed by teamId
+    const [addingToTeam, setAddingToTeam] = useState<number | null>(null);
+    const [addForm, setAddForm] = useState<AddPlayerForm>(EMPTY_FORM);
 
     const fetchData = async () => {
         try {
@@ -59,17 +85,6 @@ const RosterManager = () => {
     useEffect(() => {
         fetchData();
     }, []);
-
-    useEffect(() => {
-        if (userMappings.length > 0) {
-            console.log('User Mappings Data:', userMappings.map(u => ({
-                name: u.displayName,
-                team: u.mappedPlayerInfo.teamId,
-                member: u.mappedPlayerInfo.memberId,
-                status: u.mappedPlayerInfo.status
-            })));
-        }
-    }, [userMappings]);
 
     const toggleTeam = (teamId: number) => {
         const next = new Set(expandedTeams);
@@ -119,6 +134,60 @@ const RosterManager = () => {
             await fetchData();
         } catch (err) {
             alert('שגיאה במחיקת לוגו הקבוצה');
+        }
+    };
+
+    // --- New admin actions ---
+
+    const handleAddPlayer = async (teamId: number) => {
+        if (!addForm.firstName.trim() || !addForm.number.trim()) {
+            alert('שם פרטי ומספר שחקן הם שדות חובה');
+            return;
+        }
+        setActionLoading(`add-${teamId}`);
+        try {
+            await teamsAPI.addPlayer(teamId, {
+                firstName: addForm.firstName.trim(),
+                lastName: addForm.lastName.trim(),
+                nickname: addForm.nickname.trim(),
+                number: Number(addForm.number),
+                position: addForm.position.trim(),
+                isCaptain: addForm.isCaptain,
+            });
+            setAddingToTeam(null);
+            setAddForm(EMPTY_FORM);
+            await fetchData();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'שגיאה בהוספת שחקן');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleDeletePlayer = async (teamId: number, memberId: number, playerName: string) => {
+        if (!confirm(`האם למחוק את השחקן ${playerName} מהקבוצה? פעולה זו בלתי הפיכה.`)) return;
+        setActionLoading(`del-${teamId}-${memberId}`);
+        try {
+            await teamsAPI.deletePlayer(teamId, memberId);
+            await fetchData();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'שגיאה במחיקת שחקן');
+        } finally {
+            setActionLoading(null);
+        }
+    };
+
+    const handleMovePlayer = async (teamId: number, memberId: number, targetTeamId: number, playerName: string) => {
+        const targetTeam = teams.find(t => t.id === targetTeamId);
+        if (!confirm(`להעביר את ${playerName} לקבוצה "${targetTeam?.name}"?`)) return;
+        setActionLoading(`move-${teamId}-${memberId}`);
+        try {
+            await teamsAPI.movePlayer(teamId, memberId, targetTeamId);
+            await fetchData();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'שגיאה בהעברת שחקן');
+        } finally {
+            setActionLoading(null);
         }
     };
 
@@ -231,6 +300,7 @@ const RosterManager = () => {
                 <div className="teams-accordion">
                     {teams.sort((a, b) => a.id - b.id).map(team => {
                         const isExpanded = expandedTeams.has(team.id);
+                        const isAddingHere = addingToTeam === team.id;
                         return (
                             <div key={team.id} className={`team-row ${isExpanded ? 'expanded' : ''}`}>
                                 <div className="team-header" onClick={() => toggleTeam(team.id)}>
@@ -250,10 +320,111 @@ const RosterManager = () => {
                                         <span className="team-name">{team.name}</span>
                                         <span className="player-count">({team.players.length} שחקנים)</span>
                                     </div>
-                                    <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'}`} />
+                                    <div className="d-flex align-items-center gap-2">
+                                        {isAdmin && (
+                                            <button
+                                                className="btn btn-theme-green btn-sm add-player-btn"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    if (isAddingHere) {
+                                                        setAddingToTeam(null);
+                                                        setAddForm(EMPTY_FORM);
+                                                    } else {
+                                                        setAddingToTeam(team.id);
+                                                        setAddForm(EMPTY_FORM);
+                                                        // Make sure the accordion is open
+                                                        setExpandedTeams(prev => new Set([...prev, team.id]));
+                                                    }
+                                                }}
+                                                title="הוסף שחקן לקבוצה"
+                                            >
+                                                <i className={`bi bi-person-${isAddingHere ? 'dash' : 'plus'}-fill`} />
+                                                <span className="ms-1">{isAddingHere ? 'בטל' : 'הוסף שחקן'}</span>
+                                            </button>
+                                        )}
+                                        <i className={`bi bi-chevron-${isExpanded ? 'up' : 'down'}`} />
+                                    </div>
                                 </div>
+
                                 {isExpanded && (
                                     <div className="team-body px-3 py-3">
+                                        {/* Add player inline form */}
+                                        {isAdmin && isAddingHere && (
+                                            <div className="add-player-form mb-3 p-3">
+                                                <h6 className="mb-3" style={{ color: 'var(--accent)', fontWeight: 700 }}>
+                                                    <i className="bi bi-person-plus-fill me-2" />הוספת שחקן ל{team.name}
+                                                </h6>
+                                                <div className="row g-2">
+                                                    <div className="col-6 col-md-3">
+                                                        <input
+                                                            className="form-control form-control-sm"
+                                                            placeholder="שם פרטי *"
+                                                            value={addForm.firstName}
+                                                            onChange={e => setAddForm(f => ({ ...f, firstName: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="col-6 col-md-3">
+                                                        <input
+                                                            className="form-control form-control-sm"
+                                                            placeholder="שם משפחה"
+                                                            value={addForm.lastName}
+                                                            onChange={e => setAddForm(f => ({ ...f, lastName: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="col-6 col-md-3">
+                                                        <input
+                                                            className="form-control form-control-sm"
+                                                            placeholder="כינוי"
+                                                            value={addForm.nickname}
+                                                            onChange={e => setAddForm(f => ({ ...f, nickname: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="col-3 col-md-1">
+                                                        <input
+                                                            className="form-control form-control-sm"
+                                                            placeholder="מס׳ *"
+                                                            type="number"
+                                                            value={addForm.number}
+                                                            onChange={e => setAddForm(f => ({ ...f, number: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="col-6 col-md-2">
+                                                        <input
+                                                            className="form-control form-control-sm"
+                                                            placeholder="עמדה"
+                                                            value={addForm.position}
+                                                            onChange={e => setAddForm(f => ({ ...f, position: e.target.value }))}
+                                                        />
+                                                    </div>
+                                                    <div className="col-12 col-md-auto d-flex align-items-center gap-2">
+                                                        <div className="form-check mb-0">
+                                                            <input
+                                                                className="form-check-input"
+                                                                type="checkbox"
+                                                                id={`cap-${team.id}`}
+                                                                checked={addForm.isCaptain}
+                                                                onChange={e => setAddForm(f => ({ ...f, isCaptain: e.target.checked }))}
+                                                            />
+                                                            <label className="form-check-label small text-muted" htmlFor={`cap-${team.id}`}>קפטן</label>
+                                                        </div>
+                                                        <button
+                                                            className="btn btn-theme-green btn-sm"
+                                                            disabled={actionLoading === `add-${team.id}`}
+                                                            onClick={() => handleAddPlayer(team.id)}
+                                                        >
+                                                            {actionLoading === `add-${team.id}` ? <span className="spinner-border spinner-border-sm" /> : 'שמור'}
+                                                        </button>
+                                                        <button
+                                                            className="btn btn-secondary btn-sm"
+                                                            onClick={() => { setAddingToTeam(null); setAddForm(EMPTY_FORM); }}
+                                                        >
+                                                            בטל
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="players-grid">
                                             {team.players.map(player => {
                                                 const mappedUser = userMappings.find(u =>
@@ -261,6 +432,8 @@ const RosterManager = () => {
                                                     Number(u.mappedPlayerInfo?.teamId) === team.id &&
                                                     Number(u.mappedPlayerInfo?.memberId) === player.memberId
                                                 );
+                                                const isDeleting = actionLoading === `del-${team.id}-${player.memberId}`;
+                                                const isMoving = actionLoading === `move-${team.id}-${player.memberId}`;
 
                                                 return (
                                                     <div key={player.memberId} className="admin-player-card">
@@ -304,6 +477,42 @@ const RosterManager = () => {
                                                                     </button>
                                                                 </div>
                                                             )}
+
+                                                            {/* Admin-only actions */}
+                                                            {isAdmin && (
+                                                                <div className="admin-player-actions mt-2 d-flex gap-1 flex-wrap">
+                                                                    {/* Move to another team */}
+                                                                    <select
+                                                                        className="form-select form-select-sm player-move-select"
+                                                                        value=""
+                                                                        disabled={isMoving || !!actionLoading}
+                                                                        onChange={e => {
+                                                                            const targetId = Number(e.target.value);
+                                                                            if (targetId) {
+                                                                                handleMovePlayer(team.id, player.memberId, targetId, `${player.firstName} ${player.lastName}`);
+                                                                            }
+                                                                        }}
+                                                                        title="העבר לקבוצה אחרת"
+                                                                    >
+                                                                        <option value="">— העבר לקבוצה —</option>
+                                                                        {teams.filter(t => t.id !== team.id).map(t => (
+                                                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                                                        ))}
+                                                                    </select>
+
+                                                                    {/* Delete player */}
+                                                                    <button
+                                                                        className="btn btn-danger btn-sm player-delete-btn"
+                                                                        disabled={isDeleting || !!actionLoading}
+                                                                        title="מחק שחקן"
+                                                                        onClick={() => handleDeletePlayer(team.id, player.memberId, `${player.firstName} ${player.lastName}`)}
+                                                                    >
+                                                                        {isDeleting
+                                                                            ? <span className="spinner-border spinner-border-sm" />
+                                                                            : <><i className="bi bi-trash-fill me-1" />מחק</>}
+                                                                    </button>
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 );
@@ -315,8 +524,8 @@ const RosterManager = () => {
                         );
                     })}
                 </div>
-            </section >
-        </div >
+            </section>
+        </div>
     );
 };
 

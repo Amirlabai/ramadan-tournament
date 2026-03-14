@@ -364,3 +364,136 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         res.status(500).json({ error: 'שגיאה במחיקת הלוגו' });
     }
 };
+
+// Admin tool: Add a new player to a team
+export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id);
+        const { firstName, lastName, nickname, number, position, isCaptain, birthYear } = req.body;
+
+        if (!firstName || number == null) {
+            res.status(400).json({ error: 'שם פרטי ומספר שחקן הם שדות חובה' });
+            return;
+        }
+
+        const team = await Team.findOne({ id: teamId });
+        if (!team) {
+            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            return;
+        }
+
+        // Generate a globally-unique memberId by scanning all teams
+        const allTeams = await Team.find({});
+        const allMemberIds = allTeams.flatMap(t => t.players.map(p => p.memberId));
+        const maxId = allMemberIds.length > 0 ? Math.max(...allMemberIds) : 0;
+        const newMemberId = maxId + 1;
+
+        const newPlayer: any = {
+            memberId: newMemberId,
+            firstName: firstName.trim(),
+            lastName: (lastName || '').trim(),
+            nickname: (nickname || '').trim(),
+            number: Number(number),
+            position: (position || '').trim(),
+            isCaptain: !!isCaptain,
+            head_photo: '',
+            bio: '',
+            birthYear: birthYear ? Number(birthYear) : undefined,
+        };
+
+        team.players.push(newPlayer);
+        team.markModified('players');
+        await team.save();
+
+        res.json({ message: 'שחקן נוסף בהצלחה', player: newPlayer });
+    } catch (error) {
+        console.error('Add player error:', error);
+        res.status(500).json({ error: 'שגיאה בהוספת שחקן' });
+    }
+};
+
+// Admin tool: Delete a player from a team
+export const deletePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id);
+        const memberId = parseInt(req.params.memberId);
+
+        const team = await Team.findOne({ id: teamId });
+        if (!team) {
+            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            return;
+        }
+
+        const playerIndex = team.players.findIndex(p => p.memberId === memberId);
+        if (playerIndex === -1) {
+            res.status(404).json({ error: 'שחקן לא נמצא בקבוצה' });
+            return;
+        }
+
+        team.players.splice(playerIndex, 1);
+        team.markModified('players');
+        await team.save();
+
+        // Clear any user mappings pointing to this deleted player so no orphaned accounts remain
+        await User.updateMany(
+            { 'mappedPlayerInfo.teamId': teamId, 'mappedPlayerInfo.memberId': memberId },
+            { $set: { role: 'User' }, $unset: { mappedPlayerInfo: '' } }
+        );
+
+        res.json({ message: 'שחקן נמחק בהצלחה' });
+    } catch (error) {
+        console.error('Delete player error:', error);
+        res.status(500).json({ error: 'שגיאה במחיקת שחקן' });
+    }
+};
+
+// Admin tool: Move a player from one team to another
+export const movePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const sourceTeamId = parseInt(req.params.id);
+        const memberId = parseInt(req.params.memberId);
+        const { targetTeamId } = req.body;
+
+        if (!targetTeamId || targetTeamId === sourceTeamId) {
+            res.status(400).json({ error: 'נדרשת קבוצת יעד שונה מקבוצת המקור' });
+            return;
+        }
+
+        const [sourceTeam, targetTeam] = await Promise.all([
+            Team.findOne({ id: sourceTeamId }),
+            Team.findOne({ id: parseInt(targetTeamId) }),
+        ]);
+
+        if (!sourceTeam) { res.status(404).json({ error: 'קבוצת מקור לא נמצאה' }); return; }
+        if (!targetTeam) { res.status(404).json({ error: 'קבוצת יעד לא נמצאה' }); return; }
+
+        const playerIndex = sourceTeam.players.findIndex(p => p.memberId === memberId);
+        if (playerIndex === -1) {
+            res.status(404).json({ error: 'שחקן לא נמצא בקבוצת המקור' });
+            return;
+        }
+
+        // Capture the player and remove from source
+        const playerObj: any = (sourceTeam.players[playerIndex] as any).toObject();
+        sourceTeam.players.splice(playerIndex, 1);
+        sourceTeam.markModified('players');
+
+        // memberIds are globally unique — keep the original ID so match goal records stay intact
+        targetTeam.players.push(playerObj);
+        targetTeam.markModified('players');
+
+        await Promise.all([sourceTeam.save(), targetTeam.save()]);
+
+        // Update any approved user mapping to reflect the new team
+        await User.updateMany(
+            { 'mappedPlayerInfo.teamId': sourceTeamId, 'mappedPlayerInfo.memberId': memberId },
+            { $set: { 'mappedPlayerInfo.teamId': parseInt(targetTeamId) } }
+        );
+
+        res.json({ message: 'שחקן הועבר בהצלחה', memberId });
+    } catch (error) {
+        console.error('Move player error:', error);
+        res.status(500).json({ error: 'שגיאה בהעברת שחקן' });
+    }
+};
+
