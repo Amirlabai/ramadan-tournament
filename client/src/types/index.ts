@@ -78,13 +78,14 @@ export interface TopScorer {
     memberId: number;
     playerName: string;
     teamName: string;
+    teamId: number;
     goals: number;
 }
 
 export interface DashboardData {
     nextMatches: Match[];
     recentMatches: Match[];
-    topScorer: TopScorer | null;
+    topScorers: TopScorer[];
 }
 
 export interface MappedPlayerInfo {

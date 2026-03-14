@@ -248,9 +248,7 @@ body {
   background-color: var(--white);
   padding: 10px 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+  flex-wrap: wrap !important;
 }
 
 .tournament-tabs .nav-link {
@@ -597,7 +595,7 @@ body {
 @media (max-width: 576px) {
   .tournament-tabs .nav-link {
     padding: 0.25rem 0.25rem;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
   }
 
   .news-banner {

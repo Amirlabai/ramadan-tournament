@@ -183,7 +183,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
         });
 
         res.json({
-            topScorer: topScorers[0] || null,
+            topScorers: topScorers.slice(0, 3),
             nextMatches,
             recentMatches: enrichedRecentMatches
         });

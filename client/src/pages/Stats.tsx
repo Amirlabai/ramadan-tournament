@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import './Stats.css';
@@ -8,6 +9,7 @@ const Stats = () => {
     const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const navigate = useNavigate();
 
     const fetchStats = async (isBackground = false) => {
         try {
@@ -66,7 +68,12 @@ const Stats = () => {
                             </thead>
                             <tbody>
                                 {standings.map((team, index) => (
-                                    <tr key={team.teamId} className={index < 4 ? 'qualified' : ''}>
+                                    <tr 
+                                        key={team.teamId} 
+                                        className={index < 4 ? 'qualified' : ''}
+                                        style={{ cursor: 'pointer' }}
+                                        onClick={() => navigate('/teams', { state: { expandTeamId: team.teamId } })}
+                                    >
                                         <td className="position">{index + 1}</td>
                                         <td className="team-name">{team.teamName}</td>
                                         <td>{team.played}</td>
@@ -88,7 +95,17 @@ const Stats = () => {
                     <h2>מלכי השערים</h2>
                     <div className="scorers-list">
                         {topScorers.slice(0, 10).map((scorer, index) => (
-                            <div key={scorer.memberId} className="scorer-item">
+                            <div 
+                                key={scorer.memberId} 
+                                className="scorer-item"
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate('/teams', { 
+                                    state: { 
+                                        expandTeamId: scorer.teamId,
+                                        selectPlayerId: scorer.memberId 
+                                    } 
+                                })}
+                            >
                                 <div className="scorer-rank">#{index + 1}</div>
                                 <div className="scorer-details">
                                     <div className="scorer-name">{scorer.playerName}</div>

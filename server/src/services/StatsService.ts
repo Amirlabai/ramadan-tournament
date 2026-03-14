@@ -18,6 +18,7 @@ export interface TopScorer {
     memberId: number;
     playerName: string;
     teamName: string;
+    teamId: number;
     position: string;
     goals: number;
 }
@@ -156,6 +157,7 @@ export class StatsService {
                         memberId,
                         playerName: memberInfo?.name || 'Unknown',
                         teamName: memberInfo?.teamName || 'Unknown',
+                        teamId: memberInfo?.teamId || 0,
                         position: memberInfo?.position || 'Unknown',
                         goals: 0,
                         gamesPlayed: memberInfo ? teamMatchesCount[memberInfo.teamId] : 0

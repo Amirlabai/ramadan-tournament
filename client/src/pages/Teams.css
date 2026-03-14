@@ -110,3 +110,11 @@
         gap: 0.5rem;
     }
 }
+
+/* Selected player highlight */
+.roster-player-card.selected {
+    border: 2px solid #ffd700 !important;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+    transform: scale(1.02);
+    z-index: 2;
+}

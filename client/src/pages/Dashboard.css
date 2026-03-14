@@ -147,20 +147,74 @@
 }
 
 .dashboard-page .top-scorer .scorer-info {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 1.5rem;
     text-align: center;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     height: 100%;
     justify-content: center;
+    position: relative;
+    overflow: hidden;
 }
 
+.dashboard-page .top-scorer .premium-scorer-wrapper {
+    position: relative;
+    padding: 1rem;
+    z-index: 1;
+}
+
+.dashboard-page .top-scorer .premium-scorer-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0) 70%);
+    z-index: -1;
+    animation: gold-aura-pulse 4s infinite ease-in-out;
+    border-radius: 50%;
+}
+
+@keyframes gold-aura-pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+}
+
+.dashboard-page .premium-decorations {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.star-decoration {
+    position: absolute;
+    color: #ffd700;
+    font-size: 1.2rem;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+    animation: star-flicker 3s infinite;
+}
+
+@keyframes star-flicker {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.1); }
+}
+
+.star-1 { top: -10px; left: 10%; animation-delay: 0s; }
+.star-2 { top: 20px; right: 15%; animation-delay: 0.5s; font-size: 0.8rem; }
+.star-3 { bottom: 30px; left: 20%; animation-delay: 1.2s; font-size: 1rem; }
+
 .dashboard-page .top-scorer .scorer-name {
-    font-size: 1.5rem;
-    font-weight: 800;
+    font-size: 1.8rem;
+    font-weight: 900;
     color: #333;
     line-height: 1.2;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .dashboard-page .top-scorer .scorer-team {
@@ -193,6 +247,54 @@
     font-weight: 600;
     letter-spacing: 0.5px;
     margin-top: 0.25rem;
+}
+
+.dashboard-page .runners-up-list {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.dashboard-page .runner-up-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #555;
+    padding: 0.25rem 0;
+}
+
+.dashboard-page .runner-rank {
+    font-weight: 700;
+    color: #999;
+    min-width: 1.5rem;
+}
+
+.dashboard-page .runner-name {
+    font-weight: 600;
+    color: var(--text);
+    flex: 0 0 auto;
+}
+
+.dashboard-page .runner-team {
+    font-size: 0.8rem;
+    color: #888;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-page .runner-goals {
+    font-weight: 700;
+    color: #444;
+    background: #f0f0f0;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
 }
 
 /* Specific adjustment for recent-matches content */

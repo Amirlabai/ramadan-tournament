@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import './IftarTimer.css';
 
 interface IftarTimerProps {
@@ -18,14 +17,6 @@ const getMoonEmoji = (): string => {
 };
 
 const IftarTimer = ({ isActive, onToggle }: IftarTimerProps) => {
-    useEffect(() => {
-        if (isActive && window.scrollY < 201) {
-            window.scrollTo({
-                top: 201, // Threshold to trigger NewsBanner collapse and Navbar stickiness
-                behavior: 'smooth'
-            });
-        }
-    }, [isActive]);
 
     return (
         <div className={`iftar-timer-container ${!isActive ? 'minimized' : ''}`}>

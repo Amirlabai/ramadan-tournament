@@ -8,14 +8,23 @@ const Teams = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
+    const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
     const [shouldScroll, setShouldScroll] = useState(false);
     const location = useLocation();
 
     useEffect(() => {
-        const state = location.state as { expandTeamId?: number };
+        const state = location.state as { expandTeamId?: number; selectPlayerId?: number };
         if (state?.expandTeamId) {
             setExpandedTeam(state.expandTeamId);
             setShouldScroll(true);
+        }
+        if (state?.selectPlayerId) {
+            setSelectedPlayerId(state.selectPlayerId);
+            // If we don't have an expandTeamId but have a player, we'll need to expand their team
+            // But usually they come together
+        }
+        
+        if (state?.expandTeamId || state?.selectPlayerId) {
             // Clear state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
         }
@@ -30,7 +39,16 @@ const Teams = () => {
                     const rect = element.getBoundingClientRect();
                     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                     // Align to top with 100px offset to account for sticky header and provide margin
-                    const targetY = rect.top + scrollTop - 100;
+                    let targetY = rect.top + scrollTop - 100;
+
+                    // If we have a selected player, try to scroll specifically to them inside the expanded team
+                    if (selectedPlayerId) {
+                        const playerElement = document.getElementById(`player-card-${selectedPlayerId}`);
+                        if (playerElement) {
+                            const pRect = playerElement.getBoundingClientRect();
+                            targetY = pRect.top + scrollTop - 150; // A bit more margin for player cards
+                        }
+                    }
 
                     window.scrollTo({
                         top: targetY,
@@ -146,7 +164,8 @@ const Teams = () => {
                                                             return (
                                                                 <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
                                                                     <div
-                                                                        className={`roster-player-card position-relative ${isTopScorer ? 'top-scorer-highlight' : ''}`}
+                                                                        id={`player-card-${player.memberId}`}
+                                                                        className={`roster-player-card position-relative ${isTopScorer ? 'top-scorer-highlight' : ''} ${selectedPlayerId === player.memberId ? 'selected' : ''}`}
                                                                         onClick={(e) => { e.stopPropagation(); setSelectedPlayer(player); }}
                                                                         style={{ cursor: 'pointer' }}
                                                                     >

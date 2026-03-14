@@ -202,16 +202,57 @@ const Dashboard = () => {
                         </div>
                     </div>
                 )}
-                {data.topScorer && (
+                {data.topScorers && data.topScorers.length > 0 && (
                     <div className="dashboard-card top-scorer">
                         <h2>מלך השערים</h2>
                         <div className="scorer-info">
-                            <div className="scorer-name">{data.topScorer.playerName}</div>
-                            <div className="scorer-team">{data.topScorer.teamName}</div>
-                            <div className="scorer-goals">
-                                <span className="goals-count">{data.topScorer.goals}</span>
-                                <span className="goals-label">שערים</span>
+                            {/* 1st Place - Premium with Gold Aura */}
+                            <div 
+                                className="premium-scorer-wrapper" 
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => navigate('/teams', { 
+                                    state: { 
+                                        expandTeamId: data.topScorers[0].teamId,
+                                        selectPlayerId: data.topScorers[0].memberId 
+                                    } 
+                                })}
+                            >
+                                <div className="premium-decorations">
+                                    <span className="star-decoration star-1">★</span>
+                                    <span className="star-decoration star-2">★</span>
+                                    <span className="star-decoration star-3">★</span>
+                                </div>
+                                <div className="scorer-name">{data.topScorers[0].playerName}</div>
+                                <div className="scorer-team">{data.topScorers[0].teamName}</div>
+                                <div className="scorer-goals">
+                                    <span className="goals-count">{data.topScorers[0].goals}</span>
+                                    <span className="goals-label">שערים</span>
+                                </div>
                             </div>
+
+                            {/* 2nd and 3rd Place - Simple Table-like Rows */}
+                            {data.topScorers.length > 1 && (
+                                <div className="runners-up-list">
+                                    {data.topScorers.slice(1, 3).map((scorer, index) => (
+                                        <div 
+                                            key={scorer.memberId} 
+                                            className="runner-up-item"
+                                            style={{ cursor: 'pointer' }}
+                                            onClick={() => navigate('/teams', { 
+                                                state: { 
+                                                    expandTeamId: scorer.teamId,
+                                                    selectPlayerId: scorer.memberId 
+                                                } 
+                                            })}
+                                        >
+                                            <span className="runner-rank">{index + 2}.</span>
+                                            <span className="runner-name">{scorer.playerName}</span>
+                                            <span className="runner-team">({scorer.teamName})</span>
+                                            <span className="runner-goals">{scorer.goals}</span>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 )}
