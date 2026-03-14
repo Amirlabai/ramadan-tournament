@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-14 07:11:59",
+  "last_updated": "2026-03-14 08:51:09",
   "stats": {
-    "total": 51140,
+    "total": 51141,
     "cities": {
       "כפר כמא": 33,
       "ריחאנייה": 19
@@ -409519,6 +409519,14 @@ window.ALARMS_DATA = {
       "cities": "קריית שמונה",
       "threat": "0",
       "id": "6158",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-14 07:56:08",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "6160",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
