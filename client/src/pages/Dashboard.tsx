@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
+import PlayoffBracket from '../components/PlayoffBracket';
 import './Dashboard.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
@@ -128,6 +129,12 @@ const Dashboard = () => {
                 )}
 
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">דף הבית</h2>
+
+                {/* Playoff Bracket */}
+                {data.playoffMatches && data.playoffMatches.length > 0 && (
+                    <PlayoffBracket matches={data.playoffMatches} />
+                )}
+
                 {data.nextMatches && data.nextMatches.length > 0 && (
                     <div className="dashboard-card next-matches-card">
                         <h2>המשחקים הבאים</h2>
@@ -145,6 +152,9 @@ const Dashboard = () => {
                                             {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
                                     </div>
+                                    {match.phase === 'knockout' && (
+                                        <div className="playoff-indicator-badge">משחק פלייאוף</div>
+                                    )}
                                     <div className="match-meta" style={{ textAlign: 'right', direction: 'rtl' }}>
                                         <div><strong>תאריך:</strong> {formatDate(match.date)}</div>
                                         <div><strong>שעה:</strong> {formatTime(match.date)}</div>
@@ -187,7 +197,10 @@ const Dashboard = () => {
                                     className="match-item"
                                     onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
                                 >
-                                    <span className="match-date">{formatDate(match.date)}</span>
+                                    <span className="match-date">
+                                        {formatDate(match.date)}
+                                        {match.phase === 'knockout' && <span className="playoff-tag-mini ms-2">פלייאוף</span>}
+                                    </span>
                                     <div className="match-score">
                                         <div className="flex-1 d-flex justify-content-end">
                                             {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
@@ -207,14 +220,14 @@ const Dashboard = () => {
                         <h2>מלך השערים</h2>
                         <div className="scorer-info">
                             {/* 1st Place - Premium with Gold Aura */}
-                            <div 
-                                className="premium-scorer-wrapper" 
+                            <div
+                                className="premium-scorer-wrapper"
                                 style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('/teams', { 
-                                    state: { 
+                                onClick={() => navigate('/teams', {
+                                    state: {
                                         expandTeamId: data.topScorers[0].teamId,
-                                        selectPlayerId: data.topScorers[0].memberId 
-                                    } 
+                                        selectPlayerId: data.topScorers[0].memberId
+                                    }
                                 })}
                             >
                                 <div className="premium-decorations">
@@ -234,15 +247,15 @@ const Dashboard = () => {
                             {data.topScorers.length > 1 && (
                                 <div className="runners-up-list">
                                     {data.topScorers.slice(1, 3).map((scorer, index) => (
-                                        <div 
-                                            key={scorer.memberId} 
+                                        <div
+                                            key={scorer.memberId}
                                             className="runner-up-item"
                                             style={{ cursor: 'pointer' }}
-                                            onClick={() => navigate('/teams', { 
-                                                state: { 
+                                            onClick={() => navigate('/teams', {
+                                                state: {
                                                     expandTeamId: scorer.teamId,
-                                                    selectPlayerId: scorer.memberId 
-                                                } 
+                                                    selectPlayerId: scorer.memberId
+                                                }
                                             })}
                                         >
                                             <span className="runner-rank">{index + 2}.</span>

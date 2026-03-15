@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { Match, TopScorer } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -46,6 +47,7 @@ export const matchesAPI = {
     create: (data: any) => api.post('/matches', data),
     update: (id: number, data: any) => api.put(`/matches/${id}`, data),
     delete: (id: number) => api.delete(`/matches/${id}`),
+    syncPlayoffs: () => api.post('/matches/sync-playoffs'),
 };
 
 export const newsAPI = {
@@ -57,8 +59,9 @@ export const newsAPI = {
 
 export const statsAPI = {
     getStandings: () => api.get('/stats/standings'),
-    getTopScorers: () => api.get('/stats/top-scorers'),
+    getTopScorers: () => api.get<TopScorer[]>('/stats/top-scorers'),
     getPlayerStats: () => api.get('/stats/player-stats'),
+    getPlayoffs: () => api.get<Match[]>('/stats/playoffs'),
     getDashboard: () => api.get('/stats/dashboard'),
 };
 

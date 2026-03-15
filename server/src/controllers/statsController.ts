@@ -182,10 +182,33 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             };
         });
 
+        const unplayedGroupMatches = await Match.countDocuments({ 
+            phase: 'group',
+            $or: [{ score1: null }, { score2: null }]
+        });
+
+        const isGroupPhaseComplete = unplayedGroupMatches === 0;
+
+        const playoffMatchesRaw = isGroupPhaseComplete ? await Match.find({ phase: 'knockout' }).sort({ id: 1 }) : [];
+        const enrichedPlayoffMatches = playoffMatchesRaw.map(match => {
+            const t1 = teamMap.get(match.team1Id);
+            const t2 = teamMap.get(match.team2Id);
+            return {
+                ...match.toObject(),
+                team1Name: t1?.name || `קבוצה ${match.team1Id}`,
+                team1LogoUrl: t1?.logoUrl,
+                team1LogoPosition: t1?.logoPosition,
+                team2Name: t2?.name || `קבוצה ${match.team2Id}`,
+                team2LogoUrl: t2?.logoUrl,
+                team2LogoPosition: t2?.logoPosition
+            };
+        });
+
         res.json({
             topScorers: topScorers.slice(0, 3),
             nextMatches,
-            recentMatches: enrichedRecentMatches
+            recentMatches: enrichedRecentMatches,
+            playoffMatches: enrichedPlayoffMatches
         });
     } catch (error) {
         console.error('Get dashboard error:', error);

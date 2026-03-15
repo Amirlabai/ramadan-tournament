@@ -146,7 +146,14 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
             <tr className={`match-table-row ${rowClass}`}>
                 <td data-label="תאריך ושעה" className="text-nowrap">{formatDate(match.date)}</td>
                 <td data-label="מיקום">{match.location}</td>
-                <td data-label="שלב"><span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span></td>
+                <td data-label="שלב">
+                    <div className="d-flex flex-column gap-1">
+                        <span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span>
+                        {match.phase === 'knockout' && (
+                            <span className="badge bg-warning text-dark" style={{ fontSize: '0.65rem' }}>פלייאוף</span>
+                        )}
+                    </div>
+                </td>
                 <td data-label="קבוצה 1" className="team-cell">{getTeamName(match.team1Id)}</td>
                 <td data-label="תוצאה" className="score-cell text-center">
                     <span className="score-display">

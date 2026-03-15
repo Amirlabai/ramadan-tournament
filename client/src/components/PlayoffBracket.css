@@ -1,0 +1,195 @@
+.playoff-bracket-card {
+    background: white;
+    padding: 30px;
+}
+
+.playoff-bracket-card h2 {
+    color: #2A6B11;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 25px !important;
+    border-right: 4px solid #FFD700;
+    padding-right: 15px;
+}
+
+.playoff-bracket-card .brackets-wrapper {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    padding: 10px;
+    min-width: fit-content;
+    direction: rtl;
+    /* Ensure RTL flow */
+}
+
+.playoff-bracket-card .bracket {
+    flex: 1;
+    min-width: 320px;
+    background: #fdfdfd;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(42, 107, 17, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.playoff-bracket-card .bracket-title {
+    text-align: center;
+    font-weight: 800;
+    color: #2A6B11;
+    font-size: 1.2rem;
+    padding-bottom: 8px;
+    border-bottom: 3px solid #FFD700;
+    display: inline-block;
+    position: relative;
+    left: 10%;
+    transform: translateX(-50%);
+}
+
+.playoff-bracket-card .bracket-content {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    /* Let connectors handle the space */
+}
+
+.playoff-bracket-card .bracket-column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 20px;
+    position: relative;
+    z-index: 2;
+}
+
+.playoff-bracket-card .bracket-match {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    width: 200px;
+    border: 1px solid #eee;
+    overflow: hidden;
+    position: relative;
+}
+
+.playoff-bracket-card .match-label {
+    background: #2A6B11;
+    color: white;
+    font-size: 0.7rem;
+    padding: 3px 8px;
+    text-align: center;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.playoff-bracket-card .match-teams {
+    padding: 8px 0;
+}
+
+.playoff-bracket-card .team-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 15px;
+    font-size: 0.9rem;
+    border-bottom: 1px solid #f8f8f8;
+}
+
+.playoff-bracket-card .team-row:last-child {
+    border-bottom: none;
+}
+
+.playoff-bracket-card .team-name {
+    flex: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-left: 10px;
+    font-weight: 500;
+}
+
+.playoff-bracket-card .team-score {
+    font-weight: 800;
+    color: #2A6B11;
+    min-width: 25px;
+    text-align: center;
+}
+
+.playoff-bracket-card .bracket-connector {
+    width: 40px;
+    height: 140px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transform: translateX(15px);
+}
+
+/* RTL Flow: Semis(Right) -> Connector -> Final(Left) */
+.playoff-bracket-card .bracket-connector .line {
+    border: 2px solid #FFD700;
+    width: 100%;
+    position: relative;
+}
+
+.playoff-bracket-card .bracket-connector .line-top {
+    height: 50%;
+    border-right: none;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+}
+
+.playoff-bracket-card .bracket-connector .line-bottom {
+    height: 50%;
+    border-right: none;
+    border-top: none;
+    border-bottom-left-radius: 8px;
+}
+
+/* Middle connection line to the final */
+.playoff-bracket-card .bracket-connector::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: #FFD700;
+    transform: translateY(-50%) translateX(-100%);
+    width: 15px;
+    /* Short line into the final box */
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .playoff-bracket-card {
+        padding: 10px;
+    }
+
+    .playoff-bracket-card .bracket {
+        transform: translateX(20px) scale(0.9);
+        padding: 5px;
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .playoff-bracket-card .bracket-match {
+        transform: scale(0.9);
+        width: 100%;
+    }
+
+    .playoff-bracket-card .brackets-wrapper {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .playoff-bracket-card .bracket-column {
+        gap: 5px;
+    }
+
+    .playoff-bracket-card .bracket-connector {
+        width: 10px;
+    }
+
+    .playoff-bracket-card .bracket-connector {
+        transform: translateX(5px);
+    }
+}

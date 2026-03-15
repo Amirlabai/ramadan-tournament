@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
-import type { Standing, TopScorer } from '../types';
+import type { Standing, TopScorer, Match } from '../types';
+import PlayoffBracket from '../components/PlayoffBracket';
 import './Stats.css';
 
 const Stats = () => {
     const [standings, setStandings] = useState<Standing[]>([]);
     const [topScorers, setTopScorers] = useState<TopScorer[]>([]);
+    const [playoffMatches, setPlayoffMatches] = useState<Match[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const navigate = useNavigate();
@@ -14,12 +16,14 @@ const Stats = () => {
     const fetchStats = async (isBackground = false) => {
         try {
             if (!isBackground) setLoading(true);
-            const [standingsRes, scorersRes] = await Promise.all([
+            const [standingsRes, scorersRes, playoffsRes] = await Promise.all([
                 statsAPI.getStandings(),
-                statsAPI.getTopScorers()
+                statsAPI.getTopScorers(),
+                statsAPI.getPlayoffs()
             ]);
             setStandings(standingsRes.data);
             setTopScorers(scorersRes.data);
+            setPlayoffMatches(playoffsRes.data);
             if (!isBackground) setError('');
         } catch (err) {
             if (!isBackground) setError('שגיאה בטעינת סטטיסטיקות');
@@ -48,6 +52,11 @@ const Stats = () => {
     return (
         <div className="stats-page container py-4">
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">סטטיסטיקות</h2>
+
+            {/* Playoff Bracket */}
+            {playoffMatches.length > 0 && (
+                <PlayoffBracket matches={playoffMatches} />
+            )}
 
             <div className="stats-grid">
                 <div className="card standings-table">

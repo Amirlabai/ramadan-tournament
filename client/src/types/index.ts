@@ -86,6 +86,7 @@ export interface DashboardData {
     nextMatches: Match[];
     recentMatches: Match[];
     topScorers: TopScorer[];
+    playoffMatches?: Match[];
 }
 
 export interface MappedPlayerInfo {

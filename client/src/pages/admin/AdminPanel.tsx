@@ -26,6 +26,7 @@ const AdminPanel = () => {
     const [comments, setComments] = useState<any[]>([]);
     const [matchFilter, setMatchFilter] = useState<'all' | 'upcoming' | 'live' | 'finished' | 'today'>('all');
     const [automationLoading, setAutomationLoading] = useState(false);
+    const [playoffSyncLoading, setPlayoffSyncLoading] = useState(false);
 
     const [searchFilter, setSearchFilter] = useState('');
     const navigate = useNavigate();
@@ -276,6 +277,23 @@ const AdminPanel = () => {
 
 
 
+    const handleSyncPlayoffs = async () => {
+        if (!confirm('פעולה זו תעדכן את משחקי הפלייאוף לפי הטבלה הנוכחית. להמשיך?')) return;
+        setPlayoffSyncLoading(true);
+        try {
+            await matchesAPI.syncPlayoffs();
+            alert('משחקי הפלייאוף סונכרנו בהצלחה!');
+            const matchesRes = await matchesAPI.getAll();
+            const matchesSorted = matchesRes.data.sort((a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime());
+            setMatches(matchesSorted);
+        } catch (err: any) {
+            console.error('Playoff sync error:', err);
+            alert('שגיאה בסנכרון פלייאוף: ' + (err.response?.data?.error || err.message));
+        } finally {
+            setPlayoffSyncLoading(false);
+        }
+    };
+
     if (loading) return <div className="loading">טוען...</div>;
 
     return (
@@ -357,13 +375,22 @@ const AdminPanel = () => {
                     <div className="card">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <h2>משחקים</h2>
-                            <button
-                                className="btn btn-primary"
-                                onClick={() => setAddingNewMatch(true)}
-                                disabled={addingNewMatch}
-                            >
-                                + הוסף משחק חדש
-                            </button>
+                            <div className="d-flex gap-2">
+                                <button 
+                                    className="btn btn-outline-info" 
+                                    onClick={handleSyncPlayoffs}
+                                    disabled={playoffSyncLoading}
+                                >
+                                    {playoffSyncLoading ? 'מעבד...' : '🔄 סנכרן פלייאוף'}
+                                </button>
+                                <button
+                                    className="btn btn-primary"
+                                    onClick={() => setAddingNewMatch(true)}
+                                    disabled={addingNewMatch}
+                                >
+                                    + הוסף משחק חדש
+                                </button>
+                            </div>
                         </div>
 
                         <div className="matches-table-wrapper">

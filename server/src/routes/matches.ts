@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAllMatches, createMatch, updateMatch, deleteMatch } from '../controllers/matchController';
+import { getAllMatches, createMatch, updateMatch, deleteMatch, syncPlayoffs } from '../controllers/matchController';
 import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
@@ -8,6 +8,7 @@ const router = Router();
 router.get('/', getAllMatches);
 
 // Admin routes
+router.post('/sync-playoffs', authenticate, authorize(['Admin', 'admin']), syncPlayoffs);
 router.post('/', authenticate, authorize(['Admin', 'admin']), createMatch);
 router.put('/:id', authenticate, authorize(['Admin', 'admin']), updateMatch);
 router.delete('/:id', authenticate, authorize(['Admin', 'admin']), deleteMatch);

@@ -288,13 +288,37 @@
     white-space: nowrap;
 }
 
-.dashboard-page .runner-goals {
-    font-weight: 700;
-    color: #444;
-    background: #f0f0f0;
+.dashboard-page .runner-goal.vs-badge {
+    background: #FFD700;
+    color: #000;
+    font-weight: bold;
+    font-size: 0.75rem;
     padding: 2px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+.playoff-indicator-badge {
+    background: linear-gradient(135deg, #2A6B11 0%, #1e4d0c 100%);
+    color: #FFD700;
+    font-weight: 700;
+    font-size: 0.8rem;
+    padding: 4px 12px;
     border-radius: 4px;
-    font-size: 0.85rem;
+    text-align: center;
+    margin: 8px 0;
+    border: 1px solid rgba(255, 215, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.playoff-tag-mini {
+    background: #FFD700;
+    color: #000;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 1px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
 }
 
 /* Specific adjustment for recent-matches content */

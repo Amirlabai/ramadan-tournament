@@ -214,6 +214,10 @@ const Schedule = () => {
                             <span className={`match-status ${status}`}>
                                 {status === 'upcoming' ? 'עתיד' : status === 'live' ? 'Live' : 'הסתיים'}
                             </span>
+                            
+                            {match.phase === 'knockout' && (
+                                <div className="playoff-badge-floating">משחק פלייאוף</div>
+                            )}
 
                             <div className="match-teams-score">
                                 <div className="team-side">
