@@ -13,7 +13,7 @@ const getMoonEmoji = (day: number): string => {
     return '🌘';
 };
 
-const getMoonIllumination = (day: number): { percentage: number; trend: string } => {
+const getMoonIllumination = (day: number): { percentage: string; trend: string } => {
     // Approx illumination using cosine: 0% at day 1, 100% at day 15, 0% at day 29.5
     // Cycle is ~29.53 days.
     const phase = ((day - 1) % 29.53) / 29.53;
@@ -23,11 +23,11 @@ const getMoonIllumination = (day: number): { percentage: number; trend: string }
     let trend = phase <= 0.5 ? 'מתמלא' : 'מתמעט';
 
     // Refine for very close states
-    if (Math.round(illumination) >= 98) trend = 'ירח מלא';
-    if (Math.round(illumination) <= 2) trend = 'מולד הירח';
+    if (illumination >= 98) trend = 'ירח מלא';
+    if (illumination <= 2) trend = 'מולד הירח';
 
     return {
-        percentage: Math.round(illumination),
+        percentage: illumination.toFixed(2),
         trend
     };
 };
