@@ -87,8 +87,10 @@ function CityCard({
         return () => document.removeEventListener('mousedown', handler);
     }, [isMobile, popoverOpen]);
 
-    const handleInteraction = () => {
-        if (isMobile) setPopoverOpen(prev => !prev);
+    const handleInteraction = (e: React.MouseEvent) => {
+        // Always toggle on click, but stop propagation to avoid closing if clicking inside a bubble
+        e.stopPropagation();
+        setPopoverOpen(prev => !prev);
     };
 
     const predictedLabel = prediction
@@ -143,52 +145,50 @@ const AlarmsWidget = ({ isActive, onToggle }: AlarmsWidgetProps) => {
     if (!alarms) return null;
 
     return (
-        <div className={`alarms-widget-container ${!isActive ? 'minimized' : ''}`}>
-            {!isActive ? (
+        <div className={`alarms-widget-container ${isActive ? 'expanded' : 'minimized'}`}>
+            <div className="alarms-bubble">
                 <button
-                    className="alarms-toggle-btn"
-                    onClick={() => onToggle(true)}
-                    title="הצג נתוני התרעות"
+                    className="alarms-close-btn"
+                    onClick={() => onToggle(false)}
+                    title="מזער"
                 >
-                    📢
+                    ×
                 </button>
-            ) : (
-                <div className="alarms-bubble">
-                    <button
-                        className="alarms-close-btn"
-                        onClick={() => onToggle(false)}
-                        title="מזער"
-                    >
-                        ×
-                    </button>
-                    <div className="alarms-content">
-                        <div className="alarms-header">
-                            <span className="alarms-icon">📢</span>
-                            <span className="alarms-title">נתוני התרעות (מ-28/02)</span>
+                <div className="alarms-content">
+                    <div className="alarms-header">
+                        <span className="alarms-icon">📢</span>
+                        <span className="alarms-title">נתוני התרעות (מ-28/02)</span>
+                    </div>
+                    <div className="alarms-stats">
+                        <div className="stat-item main">
+                            <span className="stat-label">סה"כ התרעות:</span>
+                            <span className="stat-value">{alarms.stats.total}</span>
                         </div>
-                        <div className="alarms-stats">
-                            <div className="stat-item main">
-                                <span className="stat-label">סה"כ התרעות:</span>
-                                <span className="stat-value">{alarms.stats.total}</span>
-                            </div>
-                            <div className="cities-grid">
-                                {Object.entries(alarms.stats.cities).map(([city, count]) => (
-                                    <CityCard
-                                        key={city}
-                                        city={city}
-                                        count={count}
-                                        bins={alarms.bins?.[city] ?? []}
-                                        prediction={alarms.predictions?.[city] ?? null}
-                                    />
-                                ))}
-                            </div>
-                        </div>
-                        <div className="alarms-footer">
-                            עדכון אחרון: {new Date(alarms.last_updated).toLocaleString('he-IL')}
+                        <div className="cities-grid">
+                            {Object.entries(alarms.stats.cities).map(([city, count]) => (
+                                <CityCard
+                                    key={city}
+                                    city={city}
+                                    count={count}
+                                    bins={alarms.bins?.[city] ?? []}
+                                    prediction={alarms.predictions?.[city] ?? null}
+                                />
+                            ))}
                         </div>
                     </div>
+                    <div className="alarms-footer">
+                        עדכון אחרון: {new Date(alarms.last_updated).toLocaleString('he-IL')}
+                    </div>
                 </div>
-            )}
+            </div>
+
+            <button
+                className="alarms-toggle-btn"
+                onClick={() => onToggle(true)}
+                title="הצג נתוני התרעות"
+            >
+                📢
+            </button>
         </div>
     );
 };
