@@ -11,7 +11,9 @@
     pointer-events: none;
 }
 
-.alarms-widget-container * {
+/* Main interactive elements capture clicks */
+.alarms-bubble,
+.alarms-toggle-btn {
     pointer-events: auto;
 }
 

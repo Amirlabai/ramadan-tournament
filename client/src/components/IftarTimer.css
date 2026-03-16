@@ -10,7 +10,8 @@
     pointer-events: none;
 }
 
-.iftar-timer-container * {
+/* Main interactive elements capture clicks */
+.iftar-toggle-btn {
     pointer-events: auto;
 }
 
