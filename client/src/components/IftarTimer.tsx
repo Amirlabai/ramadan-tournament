@@ -20,7 +20,7 @@ const getMoonIllumination = (day: number): { percentage: string; trend: string }
     const illumination = 50 * (1 - Math.cos(phase * 2 * Math.PI));
 
     // Trend: waxing (0 to 0.5) vs waning (0.5 to 1.0)
-    let trend = phase <= 0.5 ? 'מתמלא' : 'מתמעט';
+    let trend = phase <= 0.5 ? 'ירח מתמלא' : 'ירח מתמעט';
 
     // Refine for very close states
     if (illumination >= 98) trend = 'ירח מלא';
