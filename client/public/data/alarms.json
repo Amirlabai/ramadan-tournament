@@ -1,7 +1,7 @@
 {
-  "last_updated": "2026-03-16 21:04:31",
+  "last_updated": "2026-03-16 22:40:21",
   "stats": {
-    "total": 54932,
+    "total": 55544,
     "cities": {
       "כפר כמא": 34,
       "ריחאנייה": 20
@@ -439857,6 +439857,4902 @@
       "id": "6252",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "אביתר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "אחיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "איתמר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "ארגמן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "אש קודש",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "בקעות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "גבעת הראל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "גבעת הרואה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "גבעת פורת יוסף",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "גיתית",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "החווה של אורי כהן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "החווה של יאיא",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "החווה של מנחם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חוות גנות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חוות מגדלים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חוות מרום שמואל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חוות נחל שילה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חוות פריאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חמדת",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "חמרה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "מגדלים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "מכורה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "מעלה אפרים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "מעלה לבונה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "מצפור פצאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "משואה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "עדי עד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "עלי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "עמיחי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "קידה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "רועי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "רחלים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "שבות רחל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "שילה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:35",
+      "cities": "שלומציון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:44",
+      "cities": "חוות הרשאש",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אורות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אזור תעשייה באר טוביה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אזור תעשייה גדרה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אזור תעשייה כנות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אזור תעשייה רבדים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אזור תעשייה תימורים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "אחווה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "באר טוביה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "ביצרון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "בית אלעזרי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "בית חלקיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "בני עי''ש",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "בני ראם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "בניה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "גבעת וושינגטון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "גדרה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "גני טל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "חפץ חיים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "חצב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "חצור",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "יד בנימין",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "ינון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כנות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כפר אחים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כפר הרי''ף וצומת ראם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כפר ורבורג",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כפר מרדכי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "כרם ביבנה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "מישר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "משגב דב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "נווה מבטח",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "עזריקם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "ערוגות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "עשרת",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "פארק תעשייה ראם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "קדרון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "קריית מלאכי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "רבדים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "שדמה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "תחנת רכבת קריית מלאכי - יואב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:47",
+      "cities": "תלמי יחיאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "אזור תעשייה נשר - רמלה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "אחיסמך",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "בית חשמונאי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "בית נחמיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "בית עוזיאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "בן שמן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "בקוע",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גבעת ברנר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גופנה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גזר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גיבתון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גיזו",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גינתון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גמזו",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גן שלמה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גני הדר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "גני יוחנן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "דולב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "הראל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חדיד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חוות מגנזי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חוות נווה צוף",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חוות עולם חסד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חולדה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חרשה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "חשמונאים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "טל שחר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "טלמון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "יבוא דודי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "יד רמב''ם",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "יסודות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "יציץ",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "ישרש",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר אוריה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר ביל''ו",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר בן נון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר דניאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר האורנים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר נוער בן שמן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר רות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כפר שמואל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כרם רעים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "כרמי יוסף",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "לוד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "לטרון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "לפיד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מבוא חורון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מבוא מודיעים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מודיעין - ישפרו סנטר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מודיעין - ליגד סנטר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מודיעין מכבים רעות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מודיעין עילית",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מזכרת בתיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מיני ישראל - נחשון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מכינת אלישע",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מצליח",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "משמר איילון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "משמר דוד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "מתתיהו",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נאות קדומים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נווה צוף",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נווה שלום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נוף איילון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נחליאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נחשון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נילי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נעלה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נען",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נצר חזני",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "נריה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "סתריה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "עופרים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "עזריה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "עטרת",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "פדיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "פתחיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "צלפון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "קריית עקרון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "רחובות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "רמות מאיר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "רמלה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "שדה אפרים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "שילת",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "שעלבים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:01:49",
+      "cities": "תעוז",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:02",
+      "cities": "בית אריה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:08",
+      "cities": "נופי נחמיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:38",
+      "cities": "גן הדרום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:38",
+      "cities": "גן יבנה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:38",
+      "cities": "קבוצת יבנה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "אזור תעשייה עד הלום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "אמונים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "בית גמליאל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "בית עזרא",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "בני דרום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "גבעתי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "כפר אביב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "מעון צופיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "מתחם בני דרום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "עזר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "שדה עוזיהו",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:02:59",
+      "cities": "שתולים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:00",
+      "cities": "בתרונות",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אביגדור",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אזור תעשייה הדרומי אשקלון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אזור תעשייה צפוני אשקלון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשדוד - א,ב,ד,ה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשדוד - איזור תעשייה צפוני",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשדוד - ג,ו,ז",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשדוד - ח,ט,י,יג,יד,טז",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשדוד -יא,יב,טו,יז,מרינה,סיט",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשקלון - דרום",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "אשקלון - צפון",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "באר גנים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "בן זכאי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "ברכיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "בת הדר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "גאליה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "הודיה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "יבנה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "כפר הנגיד",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "כפר סילבר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "מרכז שפירא",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "משואות יצחק",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "משען",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "ניצן",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "ניצנים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "ניר גלים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "ניר ישראל",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "נצר סרני",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "עין צורים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "שפיר",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:21",
+      "cities": "תימורים",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:25",
+      "cities": "נס ציונה",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:29",
+      "cities": "באר יעקב",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:03:29",
+      "cities": "ניר צבי",
+      "threat": "0",
+      "id": "6254",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אביתר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אזור תעשייה אריאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אזור תעשייה בראון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אזור תעשייה ברקן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אזור תעשייה חבל מודיעין שוהם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "איתמר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אלון מורה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אלעד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אלקנה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "אריאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "בית אריה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "בקעות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "ברוכין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "ברקן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "ברקת",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "בתרונות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "גבעת כ''ח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "גבעת פורת יוסף",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "דורות עילית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "החווה של אורי כהן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "החווה של עשהאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "הר ברכה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות אביחי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות גלעד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות יאיר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות יד השומר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות מרום שמואל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות נוף אב\"י",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות עולם חסד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות צרידה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות שדה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות שוביאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "חוות שחרית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "טירת יהודה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "יצהר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "יקיר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "כפר תפוח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "מחולה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "מסוף אורנית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "משכיות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "נופי נחמיה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "נופים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "נחשונים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "עופרים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "עלי זהב - לשם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "עמנואל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "עץ אפרים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "פדואל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "קדומים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "קריית נטפים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "קרני שומרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "ראש העין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "רבבה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "רותם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "רחלים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "שבי שומרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "שדמות מחולה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:06",
+      "cities": "שערי תקווה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "אשדוד - איזור תעשייה צפוני",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "בית גמליאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "בן זכאי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "בני דרום",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "בניה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "גאליה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "גבעת וושינגטון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "יבנה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "כפר אביב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "כפר הנגיד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "כפר מרדכי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "כרם ביבנה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "מעון צופיה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "מתחם בני דרום",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "ניר גלים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "עשרת",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "קבוצת יבנה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:11",
+      "cities": "שדמה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אור יהודה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אורנית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אזור",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אזור תעשייה אפק ולב הארץ",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אזור תעשייה נשר - רמלה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אחיסמך",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אחיעזר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "איירפורט סיטי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "אירוס",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "באר יעקב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בארות יצחק",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בית דגן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בית חנן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בית נחמיה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בית עובד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בית עריף",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בן שמן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "בני עטרות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גבעת ברנר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גבעת השלושה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גיבתון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גינתון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גמזו",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גן שורק",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גן שלמה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גנות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גני הדר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גני תקווה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "גת רימון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "זיתן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "חדיד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "חולון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "חמד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "יגל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "יד רמב''ם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "יהוד מונוסון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "ישרש",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר ביל''ו",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר דניאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר חב''ד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר טרומן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר נוער בן שמן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר סירקין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "כפר קאסם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "לוד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "מגשימים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "מזור",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "מעש",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "מצליח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "משמר השבעה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נאות קדומים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נופך",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נחלים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נטעים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "ניר צבי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נס ציונה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נען",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "נצר סרני",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "סביון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "סתריה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "עיינות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "עינת",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "פארק אריאל שרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "פארק תעשיות פלמחים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "פלמחים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "פתח תקווה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "צפריה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "קריית אונו",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "קריית עקרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "ראשון לציון - מזרח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "ראשון לציון - מערב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רחובות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רינתיה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רמות מאיר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רמלה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רמת גן - מזרח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "רמת גן - מערב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "שוהם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:13",
+      "cities": "תעשיון צריפין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:20",
+      "cities": "בית אלעזרי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:22",
+      "cities": "חמרה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:22",
+      "cities": "רועי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:08:31",
+      "cities": "כפר ברא",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "אייל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "אלישמע",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "אלפי מנשה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "בית ברל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "בית עלמין מורשה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "בני ברק",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "בת ים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "ג'לג'וליה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "גבעת חן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "גבעת שמואל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "גבעתיים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "גן חיים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "גני עם",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "הוד השרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "הרצליה - מערב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "הרצליה - מרכז וגליל ים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "חגור",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "חורשים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "טירת צבי",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "ירחיב",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "ירקונה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "כוכב יאיר - צור יגאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "כפר מל''ל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "כפר סבא",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "מקווה ישראל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "מרכז אזורי דרום השרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "מתחם גלילות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "מתחם פי גלילות",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "מתן",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "נווה ימין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "נווה ירק",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "ניר אליהו",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "נירית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "עדנים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "צופים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "צופית",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "רמות השבים",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "רמת השרון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "רעננה",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "שדי חמד",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "תחנת רכבת ראש העין",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "תל אביב - דרום העיר ויפו",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "תל אביב - מזרח",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "תל אביב - מרכז העיר",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:17",
+      "cities": "תל אביב - עבר הירקון",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:19",
+      "cities": "חוות עמיאל",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 21:09:19",
+      "cities": "חמדת",
+      "threat": "0",
+      "id": "6255",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:00:23",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:00:29",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:00:29",
+      "cities": "כפר יובל",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:00:29",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:00:29",
+      "cities": "תל חי",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:00:48",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "6256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:07:55",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "6257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אביתר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אור יהודה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אורנית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אזור",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אזור תעשייה אפק ולב הארץ",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אזור תעשייה אריאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אזור תעשייה ברקן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אזור תעשייה חבל מודיעין שוהם",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אחיעזר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "איירפורט סיטי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אלעד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אלקנה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "אריאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "באר יעקב",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בארות יצחק",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בית אריה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בית דגן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בית נחמיה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בית עריף",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בני ברק",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בני עטרות",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ברוכין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ברקן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ברקת",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "בת ים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גבעת הרואה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גבעת השלושה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גבעת כ''ח",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גבעת שמואל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גבעתיים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גינתון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גן שורק",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גנות",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גני תקווה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "גת רימון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "דורות עילית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "זיתן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חדיד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות אביחי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות נווה צוף",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות נוף אב\"י",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות עולם חסד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות צרידה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות שוביאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חוות שחרית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חולון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "חמד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "טירת יהודה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "יגל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "יהוד מונוסון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר חב''ד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר טרומן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר נוער בן שמן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר סירקין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר קאסם",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "כפר תפוח",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "לוד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מגשימים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מזור",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מכינת אלישע",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מסוף אורנית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מעלה לבונה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מעש",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "מקווה ישראל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "משמר השבעה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נווה צוף",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נופי נחמיה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נופך",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נחלים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נחשונים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "נטעים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ניר צבי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "סביון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "עופרים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "עינת",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "עלי זהב - לשם",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "עץ אפרים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "פארק אריאל שרון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "פארק תעשיות פלמחים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "פדואל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "פתח תקווה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "צפריה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "קריית אונו",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "קריית נטפים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ראש העין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ראשון לציון - מזרח",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "ראשון לציון - מערב",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "רבבה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "רחלים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "רינתיה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "רמת גן - מזרח",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "רמת גן - מערב",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "שוהם",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "שערי תקווה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "תחנת רכבת ראש העין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "תל אביב - דרום העיר ויפו",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "תל אביב - מזרח",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "תל אביב - מרכז העיר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:07",
+      "cities": "תעשיון צריפין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:10",
+      "cities": "בן שמן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:10",
+      "cities": "גבעת הראל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:23",
+      "cities": "חוות יאיר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:20:32",
+      "cities": "כפר ברא",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "אלישמע",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "אלפי מנשה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "בית עלמין מורשה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "ג'לג'וליה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "גבעת חן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "גני עם",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "הוד השרון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "הרצליה - מרכז וגליל ים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "חגור",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "חורשים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "יצהר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "יקיר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "ירחיב",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "ירקונה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "כפר מל''ל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "כפר סבא",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "מרכז אזורי דרום השרון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "מתחם גלילות",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "מתחם פי גלילות",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "מתן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "נווה ימין",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "נווה ירק",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "נופים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "נירית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "עדנים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "עלי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "עמנואל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "קרני שומרון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "רמות השבים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "רמת השרון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "שדי חמד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:05",
+      "cities": "תל אביב - עבר הירקון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "אזור תעשייה נשר - רמלה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "אחיה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "אחיסמך",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "אירוס",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "אש קודש",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "בית חנן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "בית עובד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "גופנה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "גיתית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "גמזו",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חוות הרשאש",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חוות מגדלים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חוות מגנזי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חוות נחל שילה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חוות פריאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חרשה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "חשמונאים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "יבוא דודי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "כפר דניאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "כרם רעים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מבוא מודיעים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מגדלים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מודיעין - ליגד סנטר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מודיעין עילית",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מלאכי השלום",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מעלה אפרים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מצפור פצאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "מתתיהו",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נאות קדומים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נחליאל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נילי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נס ציונה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נעלה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נצר סרני",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "נריה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "עדי עד",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "עטרת",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "עמיחי",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "פלמחים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "קידה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "רמלה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "שבות רחל",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "שדה אפרים",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:44",
+      "cities": "שילה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "איתמר",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "ארגמן",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "החווה של יאיא",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "חוות גנות",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "מכורה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "משואה",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
+    },
+    {
+      "time": "2026-03-16 22:21:54",
+      "cities": "שלומציון",
+      "threat": "0",
+      "id": "6258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Iran"
     }
   ]
 }
