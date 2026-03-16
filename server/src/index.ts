@@ -21,6 +21,9 @@ import path from 'path';
 
 const app = express();
 
+// Trust proxy (Render/Vercel)
+app.set('trust proxy', 1);
+
 // Security headers
 app.use(helmet({
     contentSecurityPolicy: false,
