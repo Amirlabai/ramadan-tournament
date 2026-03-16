@@ -35,10 +35,11 @@ const getMoonIllumination = (day: number): { percentage: string; trend: string }
 const IftarTimer = ({ isActive, onToggle }: IftarTimerProps) => {
     const today = new Date();
     const msPerDay = 24 * 60 * 60 * 1000;
-    const ramadanDay = Math.floor((today.getTime() - RAMADAN_START.getTime()) / msPerDay) + 1;
+    const exactDay = (today.getTime() - RAMADAN_START.getTime()) / msPerDay + 1;
+    const ramadanDay = Math.floor(exactDay);
 
     const emoji = getMoonEmoji(ramadanDay);
-    const { percentage, trend } = getMoonIllumination(ramadanDay);
+    const { percentage, trend } = getMoonIllumination(exactDay);
 
     return (
         <div className={`iftar-timer-container ${isActive ? 'expanded' : 'minimized'}`}>
@@ -51,7 +52,7 @@ const IftarTimer = ({ isActive, onToggle }: IftarTimerProps) => {
                     ×
                 </button>
                 <iframe
-                    src="https://aymanlauz.github.io/ramadan-countdown/"
+                    src="/ramadan-countdown.html"
                     title="Ramadan Countdown"
                     className="iftar-iframe"
                     loading="lazy"
