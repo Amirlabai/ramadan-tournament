@@ -40,7 +40,7 @@ function App() {
               <img src="/to-be-logo.svg" className="header-side-logo left" alt="" />
               <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="" />
               <h1 className="display-4 fw-bold">טורניר נצ'מאז<br />1447/2026</h1>
-              <p className="lead" id="tournamentPhase">שלב הבתים</p>
+              <p className="lead" id="tournamentPhase">פלייאוף</p>
             </header>
           </div>
 
@@ -72,7 +72,7 @@ function App() {
 
         {/* Footer */}
         <Footer />
-        
+
         <ScrollToTop />
 
         <Analytics />
