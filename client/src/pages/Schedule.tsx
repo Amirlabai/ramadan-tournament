@@ -64,7 +64,8 @@ const Schedule = () => {
             // Poll during tournament hours or if match is today
             const now = new Date();
             const hour = now.getHours();
-            if (hasMatchToday || (hour >= 20 && hour <= 23)) {
+            // Only poll during tournament hours (20:00 - 23:59) AND only if there is a match today
+            if (hasMatchToday && hour >= 20 && hour <= 23) {
                 fetchData(true);
             }
         }, 30000);

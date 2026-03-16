@@ -46,10 +46,9 @@ const Dashboard = () => {
                 return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
             });
 
-            // Always poll during typical tournament hours (e.g., 18:00 - 23:59 JLM) or if match is today
             const now = new Date();
             const hour = now.getHours();
-            if (hasMatchToday || (hour >= 20 && hour <= 23)) {
+            if (hasMatchToday && hour >= 20 && hour <= 23) {
                 fetchDashboard(true);
             }
         }, 30000);

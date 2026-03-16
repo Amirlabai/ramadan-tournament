@@ -23,7 +23,7 @@ const Teams = () => {
             // If we don't have an expandTeamId but have a player, we'll need to expand their team
             // But usually they come together
         }
-        
+
         if (state?.expandTeamId || state?.selectPlayerId) {
             // Clear state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
