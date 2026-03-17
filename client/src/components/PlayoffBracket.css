@@ -5,6 +5,7 @@
 
 .playoff-bracket-card h2 {
     color: #2A6B11;
+    font-family: 'Outfit', sans-serif;
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 25px !important;
@@ -17,14 +18,15 @@
     justify-content: center;
     gap: 40px;
     padding: 10px;
-    min-width: fit-content;
+    width: 100%;
     direction: rtl;
     /* Ensure RTL flow */
 }
 
 .playoff-bracket-card .bracket {
     flex: 1;
-    min-width: 320px;
+    min-width: 0;
+    width: 100%;
     background: #fdfdfd;
     border-radius: 12px;
     padding: 20px;
@@ -34,15 +36,15 @@
 
 .playoff-bracket-card .bracket-title {
     text-align: center;
+    font-family: 'Outfit', sans-serif;
     font-weight: 800;
     color: #2A6B11;
     font-size: 1.2rem;
     padding-bottom: 8px;
     border-bottom: 3px solid #FFD700;
-    display: inline-block;
-    position: relative;
-    left: 10%;
-    transform: translateX(-50%);
+    display: block;
+    margin: 0 auto 20px;
+    width: fit-content;
 }
 
 .playoff-bracket-card .bracket-content {
@@ -99,7 +101,6 @@
 
 .playoff-bracket-card .team-name {
     flex: 1;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     padding-left: 10px;
@@ -160,36 +161,53 @@
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .playoff-bracket-card {
-        padding: 10px;
+        padding: 15px 10px;
+        overflow: hidden;
     }
 
     .playoff-bracket-card .bracket {
-        transform: translateX(20px) scale(0.9);
-        padding: 5px;
+        padding: 15px 5px;
         width: 100%;
-        max-width: 400px;
+        max-width: 100%;
+        border-radius: 8px;
     }
 
     .playoff-bracket-card .bracket-match {
-        transform: scale(0.9);
         width: 100%;
+        max-width: 155px;
+        /* Reduced from 180px */
+        margin: 0 auto;
+        transform: scale(0.95);
     }
 
     .playoff-bracket-card .brackets-wrapper {
         flex-direction: column;
         align-items: center;
         gap: 30px;
+        /* Reduced from 40px */
+        min-width: 0;
     }
 
     .playoff-bracket-card .bracket-column {
-        gap: 5px;
+        gap: 15px;
     }
 
     .playoff-bracket-card .bracket-connector {
-        width: 10px;
+        width: 12px;
+        /* Reduced from 15px */
+        transform: translateX(8px);
+        /* Reduced from 10px */
     }
 
-    .playoff-bracket-card .bracket-connector {
-        transform: translateX(5px);
+    .playoff-bracket-card .team-row {
+        padding: 4px 10px;
+    }
+
+    .playoff-bracket-card .team-name {
+        font-size: 0.8rem;
+    }
+
+    .playoff-bracket-card .team-score {
+        font-size: 0.8rem;
     }
 }

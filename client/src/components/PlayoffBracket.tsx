@@ -18,10 +18,10 @@ const PlayoffBracket: React.FC<PlayoffBracketProps> = ({ matches }) => {
 
     const renderMatch = (match?: Match, label?: string) => {
         if (!match) return null;
-        
+
         const score1 = match.score1 ?? '-';
         const score2 = match.score2 ?? '-';
-        
+
         return (
             <div className="bracket-match">
                 {label && <div className="match-label">{label}</div>}
