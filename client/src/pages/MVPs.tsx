@@ -122,7 +122,10 @@ const MVPs = () => {
                                             <span className="star-decoration star-2">★</span>
                                             <span className="star-decoration star-3">★</span>
                                         </div>
-                                        <div className="scorer-name">{data.topScorers[0].playerName}</div>
+                                        <div className="scorer-name">
+                                            <img src="/top-scorer.svg" alt="Top Scorer" className="top-scorer-badge" />
+                                            {data.topScorers[0].playerName}
+                                        </div>
                                         <div className="scorer-team">{data.topScorers[0].teamName}</div>
                                         <div className="scorer-goals">
                                             <span className="goals-count">{data.topScorers[0].goals}</span>

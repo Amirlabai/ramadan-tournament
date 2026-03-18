@@ -251,6 +251,18 @@
     color: #333;
     line-height: 1.2;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.top-scorer-badge {
+    width: 60px;
+    height: auto;
+    z-index: 5;
+    pointer-events: none;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
 .dashboard-page .top-scorer .scorer-team {
