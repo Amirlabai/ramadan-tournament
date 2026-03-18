@@ -108,3 +108,39 @@ export const sendPlayerMappingNotification = async (
         console.error('[email] Failed to send player mapping notification:', err);
     }
 };
+
+// ─── Email Verification ──────────────────────────────────────────────────────
+
+export const sendVerificationEmail = async (
+    email: string,
+    token: string,
+    displayName: string
+): Promise<void> => {
+    if (!isConfigured()) {
+        console.warn('[email] SMTP not configured. Logged code:', token);
+        return;
+    }
+    try {
+        await getTransporter().sendMail({
+            from: config.email.user,
+            to: email,
+            subject: `קוד אימות לטורניר נצ'מאז: ${token}`,
+            html: `
+                <div dir="rtl" style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+                    <h2 style="color: #2A6B11; text-align: center;">ברוך הבא לטורניר נצ'מאז!</h2>
+                    <p>שלום ${displayName},</p>
+                    <p>תודה שנרשמת למערכת. כדי להשלים את ההרשמה ולאמת את כתובת האימייל שלך, אנא הזן את הקוד הבא באתר:</p>
+                    <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
+                        ${token}
+                    </div>
+                    <p>הקוד בתוקף ל-24 השעות הקרובות.</p>
+                    <p>אם לא נרשמת לאתר, אנא התעלם מאימייל זה.</p>
+                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+                    <p style="font-size: 12px; color: #888; text-align: center;">טורניר נצ'מאז - רמדאן 2026</p>
+                </div>`,
+        });
+        console.log(`[email] Verification email sent to ${email}`);
+    } catch (err) {
+        console.error('[email] Failed to send verification email:', err);
+    }
+};

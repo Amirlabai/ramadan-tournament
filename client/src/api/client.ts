@@ -73,6 +73,10 @@ export const authAPI = {
     googleLogin: (token: string) =>
         api.post('/auth/google', { token }),
     getCurrentUser: () => api.get('/auth/me'),
+    verifyEmail: (email: string, code: string) =>
+        api.post('/auth/verify-email', { email, code }),
+    resendVerification: (email: string) =>
+        api.post('/auth/resend-verification', { email }),
 };
 
 export const usersAPI = {

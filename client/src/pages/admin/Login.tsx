@@ -7,11 +7,15 @@ import './Login.css';
 
 const Login = () => {
     const [isLoginView, setIsLoginView] = useState(true);
+    const [isVerifying, setIsVerifying] = useState(false);
     const [identifier, setIdentifier] = useState(''); // Email or Username
     const [password, setPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
+    const [verificationCode, setVerificationCode] = useState('');
+    const [resendLoading, setResendLoading] = useState(false);
 
     const [error, setError] = useState('');
+    const [successMsg, setSuccessMsg] = useState('');
     const [loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
@@ -23,12 +27,11 @@ const Login = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        setSuccessMsg('');
         setLoading(true);
 
         try {
             if (isLoginView) {
-                // Backend decides if it's email or legacy username internally 
-                // based on whether it contains an @ symbol etc.
                 const isEmail = identifier.includes('@');
                 const credentials = isEmail
                     ? { email: identifier, password }
@@ -36,6 +39,7 @@ const Login = () => {
 
                 const response = await authAPI.login(credentials);
                 login(response.data.token, response.data.user);
+                navigate(from, { replace: true });
             } else {
                 // Register
                 const payload = {
@@ -44,13 +48,55 @@ const Login = () => {
                     displayName
                 };
                 const response = await authAPI.register(payload);
-                login(response.data.token, response.data.user);
+                if (response.data.needsVerification) {
+                    setIsVerifying(true);
+                    setSuccessMsg('נרשמת בהצלחה! קוד אימות נשלח לאימייל שלך.');
+                } else {
+                    login(response.data.token, response.data.user);
+                    navigate(from, { replace: true });
+                }
             }
-            navigate(from, { replace: true });
         } catch (err: any) {
-            setError(err.response?.data?.error || 'שגיאה בהתחברות. נסה שוב.');
+            const data = err.response?.data;
+            if (data?.needsVerification) {
+                setIsVerifying(true);
+                setError('חשבונך טרם אומת. הזן את הקוד שנשלח אליך.');
+            } else {
+                setError(data?.error || 'שגיאה בהתחברות. נסה שוב.');
+            }
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleVerifySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError('');
+        setSuccessMsg('');
+        setLoading(true);
+
+        try {
+            const response = await authAPI.verifyEmail(identifier, verificationCode);
+            login(response.data.token, response.data.user);
+            navigate(from, { replace: true });
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'קוד אימות שגוי או פג תוקף');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleResendCode = async () => {
+        setError('');
+        setSuccessMsg('');
+        setResendLoading(true);
+        try {
+            await authAPI.resendVerification(identifier);
+            setSuccessMsg('קוד אימות חדש נשלח לאימייל שלך.');
+        } catch (err: any) {
+            setError(err.response?.data?.error || 'שגיאה בשליחת הקוד');
+        } finally {
+            setResendLoading(false);
         }
     };
 
@@ -71,91 +117,144 @@ const Login = () => {
         <div className="login-page">
             <div className="login-card card">
                 <h2 className="mb-4 text-center">
-                    {isLoginView ? 'התחברות למערכת' : 'הרשמה חדשה'}
+                    {isVerifying ? 'אימות אימייל' : (isLoginView ? 'התחברות למערכת' : 'הרשמה חדשה')}
                 </h2>
 
-                <div className="mb-4 d-flex justify-content-center">
-                    <GoogleLogin
-                        onSuccess={handleGoogleSuccess}
-                        onError={() => setError('התחברות גוגל נכשלה')}
-                        theme="filled_black"
-                        text={isLoginView ? 'signin_with' : 'signup_with'}
-                        shape="pill"
-                    />
-                </div>
+                {!isVerifying && (
+                    <div className="mb-4 d-flex justify-content-center">
+                        <GoogleLogin
+                            onSuccess={handleGoogleSuccess}
+                            onError={() => setError('התחברות גוגל נכשלה')}
+                            theme="filled_black"
+                            text={isLoginView ? 'signin_with' : 'signup_with'}
+                            shape="pill"
+                        />
+                    </div>
+                )}
 
-                <div className="divider mb-4">
-                    <span>או עם אימייל</span>
-                </div>
+                {!isVerifying && (
+                    <div className="divider mb-4">
+                        <span>או עם אימייל</span>
+                    </div>
+                )}
 
-                <form onSubmit={handleSubmit}>
-                    {!isLoginView && (
-                        <div className="form-group mb-3">
-                            <label htmlFor="displayName">שם מלא (יוצג בתגובות)</label>
+                {isVerifying ? (
+                    <form onSubmit={handleVerifySubmit}>
+                        <p className="text-center mb-4">הזן את 6 הספרות שנשלחו לכתובת:<br /><strong>{identifier}</strong></p>
+                        
+                        <div className="form-group mb-4">
                             <input
                                 type="text"
-                                className="form-control"
-                                id="displayName"
-                                value={displayName}
-                                onChange={(e) => setDisplayName(e.target.value)}
-                                required={!isLoginView}
+                                className="form-control form-control-lg text-center fw-bold"
+                                maxLength={6}
+                                placeholder="000000"
+                                value={verificationCode}
+                                onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                                required
+                                style={{ letterSpacing: '8px', fontSize: '1.5rem' }}
                             />
                         </div>
-                    )}
 
-                    <div className="form-group mb-3">
-                        <label htmlFor="identifier">
-                            {isLoginView ? 'אימייל או שם משתמש' : 'אימייל'}
-                        </label>
-                        <input
-                            type={(!isLoginView || identifier.includes('@')) ? 'email' : 'text'}
-                            className="form-control"
-                            id="identifier"
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                            required
-                            autoComplete={isLoginView ? "username" : "email"}
-                            dir="ltr"
-                        />
-                    </div>
+                        {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
+                        {successMsg && <div className="alert alert-success p-2 text-center">{successMsg}</div>}
 
-                    <div className="form-group mb-4">
-                        <label htmlFor="password">סיסמה</label>
-                        <input
-                            type="password"
-                            className="form-control"
-                            id="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            autoComplete={isLoginView ? "current-password" : "new-password"}
-                            dir="ltr"
-                        />
-                    </div>
-
-                    {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
-
-                    <button type="submit" className="btn btn-primary w-100 mb-3" disabled={loading}>
-                        {loading ? (
-                            <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
-                        ) : (
-                            isLoginView ? 'התחבר' : 'הרשם'
-                        )}
-                    </button>
-
-                    <div className="text-center mt-3">
-                        <button
-                            type="button"
-                            className="btn btn-link link-secondary text-decoration-none"
-                            onClick={() => {
-                                setIsLoginView(!isLoginView);
-                                setError('');
-                            }}
-                        >
-                            {isLoginView ? 'אין לך חשבון? הרשם עכשיו' : 'כבר יש לך חשבון? התחבר'}
+                        <button type="submit" className="btn btn-primary w-100 mb-3" disabled={loading}>
+                            {loading ? <span className="spinner-border spinner-border-sm"></span> : 'אמת חשבון'}
                         </button>
-                    </div>
-                </form>
+
+                        <div className="text-center">
+                            <button
+                                type="button"
+                                className="btn btn-link link-secondary text-decoration-none"
+                                onClick={handleResendCode}
+                                disabled={resendLoading}
+                            >
+                                {resendLoading ? 'שולח...' : 'לא קיבלת קוד? שלח שוב'}
+                            </button>
+                        </div>
+                        
+                        <div className="text-center mt-2">
+                            <button
+                                type="button"
+                                className="btn btn-link link-secondary text-decoration-none small"
+                                onClick={() => { setIsVerifying(false); setError(''); setSuccessMsg(''); }}
+                            >
+                                חזור להתחברות
+                            </button>
+                        </div>
+                    </form>
+                ) : (
+                    <form onSubmit={handleSubmit}>
+                        {!isLoginView && (
+                            <div className="form-group mb-3">
+                                <label htmlFor="displayName">שם מלא (יוצג בתגובות)</label>
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="displayName"
+                                    value={displayName}
+                                    onChange={(e) => setDisplayName(e.target.value)}
+                                    required={!isLoginView}
+                                />
+                            </div>
+                        )}
+
+                        <div className="form-group mb-3">
+                            <label htmlFor="identifier">
+                                {isLoginView ? 'אימייל או שם משתמש' : 'אימייל'}
+                            </label>
+                            <input
+                                type={(!isLoginView || identifier.includes('@')) ? 'email' : 'text'}
+                                className="form-control"
+                                id="identifier"
+                                value={identifier}
+                                onChange={(e) => setIdentifier(e.target.value)}
+                                required
+                                autoComplete={isLoginView ? "username" : "email"}
+                                dir="ltr"
+                            />
+                        </div>
+
+                        <div className="form-group mb-4">
+                            <label htmlFor="password">סיסמה</label>
+                            <input
+                                type="password"
+                                className="form-control"
+                                id="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                                autoComplete={isLoginView ? "current-password" : "new-password"}
+                                dir="ltr"
+                            />
+                        </div>
+
+                        {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
+                        {successMsg && <div className="alert alert-success p-2 text-center">{successMsg}</div>}
+
+                        <button type="submit" className="btn btn-primary w-100 mb-3" disabled={loading}>
+                            {loading ? (
+                                <span className="spinner-border spinner-border-sm" aria-hidden="true"></span>
+                            ) : (
+                                isLoginView ? 'התחבר' : 'הרשם'
+                            )}
+                        </button>
+
+                        <div className="text-center mt-3">
+                            <button
+                                type="button"
+                                className="btn btn-link link-secondary text-decoration-none"
+                                onClick={() => {
+                                    setIsLoginView(!isLoginView);
+                                    setError('');
+                                    setSuccessMsg('');
+                                }}
+                            >
+                                {isLoginView ? 'אין לך חשבון? הרשם עכשיו' : 'כבר יש לך חשבון? התחבר'}
+                            </button>
+                        </div>
+                    </form>
+                )}
             </div>
         </div>
     );

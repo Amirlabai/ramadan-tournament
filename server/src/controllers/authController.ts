@@ -6,6 +6,8 @@ import { User, IUser } from '../models/User';
 import { Team } from '../models/Team';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
+import { sendVerificationEmail } from '../services/emailService';
+import crypto from 'crypto';
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
@@ -100,26 +102,30 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(password, salt);
 
+        // Generate 6-digit verification code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
         // Create user
         const user = new User({
             email: email.toLowerCase().trim(),
             password: passwordHash,
             displayName: displayName.trim(),
-            role: 'User'
+            role: 'User',
+            isVerified: false,
+            verificationToken: verificationCode,
+            verificationTokenExpires: expires
         });
 
         await user.save();
 
-        const token = generateToken(user);
+        // Send verification email
+        await sendVerificationEmail(user.email!, verificationCode, user.displayName);
+
         res.status(201).json({
-            token,
-            user: {
-                id: user._id,
-                email: user.email,
-                displayName: user.displayName,
-                role: user.role,
-                avatarUrl: user.avatarUrl
-            }
+            message: 'Registration successful. Please check your email for the verification code.',
+            needsVerification: true,
+            email: user.email
         });
     } catch (error) {
         console.error('Registration error:', error);
@@ -166,6 +172,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             res.status(401).json({ error: 'Invalid credentials' });
+            return;
+        }
+
+        // Check if verified (only for internal email/password accounts)
+        if (!user.isVerified && !user.googleId) {
+            res.status(403).json({
+                error: 'Email not verified',
+                needsVerification: true,
+                email: user.email
+            });
             return;
         }
 
@@ -265,5 +281,79 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     } catch (error) {
         console.error('Get user error:', error);
         res.status(500).json({ error: 'Server error' });
+    }
+};
+
+export const verifyEmail = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email, code } = req.body;
+
+        if (!email || !code) {
+            res.status(400).json({ error: 'Email and code are required' });
+            return;
+        }
+
+        const user = await User.findOne({
+            email: email.toLowerCase().trim(),
+            verificationToken: code,
+            verificationTokenExpires: { $gt: new Date() }
+        });
+
+        if (!user) {
+            res.status(400).json({ error: 'Invalid or expired verification code' });
+            return;
+        }
+
+        user.isVerified = true;
+        user.verificationToken = undefined;
+        user.verificationTokenExpires = undefined;
+        await user.save();
+
+        const token = generateToken(user);
+        res.json({
+            token,
+            user: await hydrateUserPayload(user)
+        });
+    } catch (error) {
+        console.error('Email verification error:', error);
+        res.status(500).json({ error: 'Server error during verification' });
+    }
+};
+
+export const resendVerification = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email } = req.body;
+
+        if (!email) {
+            res.status(400).json({ error: 'Email is required' });
+            return;
+        }
+
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
+
+        if (!user) {
+            res.status(404).json({ error: 'User not found' });
+            return;
+        }
+
+        if (user.isVerified) {
+            res.status(400).json({ error: 'Email is already verified' });
+            return;
+        }
+
+        // Generate new 6-digit verification code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+        user.verificationToken = verificationCode;
+        user.verificationTokenExpires = expires;
+        await user.save();
+
+        await sendVerificationEmail(user.email!, verificationCode, user.displayName);
+
+        res.json({ message: 'Verification code resent successfully' });
+    } catch (error) {
+        console.error('Resend verification error:', error);
+        res.status(500).json({ error: 'Server error during resending code' });
     }
 };

@@ -35,6 +35,9 @@ export interface IUser extends Document {
     mappedPlayerInfo?: IMappedPlayerInfo;
     playerProfile?: IPlayerProfile; // Editable player info (custom or override of claimed slot)
     pendingTeamRequest?: IPendingTeamRequest;
+    isVerified: boolean;
+    verificationToken?: string;
+    verificationTokenExpires?: Date;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -107,6 +110,18 @@ const userSchema = new Schema<IUser>({
             description: { type: String, default: '' },
             status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
         }, { _id: false }),
+        required: false
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    verificationToken: {
+        type: String,
+        required: false
+    },
+    verificationTokenExpires: {
+        type: Date,
         required: false
     }
 }, { timestamps: true });
