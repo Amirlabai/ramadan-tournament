@@ -12,9 +12,9 @@ const Teams = () => {
     const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
     const [shouldScroll, setShouldScroll] = useState(false);
     const [myVote, setMyVote] = useState<{ playerMemberId: number } | null>(null);
+    const [voteLoaded, setVoteLoaded] = useState(false);
     const [isVoting, setIsVoting] = useState(false);
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
-    const [showVotePrompt, setShowVotePrompt] = useState(false);
     const [dismissPrompt, setDismissPrompt] = useState(false);
     const location = useLocation();
 
@@ -22,10 +22,7 @@ const Teams = () => {
     const isLoggedIn = !!localStorage.getItem('token');
 
     useEffect(() => {
-        const state = location.state as { expandTeamId?: number; selectPlayerId?: number; showVotePrompt?: boolean };
-        if (state?.showVotePrompt) {
-            setShowVotePrompt(true);
-        }
+        const state = location.state as { expandTeamId?: number; selectPlayerId?: number };
         if (state?.expandTeamId) {
             setExpandedTeam(state.expandTeamId);
             setShouldScroll(true);
@@ -36,7 +33,7 @@ const Teams = () => {
             // But usually they come together
         }
 
-        if (state?.expandTeamId || state?.selectPlayerId || state?.showVotePrompt) {
+        if (state?.expandTeamId || state?.selectPlayerId) {
             // Clear state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
         }
@@ -88,7 +85,10 @@ const Teams = () => {
     };
 
     const fetchMyVote = async () => {
-        if (!isLoggedIn) return;
+        if (!isLoggedIn) {
+            setVoteLoaded(true);
+            return;
+        }
         try {
             const response = await votesAPI.getMyVote('mvp');
             if (response.data.voted) {
@@ -96,6 +96,8 @@ const Teams = () => {
             }
         } catch (err) {
             console.error('Error fetching vote:', err);
+        } finally {
+            setVoteLoaded(true);
         }
     };
 
@@ -166,9 +168,14 @@ const Teams = () => {
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
 
-            {(!dismissPrompt && (!isLoggedIn || !myVote)) && (
+            {(voteLoaded && !dismissPrompt && (!isLoggedIn || !myVote)) && (
                 <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
-                    <strong>הצבעה ל-MVP:</strong> לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!
+                    <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong> 
+                    <span className="ms-2">
+                        {isLoggedIn 
+                            ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!' 
+                            : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
+                    </span>
                     <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="Close"></button>
                 </div>
             )}
