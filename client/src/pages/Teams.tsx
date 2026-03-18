@@ -15,6 +15,7 @@ const Teams = () => {
     const [isVoting, setIsVoting] = useState(false);
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
     const [showVotePrompt, setShowVotePrompt] = useState(false);
+    const [dismissPrompt, setDismissPrompt] = useState(false);
     const location = useLocation();
 
     // Check if user is logged in
@@ -165,10 +166,10 @@ const Teams = () => {
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
 
-            {(showVotePrompt && (!isLoggedIn || !myVote)) && (
+            {(!dismissPrompt && (!isLoggedIn || !myVote)) && (
                 <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
                     <strong>הצבעה ל-MVP:</strong> לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!
-                    <button type="button" className="btn-close" onClick={() => setShowVotePrompt(false)} aria-label="Close"></button>
+                    <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="Close"></button>
                 </div>
             )}
 

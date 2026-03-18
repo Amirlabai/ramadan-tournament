@@ -52,7 +52,7 @@ export const castVote = async (req: AuthRequest, res: Response): Promise<void> =
 
         await vote.save();
 
-        res.status(201).json({ message: 'Vote cast successfully', vote });
+        res.status(201).json({ message: 'Vote cast successfully', vote, voted: true });
     } catch (error) {
         console.error('Error casting vote:', error);
         res.status(500).json({ message: 'Error casting vote', error: error instanceof Error ? error.message : 'Unknown error' });
