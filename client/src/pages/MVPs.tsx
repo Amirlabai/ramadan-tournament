@@ -13,7 +13,7 @@ const MVPs = () => {
     const [error, setError] = useState('');
     const [hasVoted, setHasVoted] = useState<boolean | null>(null);
     const [voteLoaded, setVoteLoaded] = useState(false);
-    const { user } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
     const fetchStats = async (isBackground = false) => {
@@ -40,6 +40,8 @@ const MVPs = () => {
     };
 
     const fetchMyVote = async () => {
+        if (authLoading) return;
+
         if (!user) {
             setHasVoted(false);
             setVoteLoaded(true);
@@ -59,7 +61,6 @@ const MVPs = () => {
     useEffect(() => {
         fetchStats();
         fetchMvpLeaderboard();
-        fetchMyVote();
 
         // Polling logic: Every 5 minutes
         const interval = setInterval(() => {
@@ -69,6 +70,10 @@ const MVPs = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        fetchMyVote();
+    }, [user, authLoading]);
 
     if (loading) return <div className="text-center p-5"><div className="spinner-border text-success" role="status"><span className="visually-hidden">טוען...</span></div></div>;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;

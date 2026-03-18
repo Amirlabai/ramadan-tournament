@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
+import { useAuth } from '../contexts/AuthContext';
 import type { Team } from '../types';
 import SEO from '../components/SEO';
 
@@ -16,10 +17,11 @@ const Teams = () => {
     const [isVoting, setIsVoting] = useState(false);
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
     const [dismissPrompt, setDismissPrompt] = useState(false);
+    const { user, loading: authLoading } = useAuth();
     const location = useLocation();
 
     // Check if user is logged in
-    const isLoggedIn = !!localStorage.getItem('token');
+    const isLoggedIn = !!user;
 
     useEffect(() => {
         const state = location.state as { expandTeamId?: number; selectPlayerId?: number };
@@ -85,6 +87,8 @@ const Teams = () => {
     };
 
     const fetchMyVote = async () => {
+        if (authLoading) return;
+
         if (!isLoggedIn) {
             setVoteLoaded(true);
             return;
@@ -103,7 +107,6 @@ const Teams = () => {
 
     useEffect(() => {
         fetchTeams();
-        fetchMyVote();
 
         const interval = setInterval(() => {
             const hour = new Date().getHours();
@@ -114,6 +117,10 @@ const Teams = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        fetchMyVote();
+    }, [isLoggedIn, authLoading]);
 
     const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
 
