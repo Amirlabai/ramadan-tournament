@@ -141,7 +141,7 @@ const MVPs = () => {
                         {mvpLeaderboard && mvpLeaderboard.length > 0 && (
                             <div className="dashboard-card mvp-race-card h-100 mt-0">
                                 <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h2 className="mb-0 fs-4 w-100 text-center">🏆 מירוץ ה-MVP</h2>
+                                    <h2 className="mb-0 fs-4 w-100 text-center">🏆 MVP</h2>
                                 </div>
                                 <div className="card-body p-0">
                                     {mvpLeaderboard.slice(0, 5).map((item, index) => (
