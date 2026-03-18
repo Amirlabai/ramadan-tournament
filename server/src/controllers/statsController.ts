@@ -208,7 +208,8 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             topScorers: topScorers.slice(0, 3),
             nextMatches,
             recentMatches: enrichedRecentMatches,
-            playoffMatches: enrichedPlayoffMatches
+            playoffMatches: enrichedPlayoffMatches,
+            teams
         });
     } catch (error) {
         console.error('Get dashboard error:', error);

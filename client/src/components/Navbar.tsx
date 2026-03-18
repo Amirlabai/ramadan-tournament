@@ -11,6 +11,11 @@ const Navbar = () => {
     return (
         <ul className="nav nav-tabs tournament-tabs justify-content-center" id="mainTabs" role="tablist">
             <li className="nav-item" role="presentation">
+                <Link to="/mvps" className={`nav-link ${isActive('/mvps') ? 'active' : ''}`} role="tab">
+                    MVPs
+                </Link>
+            </li>
+            <li className="nav-item" role="presentation">
                 <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} role="tab">
                     דף הבית
                 </Link>

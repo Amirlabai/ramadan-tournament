@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
+import SEO from '../components/SEO';
 import CommentSection from '../components/CommentSection';
 import './Schedule.css';
 
@@ -188,6 +189,11 @@ const Schedule = () => {
 
     return (
         <div className="schedule-page container py-4">
+            <SEO 
+                title="לוח משחקים" 
+                description="לוח המשחקים המלא של טורניר רמדאן 2026. עדכונים חיים, תוצאות וזמני משחקים של כל שלבי הטורניר." 
+                url="https://ramadan-tournament-client.vercel.app/schedule"
+            />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">לוח משחקים</h2>
 
             <div className="schedule-filters">

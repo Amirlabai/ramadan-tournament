@@ -6,6 +6,7 @@ import Stats from './pages/Stats';
 import Login from './pages/admin/Login';
 import AdminPanel from './pages/admin/AdminPanel';
 import Profile from './pages/Profile';
+import MVPs from './pages/MVPs';
 import Navbar from './components/Navbar';
 import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
@@ -35,10 +36,10 @@ function App() {
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
-              <img src="/banner-foreground.svg" className="banner-foreground right" alt="" />
-              <img src="/banner-foreground.svg" className="banner-foreground left" alt="" />
-              <img src="/to-be-logo.svg" className="header-side-logo left" alt="" />
-              <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="" />
+              <img src="/banner-foreground.svg" className="banner-foreground right" alt="עיטור רמדאן ימני" />
+              <img src="/banner-foreground.svg" className="banner-foreground left" alt="עיטור רמדאן שמאלי" />
+              <img src="/to-be-logo.svg" className="header-side-logo left" alt="לוגו טורניר נצ'מאז" />
+              <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="דגל אדיגיה" />
               <h1 className="display-4 fw-bold">טורניר נצ'מאז<br />1447/2026</h1>
               <p className="lead" id="tournamentPhase">פלייאוף</p>
             </header>
@@ -60,6 +61,7 @@ function App() {
                 <Route path="/teams" element={<Teams />} />
                 <Route path="/schedule" element={<Schedule />} />
                 <Route path="/stats" element={<Stats />} />
+                <Route path="/mvps" element={<MVPs />} />
                 <Route path="/login" element={<Login />} />
                 <Route path="/admin/login" element={<Login />} />
                 <Route path="/admin" element={<AdminPanel />} />

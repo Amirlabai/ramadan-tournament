@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { teamsAPI } from '../api/client';
+import { teamsAPI, votesAPI } from '../api/client';
 import type { Team } from '../types';
+import SEO from '../components/SEO';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -10,10 +11,20 @@ const Teams = () => {
     const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
     const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
     const [shouldScroll, setShouldScroll] = useState(false);
+    const [myVote, setMyVote] = useState<{ playerMemberId: number } | null>(null);
+    const [isVoting, setIsVoting] = useState(false);
+    const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
+    const [showVotePrompt, setShowVotePrompt] = useState(false);
     const location = useLocation();
 
+    // Check if user is logged in
+    const isLoggedIn = !!localStorage.getItem('token');
+
     useEffect(() => {
-        const state = location.state as { expandTeamId?: number; selectPlayerId?: number };
+        const state = location.state as { expandTeamId?: number; selectPlayerId?: number; showVotePrompt?: boolean };
+        if (state?.showVotePrompt) {
+            setShowVotePrompt(true);
+        }
         if (state?.expandTeamId) {
             setExpandedTeam(state.expandTeamId);
             setShouldScroll(true);
@@ -24,7 +35,7 @@ const Teams = () => {
             // But usually they come together
         }
 
-        if (state?.expandTeamId || state?.selectPlayerId) {
+        if (state?.expandTeamId || state?.selectPlayerId || state?.showVotePrompt) {
             // Clear state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
         }
@@ -75,8 +86,21 @@ const Teams = () => {
         }
     };
 
+    const fetchMyVote = async () => {
+        if (!isLoggedIn) return;
+        try {
+            const response = await votesAPI.getMyVote('mvp');
+            if (response.data.voted) {
+                setMyVote({ playerMemberId: response.data.playerMemberId });
+            }
+        } catch (err) {
+            console.error('Error fetching vote:', err);
+        }
+    };
+
     useEffect(() => {
         fetchTeams();
+        fetchMyVote();
 
         const interval = setInterval(() => {
             const hour = new Date().getHours();
@@ -94,12 +118,60 @@ const Teams = () => {
         setExpandedTeam(expandedTeam === teamId ? null : teamId);
     };
 
+    const handleVoteClick = (player: any, e: React.MouseEvent) => {
+        e.stopPropagation();
+
+        if (!isLoggedIn) {
+            if (window.confirm('יש להתחבר כדי להצביע לשחקן הטורניר! האם תרצה לעבור לעמוד ההתחברות?')) {
+                // Navigate to login, and optionally pass a returnTo state so they come back to teams
+                // Assuming standard login behavior redirects to dashboard, we just go to login for now.
+                window.location.href = '/login';
+            }
+            return;
+        }
+
+        setVoteConfirmPlayer(player);
+    };
+
+    const confirmVote = async () => {
+        if (!voteConfirmPlayer || isVoting) return;
+
+        try {
+            setIsVoting(true);
+            const response = await votesAPI.cast(voteConfirmPlayer.memberId, 'mvp');
+            if (response.data.voted) {
+                setMyVote({ playerMemberId: voteConfirmPlayer.memberId });
+            } else {
+                setMyVote(null);
+            }
+        } catch (err: any) {
+            console.error('Error casting vote:', err);
+            alert(err.response?.data?.message || 'שגיאה בשליחת ההצבעה');
+        } finally {
+            setIsVoting(false);
+            setVoteConfirmPlayer(null);
+        }
+    };
+
     if (loading) return <div className="text-center p-5"><div className="spinner-border text-success" role="status"><span className="visually-hidden">טוען...</span></div></div>;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     return (
         <div className="container py-4">
+            <SEO
+                title="קבוצות ושחקנים"
+                description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
+                url="https://ramadan-tournament-client.vercel.app/teams"
+            />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
+
+            {showVotePrompt && !isLoggedIn && (
+                <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
+                    <strong>הצבעה ל-MVP:</strong> לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!
+                    <button type="button" className="btn-close" onClick={() => setShowVotePrompt(false)} aria-label="Close"></button>
+                </div>
+            )}
+
             <div className="table-responsive">
                 <table className="table table-hover" id="teamsTable">
                     <thead>
@@ -169,9 +241,20 @@ const Teams = () => {
                                                                         onClick={(e) => { e.stopPropagation(); setSelectedPlayer(player); }}
                                                                         style={{ cursor: 'pointer' }}
                                                                     >
-                                                                        {player.isCaptain && <span className="badge text-dark position-absolute top-0 start-0 m-2">⭐</span>}
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={(e) => handleVoteClick(player, e)}
+                                                                            className="btn btn-sm position-absolute top-0 start-0 m-1 p-1 border-0 bg-transparent"
+                                                                            style={{ zIndex: 10 }}
+                                                                            title={myVote?.playerMemberId === player.memberId ? "הצבעת לשחקן זה" : "הצבע לשחקן המצטיין"}
+                                                                            disabled={isVoting}
+                                                                        >
+                                                                            <i className={`fs-5 ${myVote?.playerMemberId === player.memberId ? 'text-warning fa-solid fa-star' : 'text-secondary fa-regular fa-star'}`}></i>
+                                                                        </button>
+
+                                                                        {player.isCaptain && <span className="badge text-dark position-absolute top-0 end-0 m-2 mt-4">⭐</span>}
                                                                         {isTopScorer && <span className="badge text-dark position-absolute top-0 end-0 m-2" title="מלך השערים של הקבוצה">⚽</span>}
-                                                                        <div className="fw-bold">{player.nickname}</div>
+                                                                        <div className="fw-bold mt-2">{player.nickname}</div>
                                                                         <div className="text-muted small">{player.firstName} {player.lastName}</div>
                                                                         <div className="badge bg-success mt-1">{player.number}</div>
                                                                         <div className="small text-secondary">{player.position}</div>
@@ -263,6 +346,64 @@ const Teams = () => {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setSelectedPlayer(null)}>סגור</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Vote Confirmation Modal */}
+            {voteConfirmPlayer && (
+                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => !isVoting && setVoteConfirmPlayer(null)}>
+                    <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+                        <div className="modal-content border-0 shadow">
+                            <div className="modal-header bg-success text-white">
+                                <h5 className="modal-title">
+                                    <i className={`fa-solid ${myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'fa-star-half-stroke text-danger' : 'fa-star text-warning'} ms-2`}></i>
+                                    אישור הצבעה
+                                </h5>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting}></button>
+                            </div>
+                            <div className="modal-body text-center p-4">
+                                <h5 className="mb-3">
+                                    {myVote?.playerMemberId === voteConfirmPlayer.memberId
+                                        ? 'האם אתה בטוח שברצונך לבטל את ההצבעה שלך עבור'
+                                        : 'האם אתה בטוח שברצונך להצביע עבור'}
+                                </h5>
+                                <h4 className="fw-bold text-success mb-2">
+                                    {voteConfirmPlayer.firstName} {voteConfirmPlayer.lastName}
+                                </h4>
+                                {voteConfirmPlayer.nickname && (
+                                    <div className="text-muted">({voteConfirmPlayer.nickname})</div>
+                                )}
+                                {!myVote || myVote.playerMemberId === voteConfirmPlayer.memberId ? (
+                                    <p className="mt-3 text-muted small">
+                                        {myVote?.playerMemberId === voteConfirmPlayer.memberId
+                                            ? 'ביטול ההצבעה יאפשר לך להצביע לשחקן אחר.'
+                                            : 'ניתן להצביע לשחקן אחד בלבד בטורניר. בכל פעם תוכל לשנות את בחירתך.'}
+                                    </p>
+                                ) : (
+                                    <p className="mt-4 text-warning fw-bold bg-light p-2 rounded border border-warning">
+                                        שים לב: הצבעה זו תחליף את הצבעתך הקודמת בטורניר.
+                                    </p>
+                                )}
+                            </div>
+                            <div className="modal-footer justify-content-center bg-light">
+                                <button type="button" className="btn btn-secondary px-4 fw-bold" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting}>
+                                    ביטול
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`btn ${myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'btn-danger' : 'btn-success'} px-4 fw-bold`}
+                                    onClick={confirmVote}
+                                    disabled={isVoting}
+                                >
+                                    {isVoting ? (
+                                        <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> מעדכן...</>
+                                    ) : (
+                                        myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'בטל הצבעה' : 'אשר הצבעה'
+                                    )}
+                                </button>
                             </div>
                         </div>
                     </div>

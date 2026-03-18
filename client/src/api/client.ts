@@ -122,4 +122,10 @@ export const playerAPI = {
     uploadPhoto: (formData: FormData) => api.post('/players/upload', formData),
 };
 
+export const votesAPI = {
+    cast: (playerMemberId: number, category: string = 'mvp') => api.post('/votes', { playerMemberId, category }),
+    getMyVote: (category: string = 'mvp') => api.get(`/votes/my?category=${category}`),
+    getResults: (category: string = 'mvp') => api.get(`/votes/results?category=${category}`),
+};
+
 export default api;

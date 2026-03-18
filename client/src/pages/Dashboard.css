@@ -45,6 +45,7 @@
 
 .next-matches-card,
 .top-scorer,
+.mvp-race-card,
 .recent-matches {
     padding: 0;
     overflow: hidden;
@@ -58,6 +59,7 @@
 
 .next-matches-card h2,
 .top-scorer h2,
+.mvp-race-card h2,
 .recent-matches h2 {
     background: linear-gradient(135deg, var(--primary-green) 0%, #1e5a0c 100%);
     /* Premium Green header */
@@ -179,8 +181,17 @@
 }
 
 @keyframes gold-aura-pulse {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
-    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.9; }
+
+    0%,
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.6;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.9;
+    }
 }
 
 .dashboard-page .premium-decorations {
@@ -201,20 +212,45 @@
 }
 
 @keyframes star-flicker {
-    0%, 100% { opacity: 0.3; transform: scale(0.8); }
-    50% { opacity: 1; transform: scale(1.1); }
+
+    0%,
+    100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+
+    50% {
+        opacity: 1;
+        transform: scale(1.1);
+    }
 }
 
-.star-1 { top: -10px; left: 10%; animation-delay: 0s; }
-.star-2 { top: 20px; right: 15%; animation-delay: 0.5s; font-size: 0.8rem; }
-.star-3 { bottom: 30px; left: 20%; animation-delay: 1.2s; font-size: 1rem; }
+.star-1 {
+    top: -10px;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.star-2 {
+    top: 20px;
+    right: 15%;
+    animation-delay: 0.5s;
+    font-size: 0.8rem;
+}
+
+.star-3 {
+    bottom: 30px;
+    left: 20%;
+    animation-delay: 1.2s;
+    font-size: 1rem;
+}
 
 .dashboard-page .top-scorer .scorer-name {
     font-size: 1.8rem;
     font-weight: 900;
     color: #333;
     line-height: 1.2;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .dashboard-page .top-scorer .scorer-team {
@@ -308,7 +344,7 @@
     text-align: center;
     margin: 8px 0;
     border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .playoff-tag-mini {
@@ -447,4 +483,27 @@
         text-align: center;
         gap: 1rem;
     }
+}
+
+/* MVP Race Leaderboard */
+.mvp-race-card {
+    background: var(--white);
+}
+
+.bg-light-gold {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
+    border-right: 4px solid var(--secondary-yellow);
+}
+
+.mvp-row {
+    transition: all var(--transition-speed);
+}
+
+.mvp-row:hover {
+    background-color: rgba(42, 107, 17, 0.05);
+}
+
+.mvp-rank {
+    width: 30px;
+    text-align: center;
 }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
+import SEO from '../components/SEO';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
@@ -16,6 +17,9 @@ const Dashboard = () => {
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
     const [showClaimModal, setShowClaimModal] = useState(false);
+    const [hideClaimBanner, setHideClaimBanner] = useState(() => {
+        return localStorage.getItem('hideClaimBanner') === 'true';
+    });
 
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -81,8 +85,13 @@ const Dashboard = () => {
     };
 
     // Show banner if User is logged in, has the 'User' role, and hasn't submitted a mapping request yet (or was rejected)
-    const needsPlayerMapping = user && user.role === 'User' && (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected');
+    const needsPlayerMapping = user && user.role === 'User' && (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected') && !hideClaimBanner;
     const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
+
+    const handleDismissClaimBanner = () => {
+        localStorage.setItem('hideClaimBanner', 'true');
+        setHideClaimBanner(true);
+    };
 
     const renderTeamNameWithLogo = (teamName: string, logoUrl?: string, logoPosition?: string) => {
         const logo = logoUrl ? (logoUrl.startsWith('http') ? logoUrl : `${VITE_API_URL}${logoUrl}`) : null;
@@ -100,17 +109,28 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-page">
+            <SEO 
+                title="דף הבית" 
+                description="עקבו אחרי טורניר הרמדאן בזמן אמת - תוצאות, טבלאות, סטטיסטיקות שחקנים וחדשות החוץ והבית של טורניר נצ'מאז כפר כמא 2026." 
+            />
             <div className="container py-4">
 
                 {needsPlayerMapping && (
-                    <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4 shadow-sm" role="alert">
-                        <div>
+                    <div className="alert custom-claim-banner alert-dismissible d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert">
+                        <div className="mb-2 mb-sm-0 pe-sm-4">
                             <strong>שחקן בטורניר? </strong>
                             <span className="ms-2">שייך את המשתמש שלך לפרופיל השחקן כדי לצפות בסטטיסטיקות אישיות.</span>
                         </div>
                         <button className="btn btn-warning btn-sm fw-bold px-4 rounded-pill" onClick={() => setShowClaimModal(true)}>
                             לשיוך השחקן
                         </button>
+                        <button 
+                            type="button" 
+                            className="btn-close" 
+                            onClick={handleDismissClaimBanner}
+                            aria-label="Close"
+                            title="הסתר"
+                        ></button>
                     </div>
                 )}
 
@@ -211,60 +231,6 @@ const Dashboard = () => {
                                     </div>
                                 </div>
                             ))}
-                        </div>
-                    </div>
-                )}
-                {data.topScorers && data.topScorers.length > 0 && (
-                    <div className="dashboard-card top-scorer">
-                        <h2>מלך השערים</h2>
-                        <div className="scorer-info">
-                            {/* 1st Place - Premium with Gold Aura */}
-                            <div
-                                className="premium-scorer-wrapper"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('/teams', {
-                                    state: {
-                                        expandTeamId: data.topScorers[0].teamId,
-                                        selectPlayerId: data.topScorers[0].memberId
-                                    }
-                                })}
-                            >
-                                <div className="premium-decorations">
-                                    <span className="star-decoration star-1">★</span>
-                                    <span className="star-decoration star-2">★</span>
-                                    <span className="star-decoration star-3">★</span>
-                                </div>
-                                <div className="scorer-name">{data.topScorers[0].playerName}</div>
-                                <div className="scorer-team">{data.topScorers[0].teamName}</div>
-                                <div className="scorer-goals">
-                                    <span className="goals-count">{data.topScorers[0].goals}</span>
-                                    <span className="goals-label">שערים</span>
-                                </div>
-                            </div>
-
-                            {/* 2nd and 3rd Place - Simple Table-like Rows */}
-                            {data.topScorers.length > 1 && (
-                                <div className="runners-up-list">
-                                    {data.topScorers.slice(1, 3).map((scorer, index) => (
-                                        <div
-                                            key={scorer.memberId}
-                                            className="runner-up-item"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={() => navigate('/teams', {
-                                                state: {
-                                                    expandTeamId: scorer.teamId,
-                                                    selectPlayerId: scorer.memberId
-                                                }
-                                            })}
-                                        >
-                                            <span className="runner-rank">{index + 2}.</span>
-                                            <span className="runner-name">{scorer.playerName}</span>
-                                            <span className="runner-team">({scorer.teamName})</span>
-                                            <span className="runner-goals">{scorer.goals}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
                         </div>
                     </div>
                 )}
