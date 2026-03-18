@@ -11,6 +11,7 @@ const MVPs = () => {
     const [mvpLeaderboard, setMvpLeaderboard] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [hasVoted, setHasVoted] = useState<boolean | null>(null);
     const { user } = useAuth();
     const navigate = useNavigate();
 
@@ -37,9 +38,24 @@ const MVPs = () => {
         }
     };
 
+    const fetchMyVote = async () => {
+        if (!user) {
+            setHasVoted(false);
+            return;
+        }
+        try {
+            const response = await votesAPI.getMyVote('mvp');
+            setHasVoted(!!response.data?.voted);
+        } catch (err) {
+            console.error('Error fetching vote:', err);
+            setHasVoted(false); // Default to not voted on error
+        }
+    };
+
     useEffect(() => {
         fetchStats();
         fetchMvpLeaderboard();
+        fetchMyVote();
 
         // Polling logic: Every 5 minutes
         const interval = setInterval(() => {
@@ -63,14 +79,16 @@ const MVPs = () => {
             <div className="container py-4">
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">מצטייני הטורניר</h2>
 
-                {!user && (
+                {(!user || hasVoted === false) && (
                     <div className="alert custom-claim-banner d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert" style={{ background: 'linear-gradient(135deg, var(--secondary-yellow) 0%, #ffe285ff 100%)', color: '#000000ff', border: 'none' }}>
                         <div className="mb-2 mb-sm-0 pe-sm-4">
                             <strong>מי ה-MVP שלך? </strong>
-                            <span className="ms-2">התחבר עכשיו ובחר את השחקן המצטיין של הטורניר!</span>
+                            <span className="ms-2">
+                                {!user ? 'התחבר עכשיו ובחר את השחקן המצטיין של הטורניר!' : 'טרם בחרת שחקן מצטיין! הצבע עכשיו והשפע על בחירת ה-MVP של הטורניר.'}
+                            </span>
                         </div>
-                        <button
-                            className="btn btn-light fw-bold px-4"
+                        <button 
+                            className="btn btn-light fw-bold px-4 shadow-sm"
                             onClick={() => navigate('/teams', { state: { showVotePrompt: true } })}
                         >
                             מעבר להצבעה
