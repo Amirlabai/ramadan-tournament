@@ -17,6 +17,21 @@ const generateToken = (user: IUser) => {
     );
 };
 
+/**
+ * Normalizes an email address by:
+ * 1. Converting to lowercase
+ * 2. Trimming whitespace
+ * 3. Removing subaddressing (e.g. user+test@gmail.com -> user@gmail.com)
+ */
+const normalizeEmail = (email: string): string => {
+    const parts = email.toLowerCase().trim().split('@');
+    if (parts.length !== 2) return email.toLowerCase().trim();
+    
+    const [local, domain] = parts;
+    const cleanLocal = local.split('+')[0];
+    return `${cleanLocal}@${domain}`;
+};
+
 // Helper: Hydrate player profile from the Team database if user is an approved player
 const hydrateUserPayload = async (userDoc: any) => {
     const payload = {
@@ -91,8 +106,9 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             return;
         }
 
-        // Check if user exists
-        const existingUser = await User.findOne({ email: email.toLowerCase() });
+        // Check if user exists (using normalized email)
+        const normalizedEmail = normalizeEmail(email);
+        const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
             res.status(400).json({ error: 'Email is already registered' });
             return;
@@ -108,7 +124,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
         // Create user
         const user = new User({
-            email: email.toLowerCase().trim(),
+            email: normalizedEmail,
             password: passwordHash,
             displayName: displayName.trim(),
             role: 'User',
@@ -155,7 +171,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         }
 
         // Find user by either email or legacy username, explicitly querying the password field
-        const query = email ? { email: (email as string).toLowerCase().trim() } : { username };
+        const normalizedEmail = email ? normalizeEmail(email as string) : null;
+        const query = normalizedEmail ? { email: normalizedEmail } : { username };
         const user = await User.findOne(query).select('+password');
 
         if (!user || (!user.password && !user.googleId)) {
@@ -219,22 +236,22 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-        const email = payload.email.toLowerCase();
+        const normalizedEmail = normalizeEmail(payload.email);
         const googleId = payload.sub;
 
         // Search by googleId first (the most reliable key), then fall back to email
         let user = await User.findOne({ googleId });
 
         if (!user) {
-            user = await User.findOne({ email });
+            user = await User.findOne({ email: normalizedEmail });
         }
 
         if (!user) {
             // Brand new Google user — register them
             user = new User({
-                email,
+                email: normalizedEmail,
                 googleId,
-                displayName: payload.name || email.split('@')[0],
+                displayName: payload.name || normalizedEmail.split('@')[0],
                 avatarUrl: payload.picture,
                 googlePictureUrl: payload.picture,
                 role: 'User'
@@ -294,7 +311,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
         }
 
         const user = await User.findOne({
-            email: email.toLowerCase().trim(),
+            email: normalizeEmail(email),
             verificationToken: code,
             verificationTokenExpires: { $gt: new Date() }
         });
@@ -329,7 +346,7 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        const user = await User.findOne({ email: email.toLowerCase().trim() });
+        const user = await User.findOne({ email: normalizeEmail(email) });
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });
