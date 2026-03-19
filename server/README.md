@@ -15,6 +15,9 @@ Required variables:
 - `JWT_SECRET` - Secret key for JWT (generate with `openssl rand -base64 32`)
 - `ADMIN_USERNAME` - Initial admin username
 - `ADMIN_PASSWORD` - Initial admin password
+- `SMTP_USER` - SMTP username for sending verification emails
+- `SMTP_PASS` - SMTP password for sending verification emails
+- `GEMINI_API_KEY` - API key for Google Gemini to generate AI summaries
 
 ### 2. Install Dependencies
 ```bash
@@ -53,6 +56,8 @@ Server starts on `http://localhost:5000`
 
 ### Admin Endpoints (Require JWT)
 - `POST /api/auth/login` - Admin login
+- `POST /api/auth/verify` - Verify registration OTP
+- `POST /api/auth/resend-code` - Resend verification OTP
 - `GET /api/auth/me` - Get current user
 - `POST /api/matches` - Create match
 - `PUT /api/matches/:id` - Update match

@@ -58,11 +58,11 @@ ramadan-tournament/
 │   │   ├── middleware/       # Auth & validation
 │   │   └── scripts/          # Utility scripts
 ├── .github/workflows/
-│   ├── daily_message.yml     # Daily Iran-Israel news automation
-│   └── fetch-alarms.yml      # Rocket alerts fetch (every 2 hours)
-├── generate_message.py        # Iran-Israel news generator script
+│   ├── fetch-alarms.yml      # Rocket alerts fetch (every 2 hours)
+│   └── sync-photos.yml       # Production photos sync
+├── fetch_alarms.py            # Rocket alerts data pipeline
 ├── sync_photos.py             # Photo recovery & sync script
-└── requirements.txt           # Python dependencies (pymongo, google-generativeai)
+└── requirements.txt           # Python dependencies (pymongo, requests)
 ```
 
 ## Quick Start
@@ -151,18 +151,20 @@ python sync_photos.py
 ```
 Requires `pymongo`, `requests`, and `python-dotenv`.
 
-## Automated News (GitHub Actions)
+## Stats Automation & AI (Node.js Service)
 
-A GitHub Actions workflow (`daily_message.yml`) runs 3× daily (08:00, 14:00, 22:00 IST) to:
-1. Scrape Iran-vs-Israel headlines from RSS feeds (BBC, Reuters, Jerusalem Post, Times of Israel)
-2. Summarize in Hebrew via **Gemini 2.5 Flash** (free tier)
-3. Write the result directly to MongoDB as a `news` document
+The project includes an `AutomationService` natively integrated into the Node.js backend to track tournament statistics and post news.
+1. **Trigger**: Triggered via Admin Panel button click for safe snapshot detection.
+2. **Snapshot Mechanism**: Evaluates current standings against `stats_snapshots` collection to identify scoring changes or ranking shifts.
+3. **AI Integration**: Leverages **Gemini 2.5 Flash** to draft engaging updates in Hebrew regarding the new stats metrics.
 
-### Required GitHub Secrets
+### Required Server Environment Variables
 
 | Secret           | Description                                             |
 | ---------------- | ------------------------------------------------------- |
 | `GEMINI_API_KEY` | Google AI Studio free API key                           |
+| `SMTP_USER`      | SMTP Email string (for Email OTPs)                      |
+| `SMTP_PASS`      | SMTP App password (for Email OTPs)                      |
 | `MONGODB_URI`    | MongoDB Atlas connection string (same as server `.env`) |
 
 ## Color Scheme
