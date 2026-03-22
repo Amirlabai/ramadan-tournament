@@ -177,10 +177,10 @@ const Teams = () => {
 
             {(voteLoaded && !dismissPrompt && (!isLoggedIn || !myVote)) && (
                 <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
-                    <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong> 
+                    <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong>
                     <span className="ms-2">
-                        {isLoggedIn 
-                            ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!' 
+                        {isLoggedIn
+                            ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'
                             : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
                     </span>
                     <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="Close"></button>
@@ -318,7 +318,7 @@ const Teams = () => {
                                         ? (selectedPlayer.head_photo.startsWith('http')
                                             ? selectedPlayer.head_photo
                                             : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${selectedPlayer.head_photo}`)
-                                        : '/assets/images/players/heads/default.png'}
+                                        : '/assets/images/players/heads/default.jpg'}
                                     alt={selectedPlayer.firstName}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
