@@ -15,6 +15,7 @@
 - Enhancing tournament management features for Ramadan 2026.
 - Adding real-time or automated data feeds (e.g., Alarms data every two hours) for user safety and information.
 - **Bug Fix Needed:** Phone view has a total horizontal scroll issue that needs to be fixed.
+- **Archive System**: Managing historical records via `SeasonArchive` model and `archive-season.ts` automation.
 
 ## Recent Changes
 - **Career Documentation**: Updated `resume.md` to showcase the Ramadan Tournament project as a premier full-stack achievement, highlighting MERN stack mastery, AI integration (Gemini), and advanced RTL/security implementations.
@@ -42,3 +43,9 @@
 - **Bug Fix**: Fixed moon illumination percentage staying identical across days; `IftarTimer` now computes fractional days for real-time moon phase tracking.
 - **Polling Refinement**: Restricted smart polling logic (30s background refresh) to a strict 20:00–23:59 tournament window across Dashboard, Teams, and Stats pages. Added a logic guard in `Dashboard.tsx` to ensure polling ONLY occurs on days when matches are actually scheduled, preventing wasteful pings during the off-season or early morning hours.
 - **SEO & Accessibility**: Implemented a comprehensive SEO engine using `react-helmet-async`. Every main view (Dashboard, Teams, Schedule, Stats, Player Zone) now has unique, localized metadata, Open Graph tags, and canonical links. Updated `sitemap.xml` and `robots.txt`. Added descriptive `alt` tags to branding images for improved accessibility and search indexing.
+- **Archive UI Polish & Data Fixes (Mar 2026)**:
+  - Harmonized Archive styling with the rest of the application using standard project CSS variables.
+  - Fixed data mapping mismatches (e.g., `wins` vs `won`) in the historical standings table.
+  - Relocated top scorers to a full-width table and converted knockout matches to card format for consistency.
+- **Model Integrity**: Resolved Mongoose schema type conflicts in `SeasonArchive.ts` by relaxing mixed-field interfaces.
+- **Post-Ramadan Cleanup**: Transitioned the Iftar countdown widget to an inactive state in `App.tsx`.
