@@ -11,13 +11,13 @@ interface SEOProps {
 
 const SEO = ({
   title,
-  description = "מערכת ניהול טורניר רמדאן - תוצאות בזמן אמת, טבלאות, סטטיסטיקות וחדשות. עקבו אחרי טורניר כפר כמא נצ'מאז רמדאן 2026.",
-  keywords = "טורניר רמדאן, כדורגל, כפר כמא, נצ'מאז, נאצ'מאז, תוצאות כדורגל, ליגת רמדאן, Ramadan Tournament, Kfar Kama, Football, amir labai, amir labay, אמיר לבאי, אמיר לבי, מרכז צעירים, מרכז צעירים כפר כמא",
+  description = "טורניר כפר כמא - תוצאות בזמן אמת, טבלאות, סטטיסטיקות וחדשות. עקבו אחרי טורניר כפר כמא.",
+  keywords = "טורניר, כדורגל, כפר כמא, תוצאות כדורגל, ליגה , Ramadan Tournament, Kfar Kama, Football, amir labai, amir labay, אמיר לבאי, אמיר לבי, מרכז צעירים, מרכז צעירים כפר כמא",
   image = "https://ramadan-tournament-client.vercel.app/og-image.jpg",
   url = "https://ramadan-tournament-client.vercel.app/",
   type = "website"
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | טורניר נצ'מאז` : "טורניר נצ'מאז - רמדאן 2026";
+  const fullTitle = title ? `${title} | טורניר כפר כמא` : "טורניר כפר כמא - 2026";
 
   return (
     <Helmet>

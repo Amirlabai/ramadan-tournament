@@ -16,7 +16,7 @@ A full-stack tournament management system with real-time statistics, news manage
 - **Schedule**: Complete match schedule with live results
 - **Stats**: Player rankings, top scorers, and detailed statistics
 - **Anonymous Comments**: Engage with match discussions (with profanity filtering)
-- **Iftar Timer**: Live Ramadan countdown widget (iframe embed of [aymanlauz.github.io/ramadan-countdown](https://aymanlauz.github.io/ramadan-countdown/)) in bottom-left corner
+- **Iftar Timer**: Live Ramadan countdown widget in bottom-left corner
 - **Rocket Alerts Widget**: Real-time rocket alert statistics for Kfar Kama & Reihaniya
 - **News Banner**: Collapsible top banner — auto-collapses on scroll, click to re-expand
 

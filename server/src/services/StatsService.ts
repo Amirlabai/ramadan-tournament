@@ -1,27 +1,7 @@
 import { Team, IPlayer } from '../models/Team';
 import { Match, IMatch } from '../models/Match';
 
-export interface StandingsEntry {
-    teamId: number;
-    teamName: string;
-    played: number;
-    won: number;
-    drawn: number;
-    lost: number;
-    goalsFor: number;
-    goalsAgainst: number;
-    goalDifference: number;
-    points: number;
-}
-
-export interface TopScorer {
-    memberId: number;
-    playerName: string;
-    teamName: string;
-    teamId: number;
-    position: string;
-    goals: number;
-}
+import { StandingsEntry, TopScorer } from '../types/stats';
 
 // ...
 
@@ -56,6 +36,7 @@ export class StatsService {
                 goalsAgainst: 0,
                 goalDifference: 0,
                 points: 0,
+                logoUrl: team.logoUrl
             };
         });
 

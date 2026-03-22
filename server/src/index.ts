@@ -18,6 +18,7 @@ import commentRoutes from './routes/comments';
 import iftarRoutes from './routes/iftarRoutes';
 import playerRoutes from './routes/player';
 import voteRoutes from './routes/votes';
+import archiveRoutes from './routes/archive';
 import path from 'path';
 
 const app = express();
@@ -75,6 +76,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/iftar', iftarRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/archive', archiveRoutes);
 
 // Error handler
 app.use(errorHandler);
