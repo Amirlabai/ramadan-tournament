@@ -10,24 +10,25 @@ import MVPs from './pages/MVPs';
 import Navbar from './components/Navbar';
 import NewsBanner from './components/NewsBanner';
 import Footer from './components/Footer';
-import IftarTimer from './components/IftarTimer';
+// import IftarTimer from './components/IftarTimer';
 import AlarmsWidget from './components/AlarmsWidget';
 import ScrollToTop from './components/ScrollToTop';
 import PlayerZone from './pages/PlayerZone';
+import Archive from './pages/Archive';
 import './App.css';
 import { Analytics } from '@vercel/analytics/react';
 import { useState } from 'react';
 
 function App() {
-  const [activeWidget, setActiveWidget] = useState<'none' | 'iftar' | 'alarms'>('none');
+  const [activeWidget, setActiveWidget] = useState<'none' | 'alarms'>('none');
 
   return (
     <Router>
       <div className="app" dir="rtl">
-        <IftarTimer
+        {/* <IftarTimer
           isActive={activeWidget === 'iftar'}
           onToggle={(active) => setActiveWidget(active ? 'iftar' : 'none')}
-        />
+        /> */}
         <AlarmsWidget
           isActive={activeWidget === 'alarms'}
           onToggle={(active) => setActiveWidget(active ? 'alarms' : 'none')}
@@ -36,12 +37,9 @@ function App() {
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
-              <img src="/banner-foreground.svg" className="banner-foreground right" alt="עיטור רמדאן ימני" />
-              <img src="/banner-foreground.svg" className="banner-foreground left" alt="עיטור רמדאן שמאלי" />
               <img src="/to-be-logo.svg" className="header-side-logo left" alt="לוגו טורניר נצ'מאז" />
               <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="דגל אדיגיה" />
-              <h1 className="display-4 fw-bold">טורניר נצ'מאז<br />1447/2026</h1>
-              <p className="lead" id="tournamentPhase">פלייאוף</p>
+              <h1 className="display-4 fw-bold">טורניר קיץ<br />2026</h1>
             </header>
           </div>
 
@@ -67,6 +65,7 @@ function App() {
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/player-zone" element={<PlayerZone />} />
+                <Route path="/archive" element={<Archive />} />
               </Routes>
             </main>
           </div>

@@ -132,4 +132,11 @@ export const votesAPI = {
     getResults: (category: string = 'mvp') => api.get(`/votes/results?category=${category}`),
 };
 
+export const archiveAPI = {
+    getAll: () => api.get('/archive'),
+    getById: (yearMonth: string) => api.get(`/archive/${yearMonth}`),
+    create: (data: { yearMonth: string; displayName: string; winnerId: number; mvpId?: number; summary?: string }) => 
+        api.post('/archive/create', data),
+};
+
 export default api;

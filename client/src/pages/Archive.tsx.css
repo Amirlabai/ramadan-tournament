@@ -1,0 +1,79 @@
+.archive-page {
+    direction: rtl;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --- Sidebar Season Selector --- */
+.season-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.season-btn {
+    background: var(--bg, #f5f5f5);
+    border: 1px solid var(--border, #e0e0e0);
+    color: var(--text, #333);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    text-align: right;
+    font-weight: 600;
+    transition: all var(--transition-speed, 0.3s);
+    cursor: pointer;
+    width: 100%;
+}
+
+.season-btn:hover {
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    background: rgba(42, 107, 17, 0.05);
+}
+
+.season-btn.active {
+    background: rgba(42, 107, 17, 0.1);
+    border-color: var(--primary-green);
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+/* --- Hero Award Cards --- */
+.stat-box {
+    transition: transform var(--transition-speed, 0.3s), box-shadow var(--transition-speed, 0.3s);
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(42, 107, 17, 0.2);
+}
+
+.emoji-icon {
+    font-size: 2.5rem;
+}
+
+/* --- Summary Quote --- */
+.italic-text {
+    font-style: italic;
+    color: var(--text-light, #666);
+}
+
+/* --- Playoff Match Cards --- */
+/* Reuses .match-card, .match-teams-score, .team-side, .team-score from Schedule.css */
+/* Nothing extra needed — Schedule styles apply globally */
+
+/* --- Animate --- */
+.animate-fade-in {
+    animation: archiveFadeIn 0.5s ease;
+}
+
+@keyframes archiveFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

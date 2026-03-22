@@ -109,6 +109,22 @@ Example:
 mongodb+srv://admin:mypassword@cluster0.abc123.mongodb.net/tournament?retryWrites=true&w=majority
 ```
 
+## Season Maintenance
+
+To close a season and prepare for a public showcase:
+
+1. **Archive & Anonymize**:
+   ```bash
+   npx tsx src/scripts/archive-season.ts
+   ```
+   This will:
+   - Create timestamped backups (e.g. `teams_2026_03`).
+   - Anonymize player names/photos in the active `teams` collection for the showcase.
+   - Skip `users` to keep your admin/captain logins working.
+
+2. **Historical Record**:
+   - Use the `/archive` page in the frontend to view the "frozen" results of past seasons.
+
 ## Project Structure
 ```
 server/
