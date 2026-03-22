@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { StatsService, StandingsEntry, TopScorer } from './StatsService';
+import { StatsService } from './StatsService';
+import { StandingsEntry, TopScorer } from '../types/stats';
 import { Snapshot } from '../models/Snapshot';
 import { News } from '../models/News';
 
