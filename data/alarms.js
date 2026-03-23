@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-23 16:57:09",
+  "last_updated": "2026-03-23 18:57:13",
   "stats": {
-    "total": 68069,
+    "total": 68070,
     "cities": {
       "כפר כמא": 37,
       "ריחאנייה": 32
@@ -544953,6 +544953,14 @@ window.ALARMS_DATA = {
       "id": "6511",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
+    },
+    {
+      "time": "2026-03-23 18:05:22",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "6515",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
     }
   ]
 };
