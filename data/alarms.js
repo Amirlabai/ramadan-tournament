@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-03-26 22:37:55",
+  "last_updated": "2026-03-27 00:32:34",
   "stats": {
-    "total": 73507,
+    "total": 73508,
     "cities": {
       "כפר כמא": 37,
       "ריחאנייה": 34
@@ -588455,6 +588455,14 @@ window.ALARMS_DATA = {
       "cities": "שלומי",
       "threat": "0",
       "id": "6656",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-03-26 23:18:56",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "6658",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
