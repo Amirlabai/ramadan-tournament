@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-04 08:21:35",
+  "last_updated": "2026-04-04 10:03:23",
   "stats": {
-    "total": 85530,
+    "total": 85535,
     "cities": {
       "כפר כמא": 41,
       "ריחאנייה": 37
@@ -684639,6 +684639,46 @@ window.ALARMS_DATA = {
       "cities": "סאסא",
       "threat": "0",
       "id": "6982",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-04 09:38:24",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "6983",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-04 09:38:24",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "6983",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-04 09:38:24",
+      "cities": "תל חי",
+      "threat": "0",
+      "id": "6983",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-04 09:38:42",
+      "cities": "כפר יובל",
+      "threat": "0",
+      "id": "6983",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-04 09:38:42",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "6983",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
