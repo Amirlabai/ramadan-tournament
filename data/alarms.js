@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-08 12:03:45",
+  "last_updated": "2026-04-08 13:58:39",
   "stats": {
-    "total": 91834,
+    "total": 91833,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 39
@@ -524661,14 +524661,6 @@ window.ALARMS_DATA = {
     {
       "time": "2026-03-21 20:39:51",
       "cities": "אילת",
-      "threat": "0",
-      "id": "6439",
-      "description": "ירי רקטות וטילים",
-      "origin": "Iran"
-    },
-    {
-      "time": "2026-03-21 20:40:27",
-      "cities": "בחלק מהאזורים בארץ",
       "threat": "0",
       "id": "6439",
       "description": "ירי רקטות וטילים",
