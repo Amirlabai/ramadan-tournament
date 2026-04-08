@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-08 16:23:14",
+  "last_updated": "2026-04-08 18:12:32",
   "stats": {
-    "total": 91833,
+    "total": 91838,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 39
@@ -735065,6 +735065,46 @@ window.ALARMS_DATA = {
       "id": "7156",
       "description": "ירי רקטות וטילים",
       "origin": "Iran"
+    },
+    {
+      "time": "2026-04-08 16:24:01",
+      "cities": "מנרה",
+      "threat": "0",
+      "id": "7157",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-08 16:24:01",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "7157",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-08 16:24:01",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7157",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-08 17:13:53",
+      "cities": "נטועה",
+      "threat": "0",
+      "id": "7158",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-08 17:13:53",
+      "cities": "שתולה",
+      "threat": "0",
+      "id": "7158",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
     }
   ]
 };
