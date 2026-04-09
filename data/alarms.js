@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-09 05:30:33",
+  "last_updated": "2026-04-09 08:49:35",
   "stats": {
-    "total": 91840,
+    "total": 91841,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 39
@@ -735119,6 +735119,14 @@ window.ALARMS_DATA = {
       "cities": "מרגליות",
       "threat": "0",
       "id": "7159",
+      "description": "ירי רקטות וטילים",
+      "origin": ""
+    },
+    {
+      "time": "2026-04-09 06:39:23",
+      "cities": "אביבים",
+      "threat": "0",
+      "id": "7160",
       "description": "ירי רקטות וטילים",
       "origin": ""
     }
