@@ -1,5 +1,5 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-11 10:03:09",
+  "last_updated": "2026-04-11 11:47:06",
   "stats": {
     "total": 92218,
     "cities": {
