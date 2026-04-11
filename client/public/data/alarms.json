@@ -1,7 +1,7 @@
 {
-  "last_updated": "2026-04-11 05:26:41",
+  "last_updated": "2026-04-11 08:25:26",
   "stats": {
-    "total": 92216,
+    "total": 92218,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 40
@@ -738127,6 +738127,22 @@
       "cities": "כרם בן זמרה",
       "threat": "0",
       "id": "7224",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-11 06:33:38",
+      "cities": "אדמית",
+      "threat": "0",
+      "id": "7225",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-11 06:33:38",
+      "cities": "אילון",
+      "threat": "0",
+      "id": "7225",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
