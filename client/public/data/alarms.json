@@ -1,7 +1,7 @@
 {
-  "last_updated": "2026-04-12 17:40:35",
+  "last_updated": "2026-04-12 19:41:25",
   "stats": {
-    "total": 92356,
+    "total": 92377,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -739247,6 +739247,174 @@
       "cities": "קצרין",
       "threat": "0",
       "id": "7256",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:41:37",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:41:42",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:41:59",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:42:16",
+      "cities": "תל חי",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:42:17",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:42:19",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:42:19",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7257",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:46:33",
+      "cities": "אילון",
+      "threat": "0",
+      "id": "7258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:46:33",
+      "cities": "גורן",
+      "threat": "0",
+      "id": "7258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 18:46:33",
+      "cities": "געתון",
+      "threat": "0",
+      "id": "7258",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:05:55",
+      "cities": "בצת",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:05:55",
+      "cities": "חניתה",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:05:55",
+      "cities": "מצובה",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:05:55",
+      "cities": "שלומי",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:05",
+      "cities": "בן עמי",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:05",
+      "cities": "נהריה",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:06",
+      "cities": "לימן",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:14",
+      "cities": "איזור תעשייה מילואות צפון",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:14",
+      "cities": "ראש הנקרה",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:15",
+      "cities": "סער",
+      "threat": "0",
+      "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 19:06:21",
+      "cities": "גשר הזיו",
+      "threat": "0",
+      "id": "7259",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
