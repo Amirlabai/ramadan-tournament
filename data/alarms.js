@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-12 11:52:11",
+  "last_updated": "2026-04-12 13:40:07",
   "stats": {
-    "total": 92322,
+    "total": 92323,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -738975,6 +738975,14 @@ window.ALARMS_DATA = {
       "cities": "מטולה",
       "threat": "0",
       "id": "7245",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 13:09:34",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "7247",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
