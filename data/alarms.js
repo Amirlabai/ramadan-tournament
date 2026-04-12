@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-12 19:41:25",
+  "last_updated": "2026-04-12 21:53:17",
   "stats": {
-    "total": 92377,
+    "total": 92382,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -738968,7 +738968,7 @@ window.ALARMS_DATA = {
       "threat": "0",
       "id": "7244",
       "description": "ירי רקטות וטילים",
-      "origin": "Lebanon"
+      "origin": "FA"
     },
     {
       "time": "2026-04-12 11:12:26",
@@ -739415,6 +739415,46 @@ window.ALARMS_DATA = {
       "cities": "גשר הזיו",
       "threat": "0",
       "id": "7259",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 20:35:43",
+      "cities": "מטולה",
+      "threat": "0",
+      "id": "7263",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 20:59:49",
+      "cities": "אביבים",
+      "threat": "0",
+      "id": "7264",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 20:59:49",
+      "cities": "דישון",
+      "threat": "0",
+      "id": "7264",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 21:00:08",
+      "cities": "מלכיה",
+      "threat": "0",
+      "id": "7264",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-12 21:00:35",
+      "cities": "דישון",
+      "threat": "0",
+      "id": "7264",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
