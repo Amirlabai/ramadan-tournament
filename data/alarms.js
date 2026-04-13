@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-13 01:36:03",
+  "last_updated": "2026-04-13 05:50:01",
   "stats": {
-    "total": 92397,
+    "total": 92398,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -739575,6 +739575,14 @@ window.ALARMS_DATA = {
       "cities": "כפר יובל",
       "threat": "0",
       "id": "7268",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 02:49:43",
+      "cities": "דוב''ב",
+      "threat": "0",
+      "id": "7269",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
