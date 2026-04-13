@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-13 18:16:13",
+  "last_updated": "2026-04-13 20:04:52",
   "stats": {
-    "total": 92489,
+    "total": 92495,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -740311,6 +740311,54 @@ window.ALARMS_DATA = {
       "cities": "לבון",
       "threat": "0",
       "id": "7292",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:22:37",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7293",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:22:38",
+      "cities": "בית הלל",
+      "threat": "0",
+      "id": "7293",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:26:46",
+      "cities": "גדות",
+      "threat": "0",
+      "id": "7294",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:27:25",
+      "cities": "חולתה",
+      "threat": "0",
+      "id": "7294",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:32:40",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "7295",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 18:32:55",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7295",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
