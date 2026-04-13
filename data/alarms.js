@@ -1,7 +1,7 @@
 window.ALARMS_DATA = {
-  "last_updated": "2026-04-13 09:16:02",
+  "last_updated": "2026-04-13 12:56:45",
   "stats": {
-    "total": 92398,
+    "total": 92409,
     "cities": {
       "כפר כמא": 42,
       "ריחאנייה": 41
@@ -739583,6 +739583,94 @@ window.ALARMS_DATA = {
       "cities": "דוב''ב",
       "threat": "0",
       "id": "7269",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:07:39",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:09:18",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:09:18",
+      "cities": "תל חי",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:09:26",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:10:13",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:10:13",
+      "cities": "קריית שמונה",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:10:13",
+      "cities": "תל חי",
+      "threat": "0",
+      "id": "7273",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:49:58",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "7275",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:50:11",
+      "cities": "כפר גלעדי",
+      "threat": "0",
+      "id": "7275",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:54:32",
+      "cities": "משגב עם",
+      "threat": "0",
+      "id": "7276",
+      "description": "ירי רקטות וטילים",
+      "origin": "Lebanon"
+    },
+    {
+      "time": "2026-04-13 11:54:34",
+      "cities": "מרגליות",
+      "threat": "0",
+      "id": "7276",
       "description": "ירי רקטות וטילים",
       "origin": "Lebanon"
     }
