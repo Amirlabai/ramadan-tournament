@@ -28,6 +28,7 @@ const Footer = () => {
                             <li><Link to="/schedule" className="footer-link">לוח משחקים</Link></li>
                             <li><Link to="/stats" className="footer-link">סטטיסטיקות</Link></li>
                             <li><Link to="/archive" className="footer-link">היסטוריית הטורניר</Link></li>
+                            <li><Link to="/accessibility" className="footer-link">נגישות</Link></li>
                         </ul>
                     </div>
 

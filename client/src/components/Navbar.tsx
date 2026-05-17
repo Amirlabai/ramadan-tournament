@@ -1,65 +1,65 @@
+import type { ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './Navbar.css';
 
-const Navbar = () => {
+const NavLink = ({ to, children, className = '' }: { to: string; children: ReactNode; className?: string }) => {
     const location = useLocation();
+    const active = location.pathname === to;
+    return (
+        <Link
+            to={to}
+            className={`nav-link ${active ? 'active' : ''} ${className}`.trim()}
+            aria-current={active ? 'page' : undefined}
+        >
+            {children}
+        </Link>
+    );
+};
+
+const Navbar = () => {
     const { user } = useAuth();
-    const isActive = (...paths: string[]) => paths.includes(location.pathname);
     const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
 
     return (
-        <ul className="nav nav-tabs tournament-tabs justify-content-center" id="mainTabs" role="tablist">
-            <li className="nav-item" role="presentation">
-                <Link to="/mvps" className={`nav-link ${isActive('/mvps') ? 'active' : ''}`} role="tab">
-                    MVPs
-                </Link>
-            </li>
-            <li className="nav-item" role="presentation">
-                <Link to="/" className={`nav-link ${isActive('/') ? 'active' : ''}`} role="tab">
-                    דף הבית
-                </Link>
-            </li>
-            <li className="nav-item" role="presentation">
-                <Link to="/teams" className={`nav-link ${isActive('/teams') ? 'active' : ''}`} role="tab">
-                    קבוצות
-                </Link>
-            </li>
-            <li className="nav-item" role="presentation">
-                <Link to="/schedule" className={`nav-link ${isActive('/schedule') ? 'active' : ''}`} role="tab">
-                    משחקים
-                </Link>
-            </li>
-            <li className="nav-item" role="presentation">
-                <Link to="/stats" className={`nav-link ${isActive('/stats') ? 'active' : ''}`} role="tab">
-                    סטטיסטיקות
-                </Link>
-            </li>
+        <nav aria-label="ניווט ראשי">
+            <ul className="nav nav-tabs tournament-tabs justify-content-center" id="mainTabs">
+                <li className="nav-item">
+                    <NavLink to="/mvps">MVPs</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink to="/">דף הבית</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink to="/teams">קבוצות</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink to="/schedule">משחקים</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink to="/stats">סטטיסטיקות</NavLink>
+                </li>
+                <li className="nav-item">
+                    <NavLink to="/accessibility">נגישות</NavLink>
+                </li>
 
-            {/* Personal profile for all authenticated users */}
-            {user ? (
-                <li className="nav-item" role="presentation">
-                    <Link to="/profile" className={`nav-link login-link ${isActive('/profile') ? 'active' : ''}`} role="tab">
-                        {user.displayName}
-                    </Link>
-                </li>
-            ) : (
-                <li className="nav-item" role="presentation">
-                    <Link to="/login" className={`nav-link login-link ${isActive('/login') ? 'active' : ''}`} role="tab">
-                        התחברות
-                    </Link>
-                </li>
-            )}
+                {user ? (
+                    <li className="nav-item">
+                        <NavLink to="/profile" className="login-link">{user.displayName}</NavLink>
+                    </li>
+                ) : (
+                    <li className="nav-item">
+                        <NavLink to="/login" className="login-link">התחברות</NavLink>
+                    </li>
+                )}
 
-            {/* Admin tab — only for Admins */}
-            {isAdmin && (
-                <li className="nav-item" role="presentation">
-                    <Link to="/admin" className={`nav-link ${isActive('/admin') ? 'active' : ''}`} role="tab">
-                        ניהול
-                    </Link>
-                </li>
-            )}
-        </ul>
+                {isAdmin && (
+                    <li className="nav-item">
+                        <NavLink to="/admin">ניהול</NavLink>
+                    </li>
+                )}
+            </ul>
+        </nav>
     );
 };
 

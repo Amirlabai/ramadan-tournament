@@ -287,7 +287,7 @@ const MatchForm = ({ initialData, onSubmit, onCancel }: MatchFormProps) => {
                 <h5>ניהול כובשים</h5>
                 <div className="row g-3 align-items-end">
                     <div className="col-md-8">
-                        <label className="form-label">בחר מבקיע</label>
+                        <label htmlFor="goalPlayer" className="form-label">בחר מבקיע</label>
                         <select
                             className="form-select"
                             id="goalPlayer"

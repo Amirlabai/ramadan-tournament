@@ -5,7 +5,9 @@
   --light-gray: #F5F5F5;
   --medium-gray: #E0E0E0;
   --dark-gray: #333333;
+  --text-light: #4b5563;
   --white: #FFFFFF;
+  --focus-color: #0066cc;
   --transition-speed: 0.3s;
 
   /* Banner SVG Controls */
@@ -29,12 +31,79 @@
   box-sizing: border-box;
 }
 
+html {
+  font-size: 100%;
+}
+
 body {
   font-family: 'Roboto', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
   background-color: var(--light-gray);
   color: var(--dark-gray);
   margin: 0;
   padding: 0;
+}
+
+.text-muted {
+  color: var(--text-light) !important;
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  left: auto;
+  background: #000;
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 9999;
+  text-decoration: none;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+  top: 0;
+}
+
+/* Focus indicators */
+:focus-visible {
+  outline: 3px solid var(--focus-color);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.news-banner-toggle,
+.city-card-button {
+  color: inherit;
+  cursor: pointer;
+}
+
+.match-item.w-100 {
+  display: block;
+}
+
+/* Touch targets for primary navigation */
+.nav-link,
+.tournament-tabs .nav-link,
+.btn:not(.btn-sm):not(.btn-link),
+.footer-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* Header & News Wrapper */
@@ -482,6 +551,11 @@ body {
   border-top: none !important;
 }
 
+.roster-player-card-open {
+  cursor: pointer;
+  color: inherit;
+}
+
 .roster-player-card {
   background-color: var(--white);
   border: 2px solid var(--medium-gray);
@@ -636,6 +710,7 @@ body {
 }
 
 .btn-theme-green:disabled {
-  background-color: #6c9a5b;
-  color: rgba(255, 255, 255, 0.8);
+  background-color: #4a6b3d;
+  color: rgba(255, 255, 255, 0.95);
+  cursor: not-allowed;
 }

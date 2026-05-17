@@ -86,7 +86,6 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
             setContent('');
         } catch (err: any) {
             if (err.response?.status === 429) {
-                // Rate limited - calculate when user can comment again
                 const retryAfter = err.response.headers['retry-after'];
                 const waitMs = retryAfter ? parseInt(retryAfter) * 1000 : 5 * 60 * 1000;
                 setRateLimitedUntil(Date.now() + waitMs);
@@ -110,35 +109,47 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
         });
     };
 
+    const authorId = `comment-author-${matchId}`;
+    const contentId = `comment-content-${matchId}`;
+    const errorId = `comment-error-${matchId}`;
+
     return (
         <div className="comment-section">
             <h3 className="comment-section-title">תגובות</h3>
 
             <form onSubmit={handleSubmit} className="comment-form">
                 <div className="form-group">
+                    <label htmlFor={authorId} className="form-label">שם (אופציונלי)</label>
                     <input
                         type="text"
-                        placeholder="שם (אופציונלי)"
+                        id={authorId}
+                        name="author"
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
                         maxLength={100}
                         className="form-control"
+                        autoComplete="name"
                     />
                 </div>
                 <div className="form-group">
+                    <label htmlFor={contentId} className="form-label">תגובה</label>
                     <textarea
-                        placeholder="כתוב תגובה..."
+                        id={contentId}
+                        name="content"
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         maxLength={1000}
                         rows={3}
                         className="form-control"
                         required
+                        aria-required="true"
+                        aria-invalid={!!error}
+                        aria-describedby={error ? errorId : undefined}
                     />
                     <small className="char-count">{content.length}/1000</small>
                 </div>
                 {error && (
-                    <div className="error-message">
+                    <div id={errorId} className="error-message" role="alert">
                         {error}
                         {countdown > 0 && (
                             <div className="countdown-timer">
@@ -152,9 +163,12 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                 </button>
             </form>
 
-            <div className="comments-list">
+            <div className="comments-list" aria-live="polite">
                 {loading ? (
-                    <div className="loading">טוען תגובות...</div>
+                    <div className="loading" role="status">
+                        <span className="visually-hidden">טוען תגובות...</span>
+                        טוען תגובות...
+                    </div>
                 ) : comments.length === 0 ? (
                     <div className="no-comments">אין עדיין תגובות. היה הראשון להגיב!</div>
                 ) : (

@@ -100,21 +100,25 @@ function CityCard({
         })
         : null;
 
+    const popoverId = `alarms-popover-${city.replace(/\s/g, '-')}`;
+
     return (
-        <div
-            ref={cardRef}
-            className={`city-card ${popoverOpen ? 'popover-open' : ''}`}
-            onMouseEnter={() => { if (!isMobile) setPopoverOpen(true); }}
-            onMouseLeave={() => { if (!isMobile) setPopoverOpen(false); }}
-            onClick={handleInteraction}
-        >
-            <div className="city-card-row">
-                <span className="city-name">{CITY_LABELS[city] ?? city}</span>
-                <span className="city-count">{count}</span>
-            </div>
+        <div ref={cardRef} className={`city-card ${popoverOpen ? 'popover-open' : ''}`}>
+            <button
+                type="button"
+                className="city-card-button w-100 border-0 bg-transparent p-0 text-start"
+                aria-expanded={popoverOpen}
+                aria-controls={popoverId}
+                onClick={handleInteraction}
+            >
+                <div className="city-card-row">
+                    <span className="city-name">{CITY_LABELS[city] ?? city}</span>
+                    <span className="city-count">{count}</span>
+                </div>
+            </button>
 
             {popoverOpen && (
-                <div className="city-popover">
+                <div id={popoverId} className="city-popover" role="region" aria-label={`פירוט התרעות ${CITY_LABELS[city] ?? city}`}>
                     <div className="popover-title">פיזור שעתי (28/02 –)</div>
                     <BarChart bins={bins} />
                     {predictedLabel && (
@@ -148,11 +152,12 @@ const AlarmsWidget = ({ isActive, onToggle }: AlarmsWidgetProps) => {
         <div className={`alarms-widget-container ${isActive ? 'expanded' : 'minimized'}`}>
             <div className="alarms-bubble">
                 <button
+                    type="button"
                     className="alarms-close-btn"
                     onClick={() => onToggle(false)}
-                    title="מזער"
+                    aria-label="מזער חלון התרעות"
                 >
-                    ×
+                    <span aria-hidden="true">×</span>
                 </button>
                 <div className="alarms-content">
                     <div className="alarms-header">
@@ -183,11 +188,12 @@ const AlarmsWidget = ({ isActive, onToggle }: AlarmsWidgetProps) => {
             </div>
 
             <button
+                type="button"
                 className="alarms-toggle-btn"
                 onClick={() => onToggle(true)}
-                title="הצג נתוני התרעות"
+                aria-label="הצג נתוני התרעות"
             >
-                📢
+                <span aria-hidden="true">📢</span>
             </button>
         </div>
     );

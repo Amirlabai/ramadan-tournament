@@ -13,6 +13,9 @@ client/node_modules
 server/dist
 client/dist
 
+# Vector index (workspace-chroma skill)
+.chroma/
+
 # Environment
 .env
 server/.env

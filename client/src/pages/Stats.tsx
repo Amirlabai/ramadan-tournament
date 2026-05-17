@@ -47,8 +47,8 @@ const Stats = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <div className="loading">טוען...</div>;
-    if (error) return <div className="error">{error}</div>;
+    if (loading) return <div className="loading" role="status"><span className="visually-hidden">טוען...</span>טוען...</div>;
+    if (error) return <div className="error" role="alert">{error}</div>;
 
     return (
         <div className="stats-page container py-4">
@@ -69,28 +69,32 @@ const Stats = () => {
                     <h2>טבלת ליגה</h2>
                     <div className="table-responsive">
                         <table>
+                            <caption className="visually-hidden">טבלת דירוג קבוצות הליגה</caption>
                             <thead>
                                 <tr>
-                                    <th>דירוג</th>
-                                    <th>קבוצה</th>
-                                    <th>משחק</th>
-                                    <th>W/D/L</th>
-                                    <th>GF</th>
-                                    <th>GA</th>
-                                    <th>GD</th>
-                                    <th>נקודות</th>
+                                    <th scope="col">דירוג</th>
+                                    <th scope="col">קבוצה</th>
+                                    <th scope="col">משחק</th>
+                                    <th scope="col">W/D/L</th>
+                                    <th scope="col">GF</th>
+                                    <th scope="col">GA</th>
+                                    <th scope="col">GD</th>
+                                    <th scope="col">נקודות</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {standings.map((team, index) => (
-                                    <tr 
-                                        key={team.teamId} 
-                                        className={index < 4 ? 'qualified' : ''}
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => navigate('/teams', { state: { expandTeamId: team.teamId } })}
-                                    >
+                                    <tr key={team.teamId} className={index < 4 ? 'qualified' : ''}>
                                         <td className="position">{index + 1}</td>
-                                        <td className="team-name">{team.teamName}</td>
+                                        <td className="team-name">
+                                            <button
+                                                type="button"
+                                                className="btn btn-link p-0 text-decoration-none team-name"
+                                                onClick={() => navigate('/teams', { state: { expandTeamId: team.teamId } })}
+                                            >
+                                                {team.teamName}
+                                            </button>
+                                        </td>
                                         <td>{team.played}</td>
                                         <td>{team.won}/{team.drawn}/{team.lost}</td>
                                         <td>{team.goalsFor}</td>
@@ -110,15 +114,15 @@ const Stats = () => {
                     <h2>מלכי השערים</h2>
                     <div className="scorers-list">
                         {topScorers.slice(0, 10).map((scorer, index) => (
-                            <div 
-                                key={scorer.memberId} 
-                                className="scorer-item"
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => navigate('/teams', { 
-                                    state: { 
+                            <button
+                                type="button"
+                                key={scorer.memberId}
+                                className="scorer-item w-100 border-0 text-start bg-transparent"
+                                onClick={() => navigate('/teams', {
+                                    state: {
                                         expandTeamId: scorer.teamId,
-                                        selectPlayerId: scorer.memberId 
-                                    } 
+                                        selectPlayerId: scorer.memberId
+                                    }
                                 })}
                             >
                                 <div className="scorer-rank">#{index + 1}</div>
@@ -131,11 +135,11 @@ const Stats = () => {
                                         <span className="goals-count">{scorer.goals}</span>
                                         <span className="goals-label">שערים</span>
                                     </div>
-                                    <div className="goals-avg" style={{ fontSize: '0.75rem', color: '#666' }}>
+                                    <div className="goals-avg" style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
                                         ממוצע: {(scorer as any).gamesPlayed > 0 ? (scorer.goals / (scorer as any).gamesPlayed).toFixed(2) : '0.00'}
                                     </div>
                                 </div>
-                            </div>
+                            </button>
                         ))}
                     </div>
                 </div>

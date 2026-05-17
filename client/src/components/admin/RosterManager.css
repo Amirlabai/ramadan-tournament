@@ -280,7 +280,7 @@
 .player-move-select:hover,
 .player-move-select:focus {
     border-color: var(--primary-green);
-    outline: none;
+    box-shadow: 0 0 0 3px rgba(42, 107, 17, 0.25);
 }
 
 .player-delete-btn {

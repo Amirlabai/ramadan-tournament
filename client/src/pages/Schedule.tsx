@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import SEO from '../components/SEO';
@@ -16,7 +16,6 @@ const Schedule = () => {
     const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
     const location = useLocation();
-    const navigate = useNavigate();
 
     const getTeamIdByMemberId = (memberId: number) => {
         const team = teams.find(t => t.players?.some(p => p.memberId === memberId));
@@ -199,6 +198,7 @@ const Schedule = () => {
             <div className="schedule-filters">
                 {filterOptions.map(({ key, label }) => (
                     <button
+                        type="button"
                         key={key}
                         className={`filter-btn ${activeFilter === key ? 'active' : ''} ${key !== 'all' ? key : ''}`}
                         onClick={() => setActiveFilter(key)}
@@ -229,11 +229,11 @@ const Schedule = () => {
                             <div className="match-teams-score">
                                 <div className="team-side">
                                     {getTeamLogoPosition(match.team1Id) === 'right' && getTeamLogo(match.team1Id) && (
-                                        <img src={getTeamLogo(match.team1Id)!} alt="logo" className="team-logo-inline me-2" />
+                                        <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline me-2" />
                                     )}
                                     <span className="team-name">{getTeamName(match.team1Id)}</span>
                                     {getTeamLogoPosition(match.team1Id) === 'left' && getTeamLogo(match.team1Id) && (
-                                        <img src={getTeamLogo(match.team1Id)!} alt="logo" className="team-logo-inline ms-2" />
+                                        <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline ms-2" />
                                     )}
                                     {status !== 'upcoming' && (
                                         <span className="team-score">{match.score1}</span>
@@ -244,11 +244,11 @@ const Schedule = () => {
 
                                 <div className="team-side">
                                     {getTeamLogoPosition(match.team2Id) === 'right' && getTeamLogo(match.team2Id) && (
-                                        <img src={getTeamLogo(match.team2Id)!} alt="logo" className="team-logo-inline me-2" />
+                                        <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline me-2" />
                                     )}
                                     <span className="team-name">{getTeamName(match.team2Id)}</span>
                                     {getTeamLogoPosition(match.team2Id) === 'left' && getTeamLogo(match.team2Id) && (
-                                        <img src={getTeamLogo(match.team2Id)!} alt="logo" className="team-logo-inline ms-2" />
+                                        <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline ms-2" />
                                     )}
                                     {status !== 'upcoming' && (
                                         <span className="team-score">{match.score2}</span>
@@ -271,21 +271,20 @@ const Schedule = () => {
                                         <h4>כובשים:</h4>
                                         <div className="goals-list">
                                             {Object.entries(goalCounts).map(([memberId, count]) => (
-                                                <span
+                                                <Link
                                                     key={memberId}
-                                                    className="goal-item"
-                                                    onClick={() => {
+                                                    to="/teams"
+                                                    state={{ expandTeamId: getTeamIdByMemberId(Number(memberId)) }}
+                                                    className="goal-item text-decoration-none"
+                                                    onClick={(e) => {
                                                         const teamId = getTeamIdByMemberId(Number(memberId));
-                                                        if (teamId) {
-                                                            navigate('/teams', { state: { expandTeamId: teamId } });
-                                                        }
+                                                        if (!teamId) e.preventDefault();
                                                     }}
-                                                    style={{ cursor: 'pointer' }}
                                                 >
-                                                    <center>{getPlayerNickname(Number(memberId))}<br />
-                                                        {count > 1 ? `⚽${count}` : '⚽'} <br />
-                                                        {getTeamNameById(Number(memberId))}</center>
-                                                </span>
+                                                    <span>{getPlayerNickname(Number(memberId))}</span>
+                                                    <span>{count > 1 ? ` ⚽×${count}` : ' ⚽'}</span>
+                                                    <span>{getTeamNameById(Number(memberId))}</span>
+                                                </Link>
                                             ))}
                                         </div>
                                     </div>
@@ -294,7 +293,9 @@ const Schedule = () => {
 
                             <div className="match-actions">
                                 <button
+                                    type="button"
                                     className="btn-comments"
+                                    aria-expanded={expandedMatchId === match._id}
                                     onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
                                 >
                                     {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (

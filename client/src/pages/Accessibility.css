@@ -1,0 +1,13 @@
+.accessibility-page section {
+  margin-bottom: 2rem;
+}
+
+.accessibility-page h3 {
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  color: var(--primary-green, #2A6B11);
+}
+
+.accessibility-report-form {
+  max-width: 36rem;
+}

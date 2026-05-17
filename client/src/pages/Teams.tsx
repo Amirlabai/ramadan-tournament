@@ -4,6 +4,7 @@ import { teamsAPI, votesAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import type { Team } from '../types';
 import SEO from '../components/SEO';
+import AccessibleModal from '../components/AccessibleModal';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -183,19 +184,20 @@ const Teams = () => {
                             ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'
                             : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
                     </span>
-                    <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="Close"></button>
+                    <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="סגור"></button>
                 </div>
             )}
 
             <div className="table-responsive">
                 <table className="table table-hover" id="teamsTable">
+                    <caption className="visually-hidden">רשימת קבוצות הטורניר</caption>
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>שם הקבוצה</th>
-                            <th className="d-none d-md-table-cell">מספר שחקנים</th>
-                            <th>קפטן</th>
-                            <th></th>
+                            <th scope="col">ID</th>
+                            <th scope="col">שם הקבוצה</th>
+                            <th scope="col" className="d-none d-md-table-cell">מספר שחקנים</th>
+                            <th scope="col">קפטן</th>
+                            <th scope="col"><span className="visually-hidden">הרחבה</span></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -208,31 +210,38 @@ const Teams = () => {
                                     <tr
                                         id={`team-row-${team.id}`}
                                         className={`team-row ${isExpanded ? 'bg-light' : ''}`}
-                                        onClick={() => toggleTeam(team.id)}
-                                        style={{ cursor: 'pointer' }}
                                     >
                                         <td>{team.id}</td>
                                         <td className="fw-bold fs-8">
                                             <div className="d-flex align-items-center gap-2">
                                                 {team.logoPosition === 'right' && team.logoUrl && (
-                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                                 <span>{team.name}</span>
                                                 {team.logoPosition === 'left' && team.logoUrl && (
-                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`${team.name} Logo`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                             </div>
                                         </td>
                                         <td className="d-none d-md-table-cell">{team.players.length}</td>
                                         <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
                                         <td>
-                                            <span className="expand-icon">
-                                                {isExpanded ? '▼' : '►'}
-                                            </span>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-link expand-toggle"
+                                                aria-expanded={isExpanded}
+                                                aria-controls={`team-details-${team.id}`}
+                                                onClick={() => toggleTeam(team.id)}
+                                                aria-label={isExpanded ? `כווץ פרטי ${team.name}` : `הרחב פרטי ${team.name}`}
+                                            >
+                                                <span className="expand-icon" aria-hidden="true">
+                                                    {isExpanded ? '▼' : '►'}
+                                                </span>
+                                            </button>
                                         </td>
                                     </tr>
                                     {isExpanded && (
-                                        <tr className="team-details-row">
+                                        <tr className="team-details-row" id={`team-details-${team.id}`}>
                                             <td colSpan={5} className="bg-light p-3">
                                                 <div className="row g-3">
                                                     {(() => {
@@ -253,22 +262,28 @@ const Teams = () => {
                                                                     <div
                                                                         id={`player-card-${player.memberId}`}
                                                                         className={`roster-player-card position-relative ${isTopScorer ? 'top-scorer-highlight' : ''} ${selectedPlayerId === player.memberId ? 'selected' : ''}`}
-                                                                        onClick={(e) => { e.stopPropagation(); setSelectedPlayer(player); }}
-                                                                        style={{ cursor: 'pointer' }}
                                                                     >
                                                                         <button
                                                                             type="button"
                                                                             onClick={(e) => handleVoteClick(player, e)}
                                                                             className="btn btn-sm position-absolute top-0 start-0 m-1 p-1 border-0 bg-transparent"
                                                                             style={{ zIndex: 10 }}
-                                                                            title={myVote?.playerMemberId === player.memberId ? "הצבעת לשחקן זה" : "הצבע לשחקן המצטיין"}
+                                                                            aria-label={myVote?.playerMemberId === player.memberId ? `בטל הצבעה ל${player.firstName} ${player.lastName}` : `הצבע ל${player.firstName} ${player.lastName} כמצטיין`}
+                                                                            aria-pressed={myVote?.playerMemberId === player.memberId}
                                                                             disabled={isVoting}
                                                                         >
-                                                                            <i className={`fs-5 ${myVote?.playerMemberId === player.memberId ? 'text-warning fa-solid fa-star' : 'text-secondary fa-regular fa-star'}`}></i>
+                                                                            <i className={`fs-5 ${myVote?.playerMemberId === player.memberId ? 'text-warning fa-solid fa-star' : 'text-secondary fa-regular fa-star'}`} aria-hidden="true"></i>
                                                                         </button>
-
+                                                                        <button
+                                                                            type="button"
+                                                                            className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0 pt-4"
+                                                                            onClick={() => setSelectedPlayer(player)}
+                                                                            aria-label={`פרטי שחקן ${player.firstName} ${player.lastName}`}
+                                                                        >
                                                                         {player.isCaptain && <span className="badge text-dark position-absolute top-0 end-0 m-2 mt-4">⭐</span>}
-                                                                        {isTopScorer && <span className="badge text-dark position-absolute top-0 end-0 m-2" title="מלך השערים של הקבוצה">⚽</span>}
+                                                                        {isTopScorer && (
+                                                                            <span className="badge text-dark position-absolute top-0 end-0 m-2" aria-label="מלך השערים של הקבוצה">⚽</span>
+                                                                        )}
                                                                         <div className="fw-bold mt-2">{player.nickname}</div>
                                                                         <div className="text-muted small">{player.firstName} {player.lastName}</div>
                                                                         <div className="badge bg-success mt-1">{player.number}</div>
@@ -287,6 +302,7 @@ const Teams = () => {
                                                                                 </span>
                                                                             </div>
                                                                         </div>
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             );
@@ -304,14 +320,13 @@ const Teams = () => {
             </div>
 
             {/* Player Details Modal */}
-            {selectedPlayer && (
-                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => setSelectedPlayer(null)}>
-                    <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+            <AccessibleModal open={!!selectedPlayer} onClose={() => setSelectedPlayer(null)} titleId="player-modal-title">
                         <div className="modal-content">
                             <div className="modal-header bg-success text-white">
-                                <h5 className="modal-title">{selectedPlayer.firstName} {selectedPlayer.lastName}</h5>
-                                <button type="button" className="btn-close btn-close-white" onClick={() => setSelectedPlayer(null)}></button>
+                                <h2 id="player-modal-title" className="modal-title h5">{selectedPlayer?.firstName} {selectedPlayer?.lastName}</h2>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setSelectedPlayer(null)} aria-label="סגור"></button>
                             </div>
+                            {selectedPlayer && (
                             <div className="modal-body text-center">
                                 <img
                                     src={selectedPlayer.head_photo
@@ -319,7 +334,7 @@ const Teams = () => {
                                             ? selectedPlayer.head_photo
                                             : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${selectedPlayer.head_photo}`)
                                         : '/assets/images/players/heads/default.jpg'}
-                                    alt={selectedPlayer.firstName}
+                                    alt={`תמונת ${selectedPlayer?.firstName} ${selectedPlayer?.lastName}`}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
                                     onError={(e) => {
@@ -359,26 +374,28 @@ const Teams = () => {
                                     <p>{selectedPlayer.bio || 'אין מידע נוסף אודות השחקן.'}</p>
                                 </div>
                             </div>
+                            )}
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setSelectedPlayer(null)}>סגור</button>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
+            </AccessibleModal>
 
             {/* Vote Confirmation Modal */}
-            {voteConfirmPlayer && (
-                <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} onClick={() => !isVoting && setVoteConfirmPlayer(null)}>
-                    <div className="modal-dialog modal-dialog-centered" onClick={e => e.stopPropagation()}>
+            <AccessibleModal
+                open={!!voteConfirmPlayer}
+                onClose={() => !isVoting && setVoteConfirmPlayer(null)}
+                titleId="vote-modal-title"
+            >
                         <div className="modal-content border-0 shadow">
                             <div className="modal-header bg-success text-white">
-                                <h5 className="modal-title">
-                                    <i className={`fa-solid ${myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'fa-star-half-stroke text-danger' : 'fa-star text-warning'} ms-2`}></i>
+                                <h2 id="vote-modal-title" className="modal-title h5">
+                                    <i className={`fa-solid ${myVote?.playerMemberId === voteConfirmPlayer?.memberId ? 'fa-star-half-stroke text-danger' : 'fa-star text-warning'} ms-2`} aria-hidden="true"></i>
                                     אישור הצבעה
-                                </h5>
-                                <button type="button" className="btn-close btn-close-white" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting}></button>
+                                </h2>
+                                <button type="button" className="btn-close btn-close-white" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting} aria-label="סגור"></button>
                             </div>
+                            {voteConfirmPlayer && (
                             <div className="modal-body text-center p-4">
                                 <h5 className="mb-3">
                                     {myVote?.playerMemberId === voteConfirmPlayer.memberId
@@ -403,13 +420,14 @@ const Teams = () => {
                                     </p>
                                 )}
                             </div>
+                            )}
                             <div className="modal-footer justify-content-center bg-light">
                                 <button type="button" className="btn btn-secondary px-4 fw-bold" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting}>
                                     ביטול
                                 </button>
                                 <button
                                     type="button"
-                                    className={`btn ${myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'btn-danger' : 'btn-success'} px-4 fw-bold`}
+                                    className={`btn ${myVote?.playerMemberId === voteConfirmPlayer?.memberId ? 'btn-danger' : 'btn-success'} px-4 fw-bold`}
                                     onClick={confirmVote}
                                     disabled={isVoting}
                                 >
@@ -421,9 +439,7 @@ const Teams = () => {
                                 </button>
                             </div>
                         </div>
-                    </div>
-                </div>
-            )}
+            </AccessibleModal>
         </div>
     );
 };

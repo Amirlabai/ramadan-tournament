@@ -102,7 +102,7 @@ const Dashboard = () => {
         return (
             <div className={`d-flex align-items-center gap-2 ${position === 'left' ? 'flex-row-reverse' : ''}`}>
                 <span className="team-name">{teamName}</span>
-                <img className="team-logo-inline" src={logo} alt="" style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+                <img className="team-logo-inline" src={logo} alt={`לוגו ${teamName}`} style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
             </div>
         );
     };
@@ -128,15 +128,15 @@ const Dashboard = () => {
                             type="button" 
                             className="btn-close" 
                             onClick={handleDismissClaimBanner}
-                            aria-label="Close"
+                            aria-label="סגור"
                             title="הסתר"
                         ></button>
                     </div>
                 )}
 
                 {isPendingApproval && (
-                    <div className="alert alert-info d-flex align-items-center mb-4 shadow-sm border-0" role="alert" style={{ backgroundColor: 'rgba(13, 202, 240, 0.1)', color: '#0dcaf0' }}>
-                        <i className="bi bi-hourglass-split me-2 fs-5"></i>
+                    <div className="alert alert-info d-flex align-items-center mb-4 shadow-sm border-0" role="alert" style={{ backgroundColor: 'rgba(13, 202, 240, 0.15)', color: '#055160' }}>
+                        <i className="bi bi-hourglass-split me-2 fs-5" aria-hidden="true"></i>
                         <div>
                             <strong>בקשת שיוך ממתינה לאישור קפטן</strong>
                             <div className="small opacity-75">
@@ -181,7 +181,9 @@ const Dashboard = () => {
                                     </div>
                                     <div className="match-actions">
                                         <button
+                                            type="button"
                                             className="btn-comments"
+                                            aria-expanded={expandedMatchId === match._id}
                                             onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
                                         >
                                             {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
@@ -211,9 +213,10 @@ const Dashboard = () => {
                         <h2>משחקים אחרונים</h2>
                         <div className="matches-list">
                             {data.recentMatches.slice(0, 5).map((match) => (
-                                <div
+                                <button
+                                    type="button"
                                     key={match._id}
-                                    className="match-item"
+                                    className="match-item w-100 border-0 text-start bg-transparent"
                                     onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
                                 >
                                     <span className="match-date">
@@ -229,7 +232,7 @@ const Dashboard = () => {
                                             {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
                                     </div>
-                                </div>
+                                </button>
                             ))}
                         </div>
                     </div>

@@ -1,10 +1,11 @@
-import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
 import PlayerClaimModal from '../components/PlayerClaimModal';
+import SEO from '../components/SEO';
 import './Profile.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
@@ -256,24 +257,29 @@ const Profile = () => {
 
     return (
         <div className="profile-page">
+            <SEO
+                title="פרופיל אישי"
+                description="עריכת פרופיל, תמונה ושיוך שחקן — טורניר קיץ 2026."
+                url="https://ramadan-tournament-client.vercel.app/profile"
+            />
             <div className="container py-4" style={{ maxWidth: 760 }}>
 
                 {/* Profile Header Card */}
                 <div className="profile-header-card card mb-4 p-4">
                     <div className="d-flex align-items-center gap-4 flex-wrap">
-                        <div className="avatar-wrapper" onClick={() => fileInputRef.current?.click()} title="שנה תמונה">
+                        <label htmlFor="profile-avatar-upload" className="avatar-wrapper mb-0" title="שנה תמונה">
                             {avatarLoading ? (
                                 <div className="avatar-placeholder"><span className="spinner-border spinner-border-sm" /></div>
                             ) : avatarSrc ? (
-                                <img src={avatarSrc} alt="avatar" className="avatar-img" />
+                                <img src={avatarSrc} alt={`תמונת פרופיל של ${user.displayName}`} className="avatar-img" />
                             ) : (
                                 <div className="avatar-placeholder">
                                     <i className="bi bi-person-fill fs-1" />
                                 </div>
                             )}
-                            <div className="avatar-overlay"><i className="bi bi-camera-fill" /></div>
-                        </div>
-                        <input type="file" ref={fileInputRef} accept="image/*" style={{ display: 'none' }} onChange={handleAvatarChange} />
+                            <span className="avatar-overlay" aria-hidden="true"><i className="bi bi-camera-fill" /></span>
+                        </label>
+                        <input id="profile-avatar-upload" type="file" ref={fileInputRef} accept="image/*" className="visually-hidden" onChange={handleAvatarChange} aria-label="העלאת תמונת פרופיל" />
 
                         {/* Delete uploaded avatar — only shown when user has a local upload */}
                         {user.avatarUrl?.startsWith('/uploads/') && (
@@ -296,7 +302,7 @@ const Profile = () => {
                                 {roleLabels[user.role] ?? user.role}
                             </span>
                         </div>
-                        <button className="btn btn-danger btn-sm" onClick={handleLogout}>התנתק</button>
+                        <button type="button" className="btn btn-danger btn-sm" onClick={handleLogout}>התנתק</button>
                     </div>
                 </div>
 
@@ -311,13 +317,13 @@ const Profile = () => {
                                     {user.mappedPlayerInfo?.teamName ? ` קבוצת ${user.mappedPlayerInfo.teamName} ` : ` קבוצה #${user.mappedPlayerInfo?.teamId} `}
                                     {user.mappedPlayerInfo?.playerName && `, השחקן ${user.mappedPlayerInfo.playerName} `}
                                 </div>
-                                <button className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>ביטול בקשה</button>
+                                <button type="button" className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>ביטול בקשה</button>
                             </div>
                         )}
                         {mappingStatus === 'rejected' && (
                             <div className="d-flex justify-content-between align-items-center">
                                 <div><i className="bi bi-x-circle-fill me-2" /><strong>בקשת השיוך נדחתה.</strong> תוכל לנסות מחדש.</div>
-                                <button className="btn btn-secondary btn-sm" onClick={handleLeaveTeam}>נקה</button>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={handleLeaveTeam}>נקה</button>
                             </div>
                         )}
                     </div>
@@ -327,7 +333,7 @@ const Profile = () => {
                 {user.role === 'User' && (!mappingStatus || mappingStatus === 'rejected') && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
-                        <button className="btn btn-warning btn-sm fw-bold px-3 rounded-pill" onClick={() => setShowClaimModal(true)}>שיוך שחקן</button>
+                        <button type="button" className="btn btn-warning btn-sm fw-bold px-3 rounded-pill" onClick={() => setShowClaimModal(true)}>שיוך שחקן</button>
                     </div>
                 )}
 
@@ -341,11 +347,11 @@ const Profile = () => {
                                 {!editingPlayer && (
                                     <>
                                         {user.role !== 'Captain' && (
-                                            <button className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>
+                                            <button type="button" className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>
                                                 <i className="bi bi-box-arrow-right me-1" />עזוב קבוצה
                                             </button>
                                         )}
-                                        <button className="btn btn-success btn-sm" onClick={startEditPlayer}>
+                                        <button type="button" className="btn btn-success btn-sm" onClick={startEditPlayer}>
                                             <i className="bi bi-pencil-fill me-1" />{playerProfile ? 'ערוך' : 'הגדר פרופיל'}
                                         </button>
                                     </>
@@ -505,7 +511,7 @@ const Profile = () => {
                             <div className="d-flex justify-content-between align-items-center mb-3">
                                 <h4 className="mb-0">הגדרות קבוצה — {(user.mappedPlayerInfo as any)?.teamName}</h4>
                                 {!editingTeam && (
-                                    <button className="btn btn-success btn-sm" onClick={startEditTeam}>
+                                    <button type="button" className="btn btn-success btn-sm" onClick={startEditTeam}>
                                         <i className="bi bi-gear-fill me-1" />ניהול קבוצה
                                     </button>
                                 )}

@@ -1,0 +1,42 @@
+---
+description: Israeli Standard IS 5568 (WCAG 2.1 Level AA) — required for all UI and accessibility work in this repo
+globs:
+  - client/**/*
+  - Review/**/*
+alwaysApply: false
+---
+
+# Israeli accessibility — IS 5568 (mandatory for UI changes)
+
+This site must comply with **Israeli Standard ת"י 5568**, which adopts **WCAG 2.1 Level AA**. Non-compliance can carry legal exposure (fines up to NIS 50,000).
+
+**Before editing or reviewing UI, read:** [Review/is-5568-wcag-aa-pass-may-2026.md](Review/is-5568-wcag-aa-pass-may-2026.md) for open bugs and ship blockers.
+
+## Non-negotiables
+
+- **Semantic HTML:** `<button>` / `<a>` for actions; no nested interactives; one `<main>`; proper headings; `<nav>` with `aria-current="page"`.
+- **Keyboard:** Full Tab/Enter/Space/arrow support; visible `:focus-visible`; modal focus trap + return focus; skip link to `#main-content`.
+- **Forms:** Visible `<label htmlFor>` + `id`; never placeholder-only labels; `aria-invalid` + `aria-describedby` on errors; `role="alert"` for dynamic errors.
+- **Images / icons:** Meaningful `alt`; decorative `alt=""`; icon-only controls need `aria-label`; SVG controls need accessible names.
+- **Color:** 4.5:1 normal text, 3:1 large text and UI/focus; do not rely on color alone for status (add text/icon).
+- **Tables:** `<caption>`, `scope` on `<th>`, data tables only.
+- **Motion:** Respect `prefers-reduced-motion`; no flashing >3/sec; pause controls on auto-playing content.
+- **Language:** `lang="he"` on `<html>`; RTL (`dir="rtl"`) for Hebrew UI; unique `<title>` and meta description per route.
+- **Legal page:** Maintain [/accessibility](client/src/pages/Accessibility.tsx) (נגישות) with coordinator contact, conformance statement, and report method; link from nav and footer.
+- **Viewport:** No `user-scalable=no` / `maximum-scale=1` that blocks zoom; touch targets ≥44×44px where feasible.
+
+## Modals
+
+Use shared [AccessibleModal](client/src/components/AccessibleModal.tsx) + [useFocusTrap](client/src/hooks/useFocusTrap.ts): `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, body scroll lock or `inert` on background, Escape to close.
+
+## Do not claim AA until
+
+- Open items in the review doc are resolved.
+- Real accessibility coordinator details replace placeholders on `/accessibility`.
+- Manual checks: keyboard-only, screen reader (NVDA/VoiceOver), contrast, 200%/400% zoom.
+
+## Reference
+
+- Standard: WCAG 2.1 Level AA / ת"י 5568  
+- Project context: [context.md](context.md) (Accessibility section)  
+- Tracking: [status.md](status.md)

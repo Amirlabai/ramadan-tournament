@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import SEO from '../../components/SEO';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authAPI } from '../../api/client';
@@ -115,6 +116,11 @@ const Login = () => {
 
     return (
         <div className="login-page">
+            <SEO
+                title={isVerifying ? 'אימות אימייל' : (isLoginView ? 'התחברות' : 'הרשמה')}
+                description="התחברות ורישום למערכת טורניר קיץ 2026 כפר כמא."
+                url="https://ramadan-tournament-client.vercel.app/login"
+            />
             <div className="login-card card">
                 <h2 className="mb-4 text-center">
                     {isVerifying ? 'אימות אימייל' : (isLoginView ? 'התחברות למערכת' : 'הרשמה חדשה')}
@@ -143,11 +149,15 @@ const Login = () => {
                         <p className="text-center mb-4">הזן את 6 הספרות שנשלחו לכתובת:<br /><strong>{identifier}</strong></p>
                         
                         <div className="form-group mb-4">
+                            <label htmlFor="verificationCode" className="form-label">קוד אימות (6 ספרות)</label>
                             <input
                                 type="text"
+                                id="verificationCode"
                                 className="form-control form-control-lg text-center fw-bold"
                                 maxLength={6}
-                                placeholder="000000"
+                                inputMode="numeric"
+                                autoComplete="one-time-code"
+                                aria-required="true"
                                 value={verificationCode}
                                 onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
                                 required
@@ -155,8 +165,8 @@ const Login = () => {
                             />
                         </div>
 
-                        {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
-                        {successMsg && <div className="alert alert-success p-2 text-center">{successMsg}</div>}
+                        {error && <div className="alert alert-danger p-2 text-center" role="alert">{error}</div>}
+                        {successMsg && <div className="alert alert-success p-2 text-center" role="alert">{successMsg}</div>}
 
                         <button type="submit" className="btn btn-primary w-100 mb-3" disabled={loading}>
                             {loading ? <span className="spinner-border spinner-border-sm"></span> : 'אמת חשבון'}
@@ -229,8 +239,8 @@ const Login = () => {
                             />
                         </div>
 
-                        {error && <div className="alert alert-danger p-2 text-center">{error}</div>}
-                        {successMsg && <div className="alert alert-success p-2 text-center">{successMsg}</div>}
+                        {error && <div className="alert alert-danger p-2 text-center" role="alert">{error}</div>}
+                        {successMsg && <div className="alert alert-success p-2 text-center" role="alert">{successMsg}</div>}
 
                         <button type="submit" className="btn btn-primary w-100 mb-3" disabled={loading}>
                             {loading ? (

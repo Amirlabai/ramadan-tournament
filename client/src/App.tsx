@@ -15,6 +15,7 @@ import AlarmsWidget from './components/AlarmsWidget';
 import ScrollToTop from './components/ScrollToTop';
 import PlayerZone from './pages/PlayerZone';
 import Archive from './pages/Archive';
+import Accessibility from './pages/Accessibility';
 import './App.css';
 import { Analytics } from '@vercel/analytics/react';
 import { useState } from 'react';
@@ -25,6 +26,9 @@ function App() {
   return (
     <Router>
       <div className="app" dir="rtl">
+        <a href="#main-content" className="skip-link">
+          דלג לתוכן הראשי
+        </a>
         {/* <IftarTimer
           isActive={activeWidget === 'iftar'}
           onToggle={(active) => setActiveWidget(active ? 'iftar' : 'none')}
@@ -52,23 +56,22 @@ function App() {
           <Navbar />
 
           {/* Main Content */}
-          <div className="tab-content">
-            <main className="tab-pane fade show active">
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/teams" element={<Teams />} />
-                <Route path="/schedule" element={<Schedule />} />
-                <Route path="/stats" element={<Stats />} />
-                <Route path="/mvps" element={<MVPs />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/admin/login" element={<Login />} />
-                <Route path="/admin" element={<AdminPanel />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/player-zone" element={<PlayerZone />} />
-                <Route path="/archive" element={<Archive />} />
-              </Routes>
-            </main>
-          </div>
+          <main id="main-content" tabIndex={-1}>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/teams" element={<Teams />} />
+              <Route path="/schedule" element={<Schedule />} />
+              <Route path="/stats" element={<Stats />} />
+              <Route path="/mvps" element={<MVPs />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/admin/login" element={<Login />} />
+              <Route path="/admin" element={<AdminPanel />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/player-zone" element={<PlayerZone />} />
+              <Route path="/archive" element={<Archive />} />
+              <Route path="/accessibility" element={<Accessibility />} />
+            </Routes>
+          </main>
         </div>
 
         {/* Footer */}

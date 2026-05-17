@@ -74,6 +74,7 @@ const Archive: React.FC = () => {
             <h5 className="fw-bold text-success border-bottom pb-2 mb-3">עונות קודמות</h5>
             {seasons.map(s => (
               <button
+                type="button"
                 key={s.yearMonth}
                 onClick={() => fetchSeasonDetail(s.yearMonth)}
                 className={`btn season-btn w-100 mb-2 text-start ${selectedSeason?.yearMonth === s.yearMonth ? 'active' : ''}`}
@@ -180,16 +181,17 @@ const Archive: React.FC = () => {
                     </div>
                     <div className="table-responsive">
                       <table className="table table-hover mb-0">
+                        <caption className="visually-hidden">טבלת ליגה — עונה {selectedSeason.year}</caption>
                         <thead>
                           <tr>
-                            <th>מיקום</th>
-                            <th className="text-end">קבוצה</th>
-                            <th>מש'</th>
-                            <th>נצ'</th>
-                            <th>תיקו</th>
-                            <th>הפס'</th>
-                            <th>הפרש</th>
-                            <th>נק'</th>
+                            <th scope="col">מיקום</th>
+                            <th scope="col" className="text-end">קבוצה</th>
+                            <th scope="col">מש'</th>
+                            <th scope="col">נצ'</th>
+                            <th scope="col">תיקו</th>
+                            <th scope="col">הפס'</th>
+                            <th scope="col">הפרש</th>
+                            <th scope="col">נק'</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -220,13 +222,14 @@ const Archive: React.FC = () => {
                     </div>
                     <div className="table-responsive">
                       <table className="table table-hover mb-0">
+                        <caption className="visually-hidden">מבקיעי העונה {selectedSeason.year}</caption>
                         <thead>
                           <tr>
-                            <th>#</th>
-                            <th className="text-end">שחקן</th>
-                            <th className="text-end">כינוי</th>
-                            <th className="text-end">קבוצה</th>
-                            <th>שערים</th>
+                            <th scope="col">#</th>
+                            <th scope="col" className="text-end">שחקן</th>
+                            <th scope="col" className="text-end">כינוי</th>
+                            <th scope="col" className="text-end">קבוצה</th>
+                            <th scope="col">שערים</th>
                           </tr>
                         </thead>
                         <tbody>

@@ -16,6 +16,13 @@ const MVPs = () => {
     const { user, loading: authLoading } = useAuth();
     const navigate = useNavigate();
 
+    const goToPlayer = (teamId: number, memberId: number) => {
+        navigate('/teams', { state: { expandTeamId: teamId, selectPlayerId: memberId } });
+    };
+
+    const resolveTeamId = (teamName: string): number | null =>
+        data?.teams?.find((t: { name: string; id: number }) => t.name === teamName)?.id ?? null;
+
     const fetchStats = async (isBackground = false) => {
         try {
             if (!isBackground) setLoading(true);
@@ -112,15 +119,11 @@ const MVPs = () => {
                                 <h2>מלך השערים</h2>
                                 <div className="scorer-info h-100">
                                     {/* 1st Place - Premium with Gold Aura */}
-                                    <div
-                                        className="premium-scorer-wrapper h-100"
-                                        style={{ cursor: 'pointer' }}
-                                        onClick={() => navigate('/teams', {
-                                            state: {
-                                                expandTeamId: data.topScorers[0].teamId,
-                                                selectPlayerId: data.topScorers[0].memberId
-                                            }
-                                        })}
+                                    <button
+                                        type="button"
+                                        className="premium-scorer-wrapper h-100 w-100 border-0 bg-transparent text-center"
+                                        onClick={() => goToPlayer(data.topScorers[0].teamId, data.topScorers[0].memberId)}
+                                        aria-label={`פרטי שחקן ${data.topScorers[0].playerName}, ${data.topScorers[0].teamName}`}
                                     >
                                         <div className="premium-decorations">
                                             <span className="star-decoration star-1">★</span>
@@ -128,7 +131,7 @@ const MVPs = () => {
                                             <span className="star-decoration star-3">★</span>
                                         </div>
                                         <div className="scorer-name">
-                                            <img src="/top-scorer.svg" alt="Top Scorer" className="top-scorer-badge" />
+                                            <img src="/top-scorer.svg" alt="תג מלך השערים" className="top-scorer-badge" />
                                             {data.topScorers[0].playerName}
                                         </div>
                                         <div className="scorer-team">{data.topScorers[0].teamName}</div>
@@ -136,28 +139,24 @@ const MVPs = () => {
                                             <span className="goals-count">{data.topScorers[0].goals}</span>
                                             <span className="goals-label">שערים</span>
                                         </div>
-                                    </div>
+                                    </button>
 
                                     {/* 2nd and 3rd Place - Simple Table-like Rows */}
                                     {data.topScorers.length > 1 && (
                                         <div className="runners-up-list">
                                             {data.topScorers.slice(1, 3).map((scorer, index) => (
-                                                <div
+                                                <button
+                                                    type="button"
                                                     key={scorer.memberId}
-                                                    className="runner-up-item"
-                                                    style={{ cursor: 'pointer' }}
-                                                    onClick={() => navigate('/teams', {
-                                                        state: {
-                                                            expandTeamId: scorer.teamId,
-                                                            selectPlayerId: scorer.memberId
-                                                        }
-                                                    })}
+                                                    className="runner-up-item w-100 border-0 bg-transparent text-start"
+                                                    onClick={() => goToPlayer(scorer.teamId, scorer.memberId)}
+                                                    aria-label={`פרטי שחקן ${scorer.playerName}, ${scorer.teamName}`}
                                                 >
                                                     <span className="runner-rank">{index + 2}.</span>
                                                     <span className="runner-name">{scorer.playerName}</span>
                                                     <span className="runner-team">({scorer.teamName})</span>
                                                     <span className="runner-goals fw-bold text-success ms-auto ps-2">{scorer.goals}</span>
-                                                </div>
+                                                </button>
                                             ))}
                                         </div>
                                     )}
@@ -171,20 +170,19 @@ const MVPs = () => {
                         {mvpLeaderboard && mvpLeaderboard.length > 0 && (
                             <div className="dashboard-card mvp-race-card h-100 mt-0">
                                 <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h2 className="mb-0 fs-4 w-100 text-center">🏆 MVP</h2>
+                                    <h3 className="mb-0 fs-4 w-100 text-center">🏆 MVP</h3>
                                 </div>
                                 <div className="card-body p-0">
-                                    {mvpLeaderboard.slice(0, 5).map((item, index) => (
-                                        <div
+                                    {mvpLeaderboard.slice(0, 5).map((item, index) => {
+                                        const teamId = resolveTeamId(item.teamName);
+                                        return (
+                                        <button
+                                            type="button"
                                             key={item.memberId}
-                                            className={`mvp-row d-flex align-items-center justify-content-between p-3 border-bottom ${index === 0 ? 'bg-light-gold' : ''}`}
-                                            onClick={() => navigate('/teams', {
-                                                state: {
-                                                    expandTeamId: data?.teams?.find((t: any) => t.name === item.teamName)?.id || 0,
-                                                    selectPlayerId: item.memberId
-                                                }
-                                            })}
-                                            style={{ cursor: 'pointer' }}
+                                            className={`mvp-row d-flex align-items-center justify-content-between p-3 border-bottom w-100 border-0 bg-transparent text-start ${index === 0 ? 'bg-light-gold' : ''}`}
+                                            disabled={teamId === null}
+                                            onClick={() => teamId !== null && goToPlayer(teamId, item.memberId)}
+                                            aria-label={`פרטי שחקן ${item.player.firstName} ${item.player.lastName}, ${item.teamName}`}
                                         >
                                             <div className="d-flex align-items-center gap-3">
                                                 <div className={`mvp-rank fw-bold ${index === 0 ? 'text-warning fs-4' : 'text-secondary'}`}>
@@ -202,8 +200,9 @@ const MVPs = () => {
                                                 <div className="fw-bold fs-5 text-success">{item.votes}</div>
                                                 <div className="small text-muted" style={{ fontSize: '0.7rem' }}>הצבעות</div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        </button>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}

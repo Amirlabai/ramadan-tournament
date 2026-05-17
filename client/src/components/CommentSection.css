@@ -39,9 +39,9 @@
 }
 
 .comment-form .form-control:focus {
-    outline: none;
     border-color: var(--primary-green, #2A6B11);
     background: rgba(255, 255, 255, 1);
+    box-shadow: 0 0 0 3px rgba(42, 107, 17, 0.25);
 }
 
 .comment-form .form-control::placeholder {

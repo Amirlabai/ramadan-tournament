@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import SEO from '../../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { matchesAPI, newsAPI, authAPI, teamsAPI, adminAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
@@ -298,47 +299,82 @@ const AdminPanel = () => {
 
     return (
         <div className="admin-panel">
+            <SEO
+                title="פאנל ניהול"
+                description="ניהול משחקים, חדשות, שחקנים ותגובות — טורניר קיץ 2026."
+                url="https://ramadan-tournament-client.vercel.app/admin"
+            />
             <div className="admin-header">
                 <h2>פאנל {user?.role === 'Captain' ? 'קפטן' : 'ניהול'}</h2>
-                <button onClick={handleLogout} className="btn btn-danger">
+                <button type="button" onClick={handleLogout} className="btn btn-danger">
                     התנתק
                 </button>
             </div>
 
-            <div className="tabs">
+            <div className="tabs" role="tablist" aria-label="לשוניות ניהול">
                 {(user?.role === 'Admin' || user?.role === 'admin') && (
                     <>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-matches"
+                            aria-controls="admin-panel-matches"
+                            aria-selected={activeTab === 'matches'}
                             className={`tab ${activeTab === 'matches' ? 'active' : ''}`}
                             onClick={() => setActiveTab('matches')}
                         >
                             ניהול משחקים ({matches.length})
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-news"
+                            aria-controls="admin-panel-news"
+                            aria-selected={activeTab === 'news'}
                             className={`tab ${activeTab === 'news' ? 'active' : ''}`}
                             onClick={() => setActiveTab('news')}
                         >
                             ניהול חדשות ({news.length})
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-import"
+                            aria-controls="admin-panel-import"
+                            aria-selected={activeTab === 'import'}
                             className={`tab ${activeTab === 'import' ? 'active' : ''}`}
                             onClick={() => setActiveTab('import')}
                         >
                             ייבוא שחקנים
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-banned-words"
+                            aria-controls="admin-panel-banned-words"
+                            aria-selected={activeTab === 'banned-words'}
                             className={`tab ${activeTab === 'banned-words' ? 'active' : ''}`}
                             onClick={() => setActiveTab('banned-words')}
                         >
                             מילים חסומות ({bannedWords.length})
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-comments"
+                            aria-controls="admin-panel-comments"
+                            aria-selected={activeTab === 'comments'}
                             className={`tab ${activeTab === 'comments' ? 'active' : ''}`}
                             onClick={() => setActiveTab('comments')}
                         >
                             ניהול תגובות ({comments.length})
                         </button>
                         <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-roster"
+                            aria-controls="admin-panel-roster"
+                            aria-selected={activeTab === 'roster'}
                             className={`tab ${activeTab === 'roster' ? 'active' : ''}`}
                             onClick={() => setActiveTab('roster')}
                         >
@@ -349,15 +385,17 @@ const AdminPanel = () => {
             </div>
 
             {activeTab === 'matches' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-matches" aria-labelledby="admin-tab-matches" className="tab-content" tabIndex={0}>
                     <div className="admin-filters mb-3">
                         <button
+                            type="button"
                             className={`filter-btn ${matchFilter === 'all' ? 'active' : ''}`}
                             onClick={() => setMatchFilter('all')}
                         >
                             הכל
                         </button>
                         <button
+                            type="button"
                             className={`filter-btn ${matchFilter === 'today' ? 'active' : ''}`}
                             onClick={() => setMatchFilter('today')}
                         >
@@ -457,7 +495,7 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'news' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-news" aria-labelledby="admin-tab-news" className="tab-content" tabIndex={0}>
                     {!showNewsForm ? (
                         <div className="card">
                             <div className="d-flex justify-content-between align-items-center mb-3">
@@ -504,7 +542,7 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'import' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-import" aria-labelledby="admin-tab-import" className="tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ייבוא שחקנים</h2>
                         <div className="p-4 text-center">
@@ -537,7 +575,7 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'banned-words' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-banned-words" aria-labelledby="admin-tab-banned-words" className="tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול מילים חסומות</h2>
 
@@ -545,10 +583,12 @@ const AdminPanel = () => {
                             <div className="mb-4">
                                 <h3>הוסף מילה חדשה</h3>
                                 <div className="d-flex gap-2">
+                                    <label htmlFor="new-banned-word" className="visually-hidden">מילה חדשה</label>
                                     <input
                                         type="text"
+                                        id="new-banned-word"
                                         className="form-control"
-                                        placeholder="מילה חדשה"
+                                        aria-label="מילה חדשה לחסימה"
                                         value={newWord}
                                         onChange={(e) => setNewWord(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddBannedWord()}
@@ -611,16 +651,18 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'comments' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-comments" aria-labelledby="admin-tab-comments" className="tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול תגובות</h2>
 
                         <div className="p-4">
                             <div className="mb-4">
+                                <label htmlFor="comment-search" className="form-label">חיפוש תגובות</label>
                                 <input
                                     type="text"
+                                    id="comment-search"
                                     className="form-control"
-                                    placeholder="חפש תגובות..."
+                                    aria-label="חפש תגובות"
                                     value={searchFilter}
                                     onChange={(e) => setSearchFilter(e.target.value)}
                                 />
@@ -673,7 +715,7 @@ const AdminPanel = () => {
             )}
 
             {activeTab === 'roster' && (
-                <div className="tab-content">
+                <div role="tabpanel" id="admin-panel-roster" aria-labelledby="admin-tab-roster" className="tab-content" tabIndex={0}>
                     <div className="card p-3">
                         <RosterManager />
                     </div>

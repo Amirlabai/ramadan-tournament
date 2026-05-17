@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import AccessibleModal from './AccessibleModal';
 import { teamsAPI, usersAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import type { Team } from '../types';
@@ -98,20 +99,18 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     };
 
     const selectedTeamName = teams.find(t => t.id === Number(selectedTeamId))?.name;
+    const modalTitleId = 'claim-modal-title';
 
     return (
-        <>
-            <div className="modal-backdrop fade show"></div>
-            <div className="modal fade show d-block claim-modal" tabIndex={-1}>
-                <div className="modal-dialog modal-dialog-centered modal-lg">
+        <AccessibleModal open onClose={onClose} titleId={modalTitleId} className="claim-modal">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title fw-bold">
+                            <h2 id={modalTitleId} className="modal-title fw-bold h5">
                                 {step === 'team' && 'שיוך שחקן — בחר קבוצה'}
                                 {step === 'player' && `שיוך שחקן — ${selectedTeamName}`}
                                 {step === 'custom' && `פרופיל שחקן חדש — ${selectedTeamName}`}
-                            </h5>
-                            <button type="button" className="btn-close" onClick={onClose}></button>
+                            </h2>
+                            <button type="button" className="btn-close" onClick={onClose} aria-label="סגור"></button>
                         </div>
                         <div className="modal-body p-4">
                             {success ? (
@@ -125,11 +124,14 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                 <>
                                     <p className="mb-4 text-muted">בחר את הקבוצה שאתה חלק ממנה.</p>
                                     <div className="mb-4">
-                                        <label className="form-label fw-bold">קבוצה</label>
+                                        <label htmlFor="claim-team-select" className="form-label fw-bold">קבוצה</label>
                                         <select
+                                            id="claim-team-select"
                                             className="form-select form-select-lg"
                                             value={selectedTeamId}
                                             onChange={e => setSelectedTeamId(e.target.value ? Number(e.target.value) : '')}
+                                            required
+                                            aria-required="true"
                                         >
                                             <option value="">- בחירת קבוצה -</option>
                                             {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
@@ -151,9 +153,10 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                             const isSelected = selectedMemberId === p.memberId;
                                             return (
                                                 <div key={p.memberId} className="col-6 col-md-4">
-                                                    <div
-                                                        className={`card h-100 text-center p-3 position-relative${isSelected ? ' player-card-sel' : ''}`}
-                                                        style={{ cursor: 'pointer', userSelect: 'none' }}
+                                                    <button
+                                                        type="button"
+                                                        className={`card h-100 text-center p-3 position-relative w-100 border${isSelected ? ' player-card-sel' : ''}`}
+                                                        aria-pressed={isSelected}
                                                         onClick={() => setSelectedMemberId(p.memberId)}
                                                     >
                                                         {isSelected && (
@@ -165,7 +168,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                                             {p.position && <span className="badge bg-secondary">{p.position}</span>}
                                                             {p.isCaptain && <span className="badge bg-warning text-dark">קפטן</span>}
                                                         </div>
-                                                    </div>
+                                                    </button>
                                                 </div>
                                             );
                                         })}
@@ -236,9 +239,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                             )}
                         </div>
                     </div>
-                </div>
-            </div>
-        </>
+        </AccessibleModal>
     );
 };
 

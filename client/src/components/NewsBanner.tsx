@@ -13,7 +13,6 @@ const NewsBanner = () => {
                 const newsData = response.data;
 
                 if (newsData.length > 0) {
-                    // Sort by priority (high first) then date (newest first)
                     const sortedNews = [...newsData].sort((a, b) => {
                         if (a.priority === 'high' && b.priority !== 'high') return -1;
                         if (b.priority === 'high' && a.priority !== 'high') return 1;
@@ -29,37 +28,34 @@ const NewsBanner = () => {
         fetchNews();
     }, []);
 
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 200) {
-                setIsCollapsed(true);
-            }
-        };
-
-        window.addEventListener('scroll', handleScroll, { passive: true });
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
     if (!newsItem) return null;
 
     return (
-        <div
-            className={`news-banner ${isCollapsed ? 'collapsed' : ''}`}
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            style={{ cursor: 'pointer' }}
-        >
-            <div id="newsBanner">
-                <h4>{newsItem.title}</h4>
-                <div className="news-content">
-                    <p>{newsItem.message}</p>
-                </div>
+        <section className={`news-banner ${isCollapsed ? 'collapsed' : ''}`}>
+            <button
+                type="button"
+                className="news-banner-toggle w-100 border-0 bg-transparent text-start p-0"
+                aria-expanded={!isCollapsed}
+                aria-controls="news-banner-content"
+                onClick={() => setIsCollapsed(!isCollapsed)}
+            >
+                <h2 className="h4 mb-0">{newsItem.title}</h2>
                 {isCollapsed && (
-                    <div className="expand-indicator">לחץ להרחבה...</div>
+                    <span className="expand-indicator">הרחב חדשות</span>
                 )}
+            </button>
+            <div
+                id="news-banner-content"
+                className="news-content-wrapper"
+                hidden={isCollapsed}
+                aria-hidden={isCollapsed}
+            >
+                <div className="news-content">
+                    <p className="mb-0">{newsItem.message}</p>
+                </div>
             </div>
-        </div>
+        </section>
     );
 };
 
 export default NewsBanner;
-

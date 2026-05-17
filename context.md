@@ -11,6 +11,19 @@
 - **Data Layer**: Uses a hybrid approach with MongoDB for dynamic content (matches, news, stats) and static files in `data/` for some reference datasets.
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`) and fetching external alarm data periodically (`fetch_alarms.py`).
 
+## Accessibility (Israeli Standard IS 5568)
+
+**All UI and frontend changes must comply with Israeli Standard ת"י 5568 (WCAG 2.1 Level AA).** This is a legal requirement in Israel, not optional polish.
+
+| Resource | Purpose |
+|----------|---------|
+| [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc) | Persistent rule for Cursor agents editing `client/**` |
+| [Review/is-5568-wcag-aa-pass-may-2026.md](Review/is-5568-wcag-aa-pass-may-2026.md) | May 2026 review (mostly resolved; coordinator contact still open) |
+| [status.md](status.md) | Checklist and completion status |
+| [client/src/pages/Accessibility.tsx](client/src/pages/Accessibility.tsx) | Public accessibility statement (נגישות) |
+
+When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
+
 ## Current Focus
 - Enhancing tournament management features for Ramadan 2026.
 - Adding real-time or automated data feeds (e.g., Alarms data every two hours) for user safety and information.
@@ -43,9 +56,11 @@
 - **Bug Fix**: Fixed moon illumination percentage staying identical across days; `IftarTimer` now computes fractional days for real-time moon phase tracking.
 - **Polling Refinement**: Restricted smart polling logic (30s background refresh) to a strict 20:00–23:59 tournament window across Dashboard, Teams, and Stats pages. Added a logic guard in `Dashboard.tsx` to ensure polling ONLY occurs on days when matches are actually scheduled, preventing wasteful pings during the off-season or early morning hours.
 - **SEO & Accessibility**: Implemented a comprehensive SEO engine using `react-helmet-async`. Every main view (Dashboard, Teams, Schedule, Stats, Player Zone) now has unique, localized metadata, Open Graph tags, and canonical links. Updated `sitemap.xml` and `robots.txt`. Added descriptive `alt` tags to branding images for improved accessibility and search indexing.
+- **IS 5568 / WCAG 2.1 AA (May 2026)**: Pass 1 + pass 2 code fixes (modal portal, inert scope, MVPs guard, admin tabs, Dashboard/Login). Coordinator name/phone placeholders — update at deploy. See [status.md](status.md) and [Review/is-5568-wcag-aa-pass-may-2026.md](Review/is-5568-wcag-aa-pass-may-2026.md). Agent rule: [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc).
 - **Archive UI Polish & Data Fixes (Mar 2026)**:
   - Harmonized Archive styling with the rest of the application using standard project CSS variables.
   - Fixed data mapping mismatches (e.g., `wins` vs `won`) in the historical standings table.
   - Relocated top scorers to a full-width table and converted knockout matches to card format for consistency.
 - **Model Integrity**: Resolved Mongoose schema type conflicts in `SeasonArchive.ts` by relaxing mixed-field interfaces.
 - **Post-Ramadan Cleanup**: Transitioned the Iftar countdown widget to an inactive state in `App.tsx`.
+- **Workspace Chroma skill**: Personal Cursor skill at `~/.cursor/skills/workspace-chroma/` indexes this repo into `.chroma/` (gitignored) for explicit `/index-workspace` and `/search-context` queries. Local embeddings via `all-MiniLM-L6-v2`; verified index (128 files, 926 chunks).
