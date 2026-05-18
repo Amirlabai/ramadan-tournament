@@ -7,6 +7,8 @@ import fs from 'fs';
 import { TeamDataService } from '../services/TeamDataService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 
+const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
+
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
     try {
         const division = getRequestDivision(req as TournamentRequest);
@@ -37,7 +39,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
 export const getAvailablePlayers = async (req: Request, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
-        const team = await Team.findOne({ id: teamId });
+        const team = await Team.findOne({ id: teamId }, requestDivision(req));
 
         if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
 
@@ -106,7 +108,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
         if (status === 'approved') {
             userToUpdate.role = 'Player';
 
-            const teamDoc = await Team.findOne({ id: teamId });
+            const teamDoc = await Team.findOne({ id: teamId }, requestDivision(req));
             if (teamDoc) {
                 let activeMemberId = userToUpdate.mappedPlayerInfo.memberId;
 
@@ -196,7 +198,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
         const teamId = parseInt(req.params.id);
         const { name, logoPosition } = req.body;
 
-        const team = await Team.findOne({ id: teamId });
+        const team = await Team.findOne({ id: teamId }, requestDivision(req));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -240,7 +242,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        const team = await Team.findOne({ id: teamId });
+        const team = await Team.findOne({ id: teamId }, requestDivision(req));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -290,7 +292,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
     try {
         const teamId = parseInt(req.params.id);
 
-        const team = await Team.findOne({ id: teamId });
+        const team = await Team.findOne({ id: teamId }, requestDivision(req));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -336,14 +338,15 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
-        const team = await Team.findOne({ id: teamId });
+        const division = requestDivision(req);
+        const team = await Team.findOne({ id: teamId }, division);
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
         }
 
         // Generate a globally-unique memberId by scanning all teams
-        const allTeams = await Team.find({});
+        const allTeams = await Team.find({}, division);
         const allMemberIds = allTeams.flatMap(t => t.players.map(p => p.memberId));
         const maxId = allMemberIds.length > 0 ? Math.max(...allMemberIds) : 0;
         const newMemberId = maxId + 1;
@@ -378,7 +381,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
         const teamId = parseInt(req.params.id);
         const memberId = parseInt(req.params.memberId);
 
-        const team = await Team.findOne({ id: teamId });
+        const team = await Team.findOne({ id: teamId }, requestDivision(req));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -419,9 +422,10 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
             return;
         }
 
+        const division = requestDivision(req);
         const [sourceTeam, targetTeam] = await Promise.all([
-            Team.findOne({ id: sourceTeamId }),
-            Team.findOne({ id: parseInt(targetTeamId) }),
+            Team.findOne({ id: sourceTeamId }, division),
+            Team.findOne({ id: parseInt(targetTeamId) }, division),
         ]);
 
         if (!sourceTeam) { res.status(404).json({ error: 'קבוצת מקור לא נמצאה' }); return; }

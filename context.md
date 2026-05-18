@@ -39,13 +39,14 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
 
 ## Current Focus
-- **Phase 1.5 (done in code):** Girls UX + admin tab **טורניר בנות (נקודות)** — create/activate girls season, add teams, record points; public pages at `/girls`, `/teams-girls`, etc. Deploy API for `*-girls` routes on Render.
-- **Phase 2 (next):** Registration workflows per [`.incoming/PRD-database-schema.md`](.incoming/PRD-database-schema.md) (invoice codes, join/transfer, owner squad roles, admin points entry).
-- Harden admin CRUD paths against Postgres adapters; optional cleanup of legacy Mongo scripts.
-- **Archive System**: `SeasonArchive` on Prisma; rewrite `archive-season.ts` when archiving next season.
+- **Phase 1.5 (in progress):** Girls **read** scaffold is live (`/girls`, `*-girls` APIs, switcher). Admin can manage girls season/points and **news per division** (selector in Admin → חדשות). Team **writes** on `/api/teams-girls` use the active girls season; archive list/detail accepts `?division=boys|girls`.
+- **Still legacy / pre-PRD:** Profile join flows use `mappedPlayerInfo` and Captain role; no invoice or `season_registrations`; user mapping and votes are football-season scoped.
+- **Phase 2 (next):** Registration per [`.incoming/PRD-database-schema.md`](.incoming/PRD-database-schema.md) (invoice codes, join/transfer, `active_division`).
+- **Deploy:** Render API must include latest `*-girls` routes and division write fixes.
+- Optional: legacy Mongo script cleanup; Prisma `archive-season` script.
 
 ## Recent Changes
-- **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; boys paths unchanged.
+- **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.
 - **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Iftar API removed from server; Mongo scripts excluded from production build. Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).
 - **Career Documentation**: Updated `resume.md` to showcase the Ramadan Tournament project as a premier full-stack achievement, highlighting MERN stack mastery, AI integration (Gemini), and advanced RTL/security implementations.
 - Consolidated Admin mappings, registrations, and player management into a unified Roster view.

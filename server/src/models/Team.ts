@@ -1,3 +1,4 @@
+import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 
 import { SeasonService } from '../services/SeasonService';
@@ -230,9 +231,13 @@ function mapTeam(row: any, players: any[]): ITeam {
 
 
 
-async function loadTeams(where: Record<string, unknown>, sort?: { id?: 1 | -1 }): Promise<ITeam[]> {
+async function loadTeams(
+  where: Record<string, unknown>,
+  sort?: { id?: 1 | -1 },
+  division: Division = Division.boys
+): Promise<ITeam[]> {
 
-  const season = await SeasonService.getActiveFootballSeason();
+  const season = await SeasonService.getActiveSeason(division);
 
   const teams = await prisma.team.findMany({
 
@@ -254,9 +259,9 @@ type TeamFilter = Record<string, unknown>;
 
 
 
-async function findTeams(filter: TeamFilter): Promise<ITeam[]> {
+async function findTeams(filter: TeamFilter, division: Division = Division.boys): Promise<ITeam[]> {
 
-  const season = await SeasonService.getActiveFootballSeason();
+  const season = await SeasonService.getActiveSeason(division);
 
 
 
@@ -268,7 +273,7 @@ async function findTeams(filter: TeamFilter): Promise<ITeam[]> {
 
       const ids = (raw as { $in: number[] }).$in;
 
-      const teams = await loadTeams({});
+      const teams = await loadTeams({}, undefined, division);
 
       return teams.filter((t) => t.players.some((p) => ids.includes(p.memberId)));
 
@@ -389,13 +394,16 @@ async function findTeams(filter: TeamFilter): Promise<ITeam[]> {
 
 
 
-  return loadTeams({});
+  return loadTeams({}, undefined, division);
 
 }
 
 
 
-function teamChain<T>(load: () => Promise<T>): {
+function teamChain<T>(
+  load: () => Promise<T>,
+  division: Division = Division.boys
+): {
 
   sort(sort: { id?: 1 | -1 }): ReturnType<typeof teamChain<T>>;
 
@@ -413,7 +421,7 @@ function teamChain<T>(load: () => Promise<T>): {
 
     if (sortOpt) {
 
-      return loadTeams({}, sortOpt) as unknown as T;
+      return loadTeams({}, sortOpt, division) as unknown as T;
 
     }
 
@@ -521,23 +529,23 @@ export class Team {
 
 
 
-  static find(filter: TeamFilter = {}, _projection?: Record<string, unknown>) {
+  static find(filter: TeamFilter = {}, division: Division = Division.boys) {
 
-    return teamChain(() => findTeams(filter));
+    return teamChain(() => findTeams(filter, division), division);
 
   }
 
 
 
-  static findOne(filter: TeamFilter = {}) {
+  static findOne(filter: TeamFilter = {}, division: Division = Division.boys) {
 
     return teamChain(async () => {
 
-      const teams = await findTeams(filter);
+      const teams = await findTeams(filter, division);
 
       return teams[0] ?? null;
 
-    });
+    }, division);
 
   }
 

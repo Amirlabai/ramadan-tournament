@@ -1,3 +1,4 @@
+import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { SeasonService } from '../services/SeasonService';
 
@@ -123,13 +124,17 @@ export const SeasonArchive = {
     return mapRow(created);
   },
 
-  async create(body: Omit<ISeasonArchive, 'createdAt' | 'seasonId'> & { playoffs?: unknown[] }) {
-    const season = await SeasonService.getActiveFootballSeason();
+  async create(body: Omit<ISeasonArchive, 'createdAt' | 'seasonId'> & { playoffs?: unknown[]; division?: string }) {
+    const division = body.division === 'girls' ? Division.girls : Division.boys;
+    const season =
+      division === Division.girls
+        ? await SeasonService.getActiveSeason(Division.girls)
+        : await SeasonService.getActiveFootballSeason();
     const row = await prisma.seasonArchive.create({
       data: {
         seasonId: season.id,
         yearMonth: body.yearMonth,
-        division: 'boys',
+        division,
         displayName: body.displayName,
         winner: body.winner as object,
         topScorer: body.topScorer as object,

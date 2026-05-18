@@ -1,70 +1,92 @@
 import express from 'express';
+import { Division } from '@prisma/client';
+import { prisma } from '../lib/prisma';
 import { SeasonArchive } from '../models/SeasonArchive';
 import { StatsService } from '../services/StatsService';
 import { authenticate, authorize } from '../middleware/auth';
 
 const router = express.Router();
 
+function parseDivision(value: unknown): Division {
+  return value === 'girls' ? Division.girls : Division.boys;
+}
+
 /**
- * @route   GET /api/archive
- * @desc    Get all archived seasons (metadata only)
+ * @route   GET /api/archive?division=boys|girls
+ * @desc    Get archived seasons (metadata only), optionally filtered by division
  */
 router.get('/', async (req, res) => {
   try {
-    const archives = await SeasonArchive.find()
-      .select('yearMonth displayName winner topScorer createdAt')
-      .sort({ yearMonth: -1 });
+    const division = req.query.division ? parseDivision(req.query.division) : undefined;
+    const archives = await prisma.seasonArchive.findMany({
+      where: division ? { division } : undefined,
+      select: {
+        yearMonth: true,
+        division: true,
+        displayName: true,
+        winner: true,
+        topScorer: true,
+        createdAt: true,
+      },
+      orderBy: { yearMonth: 'desc' },
+    });
     res.json(archives);
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ message });
   }
 });
 
 /**
- * @route   GET /api/archive/:yearMonth
+ * @route   GET /api/archive/:yearMonth?division=boys|girls
  * @desc    Get full details for a specific archived season
  */
 router.get('/:yearMonth', async (req, res) => {
   try {
-    const archive = await SeasonArchive.findOne({ yearMonth: req.params.yearMonth });
+    const division = parseDivision(req.query.division);
+    const archive = await prisma.seasonArchive.findFirst({
+      where: { yearMonth: req.params.yearMonth, division },
+    });
     if (!archive) {
       return res.status(404).json({ message: 'Season not found' });
     }
     res.json(archive);
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ message });
   }
 });
 
 /**
- * @route   POST /api/admin/archive
+ * @route   POST /api/archive/create
  * @desc    Freeze current data into a new archive
  * @access  Admin only
  */
 router.post('/create', authenticate, authorize(['Admin', 'admin']), async (req, res) => {
   try {
-    const { yearMonth, displayName, winnerId, mvpId, summary } = req.body;
+    const { yearMonth, displayName, winnerId, mvpId, summary, division: divisionRaw } = req.body;
+    const division = parseDivision(divisionRaw);
 
     if (!yearMonth || !displayName) {
       return res.status(400).json({ message: 'yearMonth and displayName are required' });
     }
 
-    // Check if already exists
-    const existing = await SeasonArchive.findOne({ yearMonth });
+    const existing = await prisma.seasonArchive.findFirst({
+      where: { yearMonth, division },
+    });
     if (existing) {
-      return res.status(400).json({ message: `Season ${yearMonth} already exists` });
+      return res.status(400).json({ message: `Season ${yearMonth} (${division}) already exists` });
     }
 
-    // Calculate final stats
     const standings = await StatsService.calculateStandings();
     const topScorers = await StatsService.calculateTopScorers();
 
-    // Find winner details
     const winnerEntry = standings.find(s => s.teamId === winnerId) || standings[0];
     const topScorerEntry = topScorers[0];
 
     await SeasonArchive.create({
       yearMonth,
+      division,
       displayName,
       winner: {
         teamId: winnerEntry.teamId,
@@ -78,10 +100,8 @@ router.post('/create', authenticate, authorize(['Admin', 'admin']), async (req, 
         goals: topScorerEntry.goals
       },
       mvp: mvpId ? {
-          // In a real scenario we'd look up the player info
-          // For now we assume the frontend sends the details or we calculate it
           memberId: mvpId,
-          name: 'TBD', // Placeholder
+          name: 'TBD',
           teamName: 'TBD'
       } : undefined,
       standings,
@@ -90,8 +110,9 @@ router.post('/create', authenticate, authorize(['Admin', 'admin']), async (req, 
     });
 
     res.json({ message: 'Season archived successfully' });
-  } catch (error: any) {
-    res.status(500).json({ message: error.message });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    res.status(500).json({ message });
   }
 });
 

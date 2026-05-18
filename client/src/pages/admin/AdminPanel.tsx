@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import SEO from '../../components/SEO';
 import { useNavigate } from 'react-router-dom';
-import { matchesAPI, newsAPI, authAPI, teamsAPI, adminAPI } from '../../api/client';
+import { matchesAPI, newsAPI, authAPI, teamsAPI, adminAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Match, News, Team } from '../../types';
 import MatchTableRow from '../../components/admin/MatchTableRow';
@@ -20,6 +20,7 @@ const AdminPanel = () => {
     const { user } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
+    const [newsDivision, setNewsDivision] = useState<TournamentSlug>('boys');
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
     const [bannedWords, setBannedWords] = useState<any[]>([]);
@@ -65,14 +66,12 @@ const AdminPanel = () => {
         const fetchData = async () => {
             try {
                 await authAPI.getCurrentUser();
-                const [matchesRes, newsRes, teamsRes] = await Promise.all([
+                const [matchesRes, teamsRes] = await Promise.all([
                     matchesAPI.getAll(),
-                    newsAPI.getAll(),
                     teamsAPI.getAll()
                 ]);
                 const matchesSorted = matchesRes.data.sort((a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setMatches(matchesSorted);
-                setNews(newsRes.data);
                 setTeams(teamsRes.data);
             } catch (err) {
                 console.error(err);
@@ -90,8 +89,10 @@ const AdminPanel = () => {
             fetchBannedWords();
         } else if (activeTab === 'comments') {
             fetchComments();
+        } else if (activeTab === 'news') {
+            newsAPI.getAll(newsDivision).then((res) => setNews(res.data)).catch(console.error);
         }
-    }, [activeTab]);
+    }, [activeTab, newsDivision]);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -112,7 +113,7 @@ const AdminPanel = () => {
     const deleteNews = async (id: number) => {
         if (!confirm('האם אתה בטוח שברצונך למחוק חדשה זו?')) return;
         try {
-            await newsAPI.delete(id);
+            await newsAPI.delete(id, newsDivision);
             setNews(news.filter(n => n.id !== id));
         } catch (err) {
             alert('שגיאה במחיקת חדשה');
@@ -147,10 +148,10 @@ const AdminPanel = () => {
     const handleSaveNews = async (data: any) => {
         try {
             if (editingNews) {
-                await newsAPI.update(editingNews.id, data);
+                await newsAPI.update(editingNews.id, data, newsDivision);
                 setNews(news.map(n => n.id === editingNews.id ? { ...n, ...data } : n));
             } else {
-                const res = await newsAPI.create(data);
+                const res = await newsAPI.create(data, newsDivision);
                 setNews([res.data, ...news].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
             }
             setShowNewsForm(false);
@@ -260,7 +261,7 @@ const AdminPanel = () => {
             if (res.data.status === 'posted') {
                 alert(`עדכון בוצע בהצלחה!\n\n${res.data.message}`);
                 // Refresh news feed
-                const newsRes = await newsAPI.getAll();
+                const newsRes = await newsAPI.getAll(newsDivision);
                 setNews(newsRes.data);
             } else if (res.data.status === 'no_changes') {
                 alert('לא נמצאו שינויים המצדיקים עדכון חדשות.');
@@ -510,8 +511,20 @@ const AdminPanel = () => {
                 <div role="tabpanel" id="admin-panel-news" aria-labelledby="admin-tab-news" className="tab-content" tabIndex={0}>
                     {!showNewsForm ? (
                         <div className="card">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h2>חדשות</h2>
+                            <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                                <div className="d-flex align-items-center gap-2 flex-wrap">
+                                    <h2 className="mb-0">חדשות</h2>
+                                    <label className="visually-hidden" htmlFor="news-division-select">חטיבה</label>
+                                    <select
+                                        id="news-division-select"
+                                        className="form-select form-select-sm w-auto"
+                                        value={newsDivision}
+                                        onChange={(e) => setNewsDivision(e.target.value as TournamentSlug)}
+                                    >
+                                        <option value="boys">טורניר בנים</option>
+                                        <option value="girls">טורניר בנות</option>
+                                    </select>
+                                </div>
                                 <div className="d-flex gap-2">
                                     <button 
                                         className="btn btn-outline-success" 

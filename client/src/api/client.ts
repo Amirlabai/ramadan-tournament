@@ -30,25 +30,27 @@ export const seasonsAPI = {
 export const teamsAPI = {
     getAll: (slug: TournamentSlug = 'boys') => api.get(teamsPath(slug)),
     getById: (id: number, slug: TournamentSlug = 'boys') => api.get(`${teamsPath(slug)}/${id}`),
-    getAvailablePlayers: (teamId: number) => api.get(`/teams/${teamId}/available-players`),
-    getRequests: (id: number) => api.get(`/teams/${id}/requests`),
-    approveRequest: (id: number, userId: string, status: 'approved' | 'rejected') =>
-        api.post(`/teams/${id}/requests`, { userId, status }),
-    updateMetadata: (id: number, data: { name?: string; logoPosition?: 'left' | 'right' | 'none' }) =>
-        api.patch(`/teams/${id}/metadata`, data),
-    uploadLogo: (id: number, formData: FormData) =>
-        api.post(`/teams/${id}/logo`, formData, {
+    getAvailablePlayers: (teamId: number, slug: TournamentSlug = 'boys') =>
+        api.get(`${teamsPath(slug)}/${teamId}/available-players`),
+    getRequests: (id: number, slug: TournamentSlug = 'boys') =>
+        api.get(`${teamsPath(slug)}/${id}/requests`),
+    approveRequest: (id: number, userId: string, status: 'approved' | 'rejected', slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${id}/requests`, { userId, status }),
+    updateMetadata: (id: number, data: { name?: string; logoPosition?: 'left' | 'right' | 'none' }, slug: TournamentSlug = 'boys') =>
+        api.patch(`${teamsPath(slug)}/${id}/metadata`, data),
+    uploadLogo: (id: number, formData: FormData, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${id}/logo`, formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
         }),
-    deleteLogo: (id: number) => api.delete(`/teams/${id}/logo`),
+    deleteLogo: (id: number, slug: TournamentSlug = 'boys') => api.delete(`${teamsPath(slug)}/${id}/logo`),
     addPlayer: (teamId: number, data: {
         firstName: string; lastName?: string; nickname?: string;
         number: number; position?: string; isCaptain?: boolean; birthYear?: number;
-    }) => api.post(`/teams/${teamId}/players`, data),
-    deletePlayer: (teamId: number, memberId: number) =>
-        api.delete(`/teams/${teamId}/players/${memberId}`),
-    movePlayer: (teamId: number, memberId: number, targetTeamId: number) =>
-        api.patch(`/teams/${teamId}/players/${memberId}/move`, { targetTeamId }),
+    }, slug: TournamentSlug = 'boys') => api.post(`${teamsPath(slug)}/${teamId}/players`, data),
+    deletePlayer: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
+        api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}`),
+    movePlayer: (teamId: number, memberId: number, targetTeamId: number, slug: TournamentSlug = 'boys') =>
+        api.patch(`${teamsPath(slug)}/${teamId}/players/${memberId}/move`, { targetTeamId }),
 };
 
 
@@ -67,9 +69,9 @@ export const statsGirlsAPI = {
 
 export const newsAPI = {
     getAll: (slug: TournamentSlug = 'boys') => api.get(newsPath(slug)),
-    create: (data: any) => api.post('/news', data),
-    update: (id: number, data: any) => api.put(`/news/${id}`, data),
-    delete: (id: number) => api.delete(`/news/${id}`),
+    create: (data: any, slug: TournamentSlug = 'boys') => api.post(newsPath(slug), data),
+    update: (id: number, data: any, slug: TournamentSlug = 'boys') => api.put(`${newsPath(slug)}/${id}`, data),
+    delete: (id: number, slug: TournamentSlug = 'boys') => api.delete(`${newsPath(slug)}/${id}`),
 };
 
 export const statsAPI = {
@@ -160,10 +162,18 @@ export const votesAPI = {
 };
 
 export const archiveAPI = {
-    getAll: () => api.get('/archive'),
-    getById: (yearMonth: string) => api.get(`/archive/${yearMonth}`),
-    create: (data: { yearMonth: string; displayName: string; winnerId: number; mvpId?: number; summary?: string }) => 
-        api.post('/archive/create', data),
+    getAll: (slug: TournamentSlug = 'boys') =>
+        api.get('/archive', { params: { division: slug } }),
+    getById: (yearMonth: string, slug: TournamentSlug = 'boys') =>
+        api.get(`/archive/${yearMonth}`, { params: { division: slug } }),
+    create: (data: {
+        yearMonth: string;
+        displayName: string;
+        winnerId: number;
+        mvpId?: number;
+        summary?: string;
+        division?: TournamentSlug;
+    }) => api.post('/archive/create', data),
 };
 
 export default api;

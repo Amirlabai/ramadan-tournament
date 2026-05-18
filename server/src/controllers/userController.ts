@@ -493,7 +493,7 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
 
                     if (activeMemberId === 0 && user.playerProfile) {
                         // Use global max across ALL teams to prevent cross-team memberId collisions
-                        const allTeams = await Team.find({}, { 'players.memberId': 1 });
+                        const allTeams = await Team.find({});
                         const allIds = allTeams.flatMap(t => t.players.map((p: any) => p.memberId || 0));
                         const newMemberId = allIds.length > 0 ? Math.max(...allIds) + 1 : 1;
                         teamDoc.players.push({
