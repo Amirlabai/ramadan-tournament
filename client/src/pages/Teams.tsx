@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { Team } from '../types';
 import SEO from '../components/SEO';
 import AccessibleModal from '../components/AccessibleModal';
+import { resolveAssetUrl } from '../utils/assetUrl';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -145,13 +146,14 @@ const Teams = () => {
     };
 
     const confirmVote = async () => {
-        if (!voteConfirmPlayer || isVoting) return;
+        const player = voteConfirmPlayer;
+        if (!player || isVoting) return;
 
         try {
             setIsVoting(true);
-            const response = await votesAPI.cast(voteConfirmPlayer.memberId, 'mvp');
+            const response = await votesAPI.cast(player.memberId, 'mvp');
             if (response.data.voted) {
-                setMyVote({ playerMemberId: voteConfirmPlayer.memberId });
+                setMyVote({ playerMemberId: player.memberId });
             } else {
                 setMyVote(null);
             }
@@ -205,6 +207,7 @@ const Teams = () => {
                             const players = team.players ?? [];
                             const captain = players.find(p => p.isCaptain);
                             const isExpanded = expandedTeam === team.id;
+                            const logoSrc = resolveAssetUrl(team.logoUrl);
 
                             return (
                                 <Fragment key={team.id}>
@@ -215,12 +218,12 @@ const Teams = () => {
                                         <td>{team.id}</td>
                                         <td className="fw-bold fs-8">
                                             <div className="d-flex align-items-center gap-2">
-                                                {team.logoPosition === 'right' && team.logoUrl && (
-                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                {team.logoPosition === 'right' && logoSrc && (
+                                                    <img className="team-logo-inline" src={logoSrc} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                                 <span>{team.name}</span>
-                                                {team.logoPosition === 'left' && team.logoUrl && (
-                                                    <img className="team-logo-inline" src={team.logoUrl.startsWith('http') ? team.logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${team.logoUrl}`} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
+                                                {team.logoPosition === 'left' && logoSrc && (
+                                                    <img className="team-logo-inline" src={logoSrc} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                             </div>
                                         </td>
@@ -330,11 +333,7 @@ const Teams = () => {
                             {selectedPlayer && (
                             <div className="modal-body text-center">
                                 <img
-                                    src={selectedPlayer.head_photo
-                                        ? (selectedPlayer.head_photo.startsWith('http')
-                                            ? selectedPlayer.head_photo
-                                            : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${selectedPlayer.head_photo}`)
-                                        : '/assets/images/players/heads/default.jpg'}
+                                    src={resolveAssetUrl(selectedPlayer.head_photo) || '/assets/images/players/heads/default.jpg'}
                                     alt={`תמונת ${selectedPlayer?.firstName} ${selectedPlayer?.lastName}`}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
@@ -388,6 +387,7 @@ const Teams = () => {
                 onClose={() => !isVoting && setVoteConfirmPlayer(null)}
                 titleId="vote-modal-title"
             >
+                {voteConfirmPlayer ? (
                         <div className="modal-content border-0 shadow">
                             <div className="modal-header bg-success text-white">
                                 <h2 id="vote-modal-title" className="modal-title h5">
@@ -396,7 +396,6 @@ const Teams = () => {
                                 </h2>
                                 <button type="button" className="btn-close btn-close-white" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting} aria-label="סגור"></button>
                             </div>
-                            {voteConfirmPlayer && (
                             <div className="modal-body text-center p-4">
                                 <h5 className="mb-3">
                                     {myVote?.playerMemberId === voteConfirmPlayer.memberId
@@ -421,7 +420,6 @@ const Teams = () => {
                                     </p>
                                 )}
                             </div>
-                            )}
                             <div className="modal-footer justify-content-center bg-light">
                                 <button type="button" className="btn btn-secondary px-4 fw-bold" onClick={() => setVoteConfirmPlayer(null)} disabled={isVoting}>
                                     ביטול
@@ -435,11 +433,12 @@ const Teams = () => {
                                     {isVoting ? (
                                         <><span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> מעדכן...</>
                                     ) : (
-                                        myVote?.playerMemberId === voteConfirmPlayer.memberId ? 'בטל הצבעה' : 'אשר הצבעה'
+                                        myVote?.playerMemberId === voteConfirmPlayer?.memberId ? 'בטל הצבעה' : 'אשר הצבעה'
                                     )}
                                 </button>
                             </div>
                         </div>
+                ) : null}
             </AccessibleModal>
         </div>
     );

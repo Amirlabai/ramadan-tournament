@@ -125,6 +125,18 @@ export const adminAPI = {
     updateUserMapping: (userId: string, data: { teamId?: number; status?: string; role?: string }) =>
         api.patch(`/admin/user-mappings/${userId}`, data),
     triggerNewsAutomation: () => api.post('/admin/trigger-automation'),
+    listSeasons: () => api.get('/admin/seasons'),
+    getGirlsSeasonSummary: () => api.get('/admin/seasons/girls/summary'),
+    createGirlsSeason: (data: { yearMonth: string; displayName: string; activate?: boolean }) =>
+        api.post('/admin/seasons/girls', data),
+    activateSeason: (seasonId: string) => api.post(`/admin/seasons/${seasonId}/activate`),
+    addGirlsTeam: (seasonId: string, name: string) =>
+        api.post(`/admin/seasons/${seasonId}/teams`, { name }),
+    listPointEntries: (seasonId: string) =>
+        api.get('/admin/point-entries', { params: { seasonId } }),
+    createPointEntry: (data: { seasonId: string; teamId: number; points: number; note?: string }) =>
+        api.post('/admin/point-entries', data),
+    getGirlsStandings: () => api.get('/stats-girls/standings'),
 };
 
 export const commentsAPI = {

@@ -39,7 +39,7 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
 
 ## Current Focus
-- **Phase 1.5 (done in code):** Girls UX — `/girls`, `/teams-girls`, `/news-girls`, `/archive-girls`; API mirrors (`/api/*-girls`); header switcher + `TournamentContext`. Requires an active girls `seasons` row in Postgres (admin-created, not seeded).
+- **Phase 1.5 (done in code):** Girls UX + admin tab **טורניר בנות (נקודות)** — create/activate girls season, add teams, record points; public pages at `/girls`, `/teams-girls`, etc. Deploy API for `*-girls` routes on Render.
 - **Phase 2 (next):** Registration workflows per [`.incoming/PRD-database-schema.md`](.incoming/PRD-database-schema.md) (invoice codes, join/transfer, owner squad roles, admin points entry).
 - Harden admin CRUD paths against Postgres adapters; optional cleanup of legacy Mongo scripts.
 - **Archive System**: `SeasonArchive` on Prisma; rewrite `archive-season.ts` when archiving next season.

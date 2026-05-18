@@ -2,6 +2,15 @@ import { Router } from 'express';
 import multer from 'multer';
 import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
 import { getPendingTeamRequests, approveTeamRequest, getUserMappings, updateUserMapping } from '../controllers/userController';
+import {
+  listSeasons,
+  getGirlsAdminSummary,
+  createGirlsSeason,
+  activateSeason,
+  addGirlsTeam,
+  listPointEntries,
+  createPointEntry,
+} from '../controllers/adminSeasonController';
 import { authenticate, authorize } from '../middleware/auth';
 import os from 'os';
 
@@ -36,4 +45,15 @@ router.patch('/user-mappings/:userId', authenticate, authorize(['Admin', 'admin'
 // News automation
 router.post('/trigger-automation', authenticate, authorize(['Admin', 'admin']), triggerAutomation);
 
-export default router;
+// Seasons (girls / points tournament)
+router.get('/seasons', authenticate, authorize(['Admin', 'admin']), listSeasons);
+router.get('/seasons/girls/summary', authenticate, authorize(['Admin', 'admin']), getGirlsAdminSummary);
+router.post('/seasons/girls', authenticate, authorize(['Admin', 'admin']), createGirlsSeason);
+router.post('/seasons/:seasonId/activate', authenticate, authorize(['Admin', 'admin']), activateSeason);
+router.post('/seasons/:seasonId/teams', authenticate, authorize(['Admin', 'admin']), addGirlsTeam);
+
+// Point entries (girls standings)
+router.get('/point-entries', authenticate, authorize(['Admin', 'admin']), listPointEntries);
+router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), createPointEntry);
+
+export default router;

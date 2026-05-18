@@ -7,6 +7,7 @@ import type { Match, News, Team } from '../../types';
 import MatchTableRow from '../../components/admin/MatchTableRow';
 import NewsForm from '../../components/admin/NewsForm';
 import RosterManager from '../../components/admin/RosterManager';
+import GirlsSeasonAdmin from '../../components/admin/GirlsSeasonAdmin';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -15,7 +16,7 @@ const AdminPanel = () => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
 
-    type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster';
+    type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster' | 'girls';
     const { user } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
@@ -380,6 +381,17 @@ const AdminPanel = () => {
                         >
                             סגל ורישום
                         </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-girls"
+                            aria-controls="admin-panel-girls"
+                            aria-selected={activeTab === 'girls'}
+                            className={`tab ${activeTab === 'girls' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('girls')}
+                        >
+                            טורניר בנות (נקודות)
+                        </button>
                     </>
                 )}
             </div>
@@ -719,6 +731,12 @@ const AdminPanel = () => {
                     <div className="card p-3">
                         <RosterManager />
                     </div>
+                </div>
+            )}
+
+            {activeTab === 'girls' && (
+                <div role="tabpanel" id="admin-panel-girls" aria-labelledby="admin-tab-girls" className="tab-content" tabIndex={0}>
+                    <GirlsSeasonAdmin />
                 </div>
             )}
         </div>

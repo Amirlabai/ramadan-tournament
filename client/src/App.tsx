@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
 import Teams from './pages/Teams';
 import Schedule from './pages/Schedule';
@@ -22,9 +22,36 @@ import ScrollToTop from './components/ScrollToTop';
 import PlayerZone from './pages/PlayerZone';
 import Archive from './pages/Archive';
 import Accessibility from './pages/Accessibility';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
 import './App.css';
 import { Analytics } from '@vercel/analytics/react';
 import { useState } from 'react';
+
+function AppRoutes() {
+  const location = useLocation();
+  return (
+    <RouteErrorBoundary key={location.pathname}>
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/teams" element={<Teams />} />
+        <Route path="/schedule" element={<Schedule />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/mvps" element={<MVPs />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/admin/login" element={<Login />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/player-zone" element={<PlayerZone />} />
+        <Route path="/archive" element={<Archive />} />
+        <Route path="/girls" element={<GirlsHome />} />
+        <Route path="/teams-girls" element={<GirlsTeams />} />
+        <Route path="/news-girls" element={<GirlsNews />} />
+        <Route path="/archive-girls" element={<GirlsArchive />} />
+        <Route path="/accessibility" element={<Accessibility />} />
+      </Routes>
+    </RouteErrorBoundary>
+  );
+}
 
 function App() {
   const [activeWidget, setActiveWidget] = useState<'none' | 'alarms'>('none');
@@ -66,24 +93,7 @@ function App() {
 
           {/* Main Content */}
           <main id="main-content" tabIndex={-1}>
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/teams" element={<Teams />} />
-              <Route path="/schedule" element={<Schedule />} />
-              <Route path="/stats" element={<Stats />} />
-              <Route path="/mvps" element={<MVPs />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/admin/login" element={<Login />} />
-              <Route path="/admin" element={<AdminPanel />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/player-zone" element={<PlayerZone />} />
-              <Route path="/archive" element={<Archive />} />
-              <Route path="/girls" element={<GirlsHome />} />
-              <Route path="/teams-girls" element={<GirlsTeams />} />
-              <Route path="/news-girls" element={<GirlsNews />} />
-              <Route path="/archive-girls" element={<GirlsArchive />} />
-              <Route path="/accessibility" element={<Accessibility />} />
-            </Routes>
+            <AppRoutes />
           </main>
         </div>
 
