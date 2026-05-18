@@ -248,7 +248,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
         if (!user) {
             // Brand new Google user — register them
-            user = new User({
+            const newUser = new User({
                 email: normalizedEmail,
                 googleId,
                 displayName: payload.name || normalizedEmail.split('@')[0],
@@ -256,7 +256,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                 googlePictureUrl: payload.picture,
                 role: 'User'
             });
-            await user.save();
+            user = await newUser.save();
         } else {
             // Existing user — ensure googleId is linked and Google picture URL is current
             let changed = false;
@@ -287,7 +287,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });

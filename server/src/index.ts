@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import mongoSanitize from 'express-mongo-sanitize';
 import rateLimit from 'express-rate-limit';
 import { connectDatabase } from './config/database';
 import { config } from './config/env';
@@ -15,7 +14,8 @@ import newsRoutes from './routes/news';
 import statsRoutes from './routes/stats';
 import adminRoutes from './routes/admin';
 import commentRoutes from './routes/comments';
-import iftarRoutes from './routes/iftarRoutes';
+import seasonsRoutes from './routes/seasons';
+import { pingRedis } from './config/redis';
 import playerRoutes from './routes/player';
 import voteRoutes from './routes/votes';
 import archiveRoutes from './routes/archive';
@@ -43,9 +43,6 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '1mb' }));
 
-// Strip MongoDB operator injection from all request inputs ($where, $gt etc)
-app.use(mongoSanitize());
-
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 // Fallback: also serve public/ for any files written there historically
 app.use(express.static(path.join(process.cwd(), 'public')));
@@ -61,8 +58,14 @@ app.use('/api/players', limiter); // Rate limit player auth too
 import userRoutes from './routes/users';
 
 // Routes
-app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+app.get('/api/health', async (req, res) => {
+    const redisOk = process.env.REDIS_URL ? await pingRedis() : null;
+    res.json({
+        status: 'ok',
+        database: 'postgres',
+        redis: redisOk === null ? 'disabled' : redisOk ? 'ok' : 'error',
+        timestamp: new Date().toISOString(),
+    });
 });
 
 app.use('/api/auth', authRoutes);
@@ -73,7 +76,7 @@ app.use('/api/news', newsRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
-app.use('/api/iftar', iftarRoutes);
+app.use('/api/seasons', seasonsRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/votes', voteRoutes);
 app.use('/api/archive', archiveRoutes);

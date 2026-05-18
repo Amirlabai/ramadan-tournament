@@ -4,14 +4,16 @@ services:
     env: node
     region: frankfurt  # or singapore for free tier
     plan: free
-    buildCommand: npm install && npm run build --workspace=server
+    buildCommand: npm install && npm run db:migrate --workspace=server && npm run build --workspace=server
     startCommand: npm start --workspace=server
     healthCheckPath: /api/health
     envVars:
       - key: NODE_ENV
         value: production
-      - key: MONGODB_URI
-        sync: false  # Set manually in Render dashboard
+      - key: DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
       - key: JWT_SECRET
         sync: false  # Set manually in Render dashboard
       - key: ADMIN_USERNAME

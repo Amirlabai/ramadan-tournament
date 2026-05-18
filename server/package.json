@@ -6,12 +6,20 @@
     "main": "dist/index.js",
     "scripts": {
         "dev": "tsx watch src/index.ts",
-        "build": "tsc",
+        "build": "prisma generate && tsc",
         "start": "node dist/index.js",
-        "migrate": "tsx src/scripts/migrate-data.ts"
+        "postinstall": "prisma generate",
+        "db:migrate": "prisma migrate deploy",
+        "db:push": "prisma db push",
+        "db:seed": "tsx prisma/seed.ts",
+        "db:studio": "prisma studio"
+    },
+    "prisma": {
+        "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
         "@google/generative-ai": "^0.24.1",
+        "@prisma/client": "^6.5.0",
         "@types/bcrypt": "^5.0.2",
         "@types/bcryptjs": "^2.4.6",
         "@types/cookie-parser": "^1.4.10",
@@ -28,14 +36,14 @@
         "csv-parse": "^6.1.0",
         "dotenv": "^16.4.1",
         "express": "^4.18.2",
-        "express-mongo-sanitize": "^2.2.0",
         "express-rate-limit": "^7.1.5",
         "google-auth-library": "^10.6.1",
         "helmet": "^8.1.0",
+        "ioredis": "^5.6.0",
         "jsonwebtoken": "^9.0.3",
-        "mongoose": "^8.1.0",
         "multer": "^2.0.2",
         "nodemailer": "^8.0.1",
+        "prisma": "^6.5.0",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
     },

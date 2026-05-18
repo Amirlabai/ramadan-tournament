@@ -1,11 +1,12 @@
 import { Request, Response } from 'express';
 import { News } from '../models/News';
 import { AuthRequest } from '../middleware/auth';
+import { NewsDataService } from '../services/NewsDataService';
 
 // Public: Get all news
 export const getAllNews = async (req: Request, res: Response): Promise<void> => {
     try {
-        const news = await News.find().sort({ date: -1 });
+        const news = await NewsDataService.getAllNews();
         res.json(news);
     } catch (error) {
         console.error('Get news error:', error);

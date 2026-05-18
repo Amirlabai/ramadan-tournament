@@ -1,62 +1,566 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { prisma } from '../lib/prisma';
+
+import { SeasonService } from '../services/SeasonService';
+
+
 
 export interface IPlayer {
-    memberId: number;
-    firstName: string;
-    lastName: string;
-    nickname: string;
-    number: number;
-    position: string;
-    isCaptain: boolean;
-    head_photo?: string;
-    pending_head_photo?: string;
-    bio?: string;
-    personalId?: string;
-    birthYear?: number;
+
+  memberId: number;
+
+  firstName: string;
+
+  lastName: string;
+
+  nickname: string;
+
+  number: number;
+
+  position: string;
+
+  isCaptain: boolean;
+
+  head_photo?: string;
+
+  pending_head_photo?: string;
+
+  bio?: string;
+
+  personalId?: string;
+
+  birthYear?: number;
+
+  toObject(): IPlayer;
+
 }
 
-export interface ITeam extends Document {
-    id: number;
-    name: string;
-    players: IPlayer[];
-    logoUrl?: string;
-    logoPosition?: 'left' | 'right' | 'none';
-    createdAt: Date;
+
+
+export interface ITeam {
+
+  id: number;
+
+  name: string;
+
+  players: IPlayer[];
+
+  logoUrl?: string;
+
+  logoPosition?: string;
+
+  seasonId?: string;
+
+  markModified(_field: string): void;
+
+  save(): Promise<ITeam>;
+
+  toObject(): ITeam;
+
 }
 
-const playerSchema = new Schema<IPlayer>({
-    memberId: { type: Number, required: true },
-    firstName: { type: String, required: true },
-    lastName: { type: String, default: '' },  // Optional - many players have single names
-    nickname: { type: String, default: '' },
-    number: { type: Number, required: true },
-    position: { type: String, default: '' },
-    isCaptain: { type: Boolean, default: false },
-    head_photo: { type: String, default: '' },
-    pending_head_photo: { type: String, default: '' },
-    bio: { type: String, default: '' },
-    personalId: { type: String, select: false }, // Protected field
-    birthYear: { type: Number },
-}, { _id: false });
 
-const teamSchema = new Schema<ITeam>({
-    id: {
-        type: Number,
-        required: true,
-        unique: true,
-    },
-    name: {
-        type: String,
-        required: true,
-        trim: true,
-    },
-    players: [playerSchema],
-    logoUrl: { type: String, default: '' },
-    logoPosition: { type: String, enum: ['left', 'right', 'none'], default: 'right' },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-    },
-});
 
-export const Team = mongoose.model<ITeam>('Team', teamSchema);
+function mapPlayer(p: any): IPlayer {
+
+  const player: IPlayer = {
+
+    memberId: p.memberId,
+
+    firstName: p.firstName,
+
+    lastName: p.lastName,
+
+    nickname: p.nickname,
+
+    number: p.number,
+
+    position: p.position,
+
+    isCaptain: p.isCaptain,
+
+    head_photo: p.headPhoto || '',
+
+    pending_head_photo: p.pendingHeadPhoto || '',
+
+    bio: p.bio || '',
+
+    personalId: p.personalIdEnc || undefined,
+
+    birthYear: p.birthYear ?? undefined,
+
+    toObject() {
+
+      return { ...player };
+
+    },
+
+  };
+
+  return player;
+
+}
+
+
+
+function mapTeam(row: any, players: any[]): ITeam {
+
+  const team: ITeam = {
+
+    id: row.id,
+
+    name: row.name,
+
+    logoUrl: row.logoUrl || '',
+
+    logoPosition: row.logoPosition || 'right',
+
+    seasonId: row.seasonId,
+
+    players: players.map(mapPlayer),
+
+    markModified() {},
+
+    async save() {
+
+      for (const pl of team.players) {
+
+        await prisma.player.upsert({
+
+          where: { memberId: pl.memberId },
+
+          create: {
+
+            memberId: pl.memberId,
+
+            teamId: team.id,
+
+            seasonId: team.seasonId!,
+
+            firstName: pl.firstName,
+
+            lastName: pl.lastName,
+
+            nickname: pl.nickname,
+
+            number: pl.number,
+
+            position: pl.position,
+
+            isCaptain: pl.isCaptain,
+
+            headPhoto: pl.head_photo,
+
+            pendingHeadPhoto: pl.pending_head_photo,
+
+            bio: pl.bio,
+
+            personalIdEnc: pl.personalId,
+
+            birthYear: pl.birthYear,
+
+          },
+
+          update: {
+
+            firstName: pl.firstName,
+
+            lastName: pl.lastName,
+
+            nickname: pl.nickname,
+
+            number: pl.number,
+
+            position: pl.position,
+
+            isCaptain: pl.isCaptain,
+
+            headPhoto: pl.head_photo,
+
+            pendingHeadPhoto: pl.pending_head_photo,
+
+            bio: pl.bio,
+
+            personalIdEnc: pl.personalId,
+
+            birthYear: pl.birthYear,
+
+          },
+
+        });
+
+      }
+
+      await prisma.team.update({
+
+        where: { seasonId_id: { seasonId: team.seasonId!, id: team.id } },
+
+        data: {
+
+          name: team.name,
+
+          logoUrl: team.logoUrl,
+
+          logoPosition: team.logoPosition,
+
+        },
+
+      });
+
+      return team;
+
+    },
+
+    toObject() {
+
+      return {
+
+        ...team,
+
+        players: team.players.map((p) => p.toObject()),
+
+      };
+
+    },
+
+  };
+
+  return team;
+
+}
+
+
+
+async function loadTeams(where: Record<string, unknown>, sort?: { id?: 1 | -1 }): Promise<ITeam[]> {
+
+  const season = await SeasonService.getActiveFootballSeason();
+
+  const teams = await prisma.team.findMany({
+
+    where: { seasonId: season.id, ...where },
+
+    include: { players: { where: { active: true } } },
+
+    orderBy: sort?.id ? { id: sort.id === 1 ? 'asc' : 'desc' } : undefined,
+
+  });
+
+  return teams.map((t) => mapTeam(t, t.players));
+
+}
+
+
+
+type TeamFilter = Record<string, unknown>;
+
+
+
+async function findTeams(filter: TeamFilter): Promise<ITeam[]> {
+
+  const season = await SeasonService.getActiveFootballSeason();
+
+
+
+  if (filter['players.memberId']) {
+
+    const raw = filter['players.memberId'];
+
+    if (typeof raw === 'object' && raw !== null && '$in' in raw) {
+
+      const ids = (raw as { $in: number[] }).$in;
+
+      const teams = await loadTeams({});
+
+      return teams.filter((t) => t.players.some((p) => ids.includes(p.memberId)));
+
+    }
+
+    const memberId = raw as number;
+
+    const player = await prisma.player.findFirst({
+
+      where: { seasonId: season.id, memberId },
+
+    });
+
+    if (!player) return [];
+
+    const team = await prisma.team.findFirst({
+
+      where: { seasonId: season.id, id: player.teamId },
+
+      include: { players: { where: { active: true } } },
+
+    });
+
+    return team ? [mapTeam(team, team.players)] : [];
+
+  }
+
+
+
+  if (filter.players && typeof filter.players === 'object') {
+    const players = filter.players as {
+      personalId?: string;
+      $elemMatch?: { personalId?: string; birthYear?: number };
+    };
+    if (players.$elemMatch?.personalId) {
+      const player = await prisma.player.findFirst({
+        where: {
+          seasonId: season.id,
+          personalIdEnc: players.$elemMatch.personalId,
+          ...(players.$elemMatch.birthYear !== undefined
+            ? { birthYear: players.$elemMatch.birthYear }
+            : {}),
+        },
+      });
+      if (!player) return [];
+      const team = await prisma.team.findFirst({
+        where: { seasonId: season.id, id: player.teamId },
+        include: { players: { where: { active: true } } },
+      });
+      return team ? [mapTeam(team, team.players)] : [];
+    }
+
+    const personalId = players.personalId;
+
+    if (personalId) {
+
+      const player = await prisma.player.findFirst({
+
+        where: { seasonId: season.id, personalIdEnc: personalId },
+
+      });
+
+      if (!player) return [];
+
+      const team = await prisma.team.findFirst({
+
+        where: { seasonId: season.id, id: player.teamId },
+
+        include: { players: { where: { active: true } } },
+
+      });
+
+      return team ? [mapTeam(team, team.players)] : [];
+
+    }
+
+  }
+
+
+
+  if (filter['players.personalId']) {
+
+    const player = await prisma.player.findFirst({
+
+      where: { seasonId: season.id, personalIdEnc: filter['players.personalId'] as string },
+
+    });
+
+    if (!player) return [];
+
+    const team = await prisma.team.findFirst({
+
+      where: { seasonId: season.id, id: player.teamId },
+
+      include: { players: { where: { active: true } } },
+
+    });
+
+    return team ? [mapTeam(team, team.players)] : [];
+
+  }
+
+
+
+  if (filter.id !== undefined) {
+
+    const team = await prisma.team.findFirst({
+
+      where: { seasonId: season.id, id: filter.id as number },
+
+      include: { players: { where: { active: true } } },
+
+    });
+
+    return team ? [mapTeam(team, team.players)] : [];
+
+  }
+
+
+
+  return loadTeams({});
+
+}
+
+
+
+function teamChain<T>(load: () => Promise<T>): {
+
+  sort(sort: { id?: 1 | -1 }): ReturnType<typeof teamChain<T>>;
+
+  select(_fields: string): Promise<T>;
+
+  lean(): Promise<T>;
+
+  then(resolve: (v: T) => void, reject?: (e: unknown) => void): void;
+
+} {
+
+  let sortOpt: { id?: 1 | -1 } | undefined;
+
+  const exec = async (): Promise<T> => {
+
+    if (sortOpt) {
+
+      return loadTeams({}, sortOpt) as unknown as T;
+
+    }
+
+    return load();
+
+  };
+
+  const c = {
+
+    sort(sort: { id?: 1 | -1 }) {
+
+      sortOpt = sort;
+
+      return c;
+
+    },
+
+    select: async () => exec(),
+
+    lean: async () => exec(),
+
+    then(resolve: (v: T) => void, reject?: (e: unknown) => void) {
+
+      exec().then(resolve, reject);
+
+    },
+
+  };
+
+  return c;
+
+}
+
+
+
+export class Team {
+
+  id?: number;
+
+  name?: string;
+
+  players: IPlayer[] = [];
+
+  logoUrl?: string;
+
+  logoPosition?: string;
+
+  seasonId?: string;
+
+
+
+  constructor(data: Partial<ITeam>) {
+
+    Object.assign(this, data);
+
+  }
+
+
+
+  markModified(_field: string) {}
+
+
+
+  async save(): Promise<ITeam> {
+
+    const season = await SeasonService.getActiveFootballSeason();
+
+    this.seasonId = season.id;
+
+    if (!this.id) {
+
+      const max = await prisma.team.findFirst({
+
+        where: { seasonId: season.id },
+
+        orderBy: { id: 'desc' },
+
+      });
+
+      this.id = (max?.id ?? 0) + 1;
+
+      await prisma.team.create({
+
+        data: {
+
+          id: this.id,
+
+          seasonId: season.id,
+
+          name: this.name!,
+
+          logoUrl: this.logoUrl,
+
+          logoPosition: this.logoPosition,
+
+        },
+
+      });
+
+    }
+
+    return mapTeam({ ...this, seasonId: season.id }, this.players).save();
+
+  }
+
+
+
+  static find(filter: TeamFilter = {}, _projection?: Record<string, unknown>) {
+
+    return teamChain(() => findTeams(filter));
+
+  }
+
+
+
+  static findOne(filter: TeamFilter = {}) {
+
+    return teamChain(async () => {
+
+      const teams = await findTeams(filter);
+
+      return teams[0] ?? null;
+
+    });
+
+  }
+
+
+
+  static async insertMany(_docs: unknown[]) {
+
+    throw new Error('Use prisma db seed instead of insertMany');
+
+  }
+
+
+
+  static async deleteMany(_filter: Record<string, unknown> = {}) {
+
+    const season = await SeasonService.getActiveFootballSeason();
+
+    await prisma.player.deleteMany({ where: { seasonId: season.id } });
+
+    await prisma.team.deleteMany({ where: { seasonId: season.id } });
+
+  }
+
+}
+
+

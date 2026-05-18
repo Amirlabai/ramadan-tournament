@@ -2,33 +2,12 @@ import { Request, Response } from 'express';
 import { Match } from '../models/Match';
 import { AuthRequest } from '../middleware/auth';
 import { PlayoffService } from '../services/PlayoffService';
+import { MatchDataService } from '../services/MatchDataService';
 
 // Public: Get all matches
 export const getAllMatches = async (req: Request, res: Response): Promise<void> => {
     try {
-        const matches = await Match.aggregate([
-            {
-                $lookup: {
-                    from: 'comments',
-                    localField: 'id',
-                    foreignField: 'matchId',
-                    as: 'comments'
-                }
-            },
-            {
-                $addFields: {
-                    commentCount: { $size: '$comments' }
-                }
-            },
-            {
-                $project: {
-                    comments: 0
-                }
-            },
-            {
-                $sort: { date: -1 }
-            }
-        ]);
+        const matches = await MatchDataService.getAllMatchesDocument();
         res.json(matches);
     } catch (error) {
         console.error('Get matches error:', error);

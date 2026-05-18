@@ -4,34 +4,11 @@ import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
-import { StatsService } from '../services/StatsService';
+import { TeamDataService } from '../services/TeamDataService';
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
     try {
-        const [teams, stats] = await Promise.all([
-            Team.find().sort({ id: 1 }).select('+players.personalId'),
-            StatsService.calculatePlayerStats()
-        ]);
-
-        const statsMap = new Map<number, any>(stats.map(s => [s.memberId, s]));
-
-        const sanitizedTeams = teams.map((team: any) => {
-            const teamObj = team.toObject();
-            teamObj.players = teamObj.players.map((player: any) => {
-                const playerStats = statsMap.get(player.memberId);
-                const hasPersonalId = !!player.personalId && player.personalId !== '';
-                // Remove the actual personalId from the response
-                const { personalId, ...playerData } = player;
-                return {
-                    ...playerData,
-                    hasPersonalId,
-                    totalGoals: playerStats?.goals || 0,
-                    gamesPlayed: playerStats?.gamesPlayed || 0
-                };
-            });
-            return teamObj;
-        });
-
+        const sanitizedTeams = await TeamDataService.getTeamsDocument();
         res.json(sanitizedTeams);
     } catch (error) {
         console.error('Get teams error:', error);
@@ -41,32 +18,12 @@ export const getTeams = async (req: Request, res: Response): Promise<void> => {
 
 export const getTeamById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const [team, stats] = await Promise.all([
-            Team.findOne({ id: parseInt(req.params.id) }).select('+players.personalId'),
-            StatsService.calculatePlayerStats()
-        ]);
-
+        const team = await TeamDataService.getTeamById(parseInt(req.params.id));
         if (!team) {
             res.status(404).json({ error: 'Team not found' });
             return;
         }
-
-        const statsMap = new Map<number, any>(stats.map((s: any) => [s.memberId, s]));
-
-        const teamObj = team.toObject();
-        teamObj.players = teamObj.players.map((player: any) => {
-            const playerStats = statsMap.get(player.memberId);
-            const hasPersonalId = !!player.personalId && player.personalId !== '';
-            const { personalId, ...playerData } = player;
-            return {
-                ...playerData,
-                hasPersonalId,
-                totalGoals: playerStats?.goals || 0,
-                gamesPlayed: playerStats?.gamesPlayed || 0
-            };
-        });
-
-        res.json(teamObj);
+        res.json(team);
     } catch (error) {
         console.error('Get team error:', error);
         res.status(500).json({ error: 'Server error' });
@@ -243,7 +200,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
         }
 
         // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
         const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
 
@@ -287,7 +244,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         }
 
         // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
         const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
 
@@ -337,7 +294,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         }
 
         // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
         const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
 

@@ -14,9 +14,12 @@ export class AutomationService {
     // ── Snapshot persistence ──────────────────────────────────────────────
 
     static async loadLastSnapshot(): Promise<{ standings: StandingsEntry[]; topScorers: TopScorer[] } | null> {
-        const doc = await Snapshot.findOne().sort({ savedAt: -1 });
+        const doc = await Snapshot.findOne().sort({ savedAt: -1 }).exec();
         if (!doc) return null;
-        return { standings: doc.standings as StandingsEntry[], topScorers: doc.topScorers as TopScorer[] };
+        return {
+            standings: doc.standings as unknown as StandingsEntry[],
+            topScorers: doc.topScorers as unknown as TopScorer[],
+        };
     }
 
     static async saveSnapshot(standings: StandingsEntry[], topScorers: TopScorer[]): Promise<void> {
@@ -112,7 +115,6 @@ export class AutomationService {
             message: summary,
             date: now,
             priority: 'normal',
-            createdAt: now,
         });
 
         return nextId;

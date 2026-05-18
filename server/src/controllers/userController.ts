@@ -10,7 +10,7 @@ import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../s
 // Voluntary leave team
 export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
@@ -44,7 +44,7 @@ export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> 
 
 export const requestPlayerMapping = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
@@ -149,7 +149,7 @@ export const requestPlayerMapping = async (req: AuthRequest, res: Response): Pro
 // ── User edits their own player info ─────────────────────────────────────────
 export const updatePlayerProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) { res.status(404).json({ error: 'User not found' }); return; }
 
         if (!user.mappedPlayerInfo) {
@@ -218,7 +218,7 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
             return;
         }
 
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;
@@ -268,7 +268,7 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
 
 export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) { res.status(404).json({ error: 'User not found' }); return; }
 
         // Delete the local file if the current avatar is an uploaded one
@@ -320,7 +320,7 @@ export const requestTeamCreation = async (req: AuthRequest, res: Response): Prom
             return;
         }
 
-        const user = await User.findById(req.userId);
+        const user = await User.findById(req.userId!);
         if (!user) {
             res.status(404).json({ error: 'User not found' });
             return;

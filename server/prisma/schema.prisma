@@ -1,0 +1,415 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  admin
+  user
+}
+
+enum Division {
+  boys
+  girls
+}
+
+enum ScoringMode {
+  football
+  points
+}
+
+enum SquadRole {
+  captain
+  goalkeeper
+  attack
+  defense
+}
+
+enum TeamStatus {
+  pending
+  active
+  rejected
+}
+
+enum RequestStatus {
+  pending
+  owner_approved
+  approved
+  rejected
+  invalidated
+}
+
+enum SeasonRegistrationStatus {
+  none
+  join_pending
+  awaiting_invoice
+  invoice_assigned
+  active
+  archived
+}
+
+enum MatchPhase {
+  group
+  knockout
+}
+
+enum NewsPriority {
+  normal
+  high
+}
+
+model Season {
+  id          String      @id @default(uuid())
+  yearMonth   String      @map("year_month")
+  division    Division
+  displayName String      @map("display_name")
+  scoringMode ScoringMode @map("scoring_mode")
+  isActive    Boolean     @default(false) @map("is_active")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  teams                Team[]
+  matches              Match[]
+  news                 News[]
+  votes                Vote[]
+  statsSnapshots       StatsSnapshot[]
+  pointEntries         PointEntry[]
+  bracketSlots         BracketSlot[]
+  invoiceCodes         InvoiceCode[]
+  seasonRegistrations  SeasonRegistration[]
+  teamCreationRequests TeamCreationRequest[]
+  teamJoinRequests     TeamJoinRequest[]
+  teamTransferRequests TeamTransferRequest[]
+
+  @@unique([yearMonth, division])
+  @@map("seasons")
+}
+
+model User {
+  id                       String    @id @default(uuid())
+  username                 String?   @unique
+  email                    String?   @unique
+  password                 String?
+  googleId                 String?   @unique @map("google_id")
+  displayName              String    @default("User") @map("display_name")
+  avatarUrl                String?   @map("avatar_url")
+  googlePictureUrl         String?   @map("google_picture_url")
+  role                     UserRole  @default(user)
+  activeDivision           Division? @map("active_division")
+  isVerified               Boolean   @default(false) @map("is_verified")
+  verificationToken        String?   @map("verification_token")
+  verificationTokenExpires DateTime? @map("verification_token_expires")
+  mappedPlayerInfo         Json?     @map("mapped_player_info")
+  playerProfile            Json?     @map("player_profile")
+  pendingTeamRequest       Json?     @map("pending_team_request")
+  createdAt                DateTime  @default(now()) @map("created_at")
+  updatedAt                DateTime  @updatedAt @map("updated_at")
+
+  ownedTeams           Team[]                @relation("TeamOwner")
+  players              Player[]
+  votes                Vote[]
+  newsCreated          News[]                @relation("NewsAuthor")
+  matchesCreated       Match[]               @relation("MatchCreator")
+  invoiceCodesAssigned InvoiceCode[]         @relation("InvoiceAssignee")
+  invoiceCodesCreated  InvoiceCode[]         @relation("InvoiceCreator")
+  seasonRegistrations  SeasonRegistration[]
+  teamCreationRequests TeamCreationRequest[]
+  teamJoinRequests     TeamJoinRequest[]
+  teamTransferRequests TeamTransferRequest[]
+  pointEntriesRecorded PointEntry[]
+
+  @@map("users")
+}
+
+model SeasonRegistration {
+  id         String                   @id @default(uuid())
+  userId     String                   @map("user_id")
+  seasonId   String                   @map("season_id")
+  division   Division
+  status     SeasonRegistrationStatus @default(none)
+  redeemedAt DateTime?                @map("redeemed_at")
+  createdAt  DateTime                 @default(now()) @map("created_at")
+  updatedAt  DateTime                 @updatedAt @map("updated_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, seasonId])
+  @@map("season_registrations")
+}
+
+model InvoiceCode {
+  id             String    @id @default(uuid())
+  seasonId       String    @map("season_id")
+  codeHash       String    @map("code_hash")
+  assignedUserId String    @map("assigned_user_id")
+  createdById    String?   @map("created_by_id")
+  redeemedAt     DateTime? @map("redeemed_at")
+  createdAt      DateTime  @default(now()) @map("created_at")
+
+  season       Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  assignedUser User   @relation("InvoiceAssignee", fields: [assignedUserId], references: [id], onDelete: Cascade)
+  createdBy    User?  @relation("InvoiceCreator", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@map("invoice_codes")
+}
+
+model Team {
+  id           Int        @id
+  seasonId     String     @map("season_id")
+  name         String
+  logoUrl      String?    @map("logo_url")
+  logoPosition String?    @default("right") @map("logo_position")
+  status       TeamStatus @default(active)
+  ownerUserId  String?    @map("owner_user_id")
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  season              Season              @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  owner               User?               @relation("TeamOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  players             Player[]
+  homeMatches         Match[]             @relation("HomeTeam")
+  awayMatches         Match[]             @relation("AwayTeam")
+  votes               Vote[]
+  pointEntries        PointEntry[]
+  teamJoinRequests    TeamJoinRequest[]
+
+  @@unique([seasonId, id])
+  @@map("teams")
+}
+
+model Player {
+  memberId         Int        @id @map("member_id")
+  teamId           Int        @map("team_id")
+  seasonId         String     @map("season_id")
+  userId           String?    @map("user_id")
+  firstName        String     @map("first_name")
+  lastName         String     @default("") @map("last_name")
+  nickname         String     @default("")
+  number           Int
+  position         String     @default("")
+  squadRole        SquadRole? @map("squad_role")
+  isCaptain        Boolean    @default(false) @map("is_captain")
+  headPhoto        String?    @map("head_photo")
+  pendingHeadPhoto String?    @map("pending_head_photo")
+  bio              String     @default("")
+  personalIdEnc    String?    @map("personal_id_enc")
+  birthYear        Int?       @map("birth_year")
+  active           Boolean    @default(true)
+  createdAt        DateTime   @default(now()) @map("created_at")
+
+  team  Team  @relation(fields: [seasonId, teamId], references: [seasonId, id], onDelete: Cascade)
+  user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  goals Goal[]
+
+  @@unique([seasonId, teamId, number])
+  @@map("players")
+}
+
+model Match {
+  id          Int        @id
+  seasonId    String     @map("season_id")
+  date        DateTime   @db.Timestamptz
+  location    String
+  phase       MatchPhase @default(group)
+  team1Id     Int        @map("team1_id")
+  team2Id     Int        @map("team2_id")
+  score1      Int?
+  score2      Int?
+  createdById String?    @map("created_by_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  season       Season        @relation(fields: [seasonId], references: [id], onDelete: Restrict)
+  team1        Team          @relation("HomeTeam", fields: [seasonId, team1Id], references: [seasonId, id])
+  team2        Team          @relation("AwayTeam", fields: [seasonId, team2Id], references: [seasonId, id])
+  createdBy    User?         @relation("MatchCreator", fields: [createdById], references: [id], onDelete: SetNull)
+  goals        Goal[]
+  comments     Comment[]
+  bracketSlots BracketSlot[]
+
+  @@unique([seasonId, id])
+  @@map("matches")
+}
+
+model Goal {
+  id        String  @id @default(uuid())
+  matchId   Int     @map("match_id")
+  seasonId  String  @map("season_id")
+  memberId  Int     @map("member_id")
+  minute    Int?
+  isOwnGoal Boolean @default(false) @map("is_own_goal")
+
+  match  Match  @relation(fields: [seasonId, matchId], references: [seasonId, id], onDelete: Cascade)
+  player Player @relation(fields: [memberId], references: [memberId], onDelete: Restrict)
+
+  @@map("goals")
+}
+
+model BracketSlot {
+  id        String @id @default(uuid())
+  seasonId  String @map("season_id")
+  slotKey   String @map("slot_key")
+  round     String
+  slotOrder Int    @map("slot_order")
+  matchId   Int?   @map("match_id")
+  team1Id   Int?   @map("team1_id")
+  team2Id   Int?   @map("team2_id")
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  match  Match? @relation(fields: [seasonId, matchId], references: [seasonId, id], onDelete: SetNull)
+
+  @@unique([seasonId, slotKey])
+  @@map("bracket_slots")
+}
+
+model News {
+  id          Int          @id
+  seasonId    String       @map("season_id")
+  title       String
+  message     String
+  date        DateTime     @db.Timestamptz
+  priority    NewsPriority @default(normal)
+  createdById String?      @map("created_by_id")
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  season    Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  createdBy User?  @relation("NewsAuthor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@unique([seasonId, id])
+  @@map("news")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  matchId   Int      @map("match_id")
+  seasonId  String   @map("season_id")
+  author    String   @default("Anonymous")
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  match Match @relation(fields: [seasonId, matchId], references: [seasonId, id], onDelete: Cascade)
+
+  @@index([seasonId, matchId])
+  @@map("comments")
+}
+
+model Vote {
+  id             String @id @default(uuid())
+  userId         String @map("user_id")
+  seasonId       String @map("season_id")
+  category       String @default("mvp")
+  playerMemberId Int?   @map("player_member_id")
+  teamId         Int?   @map("team_id")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  team   Team?  @relation(fields: [seasonId, teamId], references: [seasonId, id], onDelete: SetNull)
+
+  @@unique([userId, seasonId, category])
+  @@map("votes")
+}
+
+model StatsSnapshot {
+  id         String   @id @default(uuid())
+  seasonId   String   @map("season_id")
+  standings  Json
+  topScorers Json     @map("top_scorers")
+  savedAt    DateTime @default(now()) @map("saved_at")
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@map("stats_snapshots")
+}
+
+model SeasonArchive {
+  seasonId    String   @id @map("season_id")
+  yearMonth   String   @map("year_month")
+  division    Division
+  displayName String   @map("display_name")
+  winner      Json
+  topScorer   Json     @map("top_scorer")
+  mvp         Json?
+  standings   Json
+  topScorers  Json     @map("top_scorers")
+  playoffs    Json
+  summary     String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@unique([yearMonth, division])
+  @@map("season_archives")
+}
+
+model PointEntry {
+  id           String   @id @default(uuid())
+  seasonId     String   @map("season_id")
+  teamId       Int      @map("team_id")
+  points       Int
+  note         String?
+  recordedById String?  @map("recorded_by_id")
+  recordedAt   DateTime @default(now()) @map("recorded_at")
+
+  season     Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  team       Team   @relation(fields: [seasonId, teamId], references: [seasonId, id], onDelete: Cascade)
+  recordedBy User?  @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+
+  @@map("point_entries")
+}
+
+model TeamCreationRequest {
+  id          String        @id @default(uuid())
+  userId      String        @map("user_id")
+  seasonId    String        @map("season_id")
+  teamName    String        @map("team_name")
+  description String        @default("")
+  status      RequestStatus @default(pending)
+  createdAt   DateTime      @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@map("team_creation_requests")
+}
+
+model TeamJoinRequest {
+  id              String        @id @default(uuid())
+  userId          String        @map("user_id")
+  seasonId        String        @map("season_id")
+  teamId          Int           @map("team_id")
+  status          RequestStatus @default(pending)
+  ownerReviewedAt DateTime?     @map("owner_reviewed_at")
+  ownerReviewedBy String?       @map("owner_reviewed_by")
+  adminReviewedAt DateTime?     @map("admin_reviewed_at")
+  adminReviewedBy String?       @map("admin_reviewed_by")
+  createdAt       DateTime      @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [seasonId, teamId], references: [seasonId, id], onDelete: Cascade)
+
+  @@map("team_join_requests")
+}
+
+model TeamTransferRequest {
+  id         String        @id @default(uuid())
+  userId     String        @map("user_id")
+  seasonId   String        @map("season_id")
+  fromTeamId Int           @map("from_team_id")
+  toTeamId   Int           @map("to_team_id")
+  status     RequestStatus @default(pending)
+  createdAt  DateTime      @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@map("team_transfer_requests")
+}
+
+model BannedWord {
+  id       String @id @default(uuid())
+  word     String @unique
+  language String @default("he")
+
+  @@map("banned_words")
+}

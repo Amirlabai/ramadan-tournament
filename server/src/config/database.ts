@@ -1,31 +1,27 @@
-import mongoose from 'mongoose';
-import { config } from './env';
+import { prisma } from '../lib/prisma';
+import { connectRedis, disconnectRedis } from './redis';
 
-export const connectDatabase = async (): Promise<void> => {
-    try {
-        await mongoose.connect(config.mongoUri);
-        console.log('✅ MongoDB connected successfully');
+export async function connectDatabase(): Promise<void> {
+  await prisma.$connect();
+  console.log('PostgreSQL connected');
 
-        // Drop the legacy non-sparse username index so Mongoose recreates it as sparse.
-        // This fixes E11000 duplicate key { username: null } for Google OAuth users.
-        try {
-            await mongoose.connection.collection('users').dropIndex('username_1');
-            console.log('ℹ️ Dropped legacy username_1 index — will be recreated as sparse.');
-        } catch (e: any) {
-            // Index already dropped or doesn't exist — that's fine
-            if (e.codeName !== 'IndexNotFound') {
-                console.warn('⚠️ Index drop warning:', e.message);
-            }
-        }
-    } catch (error) {
-        console.error('❌ MongoDB connection error:', error);
-        process.exit(1);
-    }
-};
+  if (process.env.REDIS_URL) {
+    await connectRedis();
+    console.log('Redis connected');
+  } else if (process.env.NODE_ENV === 'production') {
+    throw new Error('REDIS_URL is required in production');
+  } else {
+    console.warn('REDIS_URL not set — cache disabled in development');
+  }
+}
 
-// Graceful shutdown
+export async function disconnectDatabase(): Promise<void> {
+  await disconnectRedis();
+  await prisma.$disconnect();
+  console.log('Database connections closed');
+}
+
 process.on('SIGINT', async () => {
-    await mongoose.connection.close();
-    console.log('MongoDB connection closed');
-    process.exit(0);
+  await disconnectDatabase();
+  process.exit(0);
 });

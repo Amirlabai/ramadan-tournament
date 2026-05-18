@@ -2,13 +2,14 @@
 
 ## Tech Stack
 - **Frontend**: React 18, Vite, TypeScript, Bootstrap 5.
-- **Backend**: Node.js, Express, MongoDB (Mongoose), TypeScript.
-- **Data**: JSON and JS files in `data/` directory for static/hydrated data.
-- **DevOps**: Render (Backend), Vercel (Frontend), GitHub Actions (Automation).
+- **Backend**: Node.js, Express, **PostgreSQL (Prisma)**, **Redis (ioredis)**, TypeScript.
+- **Data**: JSON in `data/` for bootstrap seed; Postgres for runtime.
+- **DevOps**: Render (API + Postgres + Redis), Vercel (Frontend).
 
 ## Architecture
-- **Monorepo**: contains both `client`, `server`, and root-level automation scripts.
-- **Data Layer**: Uses a hybrid approach with MongoDB for dynamic content (matches, news, stats) and static files in `data/` for some reference datasets.
+- **Monorepo**: `client`, `server`, `data/`, `.incoming/` (PRD and drops).
+- **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Legacy controllers use thin Mongoose-shaped adapters over Prisma.
+- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set.
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`) and fetching external alarm data periodically (`fetch_alarms.py`).
 
 ## Accessibility (Israeli Standard IS 5568)

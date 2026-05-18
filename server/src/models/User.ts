@@ -1,129 +1,234 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import { prisma } from '../lib/prisma';
+import { prismaUserToIUser, IUser, UserRole, IMappedPlayerInfo, IPendingTeamRequest, IPlayerProfile } from '../db/userMapper';
+import { toInputJson } from '../lib/json';
 
-export type UserRole = 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';
+export type { IUser, UserRole, IMappedPlayerInfo, IPendingTeamRequest, IPlayerProfile };
 
-export interface IMappedPlayerInfo {
-    teamId: number;
-    memberId: number;
-    status: 'pending' | 'approved' | 'rejected';
+function buildWhere(query: Record<string, unknown>) {
+  const where: Record<string, unknown> = {};
+  if (query.email) where.email = String(query.email).toLowerCase();
+  if (query.username) where.username = query.username;
+  if (query.googleId) where.googleId = query.googleId;
+  if (query.verificationToken) where.verificationToken = query.verificationToken;
+  if (query.verificationTokenExpires && typeof query.verificationTokenExpires === 'object') {
+    const gt = (query.verificationTokenExpires as { $gt?: Date }).$gt;
+    if (gt) where.verificationTokenExpires = { gt };
+  }
+  if (query['mappedPlayerInfo.teamId']) where.mappedPlayerInfo = { path: ['teamId'], equals: query['mappedPlayerInfo.teamId'] };
+  return where;
 }
 
-export interface IPendingTeamRequest {
-    teamName: string;
-    description: string;
-    status: 'pending' | 'approved' | 'rejected';
-}
+export class User {
+  _id?: string;
+  id?: string;
+  username?: string;
+  email?: string;
+  password?: string;
+  googleId?: string;
+  displayName!: string;
+  avatarUrl?: string;
+  googlePictureUrl?: string;
+  role: UserRole = 'User';
+  mappedPlayerInfo?: IMappedPlayerInfo;
+  playerProfile?: IPlayerProfile;
+  pendingTeamRequest?: IPendingTeamRequest;
+  isVerified = false;
+  verificationToken?: string;
+  verificationTokenExpires?: Date;
 
-export interface IPlayerProfile {
-    firstName?: string;
-    lastName?: string;
-    nickname?: string;
-    number?: number;
-    position?: string;
-    bio?: string;
-}
+  constructor(data: Partial<IUser> & Record<string, unknown>) {
+    Object.assign(this, data);
+    if (data._id) this.id = data._id as string;
+  }
 
-export interface IUser extends Document {
-    username?: string; // Kept for backward compatibility with old hardcoded admin
-    email?: string;
-    password?: string; // Kept as password instead of passwordHash for backward compat
-    googleId?: string;
-    displayName: string;
-    avatarUrl?: string;
-    googlePictureUrl?: string;
-    role: UserRole;
-    mappedPlayerInfo?: IMappedPlayerInfo;
-    playerProfile?: IPlayerProfile; // Editable player info (custom or override of claimed slot)
-    pendingTeamRequest?: IPendingTeamRequest;
-    isVerified: boolean;
-    verificationToken?: string;
-    verificationTokenExpires?: Date;
-    createdAt: Date;
-    updatedAt: Date;
-}
+  async save(): Promise<IUser> {
+    const role = this.role === 'admin' || this.role === 'Admin' ? 'admin' : 'user';
+    const data = {
+      username: this.username,
+      email: this.email?.toLowerCase(),
+      password: this.password,
+      googleId: this.googleId,
+      displayName: this.displayName || 'User',
+      avatarUrl: this.avatarUrl,
+      googlePictureUrl: this.googlePictureUrl,
+      role: role as 'admin' | 'user',
+      mappedPlayerInfo: toInputJson(this.mappedPlayerInfo),
+      playerProfile: toInputJson(this.playerProfile),
+      pendingTeamRequest: toInputJson(this.pendingTeamRequest),
+      isVerified: this.isVerified,
+      verificationToken: this.verificationToken,
+      verificationTokenExpires: this.verificationTokenExpires,
+    };
 
-const mappedPlayerInfoSchema = new Schema<IMappedPlayerInfo>({
-    teamId: { type: Number, required: true },
-    memberId: { type: Number, required: true },
-    status: {
-        type: String,
-        enum: ['pending', 'approved', 'rejected'],
-        default: 'pending'
+    if (this.id || this._id) {
+      const updated = await prisma.user.update({
+        where: { id: (this.id || this._id) as string },
+        data,
+      });
+      return prismaUserToIUser(updated);
     }
-}, { _id: false });
 
-const userSchema = new Schema<IUser>({
-    username: {
-        type: String,
-        unique: true,
-        sparse: true,
-        trim: true,
-    },
-    email: {
-        type: String,
-        unique: true,
-        sparse: true,
-        trim: true,
-        lowercase: true
-    },
-    password: {
-        type: String,
-        select: false
-    },
-    googleId: {
-        type: String,
-        sparse: true,
-        unique: true
-    },
-    displayName: {
-        type: String,
-        default: 'Admin' // Default for backward compatibility
-    },
-    avatarUrl: {
-        type: String
-    },
-    googlePictureUrl: {
-        type: String
-    },
-    role: {
-        type: String,
-        enum: ['Admin', 'Captain', 'Player', 'User', 'admin'],
-        default: 'User'
-    },
-    mappedPlayerInfo: {
-        type: mappedPlayerInfoSchema,
-        required: false
-    },
-    playerProfile: {
-        type: new Schema({
-            firstName: { type: String, default: '' },
-            lastName: { type: String, default: '' },
-            nickname: { type: String, default: '' },
-            number: { type: Number },
-            position: { type: String, default: '' }
-        }, { _id: false }),
-        required: false
-    },
-    pendingTeamRequest: {
-        type: new Schema({
-            teamName: { type: String, required: true },
-            description: { type: String, default: '' },
-            status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' }
-        }, { _id: false }),
-        required: false
-    },
-    isVerified: {
-        type: Boolean,
-        default: false
-    },
-    verificationToken: {
-        type: String,
-        required: false
-    },
-    verificationTokenExpires: {
-        type: Date,
-        required: false
+    const created = await prisma.user.create({ data });
+    const mapped = prismaUserToIUser(created);
+    this._id = mapped._id;
+    this.id = mapped.id;
+    return mapped;
+  }
+
+  toObject(): IUser {
+    return prismaUserToIUser({
+      id: this.id || this._id || '',
+      username: this.username ?? null,
+      email: this.email ?? null,
+      password: this.password ?? null,
+      googleId: this.googleId ?? null,
+      displayName: this.displayName,
+      avatarUrl: this.avatarUrl ?? null,
+      googlePictureUrl: this.googlePictureUrl ?? null,
+      role: (this.role === 'admin' || this.role === 'Admin' ? 'admin' : 'user') as 'admin' | 'user',
+      activeDivision: null,
+      isVerified: this.isVerified,
+      verificationToken: this.verificationToken ?? null,
+      verificationTokenExpires: this.verificationTokenExpires ?? null,
+      mappedPlayerInfo: (this.mappedPlayerInfo ?? null) as any,
+      playerProfile: (this.playerProfile ?? null) as any,
+      pendingTeamRequest: (this.pendingTeamRequest ?? null) as any,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+  }
+
+  static async findById(id: string): Promise<IUser | null> {
+    const row = await prisma.user.findUnique({ where: { id } });
+    return row ? prismaUserToIUser(row) : null;
+  }
+
+  static findOne(query: Record<string, unknown>) {
+    const run = async (includePassword: boolean) => {
+      const where = buildWhere(query);
+      let row;
+      if (where.verificationTokenExpires && typeof where.verificationTokenExpires === 'object') {
+        const expires = where.verificationTokenExpires as { gt: Date };
+        const { verificationTokenExpires: _drop, ...rest } = where;
+        row = await prisma.user.findFirst({
+          where: {
+            ...rest,
+            verificationTokenExpires: { gt: expires.gt },
+          },
+        });
+      } else if (query['mappedPlayerInfo.teamId']) {
+        row = await prisma.user.findFirst({
+          where: {
+            mappedPlayerInfo: {
+              path: ['teamId'],
+              equals: query['mappedPlayerInfo.teamId'] as number,
+            },
+          },
+        });
+      } else {
+        row = await prisma.user.findFirst({ where: where as any });
+      }
+      if (!row) return null;
+      const user = prismaUserToIUser(row);
+      if (!includePassword) delete user.password;
+      return user;
+    };
+
+    return {
+      select: (fields: string) => run(fields.includes('password')),
+      then: (resolve: (v: IUser | null) => void, reject: (e: unknown) => void) =>
+        run(false).then(resolve, reject),
+    };
+  }
+
+  static find(query: Record<string, unknown> = {}) {
+    const run = async () => {
+      const rows = await prisma.user.findMany();
+      return rows
+        .filter((row) => {
+          const m = row.mappedPlayerInfo as IMappedPlayerInfo | null;
+          const p = row.pendingTeamRequest as IPendingTeamRequest | null;
+          if (query['mappedPlayerInfo.teamId'] != null && m?.teamId !== query['mappedPlayerInfo.teamId']) {
+            return false;
+          }
+          if (query['mappedPlayerInfo.status'] && m?.status !== query['mappedPlayerInfo.status']) {
+            return false;
+          }
+          if (query['mappedPlayerInfo.memberId']) {
+            const cond = query['mappedPlayerInfo.memberId'] as { $gt?: number };
+            if (cond.$gt !== undefined && !(m && m.memberId > cond.$gt)) return false;
+          }
+          if (query['pendingTeamRequest.status'] && p?.status !== query['pendingTeamRequest.status']) {
+            return false;
+          }
+          if (query.mappedPlayerInfo && (query.mappedPlayerInfo as { $exists?: boolean }).$exists) {
+            return m != null;
+          }
+          return true;
+        })
+        .map(prismaUserToIUser);
+    };
+    const chain = {
+      select(_fields: string) {
+        return chain;
+      },
+      sort(_sort: unknown) {
+        return chain;
+      },
+      lean: async () => run(),
+      then: (resolve: (v: IUser[]) => void, reject?: (e: unknown) => void) => run().then(resolve, reject),
+    };
+    return chain;
+  }
+
+  static async deleteMany(_filter: Record<string, unknown> = {}) {
+    await prisma.user.deleteMany();
+  }
+
+  static async updateMany(filter: Record<string, unknown>, update: Record<string, unknown>): Promise<{ modifiedCount: number }> {
+    let modifiedCount = 0;
+    const rows = await prisma.user.findMany();
+    const set = update.$set as Record<string, unknown> | undefined;
+    for (const row of rows) {
+      const m = row.mappedPlayerInfo as IMappedPlayerInfo | null;
+      if (!m) continue;
+      const filterId = filter._id as { $ne?: string } | undefined;
+      if (filterId?.$ne && row.id === filterId.$ne) continue;
+      if (filter['mappedPlayerInfo.teamId'] != null && m.teamId !== filter['mappedPlayerInfo.teamId']) {
+        continue;
+      }
+      if (
+        filter['mappedPlayerInfo.memberId'] != null &&
+        m.memberId !== filter['mappedPlayerInfo.memberId']
+      ) {
+        continue;
+      }
+      if (filter['mappedPlayerInfo.status'] && m.status !== filter['mappedPlayerInfo.status']) {
+        continue;
+      }
+      if (set?.['mappedPlayerInfo.status']) {
+        m.status = set['mappedPlayerInfo.status'] as IMappedPlayerInfo['status'];
+        await prisma.user.update({
+          where: { id: row.id },
+          data: { mappedPlayerInfo: toInputJson(m) },
+        });
+        modifiedCount++;
+      }
     }
-}, { timestamps: true });
+    return { modifiedCount };
+  }
 
-export const User = mongoose.model<IUser>('User', userSchema);
+  static async updateOne(filter: Record<string, unknown>, update: Record<string, unknown>) {
+    const id = (filter._id || filter.id) as string;
+    if (!id) return;
+    const set = update.$set as Record<string, unknown> | undefined;
+    const unset = update.$unset as Record<string, unknown> | undefined;
+    const data: Record<string, unknown> = { ...set };
+    if (unset) {
+      for (const key of Object.keys(unset)) {
+        data[key] = null;
+      }
+    }
+    await prisma.user.update({ where: { id: String(id) }, data: data as any });
+  }
+}

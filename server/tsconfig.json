@@ -13,6 +13,12 @@
     ],
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "src/scripts/migrate-data.ts",
+        "src/scripts/fix-member-ids.ts",
+        "src/scripts/seedBannedWords.ts",
+        "src/scripts/seedData.ts",
+        "src/scripts/check-data.ts",
+        "src/scripts/archive-season.ts"
     ]
 }
