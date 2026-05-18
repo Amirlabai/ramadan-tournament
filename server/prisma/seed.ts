@@ -1,10 +1,31 @@
 import { PrismaClient, Division, ScoringMode, MatchPhase, NewsPriority } from '@prisma/client';
 import bcrypt from 'bcrypt';
+import dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
 
+dotenv.config({ path: path.join(process.cwd(), '.env') });
+
+if (!process.env.DATABASE_URL) {
+  console.error('DATABASE_URL is not set. Add it to server/.env (Render Postgres Internal URL).');
+  process.exit(1);
+}
+
 const prisma = new PrismaClient();
-const dataDir = path.join(__dirname, '..', '..', 'data');
+
+function resolveDataDir(): string {
+  const candidates = [
+    path.join(process.cwd(), '..', 'data'),
+    path.join(__dirname, '..', '..', 'data'),
+    path.join(__dirname, '..', '..', '..', 'data'),
+  ];
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'teams.json'))) return dir;
+  }
+  throw new Error('Could not find data/teams.json — run seed from server/ with repo data/ present');
+}
+
+const dataDir = resolveDataDir();
 
 function parseJerusalemDate(dateStr: string): Date {
   return new Date(`${dateStr}T12:00:00+02:00`);

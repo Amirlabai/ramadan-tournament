@@ -6,7 +6,7 @@
     "main": "dist/index.js",
     "scripts": {
         "dev": "tsx watch src/index.ts",
-        "build": "prisma generate && tsc",
+        "build": "prisma generate && tsc && tsc -p tsconfig.seed.json",
         "start": "node dist/index.js",
         "postinstall": "prisma generate",
         "db:migrate": "prisma migrate deploy",
@@ -44,11 +44,9 @@
         "multer": "^2.0.2",
         "nodemailer": "^8.0.1",
         "prisma": "^6.5.0",
+        "tsx": "^4.7.0",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
-    },
-    "devDependencies": {
-        "tsx": "^4.7.0"
     },
     "overrides": {
         "tar": "^7.5.11"
