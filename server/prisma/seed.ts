@@ -99,7 +99,6 @@ async function main() {
             const lastName = nameParts.slice(1).join(' ') || '';
             return {
               memberId: member.id,
-              seasonId: boysSeason.id,
               firstName,
               lastName,
               nickname: member.nickname || '',
@@ -131,7 +130,6 @@ async function main() {
         score2: match.score2,
         goals: {
           create: (match.goals || []).map((g: any) => ({
-            seasonId: boysSeason.id,
             memberId: g.member_id ?? g.memberId,
             minute: g.minute ?? null,
             isOwnGoal: g.is_own_goal || false,
