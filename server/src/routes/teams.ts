@@ -14,16 +14,35 @@ import {
     deletePlayer,
     movePlayer,
 } from '../controllers/teamController';
+import {
+    listAvailableTeams,
+    listOwnerJoinRequests,
+    submitJoinRequest,
+    submitTeamCreation,
+    submitTransferRequest,
+    ownerReviewJoin,
+    setSquadRoles,
+    addSelfToRoster,
+} from '../controllers/registrationController';
 import { authenticate, authorize } from '../middleware/auth';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
 
 router.get('/', getTeams);
+router.get('/available', authenticate, listAvailableTeams);
+router.post('/creation-request', authenticate, submitTeamCreation);
+router.post('/transfer-request', authenticate, submitTransferRequest);
 router.get('/:id', getTeamById);
 router.get('/:id/available-players', getAvailablePlayers);
 
-// Captain routes for managing mapping requests
+router.get('/:id/join-requests-pending', authenticate, listOwnerJoinRequests);
+router.post('/:id/join-request', authenticate, submitJoinRequest);
+router.post('/:id/roster/add-self', authenticate, addSelfToRoster);
+router.patch('/:id/squad-roles', authenticate, setSquadRoles);
+router.post('/:id/owner-review-join', authenticate, ownerReviewJoin);
+
+// Legacy captain mapping requests
 router.get('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain']), getTeamRequests);
 router.post('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain']), approveTeamRequest);
 

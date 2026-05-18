@@ -1,0 +1,150 @@
+import { Response } from 'express';
+import { Division, SquadRole } from '@prisma/client';
+import { AuthRequest } from '../middleware/auth';
+import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
+import { RegistrationService } from '../services/RegistrationService';
+
+function divisionFromQuery(req: TournamentRequest): Division {
+  const q = req.query.division as string | undefined;
+  if (q === 'girls') return Division.girls;
+  return getRequestDivision(req);
+}
+
+export const getRegistrationStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const division = divisionFromQuery(req as TournamentRequest);
+    const summary = await RegistrationService.getSummary(req.userId!, division);
+    res.json(summary);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const redeemInvoice = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { code } = req.body as { code?: string };
+    const division = divisionFromQuery(req as TournamentRequest);
+    await RegistrationService.redeemInvoice(req.userId!, String(code ?? ''), division);
+    const summary = await RegistrationService.getSummary(req.userId!, division);
+    res.json({ message: 'קוד התשלום אושר בהצלחה', registration: summary });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const submitTeamCreation = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { teamName, description } = req.body as { teamName?: string; description?: string };
+    const division = divisionFromQuery(req as TournamentRequest);
+    const request = await RegistrationService.submitTeamCreation(
+      req.userId!,
+      division,
+      String(teamName ?? ''),
+      String(description ?? '')
+    );
+    res.json({ message: 'בקשת הקמת קבוצה נשלחה', request });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const submitJoinRequest = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = parseInt(req.params.id, 10);
+    const division = divisionFromQuery(req as TournamentRequest);
+    const request = await RegistrationService.submitJoinRequest(req.userId!, division, teamId);
+    res.json({ message: 'בקשת הצטרפות נשלחה', request });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const submitTransferRequest = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { toTeamId } = req.body as { toTeamId?: number };
+    const division = divisionFromQuery(req as TournamentRequest);
+    const request = await RegistrationService.submitTransfer(
+      req.userId!,
+      division,
+      Number(toTeamId)
+    );
+    res.json({ message: 'בקשת העברה נשלחה', request });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const listOwnerJoinRequests = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = parseInt(req.params.id, 10);
+    const division = divisionFromQuery(req as TournamentRequest);
+    const rows = await RegistrationService.listPendingJoinsForOwner(
+      req.userId!,
+      teamId,
+      division
+    );
+    res.json(rows);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const listAvailableTeams = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const division = divisionFromQuery(req as TournamentRequest);
+    const teams = await RegistrationService.listAvailableTeams(division);
+    res.json(teams);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const ownerReviewJoin = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { requestId, approve } = req.body as { requestId?: string; approve?: boolean };
+    await RegistrationService.ownerReviewJoin(req.userId!, String(requestId), approve === true);
+    res.json({ message: approve ? 'הבקשה אושרה על ידי הבעלים' : 'הבקשה נדחתה' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const setSquadRoles = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = parseInt(req.params.id, 10);
+    const { roles } = req.body as { roles?: { memberId: number; squadRole: string | null }[] };
+    const division = divisionFromQuery(req as TournamentRequest);
+    const parsed = (roles ?? []).map((r) => ({
+      memberId: r.memberId,
+      squadRole:
+        r.squadRole && (Object.values(SquadRole) as string[]).includes(r.squadRole)
+          ? (r.squadRole as SquadRole)
+          : null,
+    }));
+    await RegistrationService.setSquadRoles(req.userId!, teamId, division, parsed);
+    res.json({ message: 'תפקידי הסגל עודכנו' });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
+export const addSelfToRoster = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const teamId = parseInt(req.params.id, 10);
+    const division = divisionFromQuery(req as TournamentRequest);
+    const memberId = await RegistrationService.addOwnerToRoster(req.userId!, teamId, division);
+    res.json({ message: 'נוספת לסגל בהצלחה', memberId });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};

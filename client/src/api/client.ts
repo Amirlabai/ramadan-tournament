@@ -99,6 +99,10 @@ export const authAPI = {
 export const usersAPI = {
     requestMapping: (data: { teamId: number; memberId?: number; playerProfile?: object }) =>
         api.post('/users/map-player', data),
+    getRegistration: (slug: TournamentSlug = 'boys') =>
+        api.get('/users/registration', { params: { division: slug } }),
+    redeemInvoice: (code: string, slug: TournamentSlug = 'boys') =>
+        api.post('/users/redeem-invoice', { code }, { params: { division: slug } }),
     uploadAvatar: (formData: FormData) =>
         api.post('/users/avatar', formData),
     deleteAvatar: () =>
@@ -108,6 +112,28 @@ export const usersAPI = {
     requestTeam: (teamName: string, description: string) =>
         api.post('/users/request-team', { teamName, description }),
     leaveTeam: () => api.post('/users/leave-team'),
+};
+
+export const registrationAPI = {
+    listAvailableTeams: (slug: TournamentSlug = 'boys') =>
+        api.get(`${teamsPath(slug)}/available`),
+    listOwnerJoinRequests: (teamId: number, slug: TournamentSlug = 'boys') =>
+        api.get(`${teamsPath(slug)}/${teamId}/join-requests-pending`),
+    submitJoin: (teamId: number, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${teamId}/join-request`),
+    submitCreation: (teamName: string, description: string, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/creation-request`, { teamName, description }),
+    submitTransfer: (toTeamId: number, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/transfer-request`, { toTeamId }),
+    ownerReviewJoin: (teamId: number, requestId: string, approve: boolean, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${teamId}/owner-review-join`, { requestId, approve }),
+    setSquadRoles: (
+        teamId: number,
+        roles: { memberId: number; squadRole: string | null }[],
+        slug: TournamentSlug = 'boys'
+    ) => api.patch(`${teamsPath(slug)}/${teamId}/squad-roles`, { roles }),
+    addSelfToRoster: (teamId: number, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${teamId}/roster/add-self`),
 };
 export const adminAPI = {
     uploadPlayers: (formData: FormData) => api.post('/admin/import-players', formData),
@@ -139,6 +165,16 @@ export const adminAPI = {
     createPointEntry: (data: { seasonId: string; teamId: number; points: number; note?: string }) =>
         api.post('/admin/point-entries', data),
     getGirlsStandings: () => api.get('/stats-girls/standings'),
+    getWorkflowQueues: (seasonId?: string) =>
+        api.get('/admin/workflows', { params: seasonId ? { seasonId } : {} }),
+    assignInvoice: (userId: string, seasonId: string) =>
+        api.post('/admin/users/invoice', { userId, seasonId }),
+    reviewCreationRequest: (id: string, approve: boolean) =>
+        api.patch(`/admin/requests/creation/${id}`, { approve }),
+    reviewJoinRequest: (id: string, approve: boolean) =>
+        api.patch(`/admin/requests/join/${id}`, { approve }),
+    reviewTransferRequest: (id: string, approve: boolean) =>
+        api.patch(`/admin/requests/transfer/${id}`, { approve }),
 };
 
 export const commentsAPI = {

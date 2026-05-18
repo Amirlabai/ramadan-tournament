@@ -16,6 +16,8 @@ function formatPlayer(player: any, statsMap: Map<number, any>) {
     number: player.number,
     position: player.position,
     isCaptain: player.isCaptain,
+    squadRole: player.squadRole ?? null,
+    lineup: player.squadRole ? 'starting' : 'bench',
     head_photo: player.headPhoto || '',
     pending_head_photo: player.pendingHeadPhoto || '',
     bio: player.bio || '',

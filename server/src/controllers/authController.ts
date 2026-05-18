@@ -8,6 +8,8 @@ import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 import { sendVerificationEmail } from '../services/emailService';
 import crypto from 'crypto';
+import { Division } from '@prisma/client';
+import { RegistrationService } from '../services/RegistrationService';
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
@@ -73,6 +75,40 @@ const hydrateUserPayload = async (userDoc: any) => {
                 }
             }
         }
+    }
+
+    try {
+        const boys = await RegistrationService.getSummary(userDoc._id, Division.boys).catch(() => null);
+        const girls = await RegistrationService.getSummary(userDoc._id, Division.girls).catch(() => null);
+        (payload as any).tournamentRegistration = { boys, girls };
+        (payload as any).activeDivision = boys?.activeDivision ?? girls?.activeDivision ?? null;
+
+        const roster = boys?.onRoster ?? girls?.onRoster;
+        if (roster && (!payload.mappedPlayerInfo || payload.mappedPlayerInfo.status !== 'approved')) {
+            (payload as any).mappedPlayerInfo = {
+                teamId: roster.teamId,
+                memberId: roster.memberId,
+                status: 'approved',
+            };
+            const team = await Team.findOne({ id: roster.teamId });
+            if (team) {
+                (payload.mappedPlayerInfo as any).teamName = team.name;
+                const player = team.players.find((p) => p.memberId === roster.memberId);
+                if (player) {
+                    (payload.mappedPlayerInfo as any).playerName = `${player.firstName} ${player.lastName}`;
+                    payload.playerProfile = {
+                        firstName: player.firstName,
+                        lastName: player.lastName,
+                        nickname: player.nickname,
+                        number: player.number,
+                        position: player.position,
+                        bio: player.bio,
+                    };
+                }
+            }
+        }
+    } catch {
+        /* optional — no active season */
     }
 
     return payload;

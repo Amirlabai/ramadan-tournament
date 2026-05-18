@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { adminAPI, teamsAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Team } from '../../types';
+import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
 import './RosterManager.css';
 
 interface TeamRequest {
@@ -197,6 +198,11 @@ const RosterManager = () => {
 
     return (
         <div className="roster-manager">
+            {isAdmin && (
+                <section className="roster-section mb-5">
+                    <RegistrationWorkflowAdmin />
+                </section>
+            )}
             {/* 1. Pending Team Requests */}
             {teamRequests.length > 0 && (
                 <section className="roster-section mb-5">

@@ -11,6 +11,15 @@ export interface MappedPlayerInfo {
     status: 'pending' | 'approved' | 'rejected';
 }
 
+export interface TournamentRegistrationSummary {
+    seasonId: string;
+    division: string;
+    status: string;
+    activeDivision?: string | null;
+    onRoster?: { teamId: number; memberId: number } | null;
+    ownedTeamId?: number | null;
+}
+
 export interface User {
     id: string;
     username?: string;
@@ -20,6 +29,11 @@ export interface User {
     avatarUrl?: string;
     mappedPlayerInfo?: MappedPlayerInfo;
     playerProfile?: any;
+    activeDivision?: string | null;
+    tournamentRegistration?: {
+        boys: TournamentRegistrationSummary | null;
+        girls: TournamentRegistrationSummary | null;
+    };
 }
 
 interface AuthContextType {
@@ -46,14 +60,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const response = await authAPI.getCurrentUser();
             setUser({
-                id: response.data._id,
+                id: response.data.id ?? response.data._id,
                 username: response.data.username,
                 email: response.data.email,
                 displayName: response.data.displayName,
                 role: response.data.role,
                 avatarUrl: response.data.avatarUrl,
                 mappedPlayerInfo: response.data.mappedPlayerInfo,
-                playerProfile: response.data.playerProfile
+                playerProfile: response.data.playerProfile,
+                activeDivision: response.data.activeDivision,
+                tournamentRegistration: response.data.tournamentRegistration,
             });
         } catch (error) {
             console.error('Failed to fetch user:', error);

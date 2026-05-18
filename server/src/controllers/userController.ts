@@ -42,108 +42,11 @@ export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> 
     }
 };
 
-export const requestPlayerMapping = async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-        const user = await User.findById(req.userId!);
-        if (!user) {
-            res.status(404).json({ error: 'User not found' });
-            return;
-        }
-
-        if (user.role === 'Captain' || user.role === 'Player') {
-            res.status(400).json({ error: 'שחקן או קפטן פעיל לא יכול להגיש בקשה לקבוצה חדשה. עליך לעזוב את הקבוצה הנוכחית קודם (קפטנים אינם רשאים לעזוב).' });
-            return;
-        }
-
-        const {
-            teamName,
-            description
-        } = req.body;
-        const {
-            teamId,
-            memberId,
-            playerProfile
-        } = req.body;
-
-        if (!teamId || typeof teamId !== 'number') {
-            res.status(400).json({ error: 'Team ID is required' });
-            return;
-        }
-
-        const team = await Team.findOne({ id: teamId });
-        if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
-
-        // Block duplicate pending/approved requests
-        if (
-            user.mappedPlayerInfo?.teamId === teamId &&
-            (user.mappedPlayerInfo.status === 'approved' || user.mappedPlayerInfo.status === 'pending')
-        ) {
-            res.status(400).json({ error: 'You already have a pending or approved request for this team' });
-            return;
-        }
-
-        // ── Flow A: Claim an existing player slot ─────────────────────────
-        if (memberId && typeof memberId === 'number' && memberId > 0) {
-            const playerInTeam = team.players.find(p => p.memberId === memberId);
-            if (!playerInTeam) {
-                res.status(404).json({ error: 'Player not found in this team' });
-                return;
-            }
-
-            // Check not already approved-claimed by someone else
-            const alreadyClaimed = await User.findOne({
-                'mappedPlayerInfo.teamId': teamId,
-                'mappedPlayerInfo.memberId': memberId,
-                'mappedPlayerInfo.status': 'approved',
-                _id: { $ne: user._id }
-            });
-            if (alreadyClaimed) {
-                res.status(409).json({ error: 'This player slot is already claimed by another user' });
-                return;
-            }
-
-            user.mappedPlayerInfo = { teamId, memberId, status: 'pending' };
-            // Note: We no longer pre-fill user.playerProfile here.
-            // When reading user profile, the server fetches data dynamically from the Team collection.
-
-            // ── Flow B: Custom player profile ─────────────────────────────────
-        } else {
-            if (!playerProfile?.firstName?.trim() || !playerProfile?.nickname?.trim() || playerProfile?.number == null) {
-                res.status(400).json({ error: 'First name, nickname, and number are required for a custom player profile' });
-                return;
-            }
-
-            user.mappedPlayerInfo = { teamId, memberId: 0, status: 'pending' };
-            user.playerProfile = {
-                firstName: String(playerProfile.firstName).trim().slice(0, 50),
-                lastName: String(playerProfile.lastName ?? '').trim().slice(0, 50),
-                nickname: String(playerProfile.nickname).trim().slice(0, 50),
-                number: Number(playerProfile.number),
-                position: String(playerProfile.position ?? '').trim().slice(0, 30)
-            };
-        }
-
-        await user.save();
-
-        // Notify captain (or fall back to admin)
-        const captain = await User.findOne({
-            role: 'Captain',
-            'mappedPlayerInfo.teamId': teamId,
-            'mappedPlayerInfo.status': 'approved'
-        });
-        const notifyEmail = captain?.email ?? config.email.admin;
-        const claimLabel = memberId && memberId > 0
-            ? `${user.playerProfile?.firstName} ${user.playerProfile?.lastName} #${user.playerProfile?.number}`
-            : `[חדש] ${user.playerProfile?.nickname}`;
-        if (notifyEmail) {
-            sendPlayerMappingNotification(notifyEmail, captain?.displayName ?? 'מנהל', user.displayName, claimLabel, team.name).catch(() => { });
-        }
-
-        res.json({ message: 'Mapping request sent', mappedPlayerInfo: user.mappedPlayerInfo, playerProfile: user.playerProfile });
-    } catch (error) {
-        console.error('Mapping request error:', error);
-        res.status(500).json({ error: 'Server error during mapping' });
-    }
+export const requestPlayerMapping = async (_req: AuthRequest, res: Response): Promise<void> => {
+    res.status(410).json({
+        error: 'שיוך שחקן ישן הוסר. השתמש ב"בקשת הצטרפות" מעמוד הקבוצות.',
+        code: 'LEGACY_MAP_PLAYER_DEPRECATED',
+    });
 };
 
 // ── User edits their own player info ─────────────────────────────────────────
@@ -304,49 +207,25 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
 export const requestTeamCreation = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { teamName, description } = req.body;
-
         if (!teamName?.trim()) {
-            res.status(400).json({ error: 'Team name is required' });
+            res.status(400).json({ error: 'שם קבוצה נדרש' });
             return;
         }
-
-        // Type and length validation
-        if (typeof teamName !== 'string' || teamName.trim().length > 50) {
-            res.status(400).json({ error: 'Team name must be a string up to 50 characters' });
-            return;
-        }
-        if (description !== undefined && (typeof description !== 'string' || description.length > 300)) {
-            res.status(400).json({ error: 'Description must be a string up to 300 characters' });
-            return;
-        }
-
-        const user = await User.findById(req.userId!);
-        if (!user) {
-            res.status(404).json({ error: 'User not found' });
-            return;
-        }
-
-        // Check if user already has a pending team request
-        if (user.pendingTeamRequest?.status === 'pending') {
-            res.status(400).json({ error: 'You already have a pending team request' });
-            return;
-        }
-
-        user.pendingTeamRequest = { teamName: teamName.trim(), description: (description ?? '').trim(), status: 'pending' };
-        await user.save();
-
-        // Notify the admin via email (non-blocking)
-        sendTeamRequestNotification(
-            user.displayName,
-            user.email || 'unknown',
-            teamName.trim(),
-            (description ?? '').trim()
-        ).catch(() => { }); // fire-and-forget
-
-        res.json({ message: 'Team creation request submitted successfully' });
+        const { Division } = await import('@prisma/client');
+        const { RegistrationService } = await import('../services/RegistrationService');
+        const request = await RegistrationService.submitTeamCreation(
+            req.userId!,
+            Division.boys,
+            String(teamName),
+            String(description ?? '')
+        );
+        res.json({
+            message: 'בקשת הקמת קבוצה נשלחה',
+            pendingTeamRequest: { teamName: request.teamName, status: 'pending' },
+        });
     } catch (error) {
-        console.error('Team request error:', error);
-        res.status(500).json({ error: 'Server error during team request' });
+        const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+        res.status(400).json({ error: message });
     }
 };
 

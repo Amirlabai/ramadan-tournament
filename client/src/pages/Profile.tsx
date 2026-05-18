@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
-import PlayerClaimModal from '../components/PlayerClaimModal';
+import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import './Profile.css';
 
@@ -18,7 +18,6 @@ const Profile = () => {
     const [teamName, setTeamName] = useState('');
     const [teamDesc, setTeamDesc] = useState('');
     const [teamRequestMsg, setTeamRequestMsg] = useState('');
-    const [showClaimModal, setShowClaimModal] = useState(false);
 
     // Player profile editing
     const playerProfile = user ? (user as any).playerProfile : null;
@@ -329,11 +328,14 @@ const Profile = () => {
                     </div>
                 )}
 
+                <TournamentRegistrationCard slug="boys" title="רישום טורניר כדורגל" />
+                <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
+
                 {/* Claim Player Profile Banner */}
                 {user.role === 'User' && (!mappingStatus || mappingStatus === 'rejected') && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
-                        <button type="button" className="btn btn-warning btn-sm fw-bold px-3 rounded-pill" onClick={() => setShowClaimModal(true)}>שיוך שחקן</button>
+                        <span className="small">עבור לעמוד קבוצות להצטרפות</span>
                     </div>
                 )}
 
@@ -645,7 +647,6 @@ const Profile = () => {
 
             </div>
 
-            {showClaimModal && <PlayerClaimModal onClose={() => setShowClaimModal(false)} />}
         </div>
     );
 };

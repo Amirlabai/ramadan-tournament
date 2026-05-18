@@ -3,11 +3,15 @@ import multer from 'multer';
 import os from 'os';
 import { authenticate } from '../middleware/auth';
 import { requestPlayerMapping, uploadAvatar, deleteAvatar, updatePlayerProfile, requestTeamCreation, leaveTeam } from '../controllers/userController';
+import { getRegistrationStatus, redeemInvoice } from '../controllers/registrationController';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
 
-// Allow an authenticated user to request mapping to a specific player
+router.get('/registration', authenticate, getRegistrationStatus);
+router.post('/redeem-invoice', authenticate, redeemInvoice);
+
+// Legacy claim flow — prefer join-request via /api/teams
 router.post('/map-player', authenticate, requestPlayerMapping);
 
 // Avatar upload

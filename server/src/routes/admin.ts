@@ -11,6 +11,13 @@ import {
   listPointEntries,
   createPointEntry,
 } from '../controllers/adminSeasonController';
+import {
+  listWorkflowQueues,
+  assignUserInvoice,
+  reviewCreationRequest,
+  reviewJoinRequest,
+  reviewTransferRequest,
+} from '../controllers/adminWorkflowController';
 import { authenticate, authorize } from '../middleware/auth';
 import os from 'os';
 
@@ -55,5 +62,12 @@ router.post('/seasons/:seasonId/teams', authenticate, authorize(['Admin', 'admin
 // Point entries (girls standings)
 router.get('/point-entries', authenticate, authorize(['Admin', 'admin']), listPointEntries);
 router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), createPointEntry);
+
+// Phase 2 — registration workflows
+router.get('/workflows', authenticate, authorize(['Admin', 'admin']), listWorkflowQueues);
+router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
+router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
+router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
+router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
 
 export default router;
