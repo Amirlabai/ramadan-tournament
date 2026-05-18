@@ -84,6 +84,7 @@ app.use('/api/comments', commentRoutes);
 app.use('/api/seasons', seasonsRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/votes', voteRoutes);
+app.use('/api/votes-girls', setGirlsDivision, voteRoutes);
 app.use('/api/archive', archiveRoutes);
 
 // Error handler

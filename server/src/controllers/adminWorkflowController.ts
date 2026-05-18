@@ -2,6 +2,22 @@ import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { RegistrationService } from '../services/RegistrationService';
 
+export const searchInvoiceUsers = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const seasonId = req.query.seasonId as string | undefined;
+    const q = (req.query.q as string) || '';
+    if (!seasonId) {
+      res.status(400).json({ error: 'seasonId נדרש' });
+      return;
+    }
+    const users = await RegistrationService.searchUsersForInvoice(seasonId, q);
+    res.json({ users });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
 export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasonId = req.query.seasonId as string | undefined;
@@ -15,15 +31,27 @@ export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promi
 
 export const assignUserInvoice = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { userId, seasonId } = req.body as { userId?: string; seasonId?: string };
-    if (!userId || !seasonId) {
-      res.status(400).json({ error: 'userId ו-seasonId נדרשים' });
+    const { userId, seasonId, invoiceNumber } = req.body as {
+      userId?: string;
+      seasonId?: string;
+      invoiceNumber?: string;
+    };
+    if (!userId || !seasonId || !invoiceNumber?.trim()) {
+      res.status(400).json({ error: 'userId, seasonId ומספר חשבונית נדרשים' });
       return;
     }
-    const result = await RegistrationService.assignInvoice(req.userId!, userId, seasonId);
+    const result = await RegistrationService.assignInvoice(
+      req.userId!,
+      userId,
+      seasonId,
+      invoiceNumber
+    );
     res.json({
-      message: 'קוד תשלום הוקצה. העבר את הקוד למשתמש — לא יוצג שוב.',
-      code: result.plainCode,
+      message: result.updated
+        ? 'מספר החשבונית עודכן. המשתמש מזין את המספר המתוקן בפרופיל.'
+        : 'מספר החשבונית הוקצה. המשתמש מזין את אותו מספר בפרופיל להפעלה.',
+      invoiceNumber: result.invoiceNumber,
+      updated: result.updated,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';

@@ -7,7 +7,7 @@ const GirlsArchive = () => (
       description="ארכיון עונות קודמות של טורניר בנות רמדאן."
       url="https://ramadan-tournament-client.vercel.app/archive-girls"
     />
-    <h2 className="mb-4 fw-bold text-success border-bottom pb-2">ארכיון</h2>
+    <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">ארכיון</h2>
     <p className="text-muted">אין עדיין עונות בארכיון לטורניר בנות.</p>
   </div>
 );

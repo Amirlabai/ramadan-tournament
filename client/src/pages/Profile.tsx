@@ -252,7 +252,17 @@ const Profile = () => {
 
     // We hide the status banner entirely once the user is actually a Player or Captain, 
     // because the 'Editable Player Info' card below is enough proof they are mapped.
-    const showMappingBanner = mappingStatus && user.role !== 'Player' && user.role !== 'Captain';
+    const tr = user.tournamentRegistration;
+    const usesPrdRegistration =
+        !!(tr?.boys?.ownedTeamId || tr?.girls?.ownedTeamId) ||
+        (tr?.boys?.status && tr.boys.status !== 'none') ||
+        (tr?.girls?.status && tr.girls.status !== 'none');
+    const showMappingBanner =
+        mappingStatus &&
+        !usesPrdRegistration &&
+        user.role !== 'Player' &&
+        user.role !== 'Captain';
+    const showLegacyCaptain = user.role === 'Captain' && !usesPrdRegistration;
 
     return (
         <div className="profile-page">
@@ -505,8 +515,8 @@ const Profile = () => {
                     </div>
                 )}
 
-                {/* Captain Section */}
-                {user.role === 'Captain' && (
+                {/* Captain Section (legacy — owners use Teams page + RegistrationWorkflowAdmin) */}
+                {showLegacyCaptain && (
                     <div className="captain-management-zone">
                         {/* Team Settings Card */}
                         <div className="card mb-4 p-4">

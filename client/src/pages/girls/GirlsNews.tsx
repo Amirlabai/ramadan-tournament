@@ -50,7 +50,7 @@ const GirlsNews = () => {
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."
         url="https://ramadan-tournament-client.vercel.app/news-girls"
       />
-      <h2 className="mb-4 fw-bold text-success border-bottom pb-2">חדשות</h2>
+      <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">חדשות</h2>
       {items.length === 0 ? (
         <p className="text-muted">אין עדכונים כרגע</p>
       ) : (

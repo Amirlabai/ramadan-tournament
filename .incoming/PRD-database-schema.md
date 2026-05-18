@@ -162,9 +162,9 @@ Legacy `Captain` / `Player` roles are **dropped**; tournament state lives in `se
 | Rule | Detail |
 |------|--------|
 | Timing | **After** user requests join on the correct side; **admin assigns** code when paid in real life; **user enters** code on profile |
-| Assign | Admin creates `invoice_codes` for `user_id` + `season_id` (one code, one redeem) |
-| Redeem | User submits code → `season_registrations` → `active` |
-| Format | **Alphanumeric**; store `code_hash` only |
+| Assign | Admin enters **invoice number** from offline payment → `invoice_codes` for `user_id` + `season_id` |
+| Redeem | User enters **the same invoice number** on profile → `season_registrations` → `active` |
+| Format | **Alphanumeric** invoice number (not system-generated); store `code_hash` only |
 | New season | New row in `season_registrations`; grayed until invoice redeemed again |
 | Brute force | 5 wrong → locked until **next calendar day**; **Redis only** |
 
@@ -359,7 +359,7 @@ sequenceDiagram
 
 - Filter by season (boys / girls).
 - Queue: join requests + users **awaiting invoice assignment**.
-- Action: **Assign invoice** (generate alphanumeric, link to user + season).
+- Action: **Assign invoice** — admin enters the **real invoice / receipt number** (alphanumeric); user enters the **same number** on profile to activate; store `code_hash` only.
 - Cannot assign boys invoice to user locked to girls division.
 
 ### Database (single `users`, split tournaments)
@@ -454,7 +454,7 @@ All data hooks (`useTeams`, `useStandings`, …) read `seasonId` from context �
 ### SEO & branding
 
 - Separate `<title>` / meta per branch (e.g. “טורניר כדורגל רמדאן” vs “טורניר בנות — נקודות”).
-- `sitemap.xml`: `/football/*` and `/girls/*` entries.
+- `sitemap.xml`: boys use current paths (`/`, `/teams`, …); girls use `/girls`, `/teams-girls`, … (no `/football` prefix — see §15).
 - Open Graph images may differ later.
 
 ### Admin
@@ -563,7 +563,7 @@ All data hooks (`useTeams`, `useStandings`, …) read `seasonId` from context �
 | 0.2 | 2026-05-18 | First locked decisions |
 | 0.3 | 2026-05-18 | Merged full §12 answers; clarifications Q4,25,26,37,38,40; removed iftar; seasons.division |
 | 0.4 | 2026-05-18 | Girls = `scoring_mode=points` (not football); `point_entries` table; football-only match/goal/bracket/lineup |
-| 0.5 | 2026-05-18 | §15 separate `/football` vs `/girls` apps, switcher, boys default; optional subdomains |
+| 0.5 | 2026-05-18 | §15 separate `/football` vs `/girls` apps, switcher, boys default; optional subdomains *(superseded by v0.7: boys paths unchanged)* |
 | 0.6 | 2026-05-18 | Per-season invoice; alphanumeric codes; girls team vote; news per season |
 | 0.7 | 2026-05-18 | §12.3 closed; boys paths unchanged; girls `-girls` suffix; manual girls season; negative points |
 | 0.8 | 2026-05-18 | #10 fix: boys OR girls per person, never both; `active_division` + `season_registrations` |

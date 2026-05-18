@@ -10,13 +10,12 @@ import MVPs from './pages/MVPs';
 import TournamentNavbar from './components/TournamentNavbar';
 import TournamentSwitcher from './components/TournamentSwitcher';
 import NewsBanner from './components/NewsBanner';
-import { TournamentProvider, TournamentPreferenceRedirect } from './contexts/TournamentContext';
+import { TournamentProvider, TournamentPreferenceRedirect, useTournament } from './contexts/TournamentContext';
 import GirlsHome from './pages/girls/GirlsHome';
 import GirlsTeams from './pages/girls/GirlsTeams';
 import GirlsNews from './pages/girls/GirlsNews';
 import GirlsArchive from './pages/girls/GirlsArchive';
 import Footer from './components/Footer';
-// import IftarTimer from './components/IftarTimer';
 import AlarmsWidget from './components/AlarmsWidget';
 import ScrollToTop from './components/ScrollToTop';
 import PlayerZone from './pages/PlayerZone';
@@ -53,57 +52,56 @@ function AppRoutes() {
   );
 }
 
-function App() {
+function AppShell() {
   const [activeWidget, setActiveWidget] = useState<'none' | 'alarms'>('none');
+  const { isGirls } = useTournament();
 
   return (
-    <Router>
-      <TournamentProvider>
+    <>
       <TournamentPreferenceRedirect />
-      <div className="app" dir="rtl">
+      <div className="app" dir="rtl" data-tournament={isGirls ? 'girls' : 'boys'}>
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
         </a>
-        {/* <IftarTimer
-          isActive={activeWidget === 'iftar'}
-          onToggle={(active) => setActiveWidget(active ? 'iftar' : 'none')}
-        /> */}
         <AlarmsWidget
           isActive={activeWidget === 'alarms'}
           onToggle={(active) => setActiveWidget(active ? 'alarms' : 'none')}
         />
-        {/* Header & News Banner Container */}
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
               <img src="/to-be-logo.svg" className="header-side-logo left" alt="לוגו טורניר נצ'מאז" />
               <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="דגל אדיגיה" />
-              <h1 className="display-4 fw-bold">טורניר קיץ<br />2026</h1>
+              <h1 className="display-4 fw-bold">
+                טורניר קיץ
+                <br />
+                2026
+              </h1>
+              {isGirls && <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>}
               <TournamentSwitcher />
             </header>
           </div>
-
-          {/* News Banner */}
           <NewsBanner />
         </div>
-
         <div className="container-fluid">
-          {/* Navigation Tabs */}
           <TournamentNavbar />
-
-          {/* Main Content */}
           <main id="main-content" tabIndex={-1}>
             <AppRoutes />
           </main>
         </div>
-
-        {/* Footer */}
         <Footer />
-
         <ScrollToTop />
-
         <Analytics />
       </div>
+    </>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <TournamentProvider>
+        <AppShell />
       </TournamentProvider>
     </Router>
   );

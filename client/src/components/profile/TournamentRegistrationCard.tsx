@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
     none: 'לא התחלת רישום לטורניר',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין לקוד תשלום',
-    invoice_assigned: 'קוד תשלום הוקצה — הזן למטה',
+    awaiting_invoice: 'ממתין למספר חשבונית',
+    invoice_assigned: 'הוזן מספר חשבונית — הזן למטה להפעלה',
     active: 'רישום פעיל לעונה',
     archived: 'עונה בארכיון',
 };
@@ -60,12 +61,12 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         try {
             await usersAPI.redeemInvoice(invoiceCode.trim(), slug);
             setInvoiceCode('');
-            setMsg('קוד התשלום אושר. כעת ניתן להשלים הצטרפות לקבוצה.');
+            setMsg('מספר החשבונית אושר. הרישום פעיל לעונה.');
             await refreshUser();
             await load();
         } catch (e: unknown) {
             const ax = e as { response?: { data?: { error?: string } } };
-            setErr(ax.response?.data?.error || 'שגיאה בפדיון הקוד');
+            setErr(ax.response?.data?.error || 'שגיאה באימות מספר החשבונית');
         } finally {
             setSubmitting(false);
         }
@@ -73,10 +74,19 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
     if (!user) return null;
 
+    const cardClass =
+        slug === 'girls'
+            ? 'card mb-4 p-4 registration-card registration-card--girls'
+            : 'card mb-4 p-4 registration-card';
+    const submitBtnClass = slug === 'girls' ? 'btn btn-tournament-primary' : 'btn btn-success';
+
     if (loading) {
         return (
-            <div className="card mb-4 p-4 text-center">
-                <span className="spinner-border spinner-border-sm text-success" aria-hidden="true" />
+            <div className={`${cardClass} text-center`}>
+                <span
+                    className={`spinner-border spinner-border-sm ${slug === 'girls' ? 'text-tournament-primary' : 'text-success'}`}
+                    aria-hidden="true"
+                />
                 <span className="visually-hidden">טוען סטטוס רישום</span>
             </div>
         );
@@ -87,7 +97,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const showInvoiceForm = reg.status !== 'active';
 
     return (
-        <div className="card mb-4 p-4" lang="he" aria-live="polite">
+        <div className={cardClass} lang="he" aria-live="polite">
             <h3 className="h5 mb-3">{title}</h3>
             <p className="mb-2">
                 <span className="text-muted">סטטוס: </span>
@@ -113,13 +123,15 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </p>
             )}
             {reg.onRoster && (
-                <p className="small text-success mb-2">רשום בסגל (קבוצה #{reg.onRoster.teamId}).</p>
+                <p className={`small mb-2 ${slug === 'girls' ? 'registration-status-success' : 'text-success'}`}>
+                    רשום בסגל (קבוצה #{reg.onRoster.teamId}).
+                </p>
             )}
 
             {showInvoiceForm && (
                 <form onSubmit={handleRedeem} className="mt-3">
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
-                        קוד תשלום (מהמנהל לאחר תשלום)
+                        מספר חשבונית (קוד הפעלה — כפי שנמסר לאחר תשלום)
                     </label>
                     <div className="input-group">
                         <input
@@ -129,19 +141,26 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             value={invoiceCode}
                             onChange={(e) => setInvoiceCode(e.target.value.toUpperCase())}
                             autoComplete="off"
-                            maxLength={12}
+                            maxLength={24}
                             dir="ltr"
                             aria-describedby={err ? `invoice-err-${slug}` : undefined}
                             aria-invalid={!!err}
                         />
-                        <button type="submit" className="btn btn-success" disabled={submitting || !invoiceCode.trim()}>
-                            {submitting ? 'שולח…' : 'אשר קוד'}
+                        <button type="submit" className={submitBtnClass} disabled={submitting || !invoiceCode.trim()}>
+                            {submitting ? 'שולח…' : 'הפעל רישום'}
                         </button>
                     </div>
                 </form>
             )}
 
-            {msg && <p className="text-success small mt-2 mb-0" role="status">{msg}</p>}
+            {msg && (
+                <p
+                    className={`small mt-2 mb-0 ${slug === 'girls' ? 'registration-status-success' : 'text-success'}`}
+                    role="status"
+                >
+                    {msg}
+                </p>
+            )}
             {err && (
                 <p id={`invoice-err-${slug}`} className="text-danger small mt-2 mb-0" role="alert">
                     {err}

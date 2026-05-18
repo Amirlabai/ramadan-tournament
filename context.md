@@ -25,6 +25,18 @@
 
 Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite.
 
+## Dual tournament UI themes
+
+| Branch | Activation | Styles |
+|--------|------------|--------|
+| Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — [`client/src/index.css`](client/src/index.css) |
+| Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) |
+
+- Import order: `index.css` then `tournament-girls.css` in [`client/src/main.tsx`](client/src/main.tsx).
+- Girls theme aliases `--primary-green` etc. under `[data-tournament="girls"]` so shared components (tables, `.btn-theme-green`, header) repaint without duplicate rules.
+- Profile: girls registration card only uses `.registration-card--girls` ([`TournamentRegistrationCard.css`](client/src/components/profile/TournamentRegistrationCard.css)); Profile shell stays boys-green.
+- New UI tokens: `.tournament-page-title`, `.tournament-badge`, `.btn-tournament-primary`, `.text-tournament-primary` — prefer these over Bootstrap `text-success` on girls pages.
+
 ## Accessibility (Israeli Standard IS 5568)
 
 **All UI and frontend changes must comply with Israeli Standard ת"י 5568 (WCAG 2.1 Level AA).** This is a legal requirement in Israel, not optional polish.
@@ -38,6 +50,10 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 
 When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
 
+## Agent continuity
+
+**Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) (req→file map, open gaps, smoke commands). Formal stakeholder RTM: `Review/phase-1.5-rtm-qa-may-2026.md` (may lag code).
+
 ## Current Focus
 - **Phase 2 (May 2026):** Tournament registration via `RegistrationService` — `season_registrations`, `invoice_codes` (admin assign + user redeem, Redis rate limit), `team_*_requests`, `active_division`, owner join review. APIs: `/api/users/registration`, `/api/users/redeem-invoice`, `/api/teams/creation-request`, `/:id/join-request`, admin `/api/admin/workflows`. UI: Profile invoice cards, Admin → סגל ורישום → `RegistrationWorkflowAdmin`, Teams join button.
 - **Phase 1.5:** Girls read/write scaffold; division-scoped news/teams/archive.
@@ -45,6 +61,7 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 - **Deploy:** Push API + client for Phase 2; ensure `REDIS_URL` on Render for invoice lockout.
 
 ## Recent Changes
+- **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
 - **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.
 - **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Iftar API removed from server; Mongo scripts excluded from production build. Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).
 - **Career Documentation**: Updated `resume.md` to showcase the Ramadan Tournament project as a premier full-stack achievement, highlighting MERN stack mastery, AI integration (Gemini), and advanced RTL/security implementations.

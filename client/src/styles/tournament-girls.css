@@ -1,0 +1,214 @@
+/* Girls tournament theme — scoped via [data-tournament="girls"] on .app */
+
+[data-tournament="girls"] {
+  --tournament-primary: #9b4d72;
+  --tournament-primary-dark: #6b3a52;
+  --tournament-accent: #c9a0dc;
+  --tournament-surface: #fff5f8;
+  --tournament-surface-elevated: #ffffff;
+  --tournament-gradient-start: #e8a8c4;
+  --tournament-gradient-end: #b8a4d8;
+  --tournament-focus: #5b2d6e;
+  --tournament-star: #d4a017;
+  --tournament-radius: 12px;
+  --tournament-shadow: 0 4px 12px rgba(155, 77, 114, 0.12);
+  --tournament-header-gradient: linear-gradient(
+    135deg,
+    var(--tournament-gradient-start) 0%,
+    var(--tournament-gradient-end) 100%
+  );
+
+  --primary-green: var(--tournament-primary);
+  --secondary-yellow: var(--tournament-accent);
+  --light-gray: var(--tournament-surface);
+  --focus-color: var(--tournament-focus);
+}
+
+[data-tournament="girls"].app {
+  background-color: var(--tournament-surface);
+  background-image:
+    radial-gradient(ellipse 80% 50% at 10% 0%, rgba(232, 168, 196, 0.25), transparent 50%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(184, 164, 216, 0.2), transparent 45%);
+}
+
+[data-tournament="girls"] :is(.tournament-header, .tournament-footer) {
+  background: var(--tournament-header-gradient);
+}
+
+[data-tournament="girls"] .tournament-header h1,
+[data-tournament="girls"] .tournament-header p {
+  text-shadow: 0 1px 3px rgba(107, 58, 82, 0.35);
+}
+
+[data-tournament="girls"] .tournament-subtitle {
+  font-size: 1rem;
+  font-weight: 500;
+  opacity: 0.95;
+  margin-top: 0.25rem;
+}
+
+[data-tournament="girls"] .footer-heading {
+  color: var(--tournament-surface-elevated);
+}
+
+[data-tournament="girls"] .footer-link:hover {
+  color: var(--tournament-accent);
+}
+
+[data-tournament="girls"] .news-banner {
+  background: linear-gradient(
+    90deg,
+    var(--tournament-accent) 0%,
+    #e8d5f2 100%
+  );
+}
+
+[data-tournament="girls"] .news-banner h2,
+[data-tournament="girls"] .news-banner h4 {
+  color: var(--tournament-primary-dark);
+}
+
+[data-tournament="girls"] .news-banner p {
+  color: var(--tournament-primary-dark);
+}
+
+[data-tournament="girls"] .expand-indicator {
+  color: var(--tournament-primary);
+}
+
+[data-tournament="girls"] .tournament-tabs .nav-link:hover {
+  color: var(--tournament-primary);
+  background-color: rgba(155, 77, 114, 0.08);
+}
+
+[data-tournament="girls"] .tournament-tabs .nav-link.active {
+  color: var(--tournament-primary);
+  background-color: rgba(155, 77, 114, 0.12);
+  border-bottom-color: var(--tournament-primary);
+}
+
+[data-tournament="girls"] .tournament-tabs .nav-link.login-link {
+  background-color: rgba(201, 160, 220, 0.35);
+}
+
+[data-tournament="girls"] .tournament-tabs .nav-link.login-link:hover {
+  background-color: rgba(201, 160, 220, 0.5);
+}
+
+[data-tournament="girls"] .tournament-tabs .nav-link.login-link.active {
+  color: var(--tournament-primary) !important;
+  background-color: rgba(155, 77, 114, 0.12) !important;
+  border-bottom-color: var(--tournament-primary) !important;
+}
+
+[data-tournament="girls"] .tournament-switcher-btn {
+  border-color: var(--tournament-primary);
+  color: var(--tournament-primary);
+}
+
+[data-tournament="girls"] .tournament-switcher-btn:hover,
+[data-tournament="girls"] .tournament-switcher-btn:focus-visible {
+  background: var(--tournament-primary);
+  color: #fff;
+  outline-color: var(--tournament-focus);
+}
+
+[data-tournament="girls"] .tournament-switcher-option:hover,
+[data-tournament="girls"] .tournament-switcher-option:focus-visible {
+  background: rgba(155, 77, 114, 0.1);
+  outline-color: var(--tournament-focus);
+}
+
+[data-tournament="girls"] .tournament-switcher-option.active {
+  color: var(--tournament-primary);
+}
+
+[data-tournament="girls"] :is(
+  .dashboard-card .card-header,
+  .table thead,
+  .modal-header,
+  .team-card .card-header
+) {
+  background: var(--tournament-header-gradient);
+}
+
+[data-tournament="girls"] .team-card:hover {
+  box-shadow: 0 8px 16px rgba(155, 77, 114, 0.25);
+}
+
+[data-tournament="girls"] .team-card {
+  border: 1px solid rgba(201, 160, 220, 0.4);
+  box-shadow: var(--tournament-shadow);
+}
+
+[data-tournament="girls"] .btn-theme-green {
+  background-color: var(--tournament-primary);
+}
+
+[data-tournament="girls"] .btn-theme-green:hover,
+[data-tournament="girls"] .btn-theme-green:focus {
+  background-color: var(--tournament-primary-dark);
+}
+
+[data-tournament="girls"] .table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(155, 77, 114, 0.05);
+}
+
+[data-tournament="girls"] .table tbody tr:hover {
+  background-color: rgba(155, 77, 114, 0.1);
+}
+
+[data-tournament="girls"] .stats-page th {
+  color: var(--tournament-primary-dark);
+  border-bottom-color: var(--tournament-accent);
+}
+
+[data-tournament="girls"] .stats-page tr:hover {
+  background: rgba(232, 168, 196, 0.15);
+}
+
+[data-tournament="girls"] .stats-page .team-name {
+  color: var(--tournament-primary-dark);
+}
+
+[data-tournament="girls"] .stats-page td strong {
+  color: var(--tournament-primary);
+}
+
+/* Semantic utilities (girls routes + profile card) */
+.tournament-page-title {
+  color: var(--tournament-primary-dark, #6b3a52);
+  border-bottom: 2px solid var(--tournament-accent, #c9a0dc);
+}
+
+.tournament-badge {
+  background-color: var(--tournament-primary, #9b4d72);
+  color: #fff;
+}
+
+.tournament-star-vote.fa-solid {
+  color: var(--tournament-star, #d4a017);
+}
+
+.btn-tournament-primary {
+  background-color: var(--tournament-primary, #9b4d72);
+  border-color: var(--tournament-primary, #9b4d72);
+  color: #fff;
+}
+
+.btn-tournament-primary:hover,
+.btn-tournament-primary:focus {
+  background-color: var(--tournament-primary-dark, #6b3a52);
+  border-color: var(--tournament-primary-dark, #6b3a52);
+  color: #fff;
+}
+
+.btn-tournament-primary:disabled {
+  background-color: #a87a94;
+  border-color: #a87a94;
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.text-tournament-primary {
+  color: var(--tournament-primary, #9b4d72) !important;
+}

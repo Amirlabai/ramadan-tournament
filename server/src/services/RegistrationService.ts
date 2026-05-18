@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs';
-import crypto from 'crypto';
 import {
   Division,
   RequestStatus,
+  ScoringMode,
   SeasonRegistrationStatus,
   SquadRole,
   TeamStatus,
@@ -141,21 +141,40 @@ export class RegistrationService {
     };
   }
 
-  static generateInvoiceCode(): string {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-    let code = '';
-    const bytes = crypto.randomBytes(8);
-    for (let i = 0; i < 8; i++) {
-      code += chars[bytes[i] % chars.length];
+  /** Normalize receipt / invoice number (activation code = same value user enters on profile). */
+  static normalizeInvoiceNumber(raw: string): string {
+    const normalized = raw.trim().toUpperCase().replace(/[\s-]/g, '');
+    if (!/^[A-Z0-9]{3,24}$/.test(normalized)) {
+      throw new Error('מספר חשבונית חייב להיות אלפאנומרי (3–24 תווים, ללא רווחים)');
     }
-    return code;
+    return normalized;
+  }
+
+  private static async assertInvoiceUniqueInSeason(
+    seasonId: string,
+    normalized: string,
+    excludeInvoiceId?: string
+  ): Promise<void> {
+    const seasonInvoices = await prisma.invoiceCode.findMany({
+      where: {
+        seasonId,
+        redeemedAt: null,
+        ...(excludeInvoiceId ? { NOT: { id: excludeInvoiceId } } : {}),
+      },
+    });
+    for (const inv of seasonInvoices) {
+      if (await bcrypt.compare(normalized, inv.codeHash)) {
+        throw new Error('מספר חשבונית זה כבר הוקצה למשתמש אחר בעונה זו');
+      }
+    }
   }
 
   static async assignInvoice(
     adminId: string,
     userId: string,
-    seasonId: string
-  ): Promise<{ plainCode: string }> {
+    seasonId: string,
+    invoiceNumber: string
+  ): Promise<{ invoiceNumber: string; updated: boolean }> {
     const season = await prisma.season.findUniqueOrThrow({ where: { id: seasonId } });
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
@@ -163,15 +182,35 @@ export class RegistrationService {
       throw new Error('לא ניתן להקצות קוד תשלום לטורניר שונה מהצד שנבחר על ידי המשתמש');
     }
 
+    const normalized = this.normalizeInvoiceNumber(invoiceNumber);
+
     const existingUnused = await prisma.invoiceCode.findFirst({
       where: { seasonId, assignedUserId: userId, redeemedAt: null },
     });
+
     if (existingUnused) {
-      throw new Error('למשתמש כבר הוקצה קוד שלא נפדה לעונה זו');
+      await this.assertInvoiceUniqueInSeason(seasonId, normalized, existingUnused.id);
+      const codeHash = await bcrypt.hash(normalized, 10);
+      await prisma.invoiceCode.update({
+        where: { id: existingUnused.id },
+        data: { codeHash, createdById: adminId },
+      });
+      await prisma.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId } },
+        create: {
+          userId,
+          seasonId,
+          division: season.division,
+          status: SeasonRegistrationStatus.invoice_assigned,
+        },
+        update: { status: SeasonRegistrationStatus.invoice_assigned, division: season.division },
+      });
+      return { invoiceNumber: normalized, updated: true };
     }
 
-    const plainCode = this.generateInvoiceCode();
-    const codeHash = await bcrypt.hash(plainCode, 10);
+    await this.assertInvoiceUniqueInSeason(seasonId, normalized);
+
+    const codeHash = await bcrypt.hash(normalized, 10);
 
     await prisma.$transaction(async (tx) => {
       await tx.invoiceCode.create({
@@ -201,15 +240,16 @@ export class RegistrationService {
       });
     }
 
-    return { plainCode };
+    return { invoiceNumber: normalized, updated: false };
   }
 
   static async redeemInvoice(userId: string, code: string, division: Division): Promise<void> {
     const season = await SeasonService.getActiveSeason(division);
-    const normalized = code.trim().toUpperCase();
-
-    if (!normalized) {
-      throw new Error('יש להזין קוד תשלום');
+    let normalized: string;
+    try {
+      normalized = this.normalizeInvoiceNumber(code);
+    } catch {
+      throw new Error('מספר חשבונית לא תקין');
     }
 
     if (await InvoiceRateLimitService.isLocked(userId, season.id)) {
@@ -222,7 +262,7 @@ export class RegistrationService {
     });
 
     if (!invoice) {
-      throw new Error('אין קוד תשלום מוקצה לחשבון שלך לעונה זו');
+      throw new Error('אין מספר חשבונית מוקצה לחשבון שלך לעונה זו');
     }
 
     const match = await bcrypt.compare(normalized, invoice.codeHash);
@@ -232,7 +272,7 @@ export class RegistrationService {
       if (remaining === 0) {
         throw new Error('נחסמת עד מחר בשל ניסיונות שגויים רבים.');
       }
-      throw new Error(`קוד שגוי. נותרו ${remaining} ניסיונים היום.`);
+      throw new Error(`מספר חשבונית שגוי. נותרו ${remaining} ניסיונים היום.`);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -605,6 +645,28 @@ export class RegistrationService {
     await this.invalidateDivisionCaches(req.season.division);
   }
 
+  private static assertFootballLineup(
+    merged: { memberId: number; squadRole: SquadRole | null }[]
+  ): void {
+    const starting = merged.filter((p) => p.squadRole !== null);
+    const gk = starting.filter((p) => p.squadRole === SquadRole.goalkeeper).length;
+    const outfield = starting.filter(
+      (p) =>
+        p.squadRole === SquadRole.captain ||
+        p.squadRole === SquadRole.attack ||
+        p.squadRole === SquadRole.defense
+    ).length;
+    if (gk > 1) {
+      throw new Error('ניתן להגדיר שוער אחד בהרכב פתיחה');
+    }
+    if (outfield > 5) {
+      throw new Error('ניתן להגדיר עד 5 שחקני שדה בהרכב פתיחה');
+    }
+    if (starting.length > 6) {
+      throw new Error('הרכב פתיחה: עד 5 שחקני שדה ושוער אחד');
+    }
+  }
+
   static async setSquadRoles(
     ownerId: string,
     teamId: number,
@@ -623,6 +685,22 @@ export class RegistrationService {
     const captains = roles.filter((r) => r.squadRole === SquadRole.captain);
     if (captains.length > 1) {
       throw new Error('ניתן להגדיר קפטן אחד בלבד');
+    }
+
+    if (season.scoringMode === ScoringMode.football) {
+      const roster = await prisma.player.findMany({
+        where: { seasonId: season.id, teamId, active: true },
+        select: { memberId: true, squadRole: true },
+      });
+      const roleMap = new Map(roster.map((p) => [p.memberId, p.squadRole]));
+      for (const { memberId, squadRole } of roles) {
+        roleMap.set(memberId, squadRole);
+      }
+      const merged = [...roleMap.entries()].map(([memberId, squadRole]) => ({
+        memberId,
+        squadRole,
+      }));
+      this.assertFootballLineup(merged);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -759,6 +837,7 @@ export class RegistrationService {
             in: [
               SeasonRegistrationStatus.awaiting_invoice,
               SeasonRegistrationStatus.join_pending,
+              SeasonRegistrationStatus.invoice_assigned,
             ],
           },
         },
@@ -768,6 +847,81 @@ export class RegistrationService {
       }),
     ]);
 
-    return { season, creations, joins, transfers, awaitingInvoice };
+    const joinByUserId = new Map(joins.map((j) => [j.userId, j]));
+
+    const awaitingInvoiceEnriched = await Promise.all(
+      awaitingInvoice.map(async (reg) => {
+        const join = joinByUserId.get(reg.userId);
+        const hasUnredeemedCode = await prisma.invoiceCode.findFirst({
+          where: {
+            seasonId: season.id,
+            assignedUserId: reg.userId,
+            redeemedAt: null,
+          },
+        });
+        return {
+          user: reg.user,
+          status: reg.status,
+          pendingTeamName: join?.team?.name ?? null,
+          joinStatus: join?.status ?? null,
+          hasUnredeemedCode: !!hasUnredeemedCode,
+        };
+      })
+    );
+
+    return {
+      season,
+      creations,
+      joins,
+      transfers,
+      awaitingInvoice: awaitingInvoiceEnriched,
+    };
+  }
+
+  static async searchUsersForInvoice(seasonId: string, query: string, limit = 20) {
+    const q = query.trim();
+    if (q.length < 2) {
+      return [];
+    }
+
+    await prisma.season.findUniqueOrThrow({ where: { id: seasonId } });
+
+    const users = await prisma.user.findMany({
+      where: {
+        OR: [
+          { email: { contains: q, mode: 'insensitive' } },
+          { displayName: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      take: limit,
+      orderBy: { displayName: 'asc' },
+      select: { id: true, displayName: true, email: true, activeDivision: true },
+    });
+
+    if (!users.length) {
+      return [];
+    }
+
+    const userIds = users.map((u) => u.id);
+    const [regs, codes] = await Promise.all([
+      prisma.seasonRegistration.findMany({
+        where: { seasonId, userId: { in: userIds } },
+      }),
+      prisma.invoiceCode.findMany({
+        where: { seasonId, assignedUserId: { in: userIds }, redeemedAt: null },
+      }),
+    ]);
+
+    const regByUser = new Map(regs.map((r) => [r.userId, r.status]));
+    const codeByUser = new Set(codes.map((c) => c.assignedUserId));
+
+    return users.map((u) => ({
+      id: u.id,
+      displayName: u.displayName,
+      email: u.email,
+      activeDivision: u.activeDivision,
+      registrationStatus: regByUser.get(u.id) ?? SeasonRegistrationStatus.none,
+      hasUnredeemedCode: codeByUser.has(u.id),
+    }));
   }
 }

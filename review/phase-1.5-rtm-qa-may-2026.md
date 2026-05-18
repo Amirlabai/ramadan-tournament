@@ -4,7 +4,7 @@
 **PRD source:** [`.incoming/PRD-database-schema.md`](../.incoming/PRD-database-schema.md) v0.9  
 **Report date:** 2026-05-18  
 **Author:** Implementation agent (Cursor session)  
-**Scope:** Work through May 2026 — Phase 1.5 alignment, session bug fixes, and explicit **non-delivery** of Phase 2 (§16).
+**Scope:** Work through May 2026 — Phase 1.5 alignment and session bug fixes. **Phase 2 (§16) is tracked in [phase-2-rtm-qa-may-2026.md](phase-2-rtm-qa-may-2026.md)** — do not use §3.4 below for current delivery status.
 
 ---
 
@@ -12,12 +12,12 @@
 
 | Area | Verdict |
 |------|---------|
-| **Database / Phase 1 schema** | Largely aligned (~90%); tables exist including Phase 2 tables without product APIs |
-| **Phase 1.5 — §15 dual tournament UX** | **Partial** — public read path + switcher + girls admin (points) strong; writes/archive/news gaps **addressed in code** May 2026; girls archive UI still placeholder |
-| **Phase 2 — §16 registration / invoice** | **Not implemented** this session (no routes, no UI, legacy `mappedPlayerInfo` still in use) |
+| **Database / Phase 1 schema** | Largely aligned (~90%) |
+| **Phase 1.5 — §15 dual tournament UX** | **Partial** — public read path + switcher + girls admin (points) strong; girls archive UI still placeholder |
+| **Phase 2 — §16 registration / invoice** | **See [phase-2-rtm-qa-may-2026.md](phase-2-rtm-qa-may-2026.md)** (~70% code; not PO sign-off) |
 | **Session QA (bugs)** | Vote modal null guard, tournament switcher z-index — fixed in client |
 
-**Bottom line:** Foundation and boys football product match the PRD. Girls is a **read scaffold + partial admin** with **division-aware writes** for news, team mutations, and archive queries added May 2026. Registration, invoice, and `season_registrations` remain Phase 2.
+**Bottom line:** This report is authoritative for **Phase 1.5 only**. For registration, invoice, join workflows, and owner UI, use the Phase 2 RTM.
 
 ---
 
@@ -88,20 +88,13 @@
 | AUD-03 | Audit #3 | Archive queries include `division` | `server/src/routes/archive.ts`, `archiveAPI` | Met | Manual pending |
 | AUD-04 | Audit | `status.md` reflects Phase 1.5 in progress | `status.md`, `context.md` | Met | Code review |
 
-### 3.4 Phase 2 — §16 Registration & invoice (explicitly not done)
+### 3.4 Phase 2 — §16 (superseded)
 
-| Req ID | PRD ref | Requirement | Evidence | Status | Test |
-|--------|---------|-------------|----------|--------|------|
-| P16-01 | §16 | Layer 1 website registration (OAuth/OTP) | `auth` routes, `Login.tsx` | Met (pre-existing, not Phase 2 rebuild) | Not run |
-| P16-02 | §16 | Layer 2 `season_registrations` status machine | Table in schema; **no API** | Not Met | — |
-| P16-03 | §16 | Invoice assign + redeem on profile | `invoice_codes` table; **no routes** | Not Met | — |
-| P16-04 | §16 | Redis invoice wrong-attempt lockout | Not implemented | Not Met | — |
-| P16-05 | §16 | Join/create team via PRD request tables | Legacy `mappedPlayerInfo`, `User` model | Not Met | — |
-| P16-06 | §6.B | `active_division` set and enforced on join | Column exists; **not checked** on join | Not Met | — |
-| P16-07 | §6.B | One person not in boys and girls same year | Not enforced in app layer | Not Met | — |
-| P16-08 | §16 Admin | Invoice assignment queue UI | Not present | Not Met | — |
-| P16-09 | §6 | Retire Captain/Player legacy roles per PRD | Still used (`Captain`, `mappedPlayerInfo`) | Not Met | — |
-| P16-10 | §6.G | Girls MVP = team vote (`votes.team_id`) | `Vote` model football/player only | Not Met | — |
+**Superseded May 2026.** Phase 2 requirements are implemented in code and traced in **[phase-2-rtm-qa-may-2026.md](phase-2-rtm-qa-may-2026.md)**. The rows below reflected the state *before* `RegistrationService` and Phase 2 UI; kept for audit trail only.
+
+| Req ID | Note |
+|--------|------|
+| P16-* | See Phase 2 RTM §3 — do not cite this section for stakeholders |
 
 ### 3.5 Session bug fixes (UX / stability — not PRD features)
 

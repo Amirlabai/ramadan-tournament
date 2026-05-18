@@ -42,6 +42,9 @@ interface AddPlayerForm {
     isCaptain: boolean;
 }
 
+/** Legacy map-player / team-requests — superseded by RegistrationWorkflowAdmin (PRD §16). */
+const LEGACY_ROSTER_WORKFLOWS = false;
+
 const EMPTY_FORM: AddPlayerForm = {
     firstName: '',
     lastName: '',
@@ -68,14 +71,19 @@ const RosterManager = () => {
 
     const fetchData = async () => {
         try {
-            const [teamsRes, mappingsRes, requestsRes] = await Promise.all([
-                teamsAPI.getAll(),
-                adminAPI.getUserMappings(),
-                adminAPI.getTeamRequests()
-            ]);
+            const teamsRes = await teamsAPI.getAll();
             setTeams(teamsRes.data);
-            setUserMappings(mappingsRes.data);
-            setTeamRequests(requestsRes.data);
+            if (LEGACY_ROSTER_WORKFLOWS) {
+                const [mappingsRes, requestsRes] = await Promise.all([
+                    adminAPI.getUserMappings(),
+                    adminAPI.getTeamRequests(),
+                ]);
+                setUserMappings(mappingsRes.data);
+                setTeamRequests(requestsRes.data);
+            } else {
+                setUserMappings([]);
+                setTeamRequests([]);
+            }
         } catch (err) {
             console.error('Failed to fetch roster data:', err);
         } finally {
@@ -203,8 +211,8 @@ const RosterManager = () => {
                     <RegistrationWorkflowAdmin />
                 </section>
             )}
-            {/* 1. Pending Team Requests */}
-            {teamRequests.length > 0 && (
+            {/* 1. Pending Team Requests (legacy) */}
+            {LEGACY_ROSTER_WORKFLOWS && teamRequests.length > 0 && (
                 <section className="roster-section mb-5">
                     <h3 className="section-title"><i className="bi bi-flag-fill me-2" />בקשות להקמת קבוצה</h3>
                     <div className="matches-table-wrapper">
@@ -245,7 +253,8 @@ const RosterManager = () => {
                 </section>
             )}
 
-            {/* 2. Unmapped Users */}
+            {/* 2. Unmapped Users (legacy) */}
+            {LEGACY_ROSTER_WORKFLOWS && (
             <section className="roster-section mb-5">
                 <h3 className="section-title"><i className="bi bi-person-plus-fill me-2" />שיוך משתמשים (Pending)</h3>
                 {pendingMappings.length === 0 ? (
@@ -299,6 +308,7 @@ const RosterManager = () => {
                     </div>
                 )}
             </section>
+            )}
 
             {/* 3. Team Roster (Expandable) */}
             <section className="roster-section">

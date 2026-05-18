@@ -20,9 +20,9 @@
 | **Legacy retirement (Captain / claim slot)** | **Partial** — `map-player` deprecated; old admin mapping UI and roles still present |
 | **Phase 1.5 (unchanged this sprint)** | See [phase-1.5-rtm-qa-may-2026.md](phase-1.5-rtm-qa-may-2026.md) |
 
-**Bottom line:** Phase 2 **backend and admin queue UI** are in place and traceable. **End-to-end product** is testable for: admin assigns code → user redeems on Profile → user requests join on Teams → owner approves (API) → admin adds to roster after `active`. Gaps: owner squad UI on Teams, girls join UX, girls team MVP vote, full removal of legacy roster admin, automated tests, production deploy verification.
+**Bottom line:** Phase 2 **backend and admin queue UI** are in place and traceable. **End-to-end product** is testable for: admin assigns code → user redeems on Profile → join on boys/girls Teams → **owner approves on team card** → admin adds to roster after `active`. Remaining gaps: owner squad-role UI on Teams, full `mappedPlayerInfo` retirement, automated tests, PO manual QA (P2-T*), production deploy verification.
 
-**Suggested overall Phase 2 readiness:** ~**70%** PRD alignment (matches `status.md` scorecard).
+**Suggested overall Phase 2 readiness:** ~**80%** PRD alignment (owner UI, girls join/vote, 5+GK added May 2026; PO QA still pending).
 
 ---
 
@@ -90,9 +90,9 @@
 
 | Req ID | PRD ref | Requirement | Evidence | Status | Test |
 |--------|---------|-------------|----------|--------|------|
-| P16-10 | §6.E | Join request from correct division pages | API on `/teams` and `/teams-girls`; client join button on **boys** `Teams.tsx` only | Partial | Code review |
+| P16-10 | §6.E | Join request from correct division pages | `TeamRegistrationActions` on boys `Teams.tsx` and `GirlsTeams.tsx` | Met | Manual pending |
 | P16-11 | §6.E | Owner approve → `owner_approved` | `ownerReviewJoin`, `POST /:id/owner-review-join` | Met (API) | Manual pending |
-| P16-11b | §6.E | Owner approve UI on team card | Client: `registrationAPI` only; **no** owner panel on `Teams.tsx` | Not Met | — |
+| P16-11b | §6.E | Owner approve UI on team card | `TeamRegistrationActions.tsx` on `Teams.tsx`, `GirlsTeams.tsx` | Met | Manual pending |
 | P16-11c | §6.E | Admin final approve → roster row | `adminReviewJoin`; requires `season_registrations.status = active` | Met | Manual pending |
 | P16-12 | §6.E | Second pending join invalidates all pending | `submitJoinRequest` → `invalidated` | Met | Manual pending |
 | P16-13 | §6.E | Same team re-request after 1 day if rejected | `recentReject` 24h check in `submitJoinRequest` | Met | Manual pending |
@@ -118,7 +118,7 @@
 | P16-30 | §6.D | Owner sets `squad_role` (captain, GK, attack, defense) | `PATCH /:id/squad-roles`, `setSquadRoles` | Met (API) | Manual pending |
 | P16-31 | §6.D | `squad_role` null = bench; non-null = starting | `TeamDataService.formatPlayer` → `lineup: 'starting' \| 'bench'` | Met | Code review |
 | P16-32 | §6.D | One captain per team | `setSquadRoles` clears other captains | Met | Code review |
-| P16-33 | §6.D | Max 5 outfield + 1 GK enforced | **Not** enforced in `setSquadRoles` | Not Met | — |
+| P16-33 | §6.D | Max 5 outfield + 1 GK enforced | `RegistrationService.assertFootballLineup` in `setSquadRoles` | Met | Code review |
 | P16-34 | Plan | Hebrew UI: הרכב פתיחה / ספסל on Teams | No owner role dropdown on `Teams.tsx` | Not Met | — |
 | P16-35 | Plan | Owner badge on profile/roster | Still uses legacy `Captain` / `isCaptain` in UI | Partial | Code review |
 | P16-36 | Plan | Owner `add-self` to roster | `POST /:id/roster/add-self`, `addOwnerToRoster` | Met (API) | Manual pending |
@@ -129,8 +129,8 @@
 | Req ID | PRD ref | Requirement | Evidence | Status | Test |
 |--------|---------|-------------|----------|--------|------|
 | P16-09 | §6.B | Drop Captain/Player legacy roles | `Captain` still in `teamController`, `RosterManager`, Profile | Not Met | — |
-| P16-09b | Admin | Old `/admin/team-requests`, `/admin/user-mappings` | Still mounted alongside `/admin/workflows` | Partial | Code review |
-| P16-40 | §6.G | Girls MVP = team vote (`votes.team_id`) | Vote API still player MVP football-scoped | Not Met | — |
+| P16-09b | Admin | Old `/admin/team-requests`, `/admin/user-mappings` | APIs remain; **UI hidden** in `RosterManager` (`LEGACY_ROSTER_WORKFLOWS=false`) | Partial | Code review |
+| P16-40 | §6.G | Girls MVP = team vote (`votes.team_id`) | `POST /api/votes-girls`, `voteController` + `GirlsTeams.tsx` | Met | Manual pending |
 | P16-41 | §6.H | Encrypt `personal_id` on write | `personalIdEnc` column; import paths unchanged | Partial | Not run |
 | P16-42 | §6.D | Roster players must have `user_id` | Enforced on new workflow creates; seed may have null | Partial | Code review |
 

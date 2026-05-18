@@ -1,0 +1,41 @@
+.registration-card--girls {
+  --tournament-primary: #9b4d72;
+  --tournament-primary-dark: #6b3a52;
+  --tournament-accent: #c9a0dc;
+  --tournament-surface: #fff5f8;
+  --tournament-surface-elevated: #ffffff;
+  --tournament-radius: 12px;
+  --tournament-shadow: 0 4px 12px rgba(155, 77, 114, 0.12);
+
+  border: 1px solid rgba(201, 160, 220, 0.5);
+  background: linear-gradient(
+    180deg,
+    var(--tournament-surface) 0%,
+    var(--tournament-surface-elevated) 40%
+  );
+  border-radius: var(--tournament-radius);
+  box-shadow: var(--tournament-shadow);
+}
+
+.registration-card--girls h3 {
+  color: var(--tournament-primary-dark);
+  border-bottom: 2px solid var(--tournament-accent);
+  padding-bottom: 0.5rem;
+}
+
+.registration-card--girls .registration-status-success {
+  color: var(--tournament-primary);
+}
+
+.registration-card--girls .btn-tournament-primary {
+  background-color: var(--tournament-primary);
+  border-color: var(--tournament-primary);
+  color: #fff;
+}
+
+.registration-card--girls .btn-tournament-primary:hover,
+.registration-card--girls .btn-tournament-primary:focus {
+  background-color: var(--tournament-primary-dark);
+  border-color: var(--tournament-primary-dark);
+  color: #fff;
+}

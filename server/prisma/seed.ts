@@ -34,20 +34,21 @@ function parseJerusalemDate(dateStr: string): Date {
 async function main() {
   console.log('Seeding database...');
 
+  // Order matters: Vote.team uses onDelete SetNull on (seasonId, teamId) — delete votes before teams.
   await prisma.$transaction([
     prisma.goal.deleteMany(),
     prisma.comment.deleteMany(),
     prisma.bracketSlot.deleteMany(),
     prisma.match.deleteMany(),
+    prisma.vote.deleteMany(),
+    prisma.pointEntry.deleteMany(),
+    prisma.teamJoinRequest.deleteMany(),
+    prisma.teamTransferRequest.deleteMany(),
     prisma.player.deleteMany(),
     prisma.team.deleteMany(),
     prisma.news.deleteMany(),
     prisma.statsSnapshot.deleteMany(),
-    prisma.pointEntry.deleteMany(),
-    prisma.vote.deleteMany(),
-    prisma.teamJoinRequest.deleteMany(),
     prisma.teamCreationRequest.deleteMany(),
-    prisma.teamTransferRequest.deleteMany(),
     prisma.invoiceCode.deleteMany(),
     prisma.seasonRegistration.deleteMany(),
     prisma.seasonArchive.deleteMany(),

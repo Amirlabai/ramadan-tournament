@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { registrationAPI, teamsAPI, votesAPI } from '../api/client';
+import { teamsAPI, votesAPI } from '../api/client';
+import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import type { Team } from '../types';
@@ -20,11 +21,9 @@ const Teams = () => {
     const [isVoting, setIsVoting] = useState(false);
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
     const [dismissPrompt, setDismissPrompt] = useState(false);
-    const { user, loading: authLoading, refreshUser } = useAuth();
+    const { user, loading: authLoading } = useAuth();
     const { slug } = useTournament();
     const location = useLocation();
-    const [joinMsg, setJoinMsg] = useState('');
-
     // Check if user is logged in
     const isLoggedIn = !!user;
 
@@ -76,22 +75,6 @@ const Teams = () => {
             return () => clearTimeout(timer);
         }
     }, [loading, shouldScroll, expandedTeam]);
-
-    const handleJoinRequest = async (teamId: number) => {
-        if (!user) {
-            setJoinMsg('יש להתחבר כדי לבקש הצטרפות');
-            return;
-        }
-        setJoinMsg('');
-        try {
-            await registrationAPI.submitJoin(teamId, slug);
-            setJoinMsg('בקשת ההצטרפות נשלחה. לאחר תשלום — הזן קוד בפרופיל.');
-            await refreshUser();
-        } catch (err: unknown) {
-            const ax = err as { response?: { data?: { error?: string } } };
-            setJoinMsg(ax.response?.data?.error || 'שגיאה בשליחת הבקשה');
-        }
-    };
 
     const fetchTeams = async (isBackground = false) => {
         try {
@@ -190,11 +173,6 @@ const Teams = () => {
 
     return (
         <div className="container py-4">
-            {joinMsg && (
-                <p className="alert alert-info" role="status" aria-live="polite">
-                    {joinMsg}
-                </p>
-            )}
             <SEO
                 title="קבוצות ושחקנים"
                 description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
@@ -271,18 +249,11 @@ const Teams = () => {
                                     {isExpanded && (
                                         <tr className="team-details-row" id={`team-details-${team.id}`}>
                                             <td colSpan={5} className="bg-light p-3">
-                                                {isLoggedIn && slug === 'boys' && (
-                                                    <div className="mb-3">
-                                                        <button
-                                                            type="button"
-                                                            className="btn btn-sm btn-outline-success"
-                                                            onClick={() => handleJoinRequest(team.id)}
-                                                            aria-label={`בקש להצטרף ל${team.name}`}
-                                                        >
-                                                            בקש להצטרף לקבוצה
-                                                        </button>
-                                                    </div>
-                                                )}
+                                                <TeamRegistrationActions
+                                                    teamId={team.id}
+                                                    teamName={team.name}
+                                                    slug={slug}
+                                                />
                                                 <div className="row g-3">
                                                     {(() => {
                                                         const topScorerInTeam = [...players].sort((a, b) => {

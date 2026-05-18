@@ -167,8 +167,10 @@ export const adminAPI = {
     getGirlsStandings: () => api.get('/stats-girls/standings'),
     getWorkflowQueues: (seasonId?: string) =>
         api.get('/admin/workflows', { params: seasonId ? { seasonId } : {} }),
-    assignInvoice: (userId: string, seasonId: string) =>
-        api.post('/admin/users/invoice', { userId, seasonId }),
+    searchInvoiceUsers: (seasonId: string, q: string) =>
+        api.get('/admin/workflows/user-search', { params: { seasonId, q } }),
+    assignInvoice: (userId: string, seasonId: string, invoiceNumber: string) =>
+        api.post('/admin/users/invoice', { userId, seasonId, invoiceNumber }),
     reviewCreationRequest: (id: string, approve: boolean) =>
         api.patch(`/admin/requests/creation/${id}`, { approve }),
     reviewJoinRequest: (id: string, approve: boolean) =>
@@ -191,10 +193,17 @@ export const playerAPI = {
     uploadPhoto: (formData: FormData) => api.post('/players/upload', formData),
 };
 
+const votesBase = (slug: TournamentSlug) => (slug === 'girls' ? '/votes-girls' : '/votes');
+
 export const votesAPI = {
-    cast: (playerMemberId: number, category: string = 'mvp') => api.post('/votes', { playerMemberId, category }),
-    getMyVote: (category: string = 'mvp') => api.get(`/votes/my?category=${category}`),
-    getResults: (category: string = 'mvp') => api.get(`/votes/results?category=${category}`),
+    cast: (playerMemberId: number, category: string = 'mvp', slug: TournamentSlug = 'boys') =>
+        api.post(votesBase(slug), { playerMemberId, category }),
+    castTeam: (teamId: number, category: string = 'mvp') =>
+        api.post('/votes-girls', { teamId, category }),
+    getMyVote: (category: string = 'mvp', slug: TournamentSlug = 'boys') =>
+        api.get(`${votesBase(slug)}/my`, { params: { category } }),
+    getResults: (category: string = 'mvp', slug: TournamentSlug = 'boys') =>
+        api.get(`${votesBase(slug)}/results`, { params: { category } }),
 };
 
 export const archiveAPI = {

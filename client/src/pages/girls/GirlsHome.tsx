@@ -57,7 +57,7 @@ const GirlsHome = () => {
         description="טבלת נקודות לטורניר בנות רמדאן 2026. הקבוצה עם הכי הרבה נקודות מובילה."
         url="https://ramadan-tournament-client.vercel.app/girls"
       />
-      <h2 className="mb-4 fw-bold text-success border-bottom pb-2">טבלת נקודות</h2>
+      <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">טבלת נקודות</h2>
       <div className="card standings-table">
         <div className="table-responsive">
           <table>

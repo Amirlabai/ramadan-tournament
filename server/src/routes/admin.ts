@@ -13,6 +13,7 @@ import {
 } from '../controllers/adminSeasonController';
 import {
   listWorkflowQueues,
+  searchInvoiceUsers,
   assignUserInvoice,
   reviewCreationRequest,
   reviewJoinRequest,
@@ -65,6 +66,7 @@ router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), creat
 
 // Phase 2 — registration workflows
 router.get('/workflows', authenticate, authorize(['Admin', 'admin']), listWorkflowQueues);
+router.get('/workflows/user-search', authenticate, authorize(['Admin', 'admin']), searchInvoiceUsers);
 router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
