@@ -116,6 +116,7 @@ async function main() {
   console.log(`Teams: ${teamsData.length}`);
 
   const matchesData = JSON.parse(fs.readFileSync(path.join(dataDir, 'matches.json'), 'utf-8'));
+  const matchIds = new Set(matchesData.map((m: { id: number }) => m.id));
   for (const match of matchesData) {
     await prisma.match.create({
       data: {
@@ -162,22 +163,27 @@ async function main() {
     const slots: any[] = [
       ...(bracket.winners_bracket || []),
       ...(bracket.losers_bracket || []),
+      ...(bracket.consolation_bracket || []),
     ];
     let order = 0;
+    let linked = 0;
     for (const slot of slots) {
+      const matchId =
+        slot.match_id != null && matchIds.has(slot.match_id) ? slot.match_id : null;
+      if (matchId !== null) linked++;
       await prisma.bracketSlot.create({
         data: {
           seasonId: boysSeason.id,
           slotKey: `match-${slot.match_id}`,
           round: slot.round,
           slotOrder: order++,
-          matchId: slot.match_id,
+          matchId,
           team1Id: slot.team1_id ?? null,
           team2Id: slot.team2_id ?? null,
         },
       });
     }
-    console.log(`Bracket slots: ${slots.length}`);
+    console.log(`Bracket slots: ${slots.length} (${linked} linked to matches)`);
   }
 
   const bannedSeed = ['spam', 'test'];

@@ -5,10 +5,12 @@ import { AuthRequest } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
 import { TeamDataService } from '../services/TeamDataService';
+import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
     try {
-        const sanitizedTeams = await TeamDataService.getTeamsDocument();
+        const division = getRequestDivision(req as TournamentRequest);
+        const sanitizedTeams = await TeamDataService.getTeamsDocument(division);
         res.json(sanitizedTeams);
     } catch (error) {
         console.error('Get teams error:', error);
@@ -18,7 +20,8 @@ export const getTeams = async (req: Request, res: Response): Promise<void> => {
 
 export const getTeamById = async (req: Request, res: Response): Promise<void> => {
     try {
-        const team = await TeamDataService.getTeamById(parseInt(req.params.id));
+        const division = getRequestDivision(req as TournamentRequest);
+        const team = await TeamDataService.getTeamById(parseInt(req.params.id), division);
         if (!team) {
             res.status(404).json({ error: 'Team not found' });
             return;

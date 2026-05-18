@@ -19,6 +19,8 @@ import { pingRedis } from './config/redis';
 import playerRoutes from './routes/player';
 import voteRoutes from './routes/votes';
 import archiveRoutes from './routes/archive';
+import statsGirlsRoutes from './routes/statsGirls';
+import { setGirlsDivision } from './middleware/tournamentDivision';
 import path from 'path';
 
 const app = express();
@@ -71,9 +73,12 @@ app.get('/api/health', async (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/teams-girls', setGirlsDivision, teamRoutes);
 app.use('/api/matches', matchRoutes);
 app.use('/api/news', newsRoutes);
+app.use('/api/news-girls', setGirlsDivision, newsRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/stats-girls', statsGirlsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/seasons', seasonsRoutes);

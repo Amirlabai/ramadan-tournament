@@ -9,8 +9,21 @@
 ## Architecture
 - **Monorepo**: `client`, `server`, `data/`, `.incoming/` (PRD and drops).
 - **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Legacy controllers use thin Mongoose-shaped adapters over Prisma.
-- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set.
+- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`).
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`) and fetching external alarm data periodically (`fetch_alarms.py`).
+
+## Environment variables (who needs what)
+
+| Variable | Render API | Vercel / client | Notes |
+|----------|------------|-----------------|--------|
+| `DATABASE_URL` | Yes (internal URL) | No | Postgres only on server |
+| `REDIS_URL` | Yes (internal) | No | |
+| `JWT_SECRET`, `ADMIN_*` | Yes | No | |
+| `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
+| `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
+| `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
+
+Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite.
 
 ## Accessibility (Israeli Standard IS 5568)
 
@@ -26,12 +39,14 @@
 When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
 
 ## Current Focus
-- Enhancing tournament management features for Ramadan 2026.
-- Adding real-time or automated data feeds (e.g., Alarms data every two hours) for user safety and information.
-- **Bug Fix Needed:** Phone view has a total horizontal scroll issue that needs to be fixed.
-- **Archive System**: Managing historical records via `SeasonArchive` model and `archive-season.ts` automation.
+- **Phase 1.5 (done in code):** Girls UX — `/girls`, `/teams-girls`, `/news-girls`, `/archive-girls`; API mirrors (`/api/*-girls`); header switcher + `TournamentContext`. Requires an active girls `seasons` row in Postgres (admin-created, not seeded).
+- **Phase 2 (next):** Registration workflows per [`.incoming/PRD-database-schema.md`](.incoming/PRD-database-schema.md) (invoice codes, join/transfer, owner squad roles, admin points entry).
+- Harden admin CRUD paths against Postgres adapters; optional cleanup of legacy Mongo scripts.
+- **Archive System**: `SeasonArchive` on Prisma; rewrite `archive-season.ts` when archiving next season.
 
 ## Recent Changes
+- **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; boys paths unchanged.
+- **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Iftar API removed from server; Mongo scripts excluded from production build. Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).
 - **Career Documentation**: Updated `resume.md` to showcase the Ramadan Tournament project as a premier full-stack achievement, highlighting MERN stack mastery, AI integration (Gemini), and advanced RTL/security implementations.
 - Consolidated Admin mappings, registrations, and player management into a unified Roster view.
 - Added `bio` field to Player records and user profile editing flow.

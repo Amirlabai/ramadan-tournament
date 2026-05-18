@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -77,7 +77,7 @@ const Teams = () => {
         try {
             if (!isBackground) setLoading(true);
             const response = await teamsAPI.getAll();
-            setTeams(response.data);
+            setTeams(Array.isArray(response.data) ? response.data : []);
             if (!isBackground) setError('');
         } catch (err) {
             if (!isBackground) setError('שגיאה בטעינת קבוצות');
@@ -202,11 +202,12 @@ const Teams = () => {
                     </thead>
                     <tbody>
                         {teams.map((team) => {
-                            const captain = team.players.find(p => p.isCaptain);
+                            const players = team.players ?? [];
+                            const captain = players.find(p => p.isCaptain);
                             const isExpanded = expandedTeam === team.id;
 
                             return (
-                                <>
+                                <Fragment key={team.id}>
                                     <tr
                                         id={`team-row-${team.id}`}
                                         className={`team-row ${isExpanded ? 'bg-light' : ''}`}
@@ -223,7 +224,7 @@ const Teams = () => {
                                                 )}
                                             </div>
                                         </td>
-                                        <td className="d-none d-md-table-cell">{team.players.length}</td>
+                                        <td className="d-none d-md-table-cell">{players.length}</td>
                                         <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
                                         <td>
                                             <button
@@ -245,7 +246,7 @@ const Teams = () => {
                                             <td colSpan={5} className="bg-light p-3">
                                                 <div className="row g-3">
                                                     {(() => {
-                                                        const topScorerInTeam = [...team.players].sort((a, b) => {
+                                                        const topScorerInTeam = [...players].sort((a, b) => {
                                                             const goalsA = a.totalGoals || 0;
                                                             const goalsB = b.totalGoals || 0;
                                                             if (goalsB !== goalsA) return goalsB - goalsA;
@@ -254,7 +255,7 @@ const Teams = () => {
                                                             return avgB - avgA;
                                                         })[0];
 
-                                                        return team.players.map(player => {
+                                                        return players.map(player => {
                                                             const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
 
                                                             return (
@@ -312,7 +313,7 @@ const Teams = () => {
                                             </td>
                                         </tr>
                                     )}
-                                </>
+                                </Fragment>
                             );
                         })}
                     </tbody>

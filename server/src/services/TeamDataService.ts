@@ -3,6 +3,7 @@ import { CacheService } from './CacheService';
 import { SeasonService } from './SeasonService';
 import { StatsService } from './StatsService';
 import { Division } from '@prisma/client';
+import { PointsStatsService } from './PointsStatsService';
 
 function formatPlayer(player: any, statsMap: Map<number, any>) {
   const playerStats = statsMap.get(player.memberId);
@@ -24,12 +25,13 @@ function formatPlayer(player: any, statsMap: Map<number, any>) {
   };
 }
 
-function formatTeam(team: any, statsMap: Map<number, any>) {
+function formatTeam(team: any, statsMap: Map<number, any>, pointsTotal?: number) {
   return {
     id: team.id,
     name: team.name,
     logoUrl: team.logoUrl || '',
     logoPosition: team.logoPosition || 'right',
+    ...(pointsTotal !== undefined ? { totalPoints: pointsTotal } : {}),
     players: team.players
       .filter((p: any) => p.active)
       .map((p: any) => formatPlayer(p, statsMap)),
@@ -42,16 +44,20 @@ export class TeamDataService {
     const cacheKey = CacheService.key('doc', division, 'teams', 'all', season.id);
 
     return CacheService.getOrSet(cacheKey, 120, async () => {
-      const [teams, stats] = await Promise.all([
+      const [teams, stats, pointsStandings] = await Promise.all([
         prisma.team.findMany({
           where: { seasonId: season.id },
           include: { players: { where: { active: true }, orderBy: { number: 'asc' } } },
           orderBy: { id: 'asc' },
         }),
         division === Division.boys ? StatsService.calculatePlayerStats(season.id) : Promise.resolve([]),
+        division === Division.girls ? PointsStatsService.calculatePointsStandings(season.id) : Promise.resolve([]),
       ]);
       const statsMap = new Map(stats.map((s) => [s.memberId, s]));
-      return teams.map((t) => formatTeam(t, statsMap));
+      const pointsMap = new Map(pointsStandings.map((p) => [p.teamId, p.totalPoints]));
+      return teams.map((t) =>
+        formatTeam(t, statsMap, division === Division.girls ? pointsMap.get(t.id) ?? 0 : undefined)
+      );
     });
   }
 

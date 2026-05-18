@@ -1,16 +1,22 @@
 import { useEffect, useState } from 'react';
 import { newsAPI } from '../api/client';
+import { useTournament } from '../contexts/TournamentContext';
 import type { News } from '../types';
 
 const NewsBanner = () => {
+    const { slug } = useTournament();
     const [newsItem, setNewsItem] = useState<News | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
 
     useEffect(() => {
         const fetchNews = async () => {
             try {
-                const response = await newsAPI.getAll();
+                const response = await newsAPI.getAll(slug);
                 const newsData = response.data;
+                if (!Array.isArray(newsData) || newsData.length === 0) {
+                    setNewsItem(null);
+                    return;
+                }
 
                 if (newsData.length > 0) {
                     const sortedNews = [...newsData].sort((a, b) => {
@@ -26,7 +32,7 @@ const NewsBanner = () => {
         };
 
         fetchNews();
-    }, []);
+    }, [slug]);
 
     if (!newsItem) return null;
 

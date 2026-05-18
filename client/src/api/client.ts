@@ -17,9 +17,19 @@ api.interceptors.request.use((config) => {
 });
 
 // API endpoints
+export type TournamentSlug = 'boys' | 'girls';
+
+const teamsPath = (slug: TournamentSlug) => (slug === 'girls' ? '/teams-girls' : '/teams');
+const newsPath = (slug: TournamentSlug) => (slug === 'girls' ? '/news-girls' : '/news');
+
+export const seasonsAPI = {
+    getActive: (division: TournamentSlug = 'boys') =>
+        api.get('/seasons/active', { params: { division } }),
+};
+
 export const teamsAPI = {
-    getAll: () => api.get('/teams'),
-    getById: (id: number) => api.get(`/teams/${id}`),
+    getAll: (slug: TournamentSlug = 'boys') => api.get(teamsPath(slug)),
+    getById: (id: number, slug: TournamentSlug = 'boys') => api.get(`${teamsPath(slug)}/${id}`),
     getAvailablePlayers: (teamId: number) => api.get(`/teams/${teamId}/available-players`),
     getRequests: (id: number) => api.get(`/teams/${id}/requests`),
     approveRequest: (id: number, userId: string, status: 'approved' | 'rejected') =>
@@ -50,8 +60,13 @@ export const matchesAPI = {
     syncPlayoffs: () => api.post('/matches/sync-playoffs'),
 };
 
+export const statsGirlsAPI = {
+    getDashboard: () => api.get('/stats-girls'),
+    getStandings: () => api.get('/stats-girls/standings'),
+};
+
 export const newsAPI = {
-    getAll: () => api.get('/news'),
+    getAll: (slug: TournamentSlug = 'boys') => api.get(newsPath(slug)),
     create: (data: any) => api.post('/news', data),
     update: (id: number, data: any) => api.put(`/news/${id}`, data),
     delete: (id: number) => api.delete(`/news/${id}`),

@@ -2,11 +2,13 @@ import { Request, Response } from 'express';
 import { News } from '../models/News';
 import { AuthRequest } from '../middleware/auth';
 import { NewsDataService } from '../services/NewsDataService';
+import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 
 // Public: Get all news
 export const getAllNews = async (req: Request, res: Response): Promise<void> => {
     try {
-        const news = await NewsDataService.getAllNews();
+        const division = getRequestDivision(req as TournamentRequest);
+        const news = await NewsDataService.getAllNews(division);
         res.json(news);
     } catch (error) {
         console.error('Get news error:', error);

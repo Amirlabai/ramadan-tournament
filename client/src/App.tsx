@@ -7,8 +7,14 @@ import Login from './pages/admin/Login';
 import AdminPanel from './pages/admin/AdminPanel';
 import Profile from './pages/Profile';
 import MVPs from './pages/MVPs';
-import Navbar from './components/Navbar';
+import TournamentNavbar from './components/TournamentNavbar';
+import TournamentSwitcher from './components/TournamentSwitcher';
 import NewsBanner from './components/NewsBanner';
+import { TournamentProvider, TournamentPreferenceRedirect } from './contexts/TournamentContext';
+import GirlsHome from './pages/girls/GirlsHome';
+import GirlsTeams from './pages/girls/GirlsTeams';
+import GirlsNews from './pages/girls/GirlsNews';
+import GirlsArchive from './pages/girls/GirlsArchive';
 import Footer from './components/Footer';
 // import IftarTimer from './components/IftarTimer';
 import AlarmsWidget from './components/AlarmsWidget';
@@ -25,6 +31,8 @@ function App() {
 
   return (
     <Router>
+      <TournamentProvider>
+      <TournamentPreferenceRedirect />
       <div className="app" dir="rtl">
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
@@ -44,6 +52,7 @@ function App() {
               <img src="/to-be-logo.svg" className="header-side-logo left" alt="לוגו טורניר נצ'מאז" />
               <img src="/Flag_of_Adygea.svg" className="header-side-logo right" alt="דגל אדיגיה" />
               <h1 className="display-4 fw-bold">טורניר קיץ<br />2026</h1>
+              <TournamentSwitcher />
             </header>
           </div>
 
@@ -53,7 +62,7 @@ function App() {
 
         <div className="container-fluid">
           {/* Navigation Tabs */}
-          <Navbar />
+          <TournamentNavbar />
 
           {/* Main Content */}
           <main id="main-content" tabIndex={-1}>
@@ -69,6 +78,10 @@ function App() {
               <Route path="/profile" element={<Profile />} />
               <Route path="/player-zone" element={<PlayerZone />} />
               <Route path="/archive" element={<Archive />} />
+              <Route path="/girls" element={<GirlsHome />} />
+              <Route path="/teams-girls" element={<GirlsTeams />} />
+              <Route path="/news-girls" element={<GirlsNews />} />
+              <Route path="/archive-girls" element={<GirlsArchive />} />
               <Route path="/accessibility" element={<Accessibility />} />
             </Routes>
           </main>
@@ -81,6 +94,7 @@ function App() {
 
         <Analytics />
       </div>
+      </TournamentProvider>
     </Router>
   );
 }
