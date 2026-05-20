@@ -1,0 +1,52 @@
+/* Design tokens — edit primitives to change the boys (default) palette */
+
+:root {
+  --color-primary: #509238;
+  --color-primary-dark: #296912;
+  --color-secondary: #ffae00;
+  --color-danger: #ef4444;
+  --color-warning: #f59e0b;
+  --color-bg: #F5F5F5;
+  --color-surface: #ffffff;
+  --color-text: #333333;
+  --color-text-muted: #4b5563;
+  --color-border: #E0E0E0;
+  --color-focus: #0066cc;
+  --color-white: #FFFFFF;
+
+  --transition-speed: 0.3s;
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+
+  /* Banner SVG controls */
+  --banner-svg-height: 100%;
+  --banner-svg-scale: 1.0;
+  --banner-svg-opacity: 0.8;
+
+  /* Header side logo controls */
+  --header-logo-scale: 1.0;
+  --header-logo-opacity: 1;
+  --header-logo-inner-padding: 0%;
+
+  /* Legacy / dual naming — resolve through primitives */
+  --primary-green: var(--color-primary);
+  --primary: var(--color-primary);
+  --primary-dark: var(--color-primary-dark);
+  --secondary-yellow: var(--color-secondary);
+  --secondary: var(--color-secondary);
+  --danger: var(--color-danger);
+  --warning: var(--color-warning);
+  --light-gray: var(--color-bg);
+  --bg: var(--color-bg);
+  --dark-gray: var(--color-text);
+  --text: var(--color-text);
+  --text-light: var(--color-text-muted);
+  --text-muted: var(--color-text-muted);
+  --card-bg: var(--color-surface);
+  --white: var(--color-white);
+  --medium-gray: var(--color-border);
+  --border: var(--color-border);
+  --focus-color: var(--color-focus);
+  --accent-yellow: var(--color-secondary);
+  --accent: var(--color-secondary);
+}

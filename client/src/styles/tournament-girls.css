@@ -1,6 +1,12 @@
 /* Girls tournament theme — scoped via [data-tournament="girls"] on .app */
 
 [data-tournament="girls"] {
+  --color-primary: #9b4d72;
+  --color-primary-dark: #6b3a52;
+  --color-secondary: #c9a0dc;
+  --color-bg: #fff5f8;
+  --color-focus: #5b2d6e;
+
   --tournament-primary: #9b4d72;
   --tournament-primary-dark: #6b3a52;
   --tournament-accent: #c9a0dc;
@@ -17,11 +23,6 @@
     var(--tournament-gradient-start) 0%,
     var(--tournament-gradient-end) 100%
   );
-
-  --primary-green: var(--tournament-primary);
-  --secondary-yellow: var(--tournament-accent);
-  --light-gray: var(--tournament-surface);
-  --focus-color: var(--tournament-focus);
 }
 
 [data-tournament="girls"].app {

@@ -17,7 +17,7 @@
 }
 
 .claim-modal .modal-header {
-    background: linear-gradient(135deg, var(--primary-green) 0%, #1a4d0a 100%);
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
     color: white;
     border-bottom: none;
     border-radius: 12px 12px 0 0;

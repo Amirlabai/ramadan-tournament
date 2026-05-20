@@ -84,7 +84,7 @@
 }
 
 .comment-form .btn-primary:hover:not(:disabled) {
-    background: var(--primary-dark, #1a4d0a);
+    background: var(--primary-dark, var(--color-primary-dark));
     transform: translateY(-2px);
 }
 

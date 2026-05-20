@@ -21,7 +21,7 @@
    Main bubble
  ──────────────────────────────────────────────── */
 .alarms-bubble {
-    background: linear-gradient(135deg, #1b4d0b 0%, #2a6b11 100%);
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
     color: white;
     border-radius: 12px;
     padding: 15px;

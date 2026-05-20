@@ -69,7 +69,7 @@
 }
 
 .bg-theme-green {
-    background: linear-gradient(135deg, var(--primary-green) 0%, #1e5a0c 100%) !important;
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%) !important;
 }
 
 .bg-theme-yellow {

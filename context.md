@@ -29,11 +29,13 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 
 | Branch | Activation | Styles |
 |--------|------------|--------|
-| Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — [`client/src/index.css`](client/src/index.css) |
-| Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) |
+| Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — primitives in [`client/src/styles/tokens.css`](client/src/styles/tokens.css) |
+| Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) overrides `--color-*` on `[data-tournament="girls"]` |
 
-- Import order: `index.css` then `tournament-girls.css` in [`client/src/main.tsx`](client/src/main.tsx).
-- Girls theme aliases `--primary-green` etc. under `[data-tournament="girls"]` so shared components (tables, `.btn-theme-green`, header) repaint without duplicate rules.
+- **Palette (boys):** edit `--color-primary`, `--color-secondary`, etc. in `tokens.css` only. Legacy names (`--primary`, `--primary-green`, `--bg`, …) alias those primitives for existing CSS.
+- Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css`.
+- Layout/utilities (`.app`, `.card`, `.btn-primary`, `.loading`) live in [`client/src/App.css`](client/src/App.css) (no `:root` there).
+- Girls theme overrides `--color-*` primitives under `[data-tournament="girls"]` so shared components (tables, `.btn-theme-green`, header) repaint without duplicate rules.
 - Profile: girls registration card only uses `.registration-card--girls` ([`TournamentRegistrationCard.css`](client/src/components/profile/TournamentRegistrationCard.css)); Profile shell stays boys-green.
 - New UI tokens: `.tournament-page-title`, `.tournament-badge`, `.btn-tournament-primary`, `.text-tournament-primary` — prefer these over Bootstrap `text-success` on girls pages.
 

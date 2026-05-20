@@ -61,7 +61,7 @@
 .top-scorer h2,
 .mvp-race-card h2,
 .recent-matches h2 {
-    background: linear-gradient(135deg, var(--primary-green) 0%, #1e5a0c 100%);
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
     /* Premium Green header */
     color: #ffffff !important;
     margin: 0;
@@ -347,7 +347,7 @@
 }
 
 .playoff-indicator-badge {
-    background: linear-gradient(135deg, #2A6B11 0%, #1e4d0c 100%);
+    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
     color: #FFD700;
     font-weight: 700;
     font-size: 0.8rem;

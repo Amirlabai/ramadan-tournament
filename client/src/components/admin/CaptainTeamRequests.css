@@ -8,7 +8,7 @@
 
 .captain-requests th {
     font-weight: 600;
-    color: var(--primary-yellow, #ffff00);
+    color: var(--secondary-yellow);
 }
 
 .captain-requests td {
