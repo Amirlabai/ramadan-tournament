@@ -34,6 +34,12 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 - **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx). Prebuild regenerates `public/sitemap.xml` and `public/og-image.png`.
 - **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept.
 
+## Client production build (Vercel)
+
+- Default: full build with prerender (legal pages baked to `dist/about/index.html`, etc.). `vite-prerender-plugin` + `vite-plugin-pwa` can leave open handles; [`client/vite.config.ts`](client/vite.config.ts) uses `force-exit-after-build` so `npm run build` exits (same iron-sight workaround).
+- Fast path: `$env:PRERENDER='0'; npm run build` — SPA only, ~3s, no legal static HTML.
+- Vercel [`client/vercel.json`](client/vercel.json): no `PRERENDER=0` — production gets baked legal routes. Deploy adds ~5–15s vs fast path, not minutes, if force-exit is present.
+
 ## Dual tournament UI themes
 
 | Branch | Activation | Styles |

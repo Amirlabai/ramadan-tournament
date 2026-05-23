@@ -20,7 +20,14 @@ export async function prerender(data: { url: string }) {
   const pathname = url.pathname.replace(/\/$/, '') || '/'
   const Page = LEGAL_ROUTES[pathname]
 
+  // `/` must return html (even empty) — plugin crashes on undefined body
   if (!Page) {
+    if (pathname === '/') {
+      return {
+        html: '',
+        links: new Set(Object.keys(LEGAL_ROUTES)),
+      }
+    }
     return { html: '' }
   }
 

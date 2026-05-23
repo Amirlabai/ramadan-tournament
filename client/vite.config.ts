@@ -1,4 +1,4 @@
-import { defineConfig } from 'vite'
+import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { vitePrerenderPlugin } from 'vite-prerender-plugin'
@@ -8,6 +8,18 @@ import { fileURLToPath } from 'url'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isBuild = process.argv.includes('build')
 const enablePrerender = isBuild && process.env.PRERENDER !== '0'
+
+/** vite-prerender-plugin + PWA can leave open handles; Node never exits (local + CI). */
+function forceExitAfterBuild(): Plugin {
+  return {
+    name: 'force-exit-after-build',
+    apply: 'build',
+    enforce: 'post',
+    closeBundle() {
+      setTimeout(() => process.exit(0), 250)
+    },
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -57,6 +69,7 @@ export default defineConfig({
               '/terms',
             ],
           }),
+          forceExitAfterBuild(),
         ]
       : []),
   ],
