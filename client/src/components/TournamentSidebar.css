@@ -1,0 +1,211 @@
+.app-body {
+  display: grid;
+  /* RTL: column 1 = inline-start = visual right; sidebar in col 1, main in col 2 */
+  grid-template-columns: minmax(200px, 240px) 1fr;
+  grid-template-rows: 1fr;
+  gap: 0;
+  align-items: stretch;
+  flex: 1;
+  width: 100%;
+  max-width: 100%;
+  min-height: calc(100dvh - 20rem);
+}
+
+/* Full-height sidebar column (background + border) */
+.app-body::before {
+  content: '';
+  grid-column: 1;
+  grid-row: 1;
+  min-height: 100%;
+  background: var(--color-surface, #fff);
+  border-inline-end: 1px solid var(--color-border, #e0e0e0);
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.04);
+  z-index: 0;
+}
+
+.app-body > #main-content {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  padding: 0 0.5rem 1rem;
+}
+
+.tournament-sidebar--desktop {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: start;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  max-height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  padding: 0.75rem 0;
+  z-index: 1;
+}
+
+.tournament-sidebar--desktop > nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.tournament-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tournament-sidebar-item {
+  margin: 0;
+}
+
+.tournament-sidebar-link {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0.5rem 1rem;
+  color: var(--color-text, #333);
+  text-decoration: none;
+  font-weight: 500;
+  border-inline-start: 3px solid transparent;
+  transition: background-color var(--transition-speed, 0.2s),
+    color var(--transition-speed, 0.2s);
+}
+
+.tournament-sidebar-link:hover {
+  color: var(--color-primary, #509238);
+  background: rgba(80, 146, 56, 0.08);
+}
+
+.tournament-sidebar-link.active {
+  color: var(--color-primary, #509238);
+  font-weight: 700;
+  background: rgba(80, 146, 56, 0.12);
+  border-inline-start-color: var(--color-primary, #509238);
+}
+
+.tournament-sidebar-link.login-link {
+  background: hsl(51, 100%, 50%, 0.35);
+}
+
+.tournament-sidebar-link.login-link.active {
+  background: rgba(80, 146, 56, 0.12);
+}
+
+.tournament-sidebar-legal {
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--color-border, #e0e0e0);
+}
+
+.tournament-sidebar-legal .tournament-sidebar-link {
+  font-size: 0.875rem;
+  min-height: 40px;
+}
+
+.tournament-sidebar-dots {
+  display: none;
+  justify-content: center;
+  gap: 6px;
+  padding: 0.75rem 0 0.25rem;
+}
+
+.tournament-sidebar-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border, #ccc);
+}
+
+.tournament-sidebar-dot.active {
+  background: var(--color-primary, #509238);
+}
+
+/* Mobile drawer */
+@media (max-width: 767px) {
+  .app-body {
+    grid-template-columns: 1fr;
+    min-height: 0;
+  }
+
+  .app-body::before {
+    display: none;
+  }
+
+  .tournament-sidebar--drawer {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 0;
+    width: min(280px, 85vw);
+    z-index: 2500;
+    transform: translateX(100%);
+    transition: transform 0.25s ease;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .tournament-sidebar--drawer.is-open {
+    transform: translateX(0);
+  }
+
+  .tournament-sidebar--drawer.no-motion {
+    transition: none;
+  }
+
+  .tournament-sidebar-dots {
+    display: flex;
+  }
+
+  .tournament-sidebar-handle {
+    position: fixed;
+    inset-inline-end: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2400;
+    width: 28px;
+    min-height: 72px;
+    padding: 0.5rem 4px;
+    border: none;
+    border-radius: 12px 0 0 12px;
+    background: var(--color-primary, #509238);
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.2);
+  }
+
+  .tournament-sidebar-handle-bar {
+    display: block;
+    width: 4px;
+    height: 20px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.9);
+  }
+
+  .tournament-sidebar-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 2450;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    cursor: pointer;
+  }
+}
+
+[data-tournament='girls'] .tournament-sidebar-link:hover,
+[data-tournament='girls'] .tournament-sidebar-link.active {
+  color: var(--color-primary, #c77dff);
+  border-inline-start-color: var(--color-primary, #c77dff);
+}
+
+[data-tournament='girls'] .tournament-sidebar-handle {
+  background: var(--color-primary, #c77dff);
+}

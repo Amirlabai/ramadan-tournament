@@ -7,6 +7,18 @@ const NewsBanner = () => {
     const { slug } = useTournament();
     const [newsItem, setNewsItem] = useState<News | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(false);
+    const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
+
+    useEffect(() => {
+        const onScroll = () => {
+            if (window.scrollY > 50 && !hasAutoCollapsed) {
+                setIsCollapsed(true);
+                setHasAutoCollapsed(true);
+            }
+        };
+        window.addEventListener('scroll', onScroll, { passive: true });
+        return () => window.removeEventListener('scroll', onScroll);
+    }, [hasAutoCollapsed]);
 
     useEffect(() => {
         const fetchNews = async () => {

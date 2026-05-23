@@ -77,29 +77,18 @@
   color: var(--tournament-primary);
 }
 
-[data-tournament="girls"] .tournament-tabs .nav-link:hover {
+[data-tournament="girls"] .tournament-sidebar-link:hover,
+[data-tournament="girls"] .tournament-sidebar-link.active {
   color: var(--tournament-primary);
-  background-color: rgba(155, 77, 114, 0.08);
+  border-inline-start-color: var(--tournament-primary);
 }
 
-[data-tournament="girls"] .tournament-tabs .nav-link.active {
-  color: var(--tournament-primary);
-  background-color: rgba(155, 77, 114, 0.12);
-  border-bottom-color: var(--tournament-primary);
-}
-
-[data-tournament="girls"] .tournament-tabs .nav-link.login-link {
+[data-tournament="girls"] .tournament-sidebar-link.login-link {
   background-color: rgba(201, 160, 220, 0.35);
 }
 
-[data-tournament="girls"] .tournament-tabs .nav-link.login-link:hover {
-  background-color: rgba(201, 160, 220, 0.5);
-}
-
-[data-tournament="girls"] .tournament-tabs .nav-link.login-link.active {
-  color: var(--tournament-primary) !important;
-  background-color: rgba(155, 77, 114, 0.12) !important;
-  border-bottom-color: var(--tournament-primary) !important;
+[data-tournament="girls"] .tournament-sidebar-dot.active {
+  background: var(--tournament-primary);
 }
 
 [data-tournament="girls"] .tournament-switcher-btn {

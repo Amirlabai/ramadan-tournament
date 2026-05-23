@@ -8,9 +8,9 @@ const Footer = () => {
     return (
         <footer className="tournament-footer">
             <div className="container">
-                <div className="row py-4">
+                <div className="row py-3 tournament-footer-row">
                     {/* Tournament Info */}
-                    <div className="col-md-4 mb-3">
+                    <div className="col-md-4">
                         <h5 className="footer-heading">טורניר קיץ 2026</h5>
                         <p className="footer-text">
                             טורניר קיץ כדורגל בחסות מרכז צעירים<br />
@@ -19,7 +19,7 @@ const Footer = () => {
                     </div>
 
                     {/* Links */}
-                    <div className="col-md-4 mb-3">
+                    <div className="col-md-4">
                         <h5 className="footer-heading">קישורים</h5>
                         <ul className="footer-list">
                             <li><Link to="/mvps" className="footer-link">שחקני העונה</Link></li>
@@ -29,11 +29,14 @@ const Footer = () => {
                             <li><Link to="/stats" className="footer-link">סטטיסטיקות</Link></li>
                             <li><Link to="/archive" className="footer-link">היסטוריית הטורניר</Link></li>
                             <li><Link to="/accessibility" className="footer-link">נגישות</Link></li>
+                            <li><Link to="/about" className="footer-link">אודות</Link></li>
+                            <li><Link to="/privacy" className="footer-link">מדיניות פרטיות</Link></li>
+                            <li><Link to="/terms" className="footer-link">תנאי שימוש</Link></li>
                         </ul>
                     </div>
 
                     {/* Administration/Personal Links */}
-                    <div className="col-md-4 mb-3">
+                    <div className="col-md-4">
                         <h5 className="footer-heading">ניהול ומשתנים</h5>
                         <ul className="footer-list">
                             {user ? (

@@ -1,7 +1,7 @@
 # Project Context: Ramadan Tournament
 
 ## Tech Stack
-- **Frontend**: React 18, Vite, TypeScript, Bootstrap 5.
+- **Frontend**: React 19, Vite 7, TypeScript, Bootstrap 5, PWA (`vite-plugin-pwa`), `react-helmet-async`.
 - **Backend**: Node.js, Express, **PostgreSQL (Prisma)**, **Redis (ioredis)**, TypeScript.
 - **Data**: JSON in `data/` for bootstrap seed; Postgres for runtime.
 - **DevOps**: Render (API + Postgres + Redis), Vercel (Frontend).
@@ -22,8 +22,17 @@
 | `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
 | `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
+| `VITE_SITE_URL` | No | Yes | Canonical URL for SEO, sitemap, OG (no trailing slash) |
 
 Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite.
+
+## Client shell and navigation (May 2026)
+
+- **Main app routes** (`/`, `/teams`, …): `AppShell` with header, news banner, `app-body` grid (main + right sidebar), footer.
+- **Legal routes** (`/about`, `/privacy`, `/terms`, `/accessibility`): standalone `LegalPageLayout` (no tournament chrome); prerendered at build.
+- **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). Mobile: off-canvas drawer + edge drag handle; horizontal swipe on `#main-content` moves to adjacent tab (non-looping).
+- **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx). Prebuild regenerates `public/sitemap.xml` and `public/og-image.png`.
+- **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept.
 
 ## Dual tournament UI themes
 

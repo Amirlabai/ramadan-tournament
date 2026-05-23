@@ -1,47 +1,91 @@
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async'
+import {
+  getSiteUrl,
+  getRouteSeo,
+  canonicalUrl,
+  organizationJsonLd,
+  webSiteJsonLd,
+  webApplicationJsonLd,
+  breadcrumbJsonLd,
+  type BreadcrumbItem,
+} from '../config/seoConfig'
 
 interface SEOProps {
-  title?: string;
-  description?: string;
-  keywords?: string;
-  image?: string;
-  url?: string;
-  type?: string;
+  title?: string
+  description?: string
+  keywords?: string
+  image?: string
+  url?: string
+  type?: string
+  pathname?: string
+  breadcrumbs?: BreadcrumbItem[]
+  noindex?: boolean
 }
 
 const SEO = ({
   title,
-  description = "טורניר כפר כמא - תוצאות בזמן אמת, טבלאות, סטטיסטיקות וחדשות. עקבו אחרי טורניר כפר כמא.",
-  keywords = "טורניר, כדורגל, כפר כמא, תוצאות כדורגל, ליגה , Ramadan Tournament, Kfar Kama, Football, amir labai, amir labay, אמיר לבאי, אמיר לבי, מרכז צעירים, מרכז צעירים כפר כמא",
-  image = "https://ramadan-tournament-client.vercel.app/og-image.jpg",
-  url = "https://ramadan-tournament-client.vercel.app/",
-  type = "website"
+  description,
+  keywords,
+  image,
+  url,
+  type = 'website',
+  pathname = '/',
+  breadcrumbs,
+  noindex = false,
 }: SEOProps) => {
-  const fullTitle = title ? `${title} | טורניר כפר כמא` : "טורניר כפר כמא - 2026";
+  const routeMeta = getRouteSeo(pathname)
+  const resolvedTitle = title ?? routeMeta.title
+  const resolvedDescription = description ?? routeMeta.description
+  const resolvedKeywords = keywords ?? routeMeta.keywords
+  const siteUrl = getSiteUrl()
+  const canonical = url ?? canonicalUrl(pathname)
+  const ogImage = image ?? `${siteUrl}/og-image.png`
+  const fullTitle =
+    resolvedTitle && !resolvedTitle.includes('טורניר')
+      ? `${resolvedTitle} | טורניר קיץ 2026`
+      : resolvedTitle || 'טורניר קיץ 2026'
+
+  const jsonLdBlocks: object[] = [
+    organizationJsonLd(),
+    webSiteJsonLd(),
+    webApplicationJsonLd(),
+  ]
+  if (breadcrumbs && breadcrumbs.length > 0) {
+    jsonLdBlocks.push(breadcrumbJsonLd(breadcrumbs))
+  }
 
   return (
     <Helmet>
-      {/* Standard metadata tags */}
+      <html lang="he" dir="rtl" />
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <meta name="keywords" content={keywords} />
-      <link rel="canonical" href={url} />
+      <meta name="description" content={resolvedDescription} />
+      <meta name="keywords" content={resolvedKeywords} />
+      <link rel="canonical" href={canonical} />
+      {noindex && <meta name="robots" content="noindex, nofollow" />}
 
-      {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
-      <meta property="og:url" content={url} />
+      <meta property="og:url" content={canonical} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
+      <meta property="og:description" content={resolvedDescription} />
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:locale" content="he_IL" />
 
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:url" content={url} />
+      <meta name="twitter:url" content={canonical} />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
-    </Helmet>
-  );
-};
+      <meta name="twitter:description" content={resolvedDescription} />
+      <meta name="twitter:image" content={ogImage} />
 
-export default SEO;
+      <link rel="icon" type="image/x-icon" href="/tab-logo.ico" />
+      <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+      {jsonLdBlocks.map((block, i) => (
+        <script key={i} type="application/ld+json">
+          {JSON.stringify(block)}
+        </script>
+      ))}
+    </Helmet>
+  )
+}
+
+export default SEO
