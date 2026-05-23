@@ -1,0 +1,111 @@
+/* High contrast — user toggle (data-high-contrast) or system prefers-contrast */
+
+@media (prefers-contrast: more) {
+  :root:not([data-high-contrast='false']) {
+    --color-text: #0a0a0a;
+    --color-text-muted: #1a1a1a;
+    --color-border: #000000;
+    --color-focus: #0000cc;
+  }
+}
+
+html[data-high-contrast='true'] {
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #000000;
+  --color-text-muted: #1a1a1a;
+  --color-primary: #003b00;
+  --color-primary-dark: #002200;
+  --color-secondary: #5c4300;
+  --color-danger: #8b0000;
+  --color-warning: #6b4a00;
+  --color-border: #000000;
+  --color-focus: #0000ee;
+  --color-white: #ffffff;
+  --shadow: none;
+  --shadow-lg: 0 0 0 2px #000;
+}
+
+html[data-high-contrast='true'] [data-tournament='girls'] {
+  --color-primary: #4a0066;
+  --color-primary-dark: #2d0040;
+  --color-secondary: #3d2a00;
+}
+
+/* Solid surfaces instead of gradients */
+html[data-high-contrast='true'] .tournament-header,
+html[data-high-contrast='true'] .tournament-footer,
+html[data-high-contrast='true'] .legal-page-header {
+  background: var(--color-primary-dark) !important;
+  color: var(--color-white) !important;
+}
+
+html[data-high-contrast='true'] .news-banner {
+  background: #ffff00 !important;
+  border: 2px solid #000 !important;
+}
+
+html[data-high-contrast='true'] .news-banner h2,
+html[data-high-contrast='true'] .news-banner h4,
+html[data-high-contrast='true'] .news-banner p {
+  color: #000 !important;
+}
+
+html[data-high-contrast='true'] .app-body::before {
+  background: var(--color-surface) !important;
+  border-inline-end: 2px solid #000 !important;
+  box-shadow: none !important;
+}
+
+html[data-high-contrast='true'] .tournament-sidebar-link {
+  border-inline-start-width: 4px;
+}
+
+html[data-high-contrast='true'] .tournament-sidebar-link.active {
+  background: #e8e8e8 !important;
+  font-weight: 700;
+}
+
+html[data-high-contrast='true'] .tournament-sidebar-link.login-link {
+  background: #ffffcc !important;
+  border: 1px solid #000;
+}
+
+html[data-high-contrast='true'] .card,
+html[data-high-contrast='true'] .dashboard-card {
+  border: 2px solid #000 !important;
+  box-shadow: none !important;
+}
+
+html[data-high-contrast='true'] a:not(.btn):not(.nav-link):not(.tournament-sidebar-link) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+html[data-high-contrast='true'] .btn-theme-green,
+html[data-high-contrast='true'] .btn-primary {
+  background: var(--color-primary-dark) !important;
+  color: #fff !important;
+  border: 2px solid #000 !important;
+}
+
+html[data-high-contrast='true'] :focus-visible {
+  outline: 3px solid var(--color-focus) !important;
+  outline-offset: 2px;
+}
+
+/* Windows forced-colors / high contrast themes */
+@media (forced-colors: active) {
+  .tournament-sidebar-link:focus-visible,
+  .a11y-toolbar-btn:focus-visible,
+  .footer-link:focus-visible,
+  .nav-link:focus-visible {
+    outline: 2px solid Highlight;
+  }
+
+  .tournament-sidebar-link.active {
+    forced-color-adjust: none;
+    background: Highlight;
+    color: HighlightText;
+  }
+}

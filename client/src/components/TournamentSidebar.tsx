@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { useTournament } from '../contexts/TournamentContext'
 import { getMainNavItems, getNavIndex } from '../utils/mainNavItems'
 import { useFocusTrap } from '../hooks/useFocusTrap'
+import { useDrawerSwipeClose } from '../hooks/useDrawerSwipeClose'
 import './TournamentSidebar.css'
 
 interface TournamentSidebarProps {
@@ -58,6 +59,7 @@ const TournamentSidebar = ({
   const activeIndex = getNavIndex(location.pathname, items)
   const panelRef = useFocusTrap(isMobile && open, () => onOpenChange(false))
   const close = () => onOpenChange(false)
+  const drawerSwipe = useDrawerSwipeClose(close, isMobile && open)
 
   const legalLinks = [
     { to: '/about', label: 'אודות' },
@@ -146,7 +148,7 @@ const TournamentSidebar = ({
             <button
               type="button"
               className="tournament-sidebar-backdrop"
-              aria-label="סגור תפריט"
+              aria-label="סגור תפריט — הקש על הרקע"
               onClick={close}
             />
           )}
@@ -157,8 +159,28 @@ const TournamentSidebar = ({
         ref={panelRef}
         className={`tournament-sidebar ${isMobile ? 'tournament-sidebar--drawer' : 'tournament-sidebar--desktop'} ${open ? 'is-open' : ''} ${reducedMotion ? 'no-motion' : ''}`}
         aria-label="ניווט ראשי"
+        aria-hidden={isMobile && !open}
+        onTouchStart={drawerSwipe.onTouchStart}
+        onTouchMove={drawerSwipe.onTouchMove}
+        onTouchEnd={drawerSwipe.onTouchEnd}
       >
+        {isMobile && (
+          <div className="tournament-sidebar-drawer-head">
+            <h2 className="tournament-sidebar-drawer-title">תפריט</h2>
+            <p className="tournament-sidebar-drawer-hint">החלק ימינה או הקש על הרקע לסגירה</p>
+          </div>
+        )}
         <nav>{sidebarContent}</nav>
+        {isMobile && (
+          <button
+            type="button"
+            className="tournament-sidebar-drawer-close-bottom"
+            onClick={close}
+            aria-label="סגור תפריט ניווט"
+          >
+            סגור
+          </button>
+        )}
       </aside>
     </>
   )

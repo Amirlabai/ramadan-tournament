@@ -37,17 +37,19 @@ const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
       </main>
       <footer className="legal-page-footer">
         <div className="container">
-          <nav aria-label="קישורים משפטיים">
-            <Link to="/about" className="me-3">
+          <nav className="legal-page-footer-nav" aria-label="קישורים משפטיים">
+            <Link to="/about" className="legal-page-footer-link">
               אודות
             </Link>
-            <Link to="/accessibility" className="me-3">
+            <Link to="/accessibility" className="legal-page-footer-link">
               נגישות
             </Link>
-            <Link to="/privacy" className="me-3">
+            <Link to="/privacy" className="legal-page-footer-link">
               פרטיות
             </Link>
-            <Link to="/terms">תנאים</Link>
+            <Link to="/terms" className="legal-page-footer-link">
+              תנאים
+            </Link>
           </nav>
           <p className="mt-2 mb-0">Amir Labay · summertournament@gmail.com</p>
         </div>

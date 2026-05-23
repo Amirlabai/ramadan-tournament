@@ -85,6 +85,33 @@ body:has(.legal-page-shell) {
   color: var(--color-text-muted, #4b5563);
 }
 
+.legal-page-footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem 1.25rem;
+}
+
+.legal-page-footer-link {
+  color: var(--color-primary-dark, #296912);
+  text-decoration: underline;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.legal-page-footer-link:hover {
+  color: var(--color-text, #333);
+}
+
+.legal-page-footer-link:focus-visible {
+  outline: 3px solid var(--color-focus, #0066cc);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 .legal-skip-link {
   position: absolute;
   top: -100px;

@@ -37,6 +37,7 @@ import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
 import RouteErrorBoundary from './components/RouteErrorBoundary'
 import CookieNotice from './components/CookieNotice'
+import AccessibilityToolbar from './components/AccessibilityToolbar'
 import { useCookieConsent } from './hooks/useCookieConsent'
 import { useSidebarDrawer } from './hooks/useSidebarDrawer'
 import { useSwipeTabNavigation } from './hooks/useSwipeTabNavigation'
@@ -161,6 +162,7 @@ function App() {
   return (
     <Router>
       <CookieNotice />
+      <AccessibilityToolbar />
       <Routes>
         <Route path="/about" element={<About />} />
         <Route path="/accessibility" element={<Accessibility />} />
