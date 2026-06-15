@@ -1,5 +1,4 @@
-import { getRedis } from '../config/redis';
-import { config } from '../config/env';
+import { disableRedis, getRedis, isRedisEnabled } from '../config/redis';
 
 const PREFIX = 'rt:';
 
@@ -7,7 +6,23 @@ type MemoryEntry = { value: string; expiresAt: number };
 const memoryCache = new Map<string, MemoryEntry>();
 
 function useMemory(): boolean {
-  return !config.redisUrl;
+  return !isRedisEnabled();
+}
+
+function memoryGet<T>(key: string): T | null {
+  const entry = memoryCache.get(key);
+  if (!entry || entry.expiresAt < Date.now()) {
+    memoryCache.delete(key);
+    return null;
+  }
+  return JSON.parse(entry.value) as T;
+}
+
+function memorySet(key: string, value: unknown, ttlSeconds?: number): void {
+  memoryCache.set(key, {
+    value: JSON.stringify(value),
+    expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : Number.MAX_SAFE_INTEGER,
+  });
 }
 
 export class CacheService {
@@ -18,39 +33,32 @@ export class CacheService {
   static async get<T>(key: string): Promise<T | null> {
     try {
       if (useMemory()) {
-        const entry = memoryCache.get(key);
-        if (!entry || entry.expiresAt < Date.now()) {
-          memoryCache.delete(key);
-          return null;
-        }
-        return JSON.parse(entry.value) as T;
+        return memoryGet<T>(key);
       }
       const raw = await getRedis().get(key);
       if (!raw) return null;
       return JSON.parse(raw) as T;
     } catch (err) {
-      console.warn('Cache get error:', err);
-      return null;
+      disableRedis(err);
+      return memoryGet<T>(key);
     }
   }
 
   static async set(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
     try {
-      const payload = JSON.stringify(value);
       if (useMemory()) {
-        memoryCache.set(key, {
-          value: payload,
-          expiresAt: ttlSeconds ? Date.now() + ttlSeconds * 1000 : Number.MAX_SAFE_INTEGER,
-        });
+        memorySet(key, value, ttlSeconds);
         return;
       }
+      const payload = JSON.stringify(value);
       if (ttlSeconds) {
         await getRedis().setex(key, ttlSeconds, payload);
       } else {
         await getRedis().set(key, payload);
       }
     } catch (err) {
-      console.warn('Cache set error:', err);
+      disableRedis(err);
+      memorySet(key, value, ttlSeconds);
     }
   }
 
@@ -63,7 +71,8 @@ export class CacheService {
       }
       await getRedis().del(...keys);
     } catch (err) {
-      console.warn('Cache del error:', err);
+      disableRedis(err);
+      keys.forEach((k) => memoryCache.delete(k));
     }
   }
 
@@ -79,7 +88,7 @@ export class CacheService {
       const keys = await getRedis().keys(pattern);
       if (keys.length) await getRedis().del(...keys);
     } catch (err) {
-      console.warn('Cache invalidatePattern error:', err);
+      disableRedis(err);
     }
   }
 

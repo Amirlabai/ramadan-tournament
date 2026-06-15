@@ -2,6 +2,8 @@ import fs from 'fs';
 import path from 'path';
 import { config } from '../config/env';
 import { CacheService } from './CacheService';
+import { fetchFootballData } from './FootballDataClient';
+import { readJsonFromFile } from '../utils/readJsonFile';
 import {
   buildDashboard,
   buildCompleteTeamGroupMap,
@@ -16,8 +18,6 @@ import {
   type NormalizedTeam,
   type NormalizedTopScorer,
 } from './WorldCupNormalizer';
-
-const FD_BASE = 'https://api.football-data.org/v4';
 
 function resolveDataDir(): string {
   const candidates = [
@@ -36,22 +36,11 @@ function readMockJson<T>(filename: string): T {
   if (!fs.existsSync(filePath)) {
     throw new Error(`World Cup mock data missing: ${filePath}`);
   }
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8')) as T;
+  return readJsonFromFile<T>(filePath);
 }
 
 async function fetchFd<T>(endpoint: string): Promise<T> {
-  const apiKey = config.footballDataApiKey;
-  if (!apiKey) {
-    throw new Error('FOOTBALL_DATA_API_KEY not set');
-  }
-  const res = await fetch(`${FD_BASE}${endpoint}`, {
-    headers: { 'X-Auth-Token': apiKey },
-  });
-  if (!res.ok) {
-    const body = await res.text().catch(() => '');
-    throw new Error(`football-data.org ${res.status}: ${body.slice(0, 200)}`);
-  }
-  return res.json() as Promise<T>;
+  return fetchFootballData<T>(endpoint);
 }
 
 function seasonParam(): string {
@@ -64,13 +53,13 @@ function competitionPath(): string {
 
 function cacheTtl(matches: NormalizedMatch[]): number {
   const live = matches.some((m) => m.status === 'LIVE' || m.status === 'IN_PLAY' || m.status === 'PAUSED');
-  return live ? 60 : 120;
+  return live ? 60 : 300;
 }
 
 export class FootballDataService {
   static async getMeta(): Promise<Record<string, unknown>> {
     const key = CacheService.key('wc', 'meta', config.footballDataSeason);
-    return CacheService.getOrSet(key, 300, async () => {
+    return CacheService.getOrSet(key, 600, async () => {
       try {
         if (config.footballDataApiKey) {
           return await fetchFd(`${competitionPath()}?${seasonParam()}`);
@@ -101,14 +90,14 @@ export class FootballDataService {
       console.warn('FD matches fetch failed, using mock:', err);
       const raw = readMockJson<{ matches: unknown[] }>('matches.json');
       const matches = normalizeMatchesResponse(raw as Parameters<typeof normalizeMatchesResponse>[0]);
-      await CacheService.set(key, matches, 120);
+      await CacheService.set(key, matches, 300);
       return matches;
     }
   }
 
   static async getStandings(): Promise<GroupStanding[]> {
     const key = CacheService.key('wc', 'standings', 'v2', config.footballDataSeason);
-    return CacheService.getOrSet(key, 120, async () => {
+    return CacheService.getOrSet(key, 300, async () => {
       const matches = await this.getMatches();
       const teamGroupMap = buildCompleteTeamGroupMap(matches);
 
@@ -133,7 +122,7 @@ export class FootballDataService {
 
   static async getTopScorers(): Promise<NormalizedTopScorer[]> {
     const key = CacheService.key('wc', 'scorers', config.footballDataSeason);
-    return CacheService.getOrSet(key, 120, async () => {
+    return CacheService.getOrSet(key, 300, async () => {
       try {
         if (config.footballDataApiKey) {
           const raw = await fetchFd(`${competitionPath()}/scorers?${seasonParam()}&limit=50`);
@@ -149,7 +138,7 @@ export class FootballDataService {
 
   static async getTeams(): Promise<NormalizedTeam[]> {
     const key = CacheService.key('wc', 'teams', config.footballDataSeason);
-    return CacheService.getOrSet(key, 300, async () => {
+    return CacheService.getOrSet(key, 600, async () => {
       try {
         if (config.footballDataApiKey) {
           const raw = await fetchFd(`${competitionPath()}/teams?${seasonParam()}`);

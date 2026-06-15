@@ -1,4 +1,5 @@
 import fs from 'fs';
+import { readJsonFromFile } from '../utils/readJsonFile';
 import path from 'path';
 import { wcPlayerName, wcPosition, wcTeamName, wcVenue } from '../utils/worldCupLocale';
 
@@ -190,9 +191,9 @@ export function loadTeamGroupFallback(): Map<number, string> {
   try {
     const filePath = path.join(resolveWorldCupDataDir(), 'team-groups.json');
     if (!fs.existsSync(filePath)) return map;
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8')) as {
+    const data = readJsonFromFile<{
       teamGroups?: Record<string, string>;
-    };
+    }>(filePath);
     for (const [id, group] of Object.entries(data.teamGroups || {})) {
       map.set(Number(id), group);
     }

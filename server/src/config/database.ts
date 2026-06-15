@@ -1,5 +1,5 @@
 import { prisma } from '../lib/prisma';
-import { connectRedis, disconnectRedis } from './redis';
+import { connectRedis, disconnectRedis, isRedisEnabled } from './redis';
 
 export async function connectDatabase(): Promise<void> {
   await prisma.$connect();
@@ -7,7 +7,11 @@ export async function connectDatabase(): Promise<void> {
 
   if (process.env.REDIS_URL) {
     await connectRedis();
-    console.log('Redis connected');
+    if (isRedisEnabled()) {
+      console.log('Redis connected');
+    } else {
+      console.warn('Redis unavailable — using in-memory cache');
+    }
   } else if (process.env.NODE_ENV === 'production') {
     throw new Error('REDIS_URL is required in production');
   } else {

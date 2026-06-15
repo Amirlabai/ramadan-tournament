@@ -15,7 +15,7 @@ import statsRoutes from './routes/stats';
 import adminRoutes from './routes/admin';
 import commentRoutes from './routes/comments';
 import seasonsRoutes from './routes/seasons';
-import { pingRedis } from './config/redis';
+import { pingRedis, connectRedis } from './config/redis';
 import playerRoutes from './routes/player';
 import voteRoutes from './routes/votes';
 import archiveRoutes from './routes/archive';
@@ -127,6 +127,9 @@ const startServer = async () => {
             apiMode = 'mock';
         } else if (worldCupStandalone) {
             apiMode = 'worldcup-only';
+            if (config.redisUrl) {
+                await connectRedis();
+            }
         } else {
             try {
                 await connectDatabase();
