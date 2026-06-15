@@ -1,6 +1,23 @@
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
+if (process.env.npm_lifecycle_event === 'dev:mock') {
+  const mockEnv = path.join(process.cwd(), 'env.mock');
+  if (fs.existsSync(mockEnv)) {
+    dotenv.config({ path: mockEnv, override: true });
+  } else {
+    process.env.MOCK_DEV_DATA = '1';
+  }
+}
+
+const mockDevData =
+  process.env.MOCK_DEV_DATA === '1' || process.env.MOCK_DEV_DATA === 'true';
+
+if (mockDevData && !process.env.JWT_SECRET) {
+  process.env.JWT_SECRET = 'mock-dev-jwt-secret-change-me';
+}
 
 export const config = {
   port: process.env.PORT || 5000,
@@ -10,6 +27,7 @@ export const config = {
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
   adminPassword: process.env.ADMIN_PASSWORD || '',
   nodeEnv: process.env.NODE_ENV || 'development',
+  mockDevData,
   email: {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',
@@ -17,12 +35,16 @@ export const config = {
   },
 };
 
-if (!config.databaseUrl) {
-  throw new Error('DATABASE_URL is required');
+if (!config.mockDevData && !config.databaseUrl) {
+  throw new Error('DATABASE_URL is required (or set MOCK_DEV_DATA=1 for local JSON mock)');
 }
 
-if (!config.jwtSecret) {
+if (!config.jwtSecret && !config.mockDevData) {
   throw new Error('JWT_SECRET is required');
+}
+
+if (config.mockDevData && config.nodeEnv === 'production') {
+  throw new Error('MOCK_DEV_DATA must not be enabled in production');
 }
 
 if (config.nodeEnv === 'production' && !config.redisUrl) {

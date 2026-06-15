@@ -35,6 +35,20 @@ export const authorize = (roles: string[]) => {
                 return;
             }
 
+            if (config.mockDevData && req.userId === 'mock-dev-admin') {
+                const token = req.headers.authorization?.replace('Bearer ', '');
+                if (token) {
+                    const decoded = jwt.verify(token, config.jwtSecret) as { role?: string };
+                    const role = decoded.role || 'admin';
+                    if (roles.includes(role) || roles.includes('Admin')) {
+                        next();
+                        return;
+                    }
+                }
+                res.status(403).json({ error: 'Permission denied: insufficient role' });
+                return;
+            }
+
             const { User } = await import('../models/User');
             const user = await User.findById(req.userId);
 

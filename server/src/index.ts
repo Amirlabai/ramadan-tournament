@@ -58,49 +58,56 @@ app.use('/api/auth', limiter);
 app.use('/api/players', limiter); // Rate limit player auth too
 
 import userRoutes from './routes/users';
+import { registerMockRoutes } from './mock/registerMockRoutes';
 
-// Routes
-app.get('/api/health', async (req, res) => {
-    const redisOk = process.env.REDIS_URL ? await pingRedis() : null;
-    res.json({
-        status: 'ok',
-        database: 'postgres',
-        redis: redisOk === null ? 'disabled' : redisOk ? 'ok' : 'error',
-        timestamp: new Date().toISOString(),
+function mountApiRoutes(): void {
+    if (config.mockDevData) {
+        registerMockRoutes(app);
+        return;
+    }
+
+    app.get('/api/health', async (req, res) => {
+        const redisOk = process.env.REDIS_URL ? await pingRedis() : null;
+        res.json({
+            status: 'ok',
+            database: 'postgres',
+            redis: redisOk === null ? 'disabled' : redisOk ? 'ok' : 'error',
+            timestamp: new Date().toISOString(),
+        });
     });
-});
 
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/teams', teamRoutes);
-app.use('/api/teams-girls', setGirlsDivision, teamRoutes);
-app.use('/api/matches', matchRoutes);
-app.use('/api/news', newsRoutes);
-app.use('/api/news-girls', setGirlsDivision, newsRoutes);
-app.use('/api/stats', statsRoutes);
-app.use('/api/stats-girls', statsGirlsRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/comments', commentRoutes);
-app.use('/api/seasons', seasonsRoutes);
-app.use('/api/players', playerRoutes);
-app.use('/api/votes', voteRoutes);
-app.use('/api/votes-girls', setGirlsDivision, voteRoutes);
-app.use('/api/archive', archiveRoutes);
-
-// Error handler
-app.use(errorHandler);
+    app.use('/api/auth', authRoutes);
+    app.use('/api/users', userRoutes);
+    app.use('/api/teams', teamRoutes);
+    app.use('/api/teams-girls', setGirlsDivision, teamRoutes);
+    app.use('/api/matches', matchRoutes);
+    app.use('/api/news', newsRoutes);
+    app.use('/api/news-girls', setGirlsDivision, newsRoutes);
+    app.use('/api/stats', statsRoutes);
+    app.use('/api/stats-girls', statsGirlsRoutes);
+    app.use('/api/admin', adminRoutes);
+    app.use('/api/comments', commentRoutes);
+    app.use('/api/seasons', seasonsRoutes);
+    app.use('/api/players', playerRoutes);
+    app.use('/api/votes', voteRoutes);
+    app.use('/api/votes-girls', setGirlsDivision, voteRoutes);
+    app.use('/api/archive', archiveRoutes);
+}
 
 // Start server
 const startServer = async () => {
     try {
-        await connectDatabase();
+        if (!config.mockDevData) {
+            await connectDatabase();
+        }
+
+        mountApiRoutes();
+        app.use(errorHandler);
 
         app.listen(config.port, () => {
-            console.log(`🚀 Server running on port ${config.port}`);
-            console.log(`📍 Environment: ${config.nodeEnv}`);
+            console.log(`Server running on port ${config.port}`);
+            console.log(`Environment: ${config.nodeEnv}${config.mockDevData ? ' (mock data)' : ''}`);
         });
-
-
     } catch (error) {
         console.error('Failed to start server:', error);
         process.exit(1);
