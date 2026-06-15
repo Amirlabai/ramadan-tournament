@@ -33,7 +33,7 @@ Temporary read-only integration with [football-data.org](https://www.football-da
 | `FOOTBALL_DATA_COMPETITION` | `WC` (optional, default) |
 | `FOOTBALL_DATA_SEASON` | `2026` (optional, default) |
 
-With `WORLD_CUP_ONLY=true`, `DATABASE_URL` / `REDIS_URL` / `JWT_SECRET` are not required. Build skips `db:migrate` (`scripts/render-api-build.mjs`). Cache uses in-memory when Redis is unset.
+With `WORLD_CUP_ONLY=true` or no `DATABASE_URL`, startup skips Postgres. If `DATABASE_URL` points at a dead DB but `WORLD_CUP_ENABLED=true`, the server falls back to WC-only routes after connect fails.
 
 Full tournament API (boys/girls + WC): set `WORLD_CUP_ENABLED=true` only — Postgres and Redis still required.
 

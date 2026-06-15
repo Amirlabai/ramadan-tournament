@@ -61,6 +61,8 @@ app.use('/api/players', limiter); // Rate limit player auth too
 import userRoutes from './routes/users';
 import { registerMockRoutes } from './mock/registerMockRoutes';
 
+type ApiMode = 'mock' | 'full' | 'worldcup-only';
+
 function mountWorldCupOnlyRoutes(): void {
     app.get('/api/health', (_req, res) => {
         res.json({
@@ -74,13 +76,13 @@ function mountWorldCupOnlyRoutes(): void {
     app.use('/api/worldcup', worldcupRoutes);
 }
 
-function mountApiRoutes(): void {
-    if (config.mockDevData) {
+function mountApiRoutes(mode: ApiMode): void {
+    if (mode === 'mock') {
         registerMockRoutes(app);
         return;
     }
 
-    if (worldCupStandalone) {
+    if (mode === 'worldcup-only') {
         mountWorldCupOnlyRoutes();
         return;
     }
@@ -119,20 +121,43 @@ function mountApiRoutes(): void {
 // Start server
 const startServer = async () => {
     try {
-        if (!config.mockDevData && !worldCupStandalone) {
-            await connectDatabase();
+        let apiMode: ApiMode = 'full';
+
+        if (config.mockDevData) {
+            apiMode = 'mock';
+        } else if (worldCupStandalone) {
+            apiMode = 'worldcup-only';
+        } else {
+            try {
+                await connectDatabase();
+            } catch (dbError) {
+                if (config.worldCupEnabled) {
+                    console.warn(
+                        'Postgres unavailable — starting World Cup only mode:',
+                        dbError instanceof Error ? dbError.message : dbError,
+                    );
+                    apiMode = 'worldcup-only';
+                } else {
+                    throw dbError;
+                }
+            }
         }
 
-        mountApiRoutes();
+        console.log(
+            `API mode: ${apiMode} (WORLD_CUP_ENABLED=${config.worldCupEnabled}, WORLD_CUP_ONLY=${config.worldCupOnly}, DATABASE_URL=${config.databaseUrl ? 'set' : 'unset'})`,
+        );
+
+        mountApiRoutes(apiMode);
         app.use(errorHandler);
 
         app.listen(config.port, () => {
             console.log(`Server running on port ${config.port}`);
-            const mode = config.mockDevData
-                ? ' (mock data)'
-                : worldCupStandalone
-                  ? ' (world cup only — no Postgres)'
-                  : '';
+            const mode =
+                apiMode === 'mock'
+                    ? ' (mock data)'
+                    : apiMode === 'worldcup-only'
+                      ? ' (world cup only — no Postgres)'
+                      : '';
             console.log(`Environment: ${config.nodeEnv}${mode}`);
         });
     } catch (error) {

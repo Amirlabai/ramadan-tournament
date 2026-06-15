@@ -23,6 +23,9 @@ if (mockDevData && !process.env.JWT_SECRET) {
   process.env.JWT_SECRET = 'mock-dev-jwt-secret-change-me';
 }
 
+const worldCupOnlyFlag =
+  process.env.WORLD_CUP_ONLY === '1' || process.env.WORLD_CUP_ONLY === 'true';
+
 export const config = {
   port: process.env.PORT || 5000,
   databaseUrl: process.env.DATABASE_URL || '',
@@ -33,9 +36,10 @@ export const config = {
   nodeEnv: process.env.NODE_ENV || 'development',
   mockDevData,
   worldCupEnabled:
-    process.env.WORLD_CUP_ENABLED === '1' || process.env.WORLD_CUP_ENABLED === 'true',
-  worldCupOnly:
-    process.env.WORLD_CUP_ONLY === '1' || process.env.WORLD_CUP_ONLY === 'true',
+    process.env.WORLD_CUP_ENABLED === '1' ||
+    process.env.WORLD_CUP_ENABLED === 'true' ||
+    worldCupOnlyFlag,
+  worldCupOnly: worldCupOnlyFlag,
   footballDataApiKey: process.env.FOOTBALL_DATA_API_KEY || '',
   footballDataCompetition: process.env.FOOTBALL_DATA_COMPETITION || 'WC',
   footballDataSeason: process.env.FOOTBALL_DATA_SEASON || '2026',
@@ -48,7 +52,8 @@ export const config = {
 
 /** API serves only /api/worldcup/* — no Postgres, Redis optional (in-memory cache). */
 export const worldCupStandalone =
-  config.worldCupEnabled && config.worldCupOnly && !config.mockDevData;
+  !config.mockDevData &&
+  (config.worldCupOnly || (config.worldCupEnabled && !config.databaseUrl));
 
 if (!config.mockDevData && !worldCupStandalone && !config.databaseUrl) {
   throw new Error('DATABASE_URL is required (or set MOCK_DEV_DATA=1 for local JSON mock)');
@@ -62,6 +67,6 @@ if (config.mockDevData && config.nodeEnv === 'production') {
   throw new Error('MOCK_DEV_DATA must not be enabled in production');
 }
 
-if (config.nodeEnv === 'production' && !worldCupStandalone && !config.redisUrl) {
+if (config.nodeEnv === 'production' && !worldCupStandalone && !config.redisUrl && !config.worldCupEnabled) {
   throw new Error('REDIS_URL is required in production');
 }
