@@ -28,9 +28,14 @@ Temporary read-only integration with [football-data.org](https://www.football-da
 | Variable | Value |
 |----------|--------|
 | `WORLD_CUP_ENABLED` | `true` |
+| `WORLD_CUP_ONLY` | `true` — **WC-only API**: skips Postgres/Redis/JWT at startup; only `/api/worldcup/*` + `/api/health` |
 | `FOOTBALL_DATA_API_KEY` | Your token from [football-data.org](https://www.football-data.org/client/register) dashboard |
 | `FOOTBALL_DATA_COMPETITION` | `WC` (optional, default) |
 | `FOOTBALL_DATA_SEASON` | `2026` (optional, default) |
+
+With `WORLD_CUP_ONLY=true`, `DATABASE_URL` / `REDIS_URL` / `JWT_SECRET` are not required. Build skips `db:migrate` (`scripts/render-api-build.mjs`). Cache uses in-memory when Redis is unset.
+
+Full tournament API (boys/girls + WC): set `WORLD_CUP_ENABLED=true` only — Postgres and Redis still required.
 
 ### Vercel (client)
 
@@ -192,9 +197,10 @@ Manual fixes for famous players: `data/worldcup/player-overrides.json` (preserve
 
 1. Set `WORLD_CUP_ENABLED=false` on Render; redeploy API.
 2. Set `VITE_WORLD_CUP_ENABLED=false` and `VITE_WORLD_CUP_ONLY=false` on Vercel; redeploy client.
-3. Verify boys routes (`/`, `/schedule`, `/stats`) unchanged and switcher shows only boys + girls.
-4. Optional cleanup — delete new files listed in section 3 (new files only).
-5. No database migration or re-seed required.
+3. Remove `WORLD_CUP_ONLY` from Render (or set `false`); restore `DATABASE_URL` / `REDIS_URL` if pausing WC-only mode.
+4. Verify boys routes (`/`, `/schedule`, `/stats`) unchanged and switcher shows only boys + girls.
+5. Optional cleanup — delete new files listed in section 3 (new files only).
+6. No database migration or re-seed required for WC removal (WC never wrote to Postgres).
 
 ---
 

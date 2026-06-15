@@ -4,7 +4,7 @@ services:
     env: node
     region: frankfurt  # or singapore for free tier
     plan: free
-    buildCommand: npm install && npm run db:migrate --workspace=server && npm run build --workspace=server
+    buildCommand: npm install && node scripts/render-api-build.mjs
     startCommand: npm start --workspace=server
     healthCheckPath: /api/health
     envVars:
@@ -21,6 +21,8 @@ services:
       - key: ADMIN_PASSWORD
         sync: false  # Set manually in Render dashboard
       - key: WORLD_CUP_ENABLED
+        value: "true"
+      - key: WORLD_CUP_ONLY
         value: "true"
       - key: FOOTBALL_DATA_API_KEY
         sync: false

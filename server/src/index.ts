@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { connectDatabase } from './config/database';
-import { config } from './config/env';
+import { config, worldCupStandalone } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
 
 // Routes
@@ -61,9 +61,27 @@ app.use('/api/players', limiter); // Rate limit player auth too
 import userRoutes from './routes/users';
 import { registerMockRoutes } from './mock/registerMockRoutes';
 
+function mountWorldCupOnlyRoutes(): void {
+    app.get('/api/health', (_req, res) => {
+        res.json({
+            status: 'ok',
+            mode: 'worldcup-only',
+            database: 'skipped',
+            redis: config.redisUrl ? 'optional' : 'memory-cache',
+            timestamp: new Date().toISOString(),
+        });
+    });
+    app.use('/api/worldcup', worldcupRoutes);
+}
+
 function mountApiRoutes(): void {
     if (config.mockDevData) {
         registerMockRoutes(app);
+        return;
+    }
+
+    if (worldCupStandalone) {
+        mountWorldCupOnlyRoutes();
         return;
     }
 
@@ -101,7 +119,7 @@ function mountApiRoutes(): void {
 // Start server
 const startServer = async () => {
     try {
-        if (!config.mockDevData) {
+        if (!config.mockDevData && !worldCupStandalone) {
             await connectDatabase();
         }
 
@@ -110,7 +128,12 @@ const startServer = async () => {
 
         app.listen(config.port, () => {
             console.log(`Server running on port ${config.port}`);
-            console.log(`Environment: ${config.nodeEnv}${config.mockDevData ? ' (mock data)' : ''}`);
+            const mode = config.mockDevData
+                ? ' (mock data)'
+                : worldCupStandalone
+                  ? ' (world cup only — no Postgres)'
+                  : '';
+            console.log(`Environment: ${config.nodeEnv}${mode}`);
         });
     } catch (error) {
         console.error('Failed to start server:', error);
