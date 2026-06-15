@@ -62,6 +62,7 @@ const Archive: React.FC = () => {
       <SEO
         title="היסטוריית הטורניר"
         description="צפו בתוצאות, בסטטיסטיקות וברגעי השיא מכל העונות הקודמות של טורניר הרמדאן."
+        pathname="/archive"
       />
 
       <h2 className="mb-4 fw-bold text-success border-bottom pb-2">ארכיון הטורניר</h2>

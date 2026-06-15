@@ -1,4 +1,5 @@
 import { Helmet } from 'react-helmet-async'
+import { useLocation } from 'react-router-dom'
 import {
   getSiteUrl,
   getRouteSeo,
@@ -22,6 +23,10 @@ interface SEOProps {
   noindex?: boolean
 }
 
+function normalizePathname(path: string): string {
+  return path.replace(/\/$/, '') || '/'
+}
+
 const SEO = ({
   title,
   description,
@@ -29,16 +34,18 @@ const SEO = ({
   image,
   url,
   type = 'website',
-  pathname = '/',
+  pathname,
   breadcrumbs,
   noindex = false,
 }: SEOProps) => {
-  const routeMeta = getRouteSeo(pathname)
+  const location = useLocation()
+  const resolvedPathname = pathname ?? normalizePathname(location.pathname)
+  const routeMeta = getRouteSeo(resolvedPathname)
   const resolvedTitle = title ?? routeMeta.title
   const resolvedDescription = description ?? routeMeta.description
   const resolvedKeywords = keywords ?? routeMeta.keywords
   const siteUrl = getSiteUrl()
-  const canonical = url ?? canonicalUrl(pathname)
+  const canonical = url ?? canonicalUrl(resolvedPathname)
   const ogImage = image ?? `${siteUrl}/og-image.png`
   const fullTitle =
     resolvedTitle && !resolvedTitle.includes('טורניר')

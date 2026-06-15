@@ -5,7 +5,7 @@ const GirlsArchive = () => (
     <SEO
       title="ארכיון — טורניר בנות"
       description="ארכיון עונות קודמות של טורניר בנות רמדאן."
-      url="https://ramadan-tournament-client.vercel.app/archive-girls"
+      pathname="/archive-girls"
     />
     <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">ארכיון</h2>
     <p className="text-muted">אין עדיין עונות בארכיון לטורניר בנות.</p>

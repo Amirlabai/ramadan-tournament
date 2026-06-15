@@ -52,10 +52,10 @@ const Stats = () => {
 
     return (
         <div className="stats-page container py-4">
-            <SEO 
-                title="סטטיסטיקות" 
-                description="טבלאות ליגה, מלכי השערים וסטטיסטיקות מתקדמות של טורניר רמדאן 2026. עקבו אחרי המירוץ לאליפות ולתואר מלך השערים." 
-                url="https://ramadan-tournament-client.vercel.app/stats"
+            <SEO
+                title="סטטיסטיקות"
+                description="טבלאות ליגה, מלכי השערים וסטטיסטיקות מתקדמות של טורניר רמדאן 2026. עקבו אחרי המירוץ לאליפות ולתואר מלך השערים."
+                pathname="/stats"
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">סטטיסטיקות</h2>
 

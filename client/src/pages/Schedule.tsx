@@ -191,7 +191,7 @@ const Schedule = () => {
             <SEO 
                 title="לוח משחקים" 
                 description="לוח המשחקים המלא של טורניר רמדאן 2026. עדכונים חיים, תוצאות וזמני משחקים של כל שלבי הטורניר." 
-                url="https://ramadan-tournament-client.vercel.app/schedule"
+                pathname="/schedule"
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">לוח משחקים</h2>
 

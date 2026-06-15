@@ -9,6 +9,21 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isBuild = process.argv.includes('build')
 const enablePrerender = isBuild && process.env.PRERENDER !== '0'
 
+const legalPrerenderRoutes = ['/about', '/accessibility', '/privacy', '/terms']
+const headOnlyPublicRoutes = [
+  '/teams',
+  '/schedule',
+  '/stats',
+  '/mvps',
+  '/archive',
+  '/girls',
+  '/teams-girls',
+  '/news-girls',
+  '/archive-girls',
+  '/player-zone',
+]
+const noindexPrerenderRoutes = ['/login', '/admin/login', '/admin', '/profile']
+
 /** vite-prerender-plugin + PWA can leave open handles; Node never exits (local + CI). */
 function forceExitAfterBuild(): Plugin {
   return {
@@ -63,10 +78,9 @@ export default defineConfig({
             renderTarget: '#root',
             prerenderScript: path.resolve(__dirname, 'src/prerender.tsx'),
             additionalPrerenderRoutes: [
-              '/about',
-              '/accessibility',
-              '/privacy',
-              '/terms',
+              ...legalPrerenderRoutes,
+              ...headOnlyPublicRoutes,
+              ...noindexPrerenderRoutes,
             ],
           }),
           forceExitAfterBuild(),

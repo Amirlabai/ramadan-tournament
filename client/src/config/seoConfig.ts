@@ -178,3 +178,23 @@ export const PUBLIC_SITEMAP_PATHS = [
   '/privacy',
   '/terms',
 ] as const
+
+export const LEGAL_PRERENDER_PATHS = [
+  '/about',
+  '/accessibility',
+  '/privacy',
+  '/terms',
+] as const
+
+/** Auth and utility routes excluded from search indexing. */
+export const NOINDEX_PATHS = [
+  '/login',
+  '/admin/login',
+  '/admin',
+  '/profile',
+] as const
+
+/** Canonical pathname used when prerendering noindex auth aliases. */
+export const NOINDEX_CANONICAL_PATHS: Record<string, string> = {
+  '/admin/login': '/login',
+}

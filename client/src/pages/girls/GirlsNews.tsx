@@ -48,7 +48,7 @@ const GirlsNews = () => {
       <SEO
         title="חדשות — טורניר בנות"
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."
-        url="https://ramadan-tournament-client.vercel.app/news-girls"
+        pathname="/news-girls"
       />
       <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">חדשות</h2>
       {items.length === 0 ? (

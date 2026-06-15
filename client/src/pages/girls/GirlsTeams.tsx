@@ -107,7 +107,7 @@ const GirlsTeams = () => {
       <SEO
         title="קבוצות — טורניר בנות"
         description="רשימת הקבוצות והסגלים בטורניר בנות רמדאן 2026, כולל סך נקודות לכל קבוצה."
-        url="https://ramadan-tournament-client.vercel.app/teams-girls"
+        pathname="/teams-girls"
       />
       <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">קבוצות הטורניר</h2>
 

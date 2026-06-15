@@ -269,7 +269,8 @@ const Profile = () => {
             <SEO
                 title="פרופיל אישי"
                 description="עריכת פרופיל, תמונה ושיוך שחקן — טורניר קיץ 2026."
-                url="https://ramadan-tournament-client.vercel.app/profile"
+                pathname="/profile"
+                noindex
             />
             <div className="container py-4" style={{ maxWidth: 760 }}>
 

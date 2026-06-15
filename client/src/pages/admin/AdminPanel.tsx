@@ -304,7 +304,8 @@ const AdminPanel = () => {
             <SEO
                 title="פאנל ניהול"
                 description="ניהול משחקים, חדשות, שחקנים ותגובות — טורניר קיץ 2026."
-                url="https://ramadan-tournament-client.vercel.app/admin"
+                pathname="/admin"
+                noindex
             />
             <div className="admin-header">
                 <h2>פאנל {user?.role === 'Captain' ? 'קפטן' : 'ניהול'}</h2>

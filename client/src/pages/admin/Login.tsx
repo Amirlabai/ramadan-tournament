@@ -119,7 +119,8 @@ const Login = () => {
             <SEO
                 title={isVerifying ? 'אימות אימייל' : (isLoginView ? 'התחברות' : 'הרשמה')}
                 description="התחברות ורישום למערכת טורניר קיץ 2026 כפר כמא."
-                url="https://ramadan-tournament-client.vercel.app/login"
+                pathname="/login"
+                noindex
             />
             <div className="login-card card">
                 <h2 className="mb-4 text-center">

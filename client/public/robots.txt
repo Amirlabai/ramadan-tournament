@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
-Disallow: /admin
+Disallow: /login
 Disallow: /admin/login
+Disallow: /admin
+Disallow: /profile
 
 Sitemap: https://ramadan-tournament-client.vercel.app/sitemap.xml

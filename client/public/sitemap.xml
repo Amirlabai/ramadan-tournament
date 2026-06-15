@@ -2,91 +2,91 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/teams</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/schedule</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/stats</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/mvps</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/archive</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/girls</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/teams-girls</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/news-girls</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/archive-girls</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/player-zone</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/about</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/accessibility</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/privacy</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://ramadan-tournament-client.vercel.app/terms</loc>
-    <lastmod>2026-05-23</lastmod>
+    <lastmod>2026-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>

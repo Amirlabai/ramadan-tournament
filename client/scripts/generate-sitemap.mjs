@@ -27,6 +27,8 @@ const paths = [
   '/terms',
 ]
 
+const noindexPaths = ['/login', '/admin/login', '/admin', '/profile']
+
 const today = new Date().toISOString().slice(0, 10)
 
 const urls = paths
@@ -46,5 +48,14 @@ ${urls}
 </urlset>
 `
 
+const robots = `User-agent: *
+Allow: /
+${noindexPaths.map((p) => `Disallow: ${p}`).join('\n')}
+
+Sitemap: ${siteUrl}/sitemap.xml
+`
+
 writeFileSync(join(publicDir, 'sitemap.xml'), xml, 'utf8')
+writeFileSync(join(publicDir, 'robots.txt'), robots, 'utf8')
 console.log(`Wrote sitemap.xml (${paths.length} URLs) → ${siteUrl}`)
+console.log(`Wrote robots.txt (disallow ${noindexPaths.length} paths) → ${siteUrl}`)

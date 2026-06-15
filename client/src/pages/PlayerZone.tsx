@@ -101,10 +101,10 @@ const PlayerZone = () => {
 
     return (
         <div className="player-zone-container container py-5">
-            <SEO 
-                title="אזור שחקנים" 
-                description="אזור אישי לשחקני טורניר רמדאן 2026. העלאת תמונות פרופיל, עדכון פרטים וצפייה בסטטיסטיקות אישיות." 
-                url="https://ramadan-tournament-client.vercel.app/player-zone"
+            <SEO
+                title="אזור שחקנים"
+                description="אזור אישי לשחקני טורניר רמדאן 2026. העלאת תמונות פרופיל, עדכון פרטים וצפייה בסטטיסטיקות אישיות."
+                pathname="/player-zone"
             />
             <h2 className="text-center mb-4 text-success fw-bold">אזור אישי לשחקנים</h2>
 

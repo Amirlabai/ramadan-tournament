@@ -176,7 +176,7 @@ const Teams = () => {
             <SEO
                 title="קבוצות ושחקנים"
                 description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
-                url="https://ramadan-tournament-client.vercel.app/teams"
+                pathname="/teams"
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
 
