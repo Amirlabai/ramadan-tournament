@@ -21,7 +21,8 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const [loadingPending, setLoadingPending] = useState(false);
     const [actingId, setActingId] = useState<string | null>(null);
 
-    const reg = user?.tournamentRegistration?.[slug];
+    const reg =
+        slug === 'boys' || slug === 'girls' ? user?.tournamentRegistration?.[slug] : undefined;
     const isOwner = reg?.ownedTeamId === teamId;
     const onRoster = !!reg?.onRoster;
     const canJoin = !!user && !onRoster && !isOwner;

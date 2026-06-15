@@ -14,6 +14,7 @@ import {
   getStatsMaps,
   getTopScorers,
 } from './mockStats';
+import worldcupRoutes from '../routes/worldcup';
 
 const MOCK_ADMIN_ID = 'mock-dev-admin';
 
@@ -181,6 +182,10 @@ export function registerMockRoutes(app: Express): void {
   app.get('/api/comments/:matchId', (_req, res) => res.json([]));
   app.get('/api/votes/results', (_req, res) => res.json({}));
   app.get('/api/archive', (_req, res) => res.json([]));
+
+  if (config.worldCupEnabled) {
+    app.use('/api/worldcup', worldcupRoutes);
+  }
 
   app.post('/api/auth/login', (req, res) => {
     const { username, email, password } = req.body;

@@ -73,8 +73,13 @@ const Schedule = () => {
         return () => clearInterval(interval);
     }, [matches.length]);
 
-    if (loading) return <div className="loading">טוען...</div>;
-    if (error) return <div className="error">{error}</div>;
+    if (loading) return (
+        <div className="loading" role="status">
+            <span className="visually-hidden">טוען...</span>
+            טוען...
+        </div>
+    );
+    if (error) return <div className="error" role="alert">{error}</div>;
 
     const getTeamName = (teamId: number) => {
         const team = teams.find(t => t.id === teamId);
@@ -195,12 +200,13 @@ const Schedule = () => {
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">לוח משחקים</h2>
 
-            <div className="schedule-filters">
+            <div className="schedule-filters" role="group" aria-label="סינון משחקים">
                 {filterOptions.map(({ key, label }) => (
                     <button
                         type="button"
                         key={key}
                         className={`filter-btn ${activeFilter === key ? 'active' : ''} ${key !== 'all' ? key : ''}`}
+                        aria-pressed={activeFilter === key}
                         onClick={() => setActiveFilter(key)}
                     >
                         {label}

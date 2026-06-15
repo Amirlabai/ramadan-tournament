@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useState } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,10 +20,12 @@ const Teams = () => {
     const [voteLoaded, setVoteLoaded] = useState(false);
     const [isVoting, setIsVoting] = useState(false);
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
+    const [loginPromptOpen, setLoginPromptOpen] = useState(false);
     const [dismissPrompt, setDismissPrompt] = useState(false);
     const { user, loading: authLoading } = useAuth();
     const { slug } = useTournament();
     const location = useLocation();
+    const navigate = useNavigate();
     // Check if user is logged in
     const isLoggedIn = !!user;
 
@@ -136,11 +138,7 @@ const Teams = () => {
         e.stopPropagation();
 
         if (!isLoggedIn) {
-            if (window.confirm('יש להתחבר כדי להצביע לשחקן הטורניר! האם תרצה לעבור לעמוד ההתחברות?')) {
-                // Navigate to login, and optionally pass a returnTo state so they come back to teams
-                // Assuming standard login behavior redirects to dashboard, we just go to login for now.
-                window.location.href = '/login';
-            }
+            setLoginPromptOpen(true);
             return;
         }
 
@@ -446,6 +444,48 @@ const Teams = () => {
                             </div>
                         </div>
                 ) : null}
+            </AccessibleModal>
+
+            <AccessibleModal
+                open={loginPromptOpen}
+                onClose={() => setLoginPromptOpen(false)}
+                titleId="login-prompt-title"
+            >
+                <div className="modal-content border-0 shadow">
+                    <div className="modal-header">
+                        <h2 id="login-prompt-title" className="modal-title h5">נדרשת התחברות</h2>
+                        <button
+                            type="button"
+                            className="btn-close"
+                            onClick={() => setLoginPromptOpen(false)}
+                            aria-label="סגור"
+                        />
+                    </div>
+                    <div className="modal-body">
+                        <p className="mb-0">
+                            יש להתחבר כדי להצביע לשחקן הטורניר. לעבור לעמוד ההתחברות?
+                        </p>
+                    </div>
+                    <div className="modal-footer">
+                        <button
+                            type="button"
+                            className="btn btn-secondary"
+                            onClick={() => setLoginPromptOpen(false)}
+                        >
+                            ביטול
+                        </button>
+                        <button
+                            type="button"
+                            className="btn btn-success"
+                            onClick={() => {
+                                setLoginPromptOpen(false);
+                                navigate('/login');
+                            }}
+                        >
+                            התחברות
+                        </button>
+                    </div>
+                </div>
             </AccessibleModal>
         </div>
     );

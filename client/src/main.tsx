@@ -8,6 +8,7 @@ import { A11yPreferencesProvider } from './contexts/A11yPreferencesContext'
 import './styles/tokens.css'
 import './index.css'
 import './styles/tournament-girls.css'
+import './styles/tournament-worldcup.css'
 import './styles/a11y-high-contrast.css'
 import App from './App.tsx'
 

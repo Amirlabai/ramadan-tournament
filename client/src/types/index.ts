@@ -28,6 +28,7 @@ export interface Team {
 export interface Goal {
     memberId: number;
     minute: number;
+    playerName?: string;
 }
 
 export interface Match {
@@ -48,6 +49,9 @@ export interface Match {
     team2LogoPosition?: 'left' | 'right' | 'none';
     goals: Goal[];
     commentCount?: number;
+    status?: string;
+    stage?: string;
+    group?: string;
     createdAt: string;
 }
 
@@ -72,6 +76,10 @@ export interface Standing {
     goalsAgainst: number;
     goalDifference: number;
     points: number;
+}
+
+export interface GroupStanding extends Standing {
+    group: string;
 }
 
 export interface TopScorer {

@@ -52,9 +52,9 @@ const TournamentSidebar = ({
   onHandlePointerUp,
 }: TournamentSidebarProps) => {
   const { user } = useAuth()
-  const { paths, isGirls } = useTournament()
+  const { paths, isGirls, isWorldCup } = useTournament()
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin'
-  const items = getMainNavItems({ isGirls, paths, user, isAdmin })
+  const items = getMainNavItems({ isGirls, isWorldCup, paths, user, isAdmin })
   const location = useLocation()
   const activeIndex = getNavIndex(location.pathname, items)
   const panelRef = useFocusTrap(isMobile && open, () => onOpenChange(false))

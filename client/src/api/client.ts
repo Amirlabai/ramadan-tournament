@@ -1,5 +1,8 @@
 import axios from 'axios';
 import type { Match, TopScorer } from '../types';
+import type { TournamentSlug } from '../utils/tournamentPaths';
+
+export type { TournamentSlug } from '../utils/tournamentPaths';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 
@@ -15,9 +18,6 @@ api.interceptors.request.use((config) => {
     }
     return config;
 });
-
-// API endpoints
-export type TournamentSlug = 'boys' | 'girls';
 
 const teamsPath = (slug: TournamentSlug) => (slug === 'girls' ? '/teams-girls' : '/teams');
 const newsPath = (slug: TournamentSlug) => (slug === 'girls' ? '/news-girls' : '/news');
@@ -80,6 +80,16 @@ export const statsAPI = {
     getPlayerStats: () => api.get('/stats/player-stats'),
     getPlayoffs: () => api.get<Match[]>('/stats/playoffs'),
     getDashboard: () => api.get('/stats/dashboard'),
+};
+
+export const worldcupAPI = {
+    getMeta: () => api.get('/worldcup/meta'),
+    getMatches: () => api.get<Match[]>('/worldcup/matches'),
+    getTeams: () => api.get('/worldcup/teams'),
+    getStandings: () => api.get('/worldcup/stats/standings'),
+    getTopScorers: () => api.get<TopScorer[]>('/worldcup/stats/top-scorers'),
+    getDashboard: () => api.get('/worldcup/stats/dashboard'),
+    getKnockout: () => api.get<Match[]>('/worldcup/stats/knockout'),
 };
 
 export const authAPI = {

@@ -9,6 +9,11 @@ const siteUrl = (
   process.env.VITE_SITE_URL || 'https://ramadan-tournament-client.vercel.app'
 ).replace(/\/$/, '')
 
+const worldCupPaths =
+  process.env.VITE_WORLD_CUP_ENABLED === 'true' || process.env.VITE_WORLD_CUP_ENABLED === '1'
+    ? ['/world-cup', '/world-cup/teams', '/world-cup/schedule', '/world-cup/stats']
+    : []
+
 const paths = [
   '/',
   '/teams',
@@ -20,6 +25,7 @@ const paths = [
   '/teams-girls',
   '/news-girls',
   '/archive-girls',
+  ...worldCupPaths,
   '/player-zone',
   '/about',
   '/accessibility',

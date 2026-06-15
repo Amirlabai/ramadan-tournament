@@ -1,0 +1,56 @@
+{
+  "matches": [
+    {
+      "id": 500001,
+      "utcDate": "2026-06-15T19:00:00Z",
+      "status": "SCHEDULED",
+      "venue": "MetLife Stadium",
+      "stage": "GROUP_STAGE",
+      "group": "GROUP_A",
+      "homeTeam": { "id": 760, "name": "Mexico", "crest": "https://crests.football-data.org/760.svg" },
+      "awayTeam": { "id": 794, "name": "South Africa", "crest": "https://crests.football-data.org/794.svg" },
+      "score": { "fullTime": { "home": null, "away": null } },
+      "goals": []
+    },
+    {
+      "id": 500002,
+      "utcDate": "2026-06-14T22:00:00Z",
+      "status": "FINISHED",
+      "venue": "SoFi Stadium",
+      "stage": "GROUP_STAGE",
+      "group": "GROUP_B",
+      "homeTeam": { "id": 764, "name": "Brazil", "crest": "https://crests.football-data.org/764.svg" },
+      "awayTeam": { "id": 779, "name": "Morocco", "crest": "https://crests.football-data.org/779.svg" },
+      "score": { "fullTime": { "home": 2, "away": 1 } },
+      "goals": [
+        { "minute": 23, "scorer": { "id": 9001, "name": "Vinícius Júnior" }, "team": { "id": 764, "name": "Brazil" } },
+        { "minute": 67, "scorer": { "id": 9002, "name": "Richarlison" }, "team": { "id": 764, "name": "Brazil" } },
+        { "minute": 81, "scorer": { "id": 9003, "name": "Hakimi" }, "team": { "id": 779, "name": "Morocco" } }
+      ]
+    },
+    {
+      "id": 500003,
+      "utcDate": "2026-07-14T19:00:00Z",
+      "status": "SCHEDULED",
+      "venue": "AT&T Stadium",
+      "stage": "SEMI_FINALS",
+      "group": null,
+      "homeTeam": { "id": 758, "name": "Argentina", "crest": "https://crests.football-data.org/758.svg" },
+      "awayTeam": { "id": 764, "name": "Brazil", "crest": "https://crests.football-data.org/764.svg" },
+      "score": { "fullTime": { "home": null, "away": null } },
+      "goals": []
+    },
+    {
+      "id": 500004,
+      "utcDate": "2026-07-19T19:00:00Z",
+      "status": "SCHEDULED",
+      "venue": "MetLife Stadium",
+      "stage": "FINAL",
+      "group": null,
+      "homeTeam": { "id": 758, "name": "Argentina", "crest": "https://crests.football-data.org/758.svg" },
+      "awayTeam": { "id": 760, "name": "Mexico", "crest": "https://crests.football-data.org/760.svg" },
+      "score": { "fullTime": { "home": null, "away": null } },
+      "goals": []
+    }
+  ]
+}

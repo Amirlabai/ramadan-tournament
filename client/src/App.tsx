@@ -3,6 +3,7 @@ import {
   Routes,
   Route,
   useLocation,
+  Navigate,
 } from 'react-router-dom'
 import { useRef } from 'react'
 import Dashboard from './pages/Dashboard'
@@ -25,6 +26,11 @@ import GirlsHome from './pages/girls/GirlsHome'
 import GirlsTeams from './pages/girls/GirlsTeams'
 import GirlsNews from './pages/girls/GirlsNews'
 import GirlsArchive from './pages/girls/GirlsArchive'
+import WorldCupDashboard from './pages/worldcup/WorldCupDashboard'
+import WorldCupTeams from './pages/worldcup/WorldCupTeams'
+import WorldCupSchedule from './pages/worldcup/WorldCupSchedule'
+import WorldCupStats from './pages/worldcup/WorldCupStats'
+import { worldCupEnabled, worldCupOnly, worldCupOnlyRedirect } from './utils/worldCupEnabled'
 import Footer from './components/Footer'
 import AlarmsWidget from './components/AlarmsWidget'
 import ScrollToTop from './components/ScrollToTop'
@@ -45,10 +51,15 @@ import { getMainNavItems } from './utils/mainNavItems'
 import { useAuth } from './contexts/AuthContext'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 function AppRoutes() {
   const location = useLocation()
+  const wcRedirect = worldCupOnlyRedirect(location.pathname)
+  if (wcRedirect) {
+    return <Navigate to={wcRedirect} replace />
+  }
+
   return (
     <RouteErrorBoundary key={location.pathname}>
       <Routes>
@@ -67,6 +78,14 @@ function AppRoutes() {
         <Route path="/teams-girls" element={<GirlsTeams />} />
         <Route path="/news-girls" element={<GirlsNews />} />
         <Route path="/archive-girls" element={<GirlsArchive />} />
+        {worldCupEnabled && (
+          <>
+            <Route path="/world-cup" element={<WorldCupDashboard />} />
+            <Route path="/world-cup/teams" element={<WorldCupTeams />} />
+            <Route path="/world-cup/schedule" element={<WorldCupSchedule />} />
+            <Route path="/world-cup/stats" element={<WorldCupStats />} />
+          </>
+        )}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </RouteErrorBoundary>
@@ -75,7 +94,7 @@ function AppRoutes() {
 
 function AppShell() {
   const [activeWidget, setActiveWidget] = useState<'none' | 'alarms'>('none')
-  const { isGirls, paths } = useTournament()
+  const { isGirls, isWorldCup, paths } = useTournament()
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin'
   const { consent } = useCookieConsent()
@@ -90,17 +109,26 @@ function AppShell() {
     onHandlePointerUp,
   } = useSidebarDrawer()
 
-  const navItems = getMainNavItems({ isGirls, paths, user, isAdmin })
+  const navItems = getMainNavItems({ isGirls, isWorldCup, paths, user, isAdmin })
+
+  const tournamentTheme = isWorldCup ? 'worldcup' : isGirls ? 'girls' : 'boys'
 
   useSwipeTabNavigation(mainRef, {
     items: navItems,
     disabled: !isMobile || drawerOpen,
   })
 
+  useEffect(() => {
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (!meta) return
+    const color = isWorldCup ? '#1a3a6e' : isGirls ? '#9b4d72' : '#509238'
+    meta.setAttribute('content', color)
+  }, [isWorldCup, isGirls])
+
   return (
     <>
       <TournamentPreferenceRedirect />
-      <div className="app" dir="rtl" data-tournament={isGirls ? 'girls' : 'boys'}>
+      <div className="app" dir="rtl" data-tournament={tournamentTheme}>
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
         </a>
@@ -114,7 +142,7 @@ function AppShell() {
               <img
                 src="/to-be-logo.svg"
                 className="header-side-logo left"
-                alt="לוגו טורניר נצ'מאז"
+                alt={isWorldCup ? 'לוגו מונדיאל 2026' : "לוגו טורניר נצ'מאז"}
               />
               <img
                 src="/Flag_of_Adygea.svg"
@@ -122,17 +150,26 @@ function AppShell() {
                 alt="דגל אדיגיה"
               />
               <h1 className="display-4 fw-bold">
-                טורניר קיץ
-                <br />
-                2026
+                {isWorldCup ? (
+                  <>מונדיאל<br />2026</>
+                ) : (
+                  <>
+                    טורניר קיץ
+                    <br />
+                    2026
+                  </>
+                )}
               </h1>
               {isGirls && (
                 <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
               )}
-              <TournamentSwitcher />
+              {isWorldCup && (
+                <p className="tournament-subtitle mb-0">נתונים מ-football-data.org</p>
+              )}
+              {!worldCupOnly && <TournamentSwitcher />}
             </header>
           </div>
-          <NewsBanner />
+          {!isWorldCup && <NewsBanner />}
         </div>
         <div className="container-fluid app-shell-container">
           <div className="app-body">

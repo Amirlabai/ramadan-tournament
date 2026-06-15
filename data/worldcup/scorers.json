@@ -1,0 +1,25 @@
+{
+  "scorers": [
+    {
+      "player": { "id": 9001, "name": "Vinícius Júnior" },
+      "team": { "id": 764, "name": "Brazil" },
+      "goals": 3,
+      "assists": 1,
+      "penalties": 0
+    },
+    {
+      "player": { "id": 9002, "name": "Richarlison" },
+      "team": { "id": 764, "name": "Brazil" },
+      "goals": 2,
+      "assists": 0,
+      "penalties": 0
+    },
+    {
+      "player": { "id": 9004, "name": "Lionel Messi" },
+      "team": { "id": 758, "name": "Argentina" },
+      "goals": 2,
+      "assists": 2,
+      "penalties": 1
+    }
+  ]
+}

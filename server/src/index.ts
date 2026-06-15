@@ -20,6 +20,7 @@ import playerRoutes from './routes/player';
 import voteRoutes from './routes/votes';
 import archiveRoutes from './routes/archive';
 import statsGirlsRoutes from './routes/statsGirls';
+import worldcupRoutes from './routes/worldcup';
 import { setGirlsDivision } from './middleware/tournamentDivision';
 import path from 'path';
 
@@ -92,6 +93,9 @@ function mountApiRoutes(): void {
     app.use('/api/votes', voteRoutes);
     app.use('/api/votes-girls', setGirlsDivision, voteRoutes);
     app.use('/api/archive', archiveRoutes);
+    if (config.worldCupEnabled) {
+        app.use('/api/worldcup', worldcupRoutes);
+    }
 }
 
 // Start server

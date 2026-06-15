@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import SEO from './SEO'
 import type { BreadcrumbItem } from '../config/seoConfig'
+import { siteBrandLabel, siteHomePath } from '../utils/tournamentPaths'
 import '../pages/LegalPage.css'
 
 interface LegalPageLayoutProps {
@@ -11,10 +12,17 @@ interface LegalPageLayoutProps {
 
 const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
   const { pathname } = useLocation()
-  const crumbs: BreadcrumbItem[] = breadcrumbs ?? [
-    { name: 'דף הבית', path: '/' },
+  const homePath = siteHomePath()
+  const brandLabel = siteBrandLabel()
+
+  const crumbs: BreadcrumbItem[] = (breadcrumbs ?? [
+    { name: 'דף הבית', path: homePath },
     { name: 'דף משפטי', path: pathname },
-  ]
+  ]).map((crumb, index) =>
+    index === 0 && (crumb.path === '/' || crumb.path === homePath)
+      ? { ...crumb, path: homePath }
+      : crumb
+  )
 
   return (
     <div className="legal-page-shell">
@@ -24,10 +32,10 @@ const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
       </a>
       <header className="legal-page-header">
         <div className="container">
-          <Link to="/" className="legal-page-brand">
-            טורניר קיץ 2026
+          <Link to={homePath} className="legal-page-brand">
+            {brandLabel}
           </Link>
-          <Link to="/" className="legal-page-home-link">
+          <Link to={homePath} className="legal-page-home-link">
             חזרה לאתר
           </Link>
         </div>

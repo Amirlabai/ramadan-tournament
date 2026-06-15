@@ -23,6 +23,8 @@
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
 | `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
 | `VITE_SITE_URL` | No | Yes | Canonical URL for SEO, sitemap, OG (no trailing slash) |
+| `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [Review/world-cup-phase.md](Review/world-cup-phase.md) |
+| `VITE_WORLD_CUP_ENABLED` | No | Yes (optional) | Shows מונדיאל 2026 in tournament switcher + `/world-cup/*` routes |
 
 Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite.
 
@@ -48,9 +50,10 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 |--------|------------|--------|
 | Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — primitives in [`client/src/styles/tokens.css`](client/src/styles/tokens.css) |
 | Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) overrides `--color-*` on `[data-tournament="girls"]` |
+| World Cup (temporary) | `data-tournament="worldcup"` on `/world-cup/*` when `VITE_WORLD_CUP_ENABLED=true` | Blue/gold — [`client/src/styles/tournament-worldcup.css`](client/src/styles/tournament-worldcup.css). Read-only proxy to football-data.org; reversion guide: [Review/world-cup-phase.md](Review/world-cup-phase.md) |
 
 - **Palette (boys):** edit `--color-primary`, `--color-secondary`, etc. in `tokens.css` only. Legacy names (`--primary`, `--primary-green`, `--bg`, …) alias those primitives for existing CSS.
-- Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css`.
+- Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css` → `tournament-worldcup.css`.
 - Layout/utilities (`.app`, `.card`, `.btn-primary`, `.loading`) live in [`client/src/App.css`](client/src/App.css) (no `:root` there).
 - Girls theme overrides `--color-*` primitives under `[data-tournament="girls"]` so shared components (tables, `.btn-theme-green`, header) repaint without duplicate rules.
 - Profile: girls registration card only uses `.registration-card--girls` ([`TournamentRegistrationCard.css`](client/src/components/profile/TournamentRegistrationCard.css)); Profile shell stays boys-green.
@@ -80,6 +83,7 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 - **Deploy:** Push API + client for Phase 2; ensure `REDIS_URL` on Render for invoice lockout.
 
 ## Recent Changes
+- **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [review/world-cup-phase.md](review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
 - **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.
 - **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Iftar API removed from server; Mongo scripts excluded from production build. Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).

@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import api from '../api/client';
+import { worldcupAPI } from '../api/client';
 import {
   homePathForSlug,
   readPreferredTournament,
@@ -17,6 +18,7 @@ import {
   writePreferredTournament,
   type TournamentSlug,
 } from '../utils/tournamentPaths';
+import { worldCupOnly } from '../utils/worldCupEnabled';
 
 export interface ActiveSeason {
   seasonId: string;
@@ -35,6 +37,7 @@ interface TournamentContextValue {
   seasonError: string | null;
   switchTournament: (target: TournamentSlug) => void;
   isGirls: boolean;
+  isWorldCup: boolean;
 }
 
 const TournamentContext = createContext<TournamentContextValue | null>(null);
@@ -52,6 +55,11 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
     setSeasonLoading(true);
     setSeasonError(null);
     try {
+      if (division === 'worldcup') {
+        const res = await worldcupAPI.getMeta();
+        setSeason(res.data as ActiveSeason);
+        return;
+      }
       const res = await api.get<ActiveSeason>('/seasons/active', {
         params: { division },
       });
@@ -61,7 +69,9 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       setSeasonError(
         division === 'girls'
           ? 'אין עונה פעילה לטורניר בנות. פנה למנהל להפעלת העונה.'
-          : 'לא נמצאה עונה פעילה לטורניר כדורגל.'
+          : division === 'worldcup'
+            ? 'לא ניתן לטעון נתוני מונדיאל. נסה שוב מאוחר יותר.'
+            : 'לא נמצאה עונה פעילה לטורניר כדורגל.'
       );
     } finally {
       setSeasonLoading(false);
@@ -89,6 +99,7 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
       seasonError,
       switchTournament,
       isGirls: slug === 'girls',
+      isWorldCup: slug === 'worldcup',
     }),
     [slug, paths, season, seasonLoading, seasonError, switchTournament]
   );
@@ -112,10 +123,18 @@ export function TournamentPreferenceRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (worldCupOnly) {
+      if (location.pathname === '/' || location.pathname === '') {
+        navigate('/world-cup', { replace: true });
+      }
+      return;
+    }
     if (location.pathname !== '/') return;
     const preferred = readPreferredTournament();
     if (preferred === 'girls') {
       navigate('/girls', { replace: true });
+    } else if (preferred === 'worldcup') {
+      navigate('/world-cup', { replace: true });
     }
   }, [location.pathname, navigate]);
 

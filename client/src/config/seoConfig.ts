@@ -66,6 +66,26 @@ export const routeSeo: Record<string, RouteSeo> = {
     description: 'ארכיון עונות טורניר הבנות.',
     keywords: `${BASE_KEYWORDS}, ארכיון`,
   },
+  '/world-cup': {
+    title: 'מונדיאל 2026 — דף הבית',
+    description: 'תוצאות, משחקים קרובים ומלכי השערים — מונדיאל 2026.',
+    keywords: `${BASE_KEYWORDS}, מונדיאל, World Cup`,
+  },
+  '/world-cup/teams': {
+    title: 'מונדיאל 2026 — נבחרות',
+    description: 'נבחרות ושחקנים — מונדיאל 2026.',
+    keywords: `${BASE_KEYWORDS}, נבחרות, מונדיאל`,
+  },
+  '/world-cup/schedule': {
+    title: 'מונדיאל 2026 — משחקים',
+    description: 'לוח משחקים מלא — מונדיאל 2026.',
+    keywords: `${BASE_KEYWORDS}, משחקים, מונדיאל`,
+  },
+  '/world-cup/stats': {
+    title: 'מונדיאל 2026 — סטטיסטיקות',
+    description: 'טבלאות בתים, מלכי השערים ונוקאאוט — מונדיאל 2026.',
+    keywords: `${BASE_KEYWORDS}, סטטיסטיקות, מונדיאל`,
+  },
   '/about': {
     title: 'אודות',
     description: 'אודות טורניר קיץ 2026 כפר כמא — מרכז צעירים.',
@@ -172,6 +192,10 @@ export const PUBLIC_SITEMAP_PATHS = [
   '/teams-girls',
   '/news-girls',
   '/archive-girls',
+  '/world-cup',
+  '/world-cup/teams',
+  '/world-cup/schedule',
+  '/world-cup/stats',
   '/player-zone',
   '/about',
   '/accessibility',

@@ -9,16 +9,24 @@ export interface NavItem {
 
 interface MainNavContext {
   isGirls: boolean
+  isWorldCup: boolean
   paths: (typeof tournamentPaths)[TournamentSlug]
   user: User | null
   isAdmin: boolean
 }
 
 export function getMainNavItems(ctx: MainNavContext): NavItem[] {
-  const { isGirls, paths, user, isAdmin } = ctx
+  const { isGirls, isWorldCup, paths, user, isAdmin } = ctx
   const items: NavItem[] = []
 
-  if (isGirls) {
+  if (isWorldCup) {
+    items.push(
+      { to: paths.home ?? '/world-cup', label: 'דף הבית' },
+      { to: 'teams' in paths ? paths.teams : '/world-cup/teams', label: 'נבחרות' },
+      { to: 'schedule' in paths ? paths.schedule : '/world-cup/schedule', label: 'משחקים' },
+      { to: 'stats' in paths ? paths.stats : '/world-cup/stats', label: 'סטטיסטיקות' }
+    )
+  } else if (isGirls) {
     items.push(
       { to: paths.home ?? '/girls', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams-girls', label: 'קבוצות' }

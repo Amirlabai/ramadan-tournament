@@ -2,6 +2,10 @@ import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 
+const parentEnv = path.join(process.cwd(), '..', '.env');
+if (fs.existsSync(parentEnv)) {
+  dotenv.config({ path: parentEnv });
+}
 dotenv.config();
 if (process.env.npm_lifecycle_event === 'dev:mock') {
   const mockEnv = path.join(process.cwd(), 'env.mock');
@@ -28,6 +32,11 @@ export const config = {
   adminPassword: process.env.ADMIN_PASSWORD || '',
   nodeEnv: process.env.NODE_ENV || 'development',
   mockDevData,
+  worldCupEnabled:
+    process.env.WORLD_CUP_ENABLED === '1' || process.env.WORLD_CUP_ENABLED === 'true',
+  footballDataApiKey: process.env.FOOTBALL_DATA_API_KEY || '',
+  footballDataCompetition: process.env.FOOTBALL_DATA_COMPETITION || 'WC',
+  footballDataSeason: process.env.FOOTBALL_DATA_SEASON || '2026',
   email: {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',

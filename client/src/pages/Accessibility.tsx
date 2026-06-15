@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import LegalPageLayout from '../components/LegalPageLayout'
+import { siteHomePath } from '../utils/tournamentPaths'
 import './Accessibility.css'
 
 const COORDINATOR_EMAIL = 'summertournament@gmail.com'
@@ -23,7 +24,7 @@ const Accessibility = () => {
   return (
     <LegalPageLayout
       breadcrumbs={[
-        { name: 'דף הבית', path: '/' },
+        { name: 'דף הבית', path: siteHomePath() },
         { name: 'נגישות', path: '/accessibility' },
       ]}
     >
@@ -52,7 +53,7 @@ const Accessibility = () => {
       <section className="mb-4">
         <h3>ניגודיות וצבעים</h3>
         <p>
-          בפינה השמאלית התחתונה של המסך מופיע סרגל התאמות נגישות. ניתן להפעיל{' '}
+          בפינה התחתונה של המסך מופיע סרגל התאמות נגישות. ניתן להפעיל{' '}
           <strong>ניגודיות גבוהה</strong> (רקע לבן, טקסט שחור, מסגרות ברורות)
           או לחזור לצבעי ברירת המחדל. ההעדפה נשמרת בדפדפן.
         </p>

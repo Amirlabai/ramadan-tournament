@@ -1,0 +1,12 @@
+{
+  "id": 2000,
+  "name": "FIFA World Cup",
+  "code": "WC",
+  "type": "CUP",
+  "currentSeason": {
+    "id": 2026,
+    "startDate": "2026-06-11",
+    "endDate": "2026-07-19",
+    "currentMatchday": 1
+  }
+}
