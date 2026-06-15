@@ -37,7 +37,8 @@ export function slugFromPathname(pathname: string): TournamentSlug {
 }
 
 export function readPreferredTournament(): TournamentSlug | null {
-  const v = localStorage.getItem(STORAGE_KEY);
+  if (typeof window === 'undefined') return null;
+  const v = window.localStorage.getItem(STORAGE_KEY);
   if (v === 'girls' || v === 'boys' || v === 'worldcup') {
     if (v === 'worldcup' && !worldCupEnabled) return null;
     return v;
@@ -46,7 +47,8 @@ export function readPreferredTournament(): TournamentSlug | null {
 }
 
 export function writePreferredTournament(slug: TournamentSlug): void {
-  localStorage.setItem(STORAGE_KEY, slug);
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(STORAGE_KEY, slug);
 }
 
 export function homePathForSlug(slug: TournamentSlug): string {
