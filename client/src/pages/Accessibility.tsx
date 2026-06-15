@@ -3,9 +3,8 @@ import LegalPageLayout from '../components/LegalPageLayout'
 import { siteHomePath } from '../utils/tournamentPaths'
 import './Accessibility.css'
 
-const COORDINATOR_EMAIL = 'summertournament@gmail.com'
-const COORDINATOR_NAME = 'FAAFO'
-const COORDINATOR_PHONE = '0501234567'
+const COORDINATOR_EMAIL = 'amirlabay+WC@gmail.com'
+const COORDINATOR_NAME = 'Amir Labai'
 
 const Accessibility = () => {
   const [submitted, setSubmitted] = useState(false)
@@ -84,10 +83,6 @@ const Accessibility = () => {
           <li>
             <strong>דוא&quot;ל:</strong>{' '}
             <a href={`mailto:${COORDINATOR_EMAIL}`}>{COORDINATOR_EMAIL}</a>
-          </li>
-          <li>
-            <strong>טלפון:</strong>{' '}
-            <a href={`tel:${COORDINATOR_PHONE}`}>{COORDINATOR_PHONE}</a>
           </li>
         </ul>
         <p className="text-muted">

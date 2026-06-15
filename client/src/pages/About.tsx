@@ -15,10 +15,10 @@ const About = () => (
     </p>
     <h3>מפעיל האתר</h3>
     <p>
-      Amir Labay
+      Amir Labai
       <br />
       דוא&quot;ל:{' '}
-      <a href="mailto:summertournament@gmail.com">summertournament@gmail.com</a>
+      <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
     </p>
     <h3>טורניר בנות</h3>
     <p>

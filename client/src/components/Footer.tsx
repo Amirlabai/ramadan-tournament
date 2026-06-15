@@ -93,7 +93,10 @@ const Footer = () => {
 
                 <div className="footer-bottom">
                     <p className="mb-0">
-                        Amir Labai
+                        Amir Labai ·{' '}
+                        <a href="mailto:amirlabay+WC@gmail.com" className="footer-link">
+                            amirlabay+WC@gmail.com
+                        </a>
                     </p>
                 </div>
             </div>

@@ -33,7 +33,7 @@ const Privacy = () => (
     <h3>יצירת קשר</h3>
     <p>
       לבקשות מחיקה או עדכון מידע:{' '}
-      <a href="mailto:summertournament@gmail.com">summertournament@gmail.com</a>
+      <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
     </p>
   </LegalPageLayout>
 )

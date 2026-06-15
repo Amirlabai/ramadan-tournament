@@ -134,7 +134,7 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     name: 'טורניר קיץ 2026 — כפר כמא',
     url,
-    email: 'summertournament@gmail.com',
+    email: 'amirlabay+WC@gmail.com',
   }
 }
 

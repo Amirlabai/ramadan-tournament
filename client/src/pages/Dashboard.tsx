@@ -156,7 +156,7 @@ const Dashboard = () => {
 
                 {data.nextMatches && data.nextMatches.length > 0 && (
                     <div className="dashboard-card next-matches-card">
-                        <h2>המשחקים הבאים</h2>
+                        <h2 className="dashboard-card-title">המשחקים הבאים</h2>
                         <div className="next-matches-list">
                             {data.nextMatches.map((match) => (
                                 <div key={match._id} className="upcoming-match-item">
@@ -208,9 +208,10 @@ const Dashboard = () => {
                 )}
 
 
+                <div className="dashboard-cards-row">
                 {data.recentMatches && data.recentMatches.length > 0 && (
-                    <div className="dashboard-card recent-matches mt-4">
-                        <h2>משחקים אחרונים</h2>
+                    <div className="dashboard-card recent-matches">
+                        <h2 className="dashboard-card-title">משחקים אחרונים</h2>
                         <div className="matches-list">
                             {data.recentMatches.slice(0, 5).map((match) => (
                                 <button
@@ -224,11 +225,11 @@ const Dashboard = () => {
                                         {match.phase === 'knockout' && <span className="playoff-tag-mini ms-2">פלייאוף</span>}
                                     </span>
                                     <div className="match-score">
-                                        <div className="flex-1 d-flex justify-content-end">
+                                        <div className="team-home">
                                             {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
                                         </div>
-                                        <span className="score px-3">{match.score1} - {match.score2}</span>
-                                        <div className="flex-1 d-flex justify-content-start">
+                                        <span className="score">{match.score1} - {match.score2}</span>
+                                        <div className="team-away">
                                             {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
                                     </div>
@@ -237,6 +238,7 @@ const Dashboard = () => {
                         </div>
                     </div>
                 )}
+                </div>
             </div>
 
             {showClaimModal && <PlayerClaimModal onClose={() => setShowClaimModal(false)} />}

@@ -127,7 +127,7 @@ const WorldCupDashboard = () => {
 
         {data.nextMatches && data.nextMatches.length > 0 && (
           <div className="dashboard-card next-matches-card">
-            <h3>המשחקים הבאים</h3>
+            <h2 className="dashboard-card-title">המשחקים הבאים</h2>
             <div className="next-matches-list">
               {data.nextMatches.map((match) => (
                 <div key={match._id} className="upcoming-match-item">
@@ -156,9 +156,10 @@ const WorldCupDashboard = () => {
           </div>
         )}
 
+        <div className="dashboard-cards-row">
         {data.recentMatches && data.recentMatches.length > 0 && (
-          <div className="dashboard-card recent-matches mt-4">
-            <h3>משחקים אחרונים</h3>
+          <div className="dashboard-card recent-matches">
+            <h2 className="dashboard-card-title">משחקים אחרונים</h2>
             <div className="matches-list">
               {data.recentMatches.slice(0, 5).map((match) => (
                 <button
@@ -176,9 +177,13 @@ const WorldCupDashboard = () => {
                     {match.phase === 'knockout' && <span className="playoff-tag-mini ms-2">נוקאאוט</span>}
                   </span>
                   <div className="match-score">
-                    <span>{match.team1Name}</span>
-                    <span className="score px-3">{match.score1} - {match.score2}</span>
-                    <span>{match.team2Name}</span>
+                    <div className="team-home">
+                      {renderCrest(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl)}
+                    </div>
+                    <span className="score">{match.score1} - {match.score2}</span>
+                    <div className="team-away">
+                      {renderCrest(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl)}
+                    </div>
                   </div>
                 </button>
               ))}
@@ -187,8 +192,8 @@ const WorldCupDashboard = () => {
         )}
 
         {data.topScorers && data.topScorers.length > 0 && (
-          <div className="dashboard-card top-scorer mt-4">
-            <h3>מלך השערים</h3>
+          <div className="dashboard-card top-scorer">
+            <h2 className="dashboard-card-title">מלך השערים</h2>
             <div className="scorer-info">
               <div className="premium-scorer-wrapper text-center">
                 <div className="premium-decorations" aria-hidden="true">
@@ -232,6 +237,7 @@ const WorldCupDashboard = () => {
             </div>
           </div>
         )}
+        </div>
 
       </div>
     </div>

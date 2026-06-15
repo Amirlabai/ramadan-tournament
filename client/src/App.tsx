@@ -139,19 +139,9 @@ function AppShell() {
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
-              <img
-                src="/to-be-logo.svg"
-                className="header-side-logo left"
-                alt={isWorldCup ? 'לוגו מונדיאל 2026' : "לוגו טורניר נצ'מאז"}
-              />
-              <img
-                src="/Flag_of_Adygea.svg"
-                className="header-side-logo right"
-                alt="דגל אדיגיה"
-              />
               <h1 className="display-4 fw-bold">
                 {isWorldCup ? (
-                  <>מונדיאל<br />2026</>
+                  'מונדיאל 2026'
                 ) : (
                   <>
                     טורניר קיץ
@@ -164,7 +154,17 @@ function AppShell() {
                 <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
               )}
               {isWorldCup && (
-                <p className="tournament-subtitle mb-0">נתונים מ-football-data.org</p>
+                <p className="tournament-subtitle mb-0">
+                  נתונים מ-{' '}
+                  <a
+                    href="https://www.football-data.org"
+                    className="tournament-subtitle-link"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    football-data.org
+                  </a>
+                </p>
               )}
               {!worldCupOnly && <TournamentSwitcher />}
             </header>

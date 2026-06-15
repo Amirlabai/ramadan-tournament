@@ -59,7 +59,10 @@ const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
               תנאים
             </Link>
           </nav>
-          <p className="mt-2 mb-0">Amir Labay · summertournament@gmail.com</p>
+          <p className="mt-2 mb-0">
+            Amir Labai ·{' '}
+            <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
+          </p>
         </div>
       </footer>
     </div>
