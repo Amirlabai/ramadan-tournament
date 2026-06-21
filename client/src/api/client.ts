@@ -4,19 +4,13 @@ import type { TournamentSlug } from '../utils/tournamentPaths';
 
 export type { TournamentSlug } from '../utils/tournamentPaths';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+const API_URL = import.meta.env.DEV
+    ? ''
+    : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
 
 const api = axios.create({
     baseURL: `${API_URL}/api`,
-});
-
-// Add auth token to requests if available
-api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+    withCredentials: true,
 });
 
 const teamsPath = (slug: TournamentSlug) => (slug === 'girls' ? '/teams-girls' : '/teams');
@@ -99,6 +93,7 @@ export const authAPI = {
         api.post('/auth/register', data),
     googleLogin: (token: string) =>
         api.post('/auth/google', { token }),
+    logout: () => api.post('/auth/logout'),
     getCurrentUser: () => api.get('/auth/me'),
     verifyEmail: (email: string, code: string) =>
         api.post('/auth/verify-email', { email, code }),
@@ -200,6 +195,7 @@ export const iftarAPI = {
 
 export const playerAPI = {
     login: (personalId: string, birthYear: string) => api.post('/players/auth', { personalId, birthYear }),
+    logout: () => api.post('/players/logout'),
     uploadPhoto: (formData: FormData) => api.post('/players/upload', formData),
 };
 

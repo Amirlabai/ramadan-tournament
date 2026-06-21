@@ -5,15 +5,17 @@ import {
   useLocation,
   Navigate,
 } from 'react-router-dom'
-import { useRef } from 'react'
+import { useRef, lazy, Suspense } from 'react'
 import Dashboard from './pages/Dashboard'
 import Teams from './pages/Teams'
 import Schedule from './pages/Schedule'
 import Stats from './pages/Stats'
-import Login from './pages/admin/Login'
-import AdminPanel from './pages/admin/AdminPanel'
-import Profile from './pages/Profile'
 import MVPs from './pages/MVPs'
+
+const Login = lazy(() => import('./pages/admin/Login'))
+const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'))
+const Profile = lazy(() => import('./pages/Profile'))
+const PlayerZone = lazy(() => import('./pages/PlayerZone'))
 import TournamentSidebar from './components/TournamentSidebar'
 import TournamentSwitcher from './components/TournamentSwitcher'
 import NewsBanner from './components/NewsBanner'
@@ -34,7 +36,6 @@ import { worldCupEnabled, worldCupOnly, worldCupOnlyRedirect } from './utils/wor
 import Footer from './components/Footer'
 import AlarmsWidget from './components/AlarmsWidget'
 import ScrollToTop from './components/ScrollToTop'
-import PlayerZone from './pages/PlayerZone'
 import Archive from './pages/Archive'
 import Accessibility from './pages/Accessibility'
 import About from './pages/About'
@@ -62,6 +63,7 @@ function AppRoutes() {
 
   return (
     <RouteErrorBoundary key={location.pathname}>
+      <Suspense fallback={<div className="loading p-4 text-center">טוען...</div>}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/teams" element={<Teams />} />
@@ -88,6 +90,7 @@ function AppRoutes() {
         )}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Suspense>
     </RouteErrorBoundary>
   )
 }

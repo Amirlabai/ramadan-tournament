@@ -38,42 +38,39 @@ export interface User {
 
 interface AuthContextType {
     user: User | null;
-    token: string | null;
     loading: boolean;
-    login: (token: string, user: User) => void;
-    logout: () => void;
+    login: (user: User) => void;
+    logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+function mapUser(data: Record<string, unknown>): User {
+    return {
+        id: (data.id ?? data._id) as string,
+        username: data.username as string | undefined,
+        email: data.email as string | undefined,
+        displayName: data.displayName as string,
+        role: data.role as UserRole,
+        avatarUrl: data.avatarUrl as string | undefined,
+        mappedPlayerInfo: data.mappedPlayerInfo as MappedPlayerInfo | undefined,
+        playerProfile: data.playerProfile,
+        activeDivision: data.activeDivision as string | null | undefined,
+        tournamentRegistration: data.tournamentRegistration as User['tournamentRegistration'],
+    };
+}
+
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
     const [loading, setLoading] = useState(true);
 
     const refreshUser = async () => {
-        if (!token) {
-            setLoading(false);
-            return;
-        }
         try {
             const response = await authAPI.getCurrentUser();
-            setUser({
-                id: response.data.id ?? response.data._id,
-                username: response.data.username,
-                email: response.data.email,
-                displayName: response.data.displayName,
-                role: response.data.role,
-                avatarUrl: response.data.avatarUrl,
-                mappedPlayerInfo: response.data.mappedPlayerInfo,
-                playerProfile: response.data.playerProfile,
-                activeDivision: response.data.activeDivision,
-                tournamentRegistration: response.data.tournamentRegistration,
-            });
-        } catch (error) {
-            console.error('Failed to fetch user:', error);
-            logout();
+            setUser(mapUser(response.data));
+        } catch {
+            setUser(null);
         } finally {
             setLoading(false);
         }
@@ -81,22 +78,23 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     useEffect(() => {
         refreshUser();
-    }, [token]);
+    }, []);
 
-    const login = (newToken: string, newUser: User) => {
-        localStorage.setItem('token', newToken);
-        setToken(newToken);
+    const login = (newUser: User) => {
         setUser(newUser);
     };
 
-    const logout = () => {
-        localStorage.removeItem('token');
-        setToken(null);
+    const logout = async () => {
+        try {
+            await authAPI.logout();
+        } catch {
+            /* cookie may already be cleared */
+        }
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, token, loading, login, logout, refreshUser }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
             {children}
         </AuthContext.Provider>
     );

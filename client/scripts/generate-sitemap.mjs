@@ -26,14 +26,13 @@ const paths = [
   '/news-girls',
   '/archive-girls',
   ...worldCupPaths,
-  '/player-zone',
   '/about',
   '/accessibility',
   '/privacy',
   '/terms',
 ]
 
-const noindexPaths = ['/login', '/admin/login', '/admin', '/profile']
+const noindexPaths = ['/login', '/admin/login', '/admin', '/profile', '/player-zone']
 
 const today = new Date().toISOString().slice(0, 10)
 

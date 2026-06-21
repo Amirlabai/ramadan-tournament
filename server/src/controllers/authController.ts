@@ -10,6 +10,8 @@ import { sendVerificationEmail } from '../services/emailService';
 import crypto from 'crypto';
 import { Division } from '@prisma/client';
 import { RegistrationService } from '../services/RegistrationService';
+import { setAuthCookie, authJsonBody, clearAuthCookie } from '../utils/authCookie';
+import { AuthRateLimitService } from '../services/AuthRateLimitService';
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
@@ -240,10 +242,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         const token = generateToken(user);
 
-        res.json({
-            token,
-            user: await hydrateUserPayload(user)
-        });
+        setAuthCookie(res, token);
+        res.json(authJsonBody(await hydrateUserPayload(user), token));
     } catch (error) {
         console.error('Login error:', error);
         res.status(500).json({ error: 'Server error' });
@@ -311,10 +311,8 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         }
 
         const jwtToken = generateToken(user);
-        res.json({
-            token: jwtToken,
-            user: await hydrateUserPayload(user)
-        });
+        setAuthCookie(res, jwtToken);
+        res.json(authJsonBody(await hydrateUserPayload(user), jwtToken));
     } catch (error) {
         console.error('Google login error:', error);
         res.status(500).json({ error: 'Google Authentication failed' });
@@ -346,13 +344,20 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
+        const normalizedEmail = normalizeEmail(email);
+
         const user = await User.findOne({
-            email: normalizeEmail(email),
+            email: normalizedEmail,
             verificationToken: code,
             verificationTokenExpires: { $gt: new Date() }
         });
 
         if (!user) {
+            const allowed = await AuthRateLimitService.recordFailedVerifyEmail(normalizedEmail);
+            if (!allowed) {
+                res.status(429).json({ error: 'Too many verification attempts. Try again later.' });
+                return;
+            }
             res.status(400).json({ error: 'Invalid or expired verification code' });
             return;
         }
@@ -363,14 +368,17 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
         await user.save();
 
         const token = generateToken(user);
-        res.json({
-            token,
-            user: await hydrateUserPayload(user)
-        });
+        setAuthCookie(res, token);
+        res.json(authJsonBody(await hydrateUserPayload(user), token));
     } catch (error) {
         console.error('Email verification error:', error);
         res.status(500).json({ error: 'Server error during verification' });
     }
+};
+
+export const logout = async (_req: Request, res: Response): Promise<void> => {
+    clearAuthCookie(res);
+    res.json({ message: 'Logged out' });
 };
 
 export const resendVerification = async (req: Request, res: Response): Promise<void> => {

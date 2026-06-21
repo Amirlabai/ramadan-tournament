@@ -2,9 +2,11 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import cookieParser from 'cookie-parser';
 import { connectDatabase } from './config/database';
 import { config, worldCupStandalone } from './config/env';
 import { errorHandler } from './middleware/errorHandler';
+import { getAllowedOrigins, requireApiOrigin } from './middleware/requireApiOrigin';
 
 // Routes
 import authRoutes from './routes/auth';
@@ -36,27 +38,26 @@ app.use(helmet({
 }));
 
 // CORS
+const allowedOrigins = config.corsOrigins.length > 0 ? config.corsOrigins : getAllowedOrigins();
 app.use(cors({
-    origin: [
-        'http://localhost:5173',
-        'http://localhost:3000',
-        'https://ramadan-tournament-client.vercel.app'
-    ],
+    origin: allowedOrigins,
     credentials: true
 }));
+app.use(cookieParser());
+app.use(requireApiOrigin(allowedOrigins));
 app.use(express.json({ limit: '1mb' }));
 
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 // Fallback: also serve public/ for any files written there historically
 app.use(express.static(path.join(process.cwd(), 'public')));
 
-// Rate limiting
+// Rate limiting (general fallback on auth routes)
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 100,
 });
 app.use('/api/auth', limiter);
-app.use('/api/players', limiter); // Rate limit player auth too
+app.use('/api/players', limiter);
 
 import userRoutes from './routes/users';
 import { registerMockRoutes } from './mock/registerMockRoutes';

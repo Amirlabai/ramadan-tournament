@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import SEO from '../../components/SEO';
 import { useNavigate } from 'react-router-dom';
-import { matchesAPI, newsAPI, authAPI, teamsAPI, adminAPI, type TournamentSlug } from '../../api/client';
+import { matchesAPI, newsAPI, teamsAPI, adminAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import type { Match, News, Team } from '../../types';
 import MatchTableRow from '../../components/admin/MatchTableRow';
@@ -17,7 +17,7 @@ const AdminPanel = () => {
     const [loading, setLoading] = useState(true);
 
     type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster' | 'girls';
-    const { user } = useAuth();
+    const { user, loading: authLoading, logout } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
     const [newsDivision, setNewsDivision] = useState<TournamentSlug>('boys');
@@ -57,15 +57,21 @@ const AdminPanel = () => {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) {
+        if (authLoading) return;
+
+        if (!user) {
             navigate('/admin/login');
+            return;
+        }
+
+        const allowed = user.role === 'Admin' || user.role === 'admin' || user.role === 'Captain';
+        if (!allowed) {
+            navigate('/');
             return;
         }
 
         const fetchData = async () => {
             try {
-                await authAPI.getCurrentUser();
                 const [matchesRes, teamsRes] = await Promise.all([
                     matchesAPI.getAll(),
                     teamsAPI.getAll()
@@ -75,14 +81,13 @@ const AdminPanel = () => {
                 setTeams(teamsRes.data);
             } catch (err) {
                 console.error(err);
-                localStorage.removeItem('token');
                 navigate('/admin/login');
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, [navigate]);
+    }, [authLoading, user, navigate]);
 
     useEffect(() => {
         if (activeTab === 'banned-words') {
@@ -94,9 +99,8 @@ const AdminPanel = () => {
         }
     }, [activeTab, newsDivision]);
 
-    const handleLogout = () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
+    const handleLogout = async () => {
+        await logout();
         navigate('/admin/login');
     };
 

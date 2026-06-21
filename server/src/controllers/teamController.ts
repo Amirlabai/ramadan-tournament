@@ -331,7 +331,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
-        const { firstName, lastName, nickname, number, position, isCaptain, birthYear } = req.body;
+        const { firstName, lastName, nickname, number, position, isCaptain, birthYear, personalId } = req.body;
 
         if (!firstName || number == null) {
             res.status(400).json({ error: 'שם פרטי ומספר שחקן הם שדות חובה' });
@@ -362,6 +362,7 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
             head_photo: '',
             bio: '',
             birthYear: birthYear ? Number(birthYear) : undefined,
+            personalId: personalId ? String(personalId).trim() : undefined,
         };
 
         team.players.push(newPlayer);

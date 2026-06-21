@@ -43,6 +43,12 @@ export const config = {
   footballDataApiKey: process.env.FOOTBALL_DATA_API_KEY || '',
   footballDataCompetition: process.env.FOOTBALL_DATA_COMPETITION || 'WC',
   footballDataSeason: process.env.FOOTBALL_DATA_SEASON || '2026',
+  personalIdKey: process.env.PERSONAL_ID_KEY || '',
+  corsOrigins: (process.env.CORS_ORIGINS
+    || 'http://localhost:5173,http://localhost:3000,https://ramadan-tournament-client.vercel.app')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean),
   email: {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',

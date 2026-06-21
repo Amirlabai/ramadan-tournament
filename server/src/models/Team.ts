@@ -2,6 +2,7 @@ import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 
 import { SeasonService } from '../services/SeasonService';
+import { encryptPersonalIdIfNeeded, personalIdLookupValues } from '../utils/personalIdCrypto';
 
 
 
@@ -85,7 +86,7 @@ function mapPlayer(p: any): IPlayer {
 
     bio: p.bio || '',
 
-    personalId: p.personalIdEnc || undefined,
+    personalId: undefined,
 
     birthYear: p.birthYear ?? undefined,
 
@@ -155,7 +156,7 @@ function mapTeam(row: any, players: any[]): ITeam {
 
             bio: pl.bio,
 
-            personalIdEnc: pl.personalId,
+            personalIdEnc: encryptPersonalIdIfNeeded(pl.personalId),
 
             birthYear: pl.birthYear,
 
@@ -181,7 +182,7 @@ function mapTeam(row: any, players: any[]): ITeam {
 
             bio: pl.bio,
 
-            personalIdEnc: pl.personalId,
+            personalIdEnc: encryptPersonalIdIfNeeded(pl.personalId),
 
             birthYear: pl.birthYear,
 
@@ -309,10 +310,11 @@ async function findTeams(filter: TeamFilter, division: Division = Division.boys)
       $elemMatch?: { personalId?: string; birthYear?: number };
     };
     if (players.$elemMatch?.personalId) {
+      const lookupValues = personalIdLookupValues(players.$elemMatch.personalId);
       const player = await prisma.player.findFirst({
         where: {
           seasonId: season.id,
-          personalIdEnc: players.$elemMatch.personalId,
+          personalIdEnc: { in: lookupValues },
           ...(players.$elemMatch.birthYear !== undefined
             ? { birthYear: players.$elemMatch.birthYear }
             : {}),
@@ -329,11 +331,9 @@ async function findTeams(filter: TeamFilter, division: Division = Division.boys)
     const personalId = players.personalId;
 
     if (personalId) {
-
+      const lookupValues = personalIdLookupValues(personalId);
       const player = await prisma.player.findFirst({
-
-        where: { seasonId: season.id, personalIdEnc: personalId },
-
+        where: { seasonId: season.id, personalIdEnc: { in: lookupValues } },
       });
 
       if (!player) return [];
@@ -355,11 +355,9 @@ async function findTeams(filter: TeamFilter, division: Division = Division.boys)
 
 
   if (filter['players.personalId']) {
-
+    const lookupValues = personalIdLookupValues(filter['players.personalId'] as string);
     const player = await prisma.player.findFirst({
-
-      where: { seasonId: season.id, personalIdEnc: filter['players.personalId'] as string },
-
+      where: { seasonId: season.id, personalIdEnc: { in: lookupValues } },
     });
 
     if (!player) return [];

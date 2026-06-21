@@ -216,6 +216,7 @@ export const NOINDEX_PATHS = [
   '/admin/login',
   '/admin',
   '/profile',
+  '/player-zone',
 ] as const
 
 /** Canonical pathname used when prerendering noindex auth aliases. */

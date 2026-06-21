@@ -39,7 +39,7 @@ const Login = () => {
                     : { username: identifier, password };
 
                 const response = await authAPI.login(credentials);
-                login(response.data.token, response.data.user);
+                login(response.data.user);
                 navigate(from, { replace: true });
             } else {
                 // Register
@@ -53,7 +53,7 @@ const Login = () => {
                     setIsVerifying(true);
                     setSuccessMsg('נרשמת בהצלחה! קוד אימות נשלח לאימייל שלך.');
                 } else {
-                    login(response.data.token, response.data.user);
+                    login(response.data.user);
                     navigate(from, { replace: true });
                 }
             }
@@ -78,7 +78,7 @@ const Login = () => {
 
         try {
             const response = await authAPI.verifyEmail(identifier, verificationCode);
-            login(response.data.token, response.data.user);
+            login(response.data.user);
             navigate(from, { replace: true });
         } catch (err: any) {
             setError(err.response?.data?.error || 'קוד אימות שגוי או פג תוקף');
@@ -106,7 +106,7 @@ const Login = () => {
         setLoading(true);
         try {
             const response = await authAPI.googleLogin(credentialResponse.credential);
-            login(response.data.token, response.data.user);
+            login(response.data.user);
             navigate(from, { replace: true });
         } catch (err: any) {
             setError(err.response?.data?.error || 'שגיאה בהתחברות עם גוגל');

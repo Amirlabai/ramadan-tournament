@@ -1,9 +1,12 @@
-
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { Team, IPlayer } from '../models/Team';
+import { Team } from '../models/Team';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
+import { setPlayerCookie, clearPlayerCookie } from '../utils/authCookie';
+import { personalIdLookupValues } from '../utils/personalIdCrypto';
+import { SeasonService } from '../services/SeasonService';
+import { prisma } from '../lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
@@ -17,52 +20,48 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        // Find matches in any team
-        // We need to use findOne with elemMatch on players array
-        // However, personalId is select: false, so we need to explicitly select it?
-        // Actually, queries on unselected fields work in Mongoose, but the field won't be in the result unless selected.
-        // But here we need to find it first.
+        const birthYearNum = parseInt(birthYear, 10);
+        const season = await SeasonService.getActiveFootballSeason();
+        const playerRow = await prisma.player.findFirst({
+            where: {
+                seasonId: season.id,
+                personalIdEnc: { in: personalIdLookupValues(String(personalId)) },
+                birthYear: birthYearNum,
+                active: true,
+            },
+        });
 
-        // Let's try to find the team first.
-        const team = await Team.findOne({
-            players: {
-                $elemMatch: {
-                    personalId: personalId,
-                    birthYear: parseInt(birthYear)
-                }
-            }
-        }).select('+players.personalId'); // We need to verify it matching exactly if multiple?
+        if (!playerRow) {
+            res.status(401).json({ error: 'Player not found or invalid credentials' });
+            return;
+        }
 
-        // Actually $elemMatch in query is enough to find the document.
-        // But we need to identify WHICH player it is in the array.
-
+        const team = await Team.findOne({ id: playerRow.teamId });
         if (!team) {
             res.status(401).json({ error: 'Player not found or invalid credentials' });
             return;
         }
 
-        // Find the specific player
-        const player = team.players.find(p => p.personalId === personalId && p.birthYear === parseInt(birthYear));
+        const player = team.players.find((p) => p.memberId === playerRow.memberId);
 
         if (!player) {
             res.status(401).json({ error: 'Player data inconsistency' });
             return;
         }
 
-        // Generate JWT
         const token = jwt.sign(
             {
-                userId: player.personalId, // Using personalId as identifier for players
+                userId: String(player.memberId),
                 memberId: player.memberId,
                 teamId: team.id,
-                isPlayer: true
+                isPlayer: true,
             },
             config.jwtSecret,
             { expiresIn: '24h' }
         );
 
-        res.json({
-            token,
+        setPlayerCookie(res, token);
+        const body: Record<string, unknown> = {
             player: {
                 memberId: player.memberId,
                 firstName: player.firstName,
@@ -70,8 +69,12 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
                 teamId: team.id,
                 teamName: team.name,
                 head_photo: player.head_photo
-            }
-        });
+            },
+        };
+        if (config.nodeEnv !== 'production') {
+            body.token = token;
+        }
+        res.json(body);
 
     } catch (error) {
         console.error('Player auth error:', error);
@@ -120,6 +123,11 @@ const sendAdminNotification = async (playerName: string, teamName: string) => {
     }
 };
 
+export const playerLogout = async (_req: Request, res: Response): Promise<void> => {
+    clearPlayerCookie(res);
+    res.json({ message: 'Logged out' });
+};
+
 export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.file) {
         res.status(400).json({ error: 'No file uploaded' });
@@ -134,25 +142,22 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         // We also need memberId. auth middleware only sets userId.
         // We can either update auth middleware to set memberId, or re-fetch player using userId (personalId).
 
-        const personalId = req.userId;
-        if (!personalId) {
+        const memberId = req.memberId ?? parseInt(req.userId!, 10);
+        const teamId = req.teamId;
+        if (!memberId || !teamId) {
             res.status(401).json({ error: 'Authentication required' });
             return;
         }
 
-        // Find the team and player
-        const team = await Team.findOne({
-            "players.personalId": personalId
-        }).select('+players.personalId');
+        const team = await Team.findOne({ id: teamId });
 
         if (!team) {
             res.status(404).json({ error: 'Player not found' });
-            // Clean up file if not found?
             fs.unlinkSync(req.file.path);
             return;
         }
 
-        const playerIndex = team.players.findIndex(p => p.personalId === personalId);
+        const playerIndex = team.players.findIndex((p) => p.memberId === memberId);
         if (playerIndex === -1) {
             res.status(404).json({ error: 'Player not found in team' });
             fs.unlinkSync(req.file.path);

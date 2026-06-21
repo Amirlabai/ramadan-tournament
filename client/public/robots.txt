@@ -4,5 +4,6 @@ Disallow: /login
 Disallow: /admin/login
 Disallow: /admin
 Disallow: /profile
+Disallow: /player-zone
 
 Sitemap: https://ramadan-tournament-client.vercel.app/sitemap.xml

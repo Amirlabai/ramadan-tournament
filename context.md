@@ -19,6 +19,8 @@
 | `DATABASE_URL` | Yes (internal URL) | No | Postgres only on server |
 | `REDIS_URL` | Yes (internal) | No | |
 | `JWT_SECRET`, `ADMIN_*` | Yes | No | |
+| `PERSONAL_ID_KEY` | Yes (prod) | No | 32-byte base64; AES-256-GCM for `personal_id_enc` |
+| `CORS_ORIGINS` | Yes (optional) | No | Comma-separated; defaults include Vercel + localhost |
 | `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
 | `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
@@ -26,7 +28,7 @@
 | `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [Review/world-cup-phase.md](Review/world-cup-phase.md) |
 | `VITE_WORLD_CUP_ENABLED` | No | Yes (optional) | Shows מונדיאל 2026 in tournament switcher + `/world-cup/*` routes |
 
-Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite.
+Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
 
 **Local dev without Postgres (Render paused):** `npm run dev:mock` from repo root (or `server/`). Sets `MOCK_DEV_DATA=1` via `server/env.mock` and serves read-only API from `data/*.json` (teams, matches, news, computed stats). Admin login: `admin` / `admin123` (see `server/env.mock`). Writes and girls season return 404/503 until Postgres is back.
 
@@ -35,7 +37,7 @@ Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_AP
 - **Main app routes** (`/`, `/teams`, …): `AppShell` with header, news banner, `app-body` grid (main + right sidebar), footer.
 - **Legal routes** (`/about`, `/privacy`, `/terms`, `/accessibility`): standalone `LegalPageLayout` (no tournament chrome); prerendered at build.
 - **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). Mobile: off-canvas drawer + edge drag handle; horizontal swipe on `#main-content` moves to adjacent tab (non-looping).
-- **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx) (`pathname` + `useLocation` fallback; `noindex` on `/login`, `/admin`, `/profile`). Prebuild regenerates `public/sitemap.xml`, `public/robots.txt`, and `public/og-image.png`. Prerender bakes canonical/OG head for all sitemap paths and `noindex` for auth routes (`dist/schedule/index.html`, etc.).
+- **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx) (`pathname` + `useLocation` fallback; `noindex` on `/login`, `/admin`, `/profile`, `/player-zone`). Prebuild regenerates `public/sitemap.xml`, `public/robots.txt`, and `public/og-image.png`. Prerender bakes canonical/OG head for all sitemap paths and `noindex` for auth routes (`dist/schedule/index.html`, etc.).
 - **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept.
 
 ## Client production build (Vercel)
@@ -83,6 +85,7 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 - **Deploy:** Push API + client for Phase 2; ensure `REDIS_URL` on Render for invoice lockout.
 
 ## Recent Changes
+- **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
 - **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [review/world-cup-phase.md](review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
 - **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.

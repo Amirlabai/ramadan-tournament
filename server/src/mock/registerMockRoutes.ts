@@ -2,6 +2,7 @@ import { Express, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
 import { authenticate, authorize, AuthRequest } from '../middleware/auth';
+import { setAuthCookie, authJsonBody } from '../utils/authCookie';
 import {
   MOCK_SEASON_ID,
   formatMatchForApi,
@@ -197,7 +198,8 @@ export function registerMockRoutes(app: Express): void {
         config.jwtSecret,
         { expiresIn: '7d' }
       );
-      res.json({ token, user: mockAdminUser() });
+      setAuthCookie(res, token);
+      res.json(authJsonBody(mockAdminUser(), token));
       return;
     }
     res.status(401).json({ error: 'Invalid credentials' });

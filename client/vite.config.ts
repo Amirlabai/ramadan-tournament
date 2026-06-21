@@ -20,9 +20,8 @@ const headOnlyPublicRoutes = [
   '/teams-girls',
   '/news-girls',
   '/archive-girls',
-  '/player-zone',
 ]
-const noindexPrerenderRoutes = ['/login', '/admin/login', '/admin', '/profile']
+const noindexPrerenderRoutes = ['/login', '/admin/login', '/admin', '/profile', '/player-zone']
 
 /** vite-prerender-plugin + PWA can leave open handles; Node never exits (local + CI). */
 function forceExitAfterBuild(): Plugin {
@@ -37,6 +36,26 @@ function forceExitAfterBuild(): Plugin {
 }
 
 export default defineConfig({
+  server: {
+    proxy: {
+      '/api': {
+        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
+  },
+  build: {
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('/pages/admin/') || id.includes('/components/admin/')) {
+            return 'admin'
+          }
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({

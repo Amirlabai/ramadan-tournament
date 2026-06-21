@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playerAPI } from '../api/client';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import SEO from '../components/SEO';
 import './PlayerZone.css';
 
@@ -35,24 +36,13 @@ const PlayerZone = () => {
         setLoading(true);
         try {
             const res = await playerAPI.login(personalId, birthYear);
-            localStorage.setItem('token', res.data.token);
             setPlayer(res.data.player);
-            const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
             if (res.data.player.pending_head_photo) {
-                setPreview(`${apiUrl}${res.data.player.pending_head_photo}`);
+                setPreview(resolveAssetUrl(res.data.player.pending_head_photo) ?? null);
                 setSuccessMsg('התמונה שלך ממתינה לאישור מנהל.');
             } else if (res.data.player.head_photo) {
-                // If it's a relative path, prefix it. If valid URL, use as is.
-                // Backend returns `/uploads/players/...`
-                // We need to make sure we point to server URL if it's not absolute.
-                // Assuming proxy or base URL handles it? 
-
-                // If head_photo is already a full URL (e.g. cloudinary), use it. otherwise prepend api url
-                const photoUrl = res.data.player.head_photo.startsWith('http')
-                    ? res.data.player.head_photo
-                    : `${apiUrl}${res.data.player.head_photo}`;
-                setPreview(photoUrl);
+                setPreview(resolveAssetUrl(res.data.player.head_photo) ?? null);
             }
         } catch (err: any) {
             console.error(err);
@@ -82,9 +72,7 @@ const PlayerZone = () => {
         try {
             const res = await playerAPI.uploadPhoto(formData);
             setSuccessMsg('התמונה הועלתה בהצלחה וממתינה לאישור מנהל! מועבר לקבוצות...');
-            // Update preview with new URL from server to confirm
-            const apiUrl = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
-            setPreview(`${apiUrl}${res.data.url}`);
+            setPreview(resolveAssetUrl(res.data.url) ?? null);
             setFile(null);
 
             // Redirect to Teams page after short delay
@@ -105,6 +93,7 @@ const PlayerZone = () => {
                 title="אזור שחקנים"
                 description="אזור אישי לשחקני טורניר רמדאן 2026. העלאת תמונות פרופיל, עדכון פרטים וצפייה בסטטיסטיקות אישיות."
                 pathname="/player-zone"
+                noindex
             />
             <h2 className="text-center mb-4 text-success fw-bold">אזור אישי לשחקנים</h2>
 
@@ -203,9 +192,9 @@ const PlayerZone = () => {
                         {error && <div className="alert alert-danger">{error}</div>}
 
                         <div className="mt-4 pt-3 border-top">
-                            <button onClick={() => {
+                            <button onClick={async () => {
+                                await playerAPI.logout();
                                 setPlayer(null);
-                                localStorage.removeItem('token');
                                 setPreview(null);
                                 setFile(null);
                                 setSuccessMsg('');

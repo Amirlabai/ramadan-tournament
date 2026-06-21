@@ -12,7 +12,12 @@ import './styles/tournament-worldcup.css'
 import './styles/a11y-high-contrast.css'
 import App from './App.tsx'
 
-const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID || '1234567890-mock.apps.googleusercontent.com';
+const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
+  || (import.meta.env.DEV ? '1234567890-mock.apps.googleusercontent.com' : '');
+
+if (import.meta.env.PROD && !GOOGLE_CLIENT_ID) {
+  throw new Error('VITE_GOOGLE_CLIENT_ID is required in production builds');
+}
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
