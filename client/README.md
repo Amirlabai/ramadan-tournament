@@ -21,8 +21,17 @@ The frontend application for the Ramadan Tournament management system. Built as 
 - `npm run build` - Type-checks definitions and builds the production app.
 - `npm run lint` - Lints the codebase using ESLint.
 
-## Required Environment Variables
-Create a locally-scoped `.env` file with the following variables:
-```
-VITE_API_URL=http://localhost:5000
-```
+## Environment variables
+
+Copy [`.env.example`](.env.example) to `client/.env`. Vite loads **only** `client/.env` (`envDir` is the client package root).
+
+| Variable | Purpose |
+|----------|---------|
+| `VITE_API_URL` | API host for production builds and dev proxy target (local: `http://localhost:5000`) |
+| `VITE_GOOGLE_CLIENT_ID` | Google OAuth button (required in production builds) |
+| `VITE_SITE_URL` | Canonical URL for sitemap/OG (no trailing slash) |
+| `VITE_WORLD_CUP_*` | Optional World Cup UI flags |
+
+Local dev: axios uses relative `/api` (Vite proxy); `VITE_API_URL` still configures the proxy target in [`vite.config.ts`](vite.config.ts).
+
+Backend secrets live in [`server/.env`](../server/.env.example), not here.

@@ -1,8 +1,10 @@
 import { writeFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import dotenv from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: join(__dirname, '..', '.env') })
 const publicDir = join(__dirname, '..', 'public')
 
 const siteUrl = (

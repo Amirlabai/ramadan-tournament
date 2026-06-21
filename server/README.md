@@ -6,6 +6,8 @@ Node.js/Express backend API with MongoDB for tournament management.
 
 ### 1. Configure Environment
 
+Copy [`server/.env.example`](.env.example) to `server/.env` and fill in values. **Server reads only `server/.env`** (not a repo-root `.env`).
+
 **Option A — Mock dev (no Postgres, e.g. while Render is paused):**
 ```bash
 # From server/ or repo root
@@ -13,7 +15,7 @@ npm run dev:mock
 ```
 Uses `env.mock` (committed) and `data/*.json`. Admin: `admin` / `admin123`.
 
-**Option B — Full stack (PostgreSQL):** copy `env.mock.example` to `.env` and set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_*` (do not set `MOCK_DEV_DATA`).
+**Option B — Full stack (PostgreSQL):** copy `server/.env.example` to `server/.env` and set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_*` (do not set `MOCK_DEV_DATA`).
 
 Required variables (Postgres mode):
 - `DATABASE_URL` - PostgreSQL connection string

@@ -1,10 +1,10 @@
 import { PrismaClient, Division, ScoringMode, MatchPhase, NewsPriority } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import dotenv from 'dotenv';
 import * as fs from 'fs';
 import * as path from 'path';
+import { loadServerEnvFromCwd } from '../src/config/loadServerEnv';
 
-dotenv.config({ path: path.join(process.cwd(), '.env') });
+loadServerEnvFromCwd();
 
 if (!process.env.DATABASE_URL) {
   console.error('DATABASE_URL is not set. Add it to server/.env (Render Postgres Internal URL).');

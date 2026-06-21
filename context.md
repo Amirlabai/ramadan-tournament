@@ -28,7 +28,7 @@
 | `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [Review/world-cup-phase.md](Review/world-cup-phase.md) |
 | `VITE_WORLD_CUP_ENABLED` | No | Yes (optional) | Shows מונדיאל 2026 in tournament switcher + `/world-cup/*` routes |
 
-Local dev: `server/.env` for backend; `client/.env` or root `.env` with `VITE_API_URL=http://localhost:5000` when running Vite. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
+Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.example`](server/.env.example)); [`client/.env`](client/.env) for `VITE_*` (copy from [`client/.env.example`](client/.env.example)). **Do not use a repo-root `.env`** — the server loads only `server/.env`. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
 
 **Local dev without Postgres (Render paused):** `npm run dev:mock` from repo root (or `server/`). Sets `MOCK_DEV_DATA=1` via `server/env.mock` and serves read-only API from `data/*.json` (teams, matches, news, computed stats). Admin login: `admin` / `admin123` (see `server/env.mock`). Writes and girls season return 404/503 until Postgres is back.
 

@@ -36,6 +36,7 @@ function forceExitAfterBuild(): Plugin {
 }
 
 export default defineConfig({
+  envDir: __dirname,
   server: {
     proxy: {
       '/api': {

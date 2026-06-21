@@ -1,20 +1,6 @@
-import dotenv from 'dotenv';
-import fs from 'fs';
-import path from 'path';
+import { loadServerEnv } from './loadServerEnv';
 
-const parentEnv = path.join(process.cwd(), '..', '.env');
-if (fs.existsSync(parentEnv)) {
-  dotenv.config({ path: parentEnv });
-}
-dotenv.config();
-if (process.env.npm_lifecycle_event === 'dev:mock') {
-  const mockEnv = path.join(process.cwd(), 'env.mock');
-  if (fs.existsSync(mockEnv)) {
-    dotenv.config({ path: mockEnv, override: true });
-  } else {
-    process.env.MOCK_DEV_DATA = '1';
-  }
-}
+loadServerEnv();
 
 const mockDevData =
   process.env.MOCK_DEV_DATA === '1' || process.env.MOCK_DEV_DATA === 'true';
@@ -25,6 +11,8 @@ if (mockDevData && !process.env.JWT_SECRET) {
 
 const worldCupOnlyFlag =
   process.env.WORLD_CUP_ONLY === '1' || process.env.WORLD_CUP_ONLY === 'true';
+
+export { loadServerEnv } from './loadServerEnv';
 
 export const config = {
   port: process.env.PORT || 5000,
