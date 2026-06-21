@@ -1,15 +1,4 @@
-/** Operator contact — Bit donate phone via VITE_BIT_DONATE_PHONE in client/.env */
-export const BIT_DONATE_PHONE = (
-  import.meta.env.VITE_BIT_DONATE_PHONE as string | undefined
-)?.trim() ?? ''
-
-export function bitDonateTelHref(phone: string): string {
-  const digits = phone.replace(/\D/g, '')
-  if (digits.startsWith('0') && digits.length === 10) {
-    return `tel:+972${digits.slice(1)}`
-  }
-  if (digits.startsWith('972')) {
-    return `tel:+${digits}`
-  }
-  return `tel:${digits}`
-}
+export const DONATE_PAGE_URL = '/donate.html'
+export const PAYBOX_DONATE_URL = 'https://links.payboxapp.com/YQXzMoMq93b'
+export const BIT_DONATE_URL =
+  'https://www.bitpay.co.il/app/me/8069B5AA-810B-BEBB-28BC-8910660065621C8A'

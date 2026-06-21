@@ -1,16 +1,20 @@
-import { BIT_DONATE_PHONE, bitDonateTelHref } from '../config/contactConfig'
+import { DONATE_PAGE_URL } from '../config/contactConfig'
+
+const donateLinkProps = {
+  href: DONATE_PAGE_URL,
+  target: '_blank' as const,
+  rel: 'noopener noreferrer',
+}
 
 export function BitDonateLink({ className }: { className?: string }) {
-  if (!BIT_DONATE_PHONE) return null
   return (
-    <a href={bitDonateTelHref(BIT_DONATE_PHONE)} className={className}>
-      תרומה ביט
+    <a {...donateLinkProps} className={className}>
+      תרומה
     </a>
   )
 }
 
 export function ContactDonateNote({ className }: { className?: string }) {
-  if (!BIT_DONATE_PHONE) return null
   return (
     <p className={className}>
       נשמח לתרומה — <BitDonateLink />
