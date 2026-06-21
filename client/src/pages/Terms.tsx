@@ -1,4 +1,5 @@
 import LegalPageLayout from '../components/LegalPageLayout'
+import { ContactDonateNote } from '../components/BitDonateLink'
 
 const Terms = () => (
   <LegalPageLayout
@@ -37,6 +38,7 @@ const Terms = () => (
     <p>
       <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
     </p>
+    <ContactDonateNote />
   </LegalPageLayout>
 )
 

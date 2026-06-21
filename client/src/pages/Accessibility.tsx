@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import LegalPageLayout from '../components/LegalPageLayout'
+import { ContactDonateNote } from '../components/BitDonateLink'
 import { siteHomePath } from '../utils/tournamentPaths'
 import './Accessibility.css'
 
@@ -85,6 +86,7 @@ const Accessibility = () => {
             <a href={`mailto:${COORDINATOR_EMAIL}`}>{COORDINATOR_EMAIL}</a>
           </li>
         </ul>
+        <ContactDonateNote />
         <p className="text-muted">
           אנו מתחייבים לטפל בפניות נגישות בתוך 5 ימי עסקים ממועד קבלת הפנייה.
         </p>

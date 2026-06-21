@@ -1,4 +1,5 @@
 import LegalPageLayout from '../components/LegalPageLayout'
+import { ContactDonateNote } from '../components/BitDonateLink'
 
 const About = () => (
   <LegalPageLayout
@@ -20,6 +21,7 @@ const About = () => (
       דוא&quot;ל:{' '}
       <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
     </p>
+    <ContactDonateNote />
     <h3>טורניר בנות</h3>
     <p>
       ניתן לעבור לטורניר הבנות דרך מתג הטורניר בדף הבית או בכתובת{' '}

@@ -1,4 +1,5 @@
 import LegalPageLayout from '../components/LegalPageLayout'
+import { ContactDonateNote } from '../components/BitDonateLink'
 
 const Privacy = () => (
   <LegalPageLayout
@@ -35,6 +36,7 @@ const Privacy = () => (
       לבקשות מחיקה או עדכון מידע:{' '}
       <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
     </p>
+    <ContactDonateNote />
   </LegalPageLayout>
 )
 

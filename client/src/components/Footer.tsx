@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { BitDonateLink } from './BitDonateLink';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
+import { BIT_DONATE_PHONE } from '../config/contactConfig';
 
 const Footer = () => {
     const { user } = useAuth();
@@ -97,6 +99,12 @@ const Footer = () => {
                         <a href="mailto:amirlabay+WC@gmail.com" className="footer-link">
                             amirlabay+WC@gmail.com
                         </a>
+                        {BIT_DONATE_PHONE && (
+                            <>
+                                {' · '}
+                                <BitDonateLink className="footer-link" />
+                            </>
+                        )}
                     </p>
                 </div>
             </div>
