@@ -1,4 +1,4 @@
-import { DONATE_PAGE_URL } from '../config/contactConfig'
+import { BUY_COFFEE_LABEL, DONATE_PAGE_URL } from '../config/contactConfig'
 
 const donateLinkProps = {
   href: DONATE_PAGE_URL,
@@ -7,17 +7,18 @@ const donateLinkProps = {
 }
 
 export function BitDonateLink({ className }: { className?: string }) {
+  const classes = ['buy-coffee-link', className].filter(Boolean).join(' ')
   return (
-    <a {...donateLinkProps} className={className}>
-      תרומה
+    <a {...donateLinkProps} className={classes}>
+      {BUY_COFFEE_LABEL} ☕
     </a>
   )
 }
 
 export function ContactDonateNote({ className }: { className?: string }) {
   return (
-    <p className={className}>
-      נשמח לתרומה — <BitDonateLink />
+    <p className={['buy-coffee-note', className].filter(Boolean).join(' ')}>
+      <BitDonateLink />
     </p>
   )
 }

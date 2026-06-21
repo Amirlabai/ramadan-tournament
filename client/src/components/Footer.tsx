@@ -45,7 +45,7 @@ const Footer = () => {
         <footer className="tournament-footer">
             <div className="container">
                 <div className="row py-3 tournament-footer-row">
-                    <div className="col-md-4">
+                    <div className="col-md-6 col-lg-3">
                         <h5 className="footer-heading">{brandTitle}</h5>
                         <p className="footer-text">
                             {isWorldCup ? (
@@ -60,7 +60,7 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    <div className="col-md-4">
+                    <div className="col-md-6 col-lg-3">
                         <h5 className="footer-heading">קישורים</h5>
                         <ul className="footer-list">
                             {tournamentLinks.map((link) => (
@@ -77,7 +77,7 @@ const Footer = () => {
                         </ul>
                     </div>
 
-                    <div className="col-md-4">
+                    <div className="col-md-6 col-lg-3">
                         <h5 className="footer-heading">ניהול ומשתנים</h5>
                         <ul className="footer-list">
                             {user ? (
@@ -90,17 +90,24 @@ const Footer = () => {
                             )}
                         </ul>
                     </div>
+
+                    <div className="col-md-6 col-lg-3">
+                        <h5 className="footer-heading">יצירת קשר</h5>
+                        <ul className="footer-list">
+                            <li>
+                                <a href="mailto:amirlabay+WC@gmail.com" className="footer-link">
+                                    amirlabay+WC@gmail.com
+                                </a>
+                            </li>
+                            <li>
+                                <BitDonateLink className="footer-link" />
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <div className="footer-bottom">
-                    <p className="mb-0">
-                        Amir Labai ·{' '}
-                        <a href="mailto:amirlabay+WC@gmail.com" className="footer-link">
-                            amirlabay+WC@gmail.com
-                        </a>
-                        {' · '}
-                        <BitDonateLink className="footer-link" />
-                    </p>
+                    <p className="mb-0">Amir Labai</p>
                 </div>
             </div>
         </footer>
