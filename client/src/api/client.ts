@@ -116,8 +116,6 @@ export const usersAPI = {
         api.delete('/users/avatar'),
     updatePlayerProfile: (data: { firstName?: string; lastName?: string; nickname?: string; number?: number; position?: string }) =>
         api.patch('/users/player-profile', data),
-    requestTeam: (teamName: string, description: string) =>
-        api.post('/users/request-team', { teamName, description }),
     leaveTeam: () => api.post('/users/leave-team'),
 };
 
@@ -192,10 +190,6 @@ export const adminAPI = {
 export const commentsAPI = {
     getByMatchId: (matchId: number) => api.get(`/comments/${matchId}`),
     create: (data: { matchId: number; author?: string; content: string }) => api.post('/comments', data),
-};
-
-export const iftarAPI = {
-    getNext: () => api.get('/iftar/next'),
 };
 
 export const playerAPI = {

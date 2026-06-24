@@ -32,10 +32,16 @@ interface SearchUserRow {
 
 interface WorkflowData {
     season: { id: string; displayName: string; division: string };
-    creations: Array<{ id: string; teamName: string; user: WorkflowUser }>;
+    creations: Array<{
+        id: string;
+        teamName: string;
+        registrationStatus: string;
+        user: WorkflowUser;
+    }>;
     joins: Array<{
         id: string;
         status: string;
+        registrationStatus: string;
         team: { id: number; name: string };
         user: WorkflowUser;
     }>;
@@ -43,10 +49,13 @@ interface WorkflowData {
         id: string;
         fromTeamId: number;
         toTeamId: number;
+        registrationStatus: string;
         user: WorkflowUser;
     }>;
     awaitingInvoice: AwaitingInvoiceRow[];
 }
+
+const canApproveRequest = (registrationStatus: string) => registrationStatus === 'active';
 
 const REG_STATUS_LABELS: Record<string, string> = {
     none: 'לא התחיל',
@@ -91,15 +100,26 @@ export default function RegistrationWorkflowAdmin() {
     }, []);
 
     const load = useCallback(async () => {
-        if (!seasonId) return;
+        if (!seasonId) {
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         setMsg('');
         try {
             const res = await adminAPI.getWorkflowQueues(seasonId);
             setData(res.data);
-        } catch {
+        } catch (e: unknown) {
             setData(null);
-            setMsg('לא ניתן לטעון תורי רישום');
+            const ax = e as {
+                response?: { data?: { error?: string }; status?: number };
+                code?: string;
+            };
+            if (!ax.response) {
+                setMsg('לא ניתן להתחבר לשרת — ודא שהשרת רץ ונסה שוב.');
+            } else {
+                setMsg(ax.response.data?.error || 'לא ניתן לטעון תורי רישום');
+            }
         } finally {
             setLoading(false);
         }
@@ -140,12 +160,32 @@ export default function RegistrationWorkflowAdmin() {
         try {
             const res = await adminAPI.assignInvoice(userId, data.season.id, trimmed);
             const num = res.data.invoiceNumber as string;
-            const updated = Boolean(res.data.updated);
-            setMsg(
-                updated
-                    ? `מספר החשבונית עודכן ל־${num} (${displayName}). המשתמש מזין את המספר המתוקן בפרופיל.`
-                    : `מספר חשבונית ${num} הוקצה ל־${displayName}. המשתמש מזין את אותו מספר בפרופיל להפעלה.`
-            );
+            const verifyOnly = Boolean(res.data.verifyOnly);
+            const match = res.data.match as string | undefined;
+            const similarToUser = res.data.similarToUser as { displayName: string } | undefined;
+            const apiMessage = res.data.message as string | undefined;
+
+            let text = apiMessage ?? '';
+            if (!text) {
+                if (verifyOnly) {
+                    text =
+                        match === 'exact'
+                            ? `תואם לחשבונית של ${displayName} (${num}).`
+                            : match === 'similar'
+                              ? `דומה לחשבונית של ${displayName} — המשתמש יקבל התראה בפרופיל.`
+                              : match === 'mismatch'
+                                ? `שונה מחשבונית של ${displayName} — המשתמש יקבל התראה בפרופיל.`
+                                : `נבדק עבור ${displayName}.`;
+                } else {
+                    text = res.data.updated
+                        ? `מספר החשבונית עודכן ל־${num} (${displayName}).`
+                        : `מספר חשבונית ${num} הוקצה ל־${displayName}.`;
+                }
+            }
+            if (similarToUser) {
+                text += ` שים לב: דומה לחשבונית של ${similarToUser.displayName}.`;
+            }
+            setMsg(text);
             setInvoiceInputs((prev) => {
                 const next = { ...prev };
                 delete next[userId];
@@ -153,8 +193,16 @@ export default function RegistrationWorkflowAdmin() {
             });
             await load();
         } catch (e: unknown) {
-            const ax = e as { response?: { data?: { error?: string } } };
-            setMsg(ax.response?.data?.error || 'שגיאה בהקצאת חשבונית');
+            const ax = e as {
+                response?: { data?: { error?: string } };
+                code?: string;
+                message?: string;
+            };
+            if (!ax.response) {
+                setMsg('לא ניתן להתחבר לשרת — ייתכן שהוא מתעדכן. המתן רגע ונסה שוב.');
+            } else {
+                setMsg(ax.response.data?.error || 'שגיאה בהקצאת חשבונית');
+            }
         } finally {
             setAssigningId(null);
         }
@@ -166,12 +214,10 @@ export default function RegistrationWorkflowAdmin() {
         registrationStatus?: string;
     }) => {
         const { user } = row;
-        if (row.registrationStatus === 'active') {
-            return <span className="text-muted small">כבר פעיל (לא ניתן לערוך)</span>;
-        }
 
         const isCorrection =
             row.hasUnredeemedCode || row.registrationStatus === 'invoice_assigned';
+        const isVerifyOnly = row.registrationStatus === 'active';
         const value = invoiceInputs[user.id] ?? '';
 
         return (
@@ -181,7 +227,7 @@ export default function RegistrationWorkflowAdmin() {
                         type="text"
                         className="form-control form-control-sm"
                         style={{ maxWidth: '10rem' }}
-                        placeholder={isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
+                        placeholder={isVerifyOnly ? 'מספר מהמערכת' : isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
                         value={value}
                         onChange={(e) =>
                             setInvoiceInputs((prev) => ({
@@ -196,14 +242,27 @@ export default function RegistrationWorkflowAdmin() {
                     />
                     <button
                         type="button"
-                        className={`btn btn-sm text-nowrap ${isCorrection ? 'btn-warning' : 'btn-success'}`}
+                        className={`btn btn-sm text-nowrap ${
+                            isVerifyOnly ? 'btn-outline-primary' : isCorrection ? 'btn-warning' : 'btn-success'
+                        }`}
                         disabled={assigningId === user.id || !value.trim()}
                         onClick={() => void assignToUser(user.id, user.displayName, value)}
                     >
-                        {assigningId === user.id ? 'שומר…' : isCorrection ? 'עדכן' : 'הקצה'}
+                        {assigningId === user.id
+                            ? 'בודק…'
+                            : isVerifyOnly
+                              ? 'השווה'
+                              : isCorrection
+                                ? 'עדכן'
+                                : 'הקצה'}
                     </button>
                 </div>
-                {isCorrection && (
+                {isVerifyOnly && (
+                    <span className="text-muted small">
+                        משתמש פעיל — השוואה לחשבונית שהזין; אי־התאמה תוצג לו בפרופיל
+                    </span>
+                )}
+                {isCorrection && !isVerifyOnly && (
                     <span className="text-muted small">
                         הוקצה — ניתן לתקן לפני שהמשתמש מפעיל בפרופיל
                     </span>
@@ -243,7 +302,11 @@ export default function RegistrationWorkflowAdmin() {
             </div>
 
             {loading && <p className="text-muted">טוען תורים…</p>}
-            {!loading && !data && <p className="text-danger">לא ניתן לטעון תורי רישום</p>}
+            {!loading && !data && (
+                <p className="text-danger" role="alert">
+                    {msg || (seasons.length === 0 ? 'אין עונות במערכת — הרץ seed או בחר עונה.' : 'לא ניתן לטעון תורי רישום')}
+                </p>
+            )}
 
             {!loading && data && (
                 <>
@@ -361,10 +424,13 @@ export default function RegistrationWorkflowAdmin() {
                     <section className="mb-3">
                         <h5 className="h6">הקמת קבוצות ({data.creations.length})</h5>
                         <ul className="list-group list-group-flush">
-                            {data.creations.map((c) => (
+                            {data.creations.map((c) => {
+                                const paid = canApproveRequest(c.registrationStatus);
+                                return (
                                 <li
                                     key={c.id}
-                                    className="list-group-item d-flex justify-content-between align-items-center"
+                                    className={`list-group-item d-flex justify-content-between align-items-center${paid ? '' : ' opacity-50 bg-light'}`}
+                                    aria-disabled={!paid}
                                 >
                                     <span>
                                         {c.teamName} — {c.user.displayName}
@@ -374,11 +440,19 @@ export default function RegistrationWorkflowAdmin() {
                                                 ({c.user.email})
                                             </span>
                                         )}
+                                        {!paid && (
+                                            <span className="d-block small text-muted mt-1">
+                                                ממתין לחשבונית מהמשתמש (
+                                                {REG_STATUS_LABELS[c.registrationStatus] ?? c.registrationStatus})
+                                            </span>
+                                        )}
                                     </span>
                                     <span>
                                         <button
                                             type="button"
                                             className="btn btn-sm btn-success me-1"
+                                            disabled={!paid}
+                                            title={paid ? undefined : 'לא ניתן לאשר לפני הזנת חשבונית'}
                                             onClick={async () => {
                                                 await adminAPI.reviewCreationRequest(c.id, true);
                                                 load();
@@ -389,6 +463,7 @@ export default function RegistrationWorkflowAdmin() {
                                         <button
                                             type="button"
                                             className="btn btn-sm btn-outline-danger"
+                                            title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
                                             onClick={async () => {
                                                 await adminAPI.reviewCreationRequest(c.id, false);
                                                 load();
@@ -398,7 +473,8 @@ export default function RegistrationWorkflowAdmin() {
                                         </button>
                                     </span>
                                 </li>
-                            ))}
+                                );
+                            })}
                             {!data.creations.length && (
                                 <li className="list-group-item text-muted">אין</li>
                             )}
@@ -413,10 +489,13 @@ export default function RegistrationWorkflowAdmin() {
                         <ul className="list-group list-group-flush">
                             {data.joins
                                 .filter((j) => j.status === 'owner_approved')
-                                .map((j) => (
+                                .map((j) => {
+                                    const paid = canApproveRequest(j.registrationStatus);
+                                    return (
                                     <li
                                         key={j.id}
-                                        className="list-group-item d-flex justify-content-between"
+                                        className={`list-group-item d-flex justify-content-between align-items-center${paid ? '' : ' opacity-50 bg-light'}`}
+                                        aria-disabled={!paid}
                                     >
                                         <span>
                                             {j.user.displayName}
@@ -427,11 +506,19 @@ export default function RegistrationWorkflowAdmin() {
                                                 </span>
                                             )}{' '}
                                             → {j.team.name}
+                                            {!paid && (
+                                                <span className="d-block small text-muted mt-1">
+                                                    ממתין לחשבונית מהמשתמש (
+                                                    {REG_STATUS_LABELS[j.registrationStatus] ?? j.registrationStatus})
+                                                </span>
+                                            )}
                                         </span>
                                         <span>
                                             <button
                                                 type="button"
                                                 className="btn btn-sm btn-success me-1"
+                                                disabled={!paid}
+                                                title={paid ? undefined : 'לא ניתן לאשר לפני הזנת חשבונית'}
                                                 onClick={async () => {
                                                     await adminAPI.reviewJoinRequest(j.id, true);
                                                     load();
@@ -442,6 +529,7 @@ export default function RegistrationWorkflowAdmin() {
                                             <button
                                                 type="button"
                                                 className="btn btn-sm btn-outline-danger"
+                                                title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
                                                 onClick={async () => {
                                                     await adminAPI.reviewJoinRequest(j.id, false);
                                                     load();
@@ -451,7 +539,8 @@ export default function RegistrationWorkflowAdmin() {
                                             </button>
                                         </span>
                                     </li>
-                                ))}
+                                    );
+                                })}
                             {!data.joins.filter((j) => j.status === 'owner_approved').length && (
                                 <li className="list-group-item text-muted">אין</li>
                             )}

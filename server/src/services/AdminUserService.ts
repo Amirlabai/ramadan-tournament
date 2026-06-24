@@ -1,9 +1,10 @@
 import { UserRole } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { sanitizeSearchQuery } from '../utils/sanitizeSearchQuery';
 
 export class AdminUserService {
   static async searchUsers(query: string, limit = 20) {
-    const q = query.trim().slice(0, 100).replace(/[%_\\]/g, '');
+    const q = sanitizeSearchQuery(query);
     if (q.length < 2) {
       return [];
     }
@@ -47,6 +48,18 @@ export class AdminUserService {
       if (adminCount <= 1) {
         throw new Error('לא ניתן להסיר את המנהל האחרון במערכת');
       }
+    }
+
+    if (role === UserRole.admin && target.role !== UserRole.admin) {
+      console.info(
+        `[audit] admin role granted: actor=${actorId} target=${targetUserId} at=${new Date().toISOString()}`
+      );
+    }
+
+    if (target.role === UserRole.admin && role === UserRole.user) {
+      console.info(
+        `[audit] admin role revoked: actor=${actorId} target=${targetUserId} at=${new Date().toISOString()}`
+      );
     }
 
     return prisma.user.update({

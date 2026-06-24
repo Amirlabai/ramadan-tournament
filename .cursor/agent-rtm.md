@@ -53,7 +53,7 @@
 3. ~~**Girls team MVP**~~ — `POST /api/votes-girls`, `GirlsTeams.tsx` team star vote (May 2026).
 4. **`personal_id`** — confirm encrypt on create/update (column `personalIdEnc` exists).
 5. **Manual QA P2** — invoice redeem, join owner→admin, cross-division error (Hebrew), 5 wrong codes lockout.
-6. **Optional cleanup** — dead Mongo/Iftar files still excluded from `tsc`, not deleted.
+6. ~~**Optional cleanup** — dead Mongo/Iftar files removed (Jun 2026).
 
 ---
 

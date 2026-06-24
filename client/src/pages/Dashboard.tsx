@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
+import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
@@ -88,6 +89,11 @@ const Dashboard = () => {
     const needsPlayerMapping = user && user.role === 'User' && (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected') && !hideClaimBanner;
     const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
 
+    const hasPlayoffs = !!(data.playoffMatches && data.playoffMatches.length > 0);
+    const hasNextMatches = !!(data.nextMatches && data.nextMatches.length > 0);
+    const hasRecentMatches = !!(data.recentMatches && data.recentMatches.length > 0);
+    const hasDashboardContent = hasPlayoffs || hasNextMatches || hasRecentMatches;
+
     const handleDismissClaimBanner = () => {
         localStorage.setItem('hideClaimBanner', 'true');
         setHideClaimBanner(true);
@@ -148,6 +154,13 @@ const Dashboard = () => {
                 )}
 
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">דף הבית</h2>
+
+                {!hasDashboardContent && (
+                    <EmptyState
+                        title="אין תוכן להצגה עדיין"
+                        message="משחקים קרובים, תוצאות אחרונות ופלייאוף יופיעו כאן לאחר רישום הקבוצות, פרסום לוח המשחקים והתחלת העונה."
+                    />
+                )}
 
                 {/* Playoff Bracket */}
                 {data.playoffMatches && data.playoffMatches.length > 0 && (

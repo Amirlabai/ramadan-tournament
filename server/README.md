@@ -146,5 +146,3 @@ server/
 │   └── index.ts
 └── package.json
 ```
-
-Legacy Mongo scripts under `src/scripts/` are not used in production builds.

@@ -131,6 +131,7 @@ model SeasonRegistration {
   division   Division
   status     SeasonRegistrationStatus @default(none)
   redeemedAt DateTime?                @map("redeemed_at")
+  invoiceAlert String?                @map("invoice_alert")
   createdAt  DateTime                 @default(now()) @map("created_at")
   updatedAt  DateTime                 @updatedAt @map("updated_at")
 
@@ -145,6 +146,7 @@ model InvoiceCode {
   id             String    @id @default(uuid())
   seasonId       String    @map("season_id")
   codeHash       String    @map("code_hash")
+  codeNormalized String?   @map("code_normalized")
   assignedUserId String    @map("assigned_user_id")
   createdById    String?   @map("created_by_id")
   redeemedAt     DateTime? @map("redeemed_at")

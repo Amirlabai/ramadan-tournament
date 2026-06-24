@@ -32,9 +32,9 @@ A full-stack tournament management system with real-time statistics, news manage
 
 ### Full Stack Application
 
-**Frontend:** React 18 + TypeScript + Vite  
-**Backend:** Node.js + Express + MongoDB  
-**Hosting:** Vercel (Frontend) + Render (Backend)
+**Frontend:** React 19 + TypeScript + Vite  
+**Backend:** Node.js + Express + PostgreSQL (Prisma)  
+**Hosting:** Vercel (Frontend) + Render (Backend + Postgres + Redis)
 
 ### Project Structure
 
@@ -62,14 +62,14 @@ ramadan-tournament/
 │   └── sync-photos.yml       # Production photos sync
 ├── fetch_alarms.py            # Rocket alerts data pipeline
 ├── sync_photos.py             # Photo recovery & sync script
-└── requirements.txt           # Python dependencies (pymongo, requests)
+└── requirements.txt           # Python dependencies (requests, psycopg2 for sync/backup)
 ```
 
 ## Quick Start
 
 ### Prerequisites
 - Node.js 18+
-- MongoDB Atlas account
+- PostgreSQL (Render or local) for full API mode
 - Git
 
 ### Development Setup
@@ -86,10 +86,11 @@ ramadan-tournament/
    npm install
    
    # Create .env file with:
-   # MONGODB_URI=your_mongodb_connection_string
+   # DATABASE_URL=postgresql://...
    # JWT_SECRET=your_secret_key
    # PORT=5000
    
+   npm run db:migrate
    npm run dev
    ```
 
@@ -107,7 +108,8 @@ ramadan-tournament/
 4. **Seed Initial Data** (Optional)
    ```bash
    cd server
-   npx tsx src/scripts/seedBannedWords.ts
+   npm run db:seed    # demo teams/matches from data/*.json
+   # or: npm run db:fresh   # season + admin only
    ```
 
 ### Admin Access
@@ -149,23 +151,23 @@ If your local or production environment is missing player photos, use the sync t
 ```bash
 python sync_photos.py
 ```
-Requires `pymongo`, `requests`, and `python-dotenv`.
+Requires `requests`, `python-dotenv`, and optionally `psycopg2-binary` (for user avatars via `DATABASE_URL`).
 
 ## Stats Automation & AI (Node.js Service)
 
-The project includes an `AutomationService` natively integrated into the Node.js backend to track tournament statistics and post news.
-1. **Trigger**: Triggered via Admin Panel button click for safe snapshot detection.
-2. **Snapshot Mechanism**: Evaluates current standings against `stats_snapshots` collection to identify scoring changes or ranking shifts.
-3. **AI Integration**: Leverages **Gemini 2.5 Flash** to draft engaging updates in Hebrew regarding the new stats metrics.
+The project includes an `AutomationService` in the Node.js backend to track tournament statistics and post news.
+1. **Trigger**: Admin Panel → **צור עדכון יומי (AI)** or `POST /api/admin/trigger-automation`.
+2. **Snapshot Mechanism**: Evaluates current standings against `stats_snapshots` to identify scoring changes or ranking shifts.
+3. **AI Integration**: Uses **Gemini** to draft engaging updates in Hebrew.
 
 ### Required Server Environment Variables
 
 | Secret           | Description                                             |
 | ---------------- | ------------------------------------------------------- |
-| `GEMINI_API_KEY` | Google AI Studio free API key                           |
-| `SMTP_USER`      | SMTP Email string (for Email OTPs)                      |
-| `SMTP_PASS`      | SMTP App password (for Email OTPs)                      |
-| `MONGODB_URI`    | MongoDB Atlas connection string (same as server `.env`) |
+| `GEMINI_API_KEY` | Google AI Studio API key (automation)                   |
+| `DATABASE_URL`   | PostgreSQL connection string                            |
+| `SMTP_USER`      | SMTP email (optional, for OTP)                          |
+| `SMTP_PASS`      | SMTP app password (optional)                            |
 
 ## Color Scheme
 
@@ -195,7 +197,7 @@ The project includes an `AutomationService` natively integrated into the Node.js
 ### Backend
 - Node.js
 - Express
-- MongoDB with Mongoose
+- PostgreSQL with Prisma
 - TypeScript
 - JWT for authentication
 - Multer for file uploads

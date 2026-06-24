@@ -6,6 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import { config } from '../config/env';
 import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../services/emailService';
+import { PlayerService } from '../services/PlayerService';
 
 // Voluntary leave team
 export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -52,64 +53,34 @@ export const requestPlayerMapping = async (_req: AuthRequest, res: Response): Pr
 // ── User edits their own player info ─────────────────────────────────────────
 export const updatePlayerProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId!);
-        if (!user) { res.status(404).json({ error: 'User not found' }); return; }
-
-        if (!user.mappedPlayerInfo) {
-            res.status(400).json({ error: 'No player mapping found' });
-            return;
-        }
-
-        const { teamId, memberId, status } = user.mappedPlayerInfo;
-        const { firstName, lastName, nickname, number, position, bio } = req.body;
-
-        // Flow A: Approved Player - update the Team record directly
-        if (memberId > 0 && status === 'approved') {
-            const team = await Team.findOne({ id: teamId });
-            if (!team) {
-                res.status(404).json({ error: 'Team not found' });
-                return;
-            }
-
-            const playerIndex = team.players.findIndex(p => p.memberId === memberId);
-            if (playerIndex === -1) {
-                res.status(404).json({ error: 'Player slot not found in team' });
-                return;
-            }
-
-            // Update only provided fields, falling back to existing team data
-            const player = team.players[playerIndex];
-            player.firstName = firstName != null ? String(firstName).trim().slice(0, 50) : player.firstName;
-            player.lastName = lastName != null ? String(lastName).trim().slice(0, 50) : player.lastName;
-            player.nickname = nickname != null ? String(nickname).trim().slice(0, 50) : player.nickname;
-            player.number = number != null ? Number(number) : player.number;
-            player.position = position != null ? String(position).trim().slice(0, 30) : player.position;
-            if (bio != null) player.bio = String(bio).trim().slice(0, 300);
-
-            team.markModified('players');
-            await team.save();
-
-            res.json({ message: 'Player profile updated in Team database', playerProfile: player });
-            return;
-        }
-
-        // Flow B: Pending Custom Player - update the local User.playerProfile draft
-        const updatedPendingProfile = {
-            firstName: firstName != null ? String(firstName).trim().slice(0, 50) : user.playerProfile?.firstName ?? '',
-            lastName: lastName != null ? String(lastName).trim().slice(0, 50) : user.playerProfile?.lastName ?? '',
-            nickname: nickname != null ? String(nickname).trim().slice(0, 50) : user.playerProfile?.nickname ?? '',
-            number: number != null ? Number(number) : user.playerProfile?.number,
-            position: position != null ? String(position).trim().slice(0, 30) : user.playerProfile?.position ?? '',
-            bio: bio != null ? String(bio).trim().slice(0, 300) : user.playerProfile?.bio ?? ''
+        const body = req.body as Record<string, unknown>;
+        const input = {
+            firstName: body.firstName as string | undefined,
+            lastName: body.lastName as string | undefined,
+            nickname: body.nickname as string | undefined,
+            number: body.number != null ? Number(body.number) : undefined,
+            position: body.position as string | undefined,
+            bio: body.bio as string | undefined,
         };
 
-        user.playerProfile = updatedPendingProfile;
-        await user.save();
+        try {
+            const playerProfile = await PlayerService.updateOwnProfile(req.userId!, input);
+            res.json({ message: 'פרטי השחקן עודכנו', playerProfile });
+            return;
+        } catch (activeErr) {
+            const msg = activeErr instanceof Error ? activeErr.message : '';
+            if (!msg.includes('לא נמצא שחקן פעיל')) {
+                throw activeErr;
+            }
+        }
 
-        res.json({ message: 'Pending player profile updated', playerProfile: user.playerProfile });
+        const playerProfile = await PlayerService.updatePendingProfile(req.userId!, input);
+        res.json({ message: 'פרטי השחקן עודכנו (ממתין לאישור)', playerProfile });
     } catch (error) {
+        const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+        const status = message.includes('לא נמצא') || message.includes('אין הרשאה') ? 404 : 400;
         console.error('Update player profile error:', error);
-        res.status(500).json({ error: 'Server error' });
+        res.status(status).json({ error: message });
     }
 };
 
@@ -201,31 +172,6 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
     } catch (error) {
         console.error('Avatar delete error:', error);
         res.status(500).json({ error: 'Server error during avatar deletion' });
-    }
-};
-
-export const requestTeamCreation = async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-        const { teamName, description } = req.body;
-        if (!teamName?.trim()) {
-            res.status(400).json({ error: 'שם קבוצה נדרש' });
-            return;
-        }
-        const { Division } = await import('@prisma/client');
-        const { RegistrationService } = await import('../services/RegistrationService');
-        const request = await RegistrationService.submitTeamCreation(
-            req.userId!,
-            Division.boys,
-            String(teamName),
-            String(description ?? '')
-        );
-        res.json({
-            message: 'בקשת הקמת קבוצה נשלחה',
-            pendingTeamRequest: { teamName: request.teamName, status: 'pending' },
-        });
-    } catch (error) {
-        const message = error instanceof Error ? error.message : 'שגיאה בשרת';
-        res.status(400).json({ error: message });
     }
 };
 

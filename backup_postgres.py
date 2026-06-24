@@ -65,9 +65,43 @@ TABLE_EXPORTS: list[tuple[str, str]] = [
         "season_registrations",
         "SELECT * FROM season_registrations ORDER BY created_at",
     ),
-    ("invoice_codes", "SELECT * FROM invoice_codes ORDER BY created_at"),
+    ("invoice_codes", """
+        SELECT
+            id,
+            season_id,
+            assigned_user_id,
+            created_by_id,
+            redeemed_at,
+            created_at
+        FROM invoice_codes
+        ORDER BY created_at
+    """),
     ("teams", "SELECT * FROM teams ORDER BY season_id, id"),
-    ("players", "SELECT * FROM players ORDER BY season_id, team_id, number"),
+    (
+        "players",
+        """
+        SELECT
+            member_id,
+            team_id,
+            season_id,
+            user_id,
+            first_name,
+            last_name,
+            nickname,
+            number,
+            position,
+            squad_role,
+            is_captain,
+            head_photo,
+            pending_head_photo,
+            bio,
+            birth_year,
+            active,
+            created_at
+        FROM players
+        ORDER BY season_id, team_id, number
+        """,
+    ),
     ("matches", "SELECT * FROM matches ORDER BY season_id, date, id"),
     ("goals", "SELECT * FROM goals ORDER BY season_id, match_id, member_id"),
     (
@@ -164,9 +198,11 @@ def backup_postgres() -> None:
         "tables": manifest_tables,
         "notes": [
             "users.csv omits password and verification_token columns",
+            "users.csv still includes mapped_player_info and player_profile (PII)",
+            "invoice_codes.csv omits code_hash and code_normalized (no plaintext payment codes)",
+            "players.csv omits personal_id_enc (national ID ciphertext)",
             "personal_id_enc is encrypted; restore requires PERSONAL_ID_KEY",
-            "invoice_codes.code_hash only (plain codes are not stored)",
-            "archive/postgres/ may contain PII — treat as sensitive; avoid public exposure",
+            "archive/postgres/ is sensitive — do not publish or share publicly",
         ],
     }
     manifest_path.write_text(

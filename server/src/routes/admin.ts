@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import multer from 'multer';
+import rateLimit from 'express-rate-limit';
 import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
 import { getPendingTeamRequests, approveTeamRequest, getUserMappings, updateUserMapping } from '../controllers/userController';
 import {
@@ -25,6 +26,14 @@ import os from 'os';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
+
+const adminSearchLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'יותר מדי חיפושים. המתן דקה ונסה שוב.' },
+});
 
 router.post('/import-players', authenticate, authorize(['Admin', 'admin']), upload.single('file'), importPlayers);
 
@@ -67,14 +76,20 @@ router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), creat
 
 // Phase 2 — registration workflows
 router.get('/workflows', authenticate, authorize(['Admin', 'admin']), listWorkflowQueues);
-router.get('/workflows/user-search', authenticate, authorize(['Admin', 'admin']), searchInvoiceUsers);
+router.get(
+  '/workflows/user-search',
+  authenticate,
+  authorize(['Admin', 'admin']),
+  adminSearchLimiter,
+  searchInvoiceUsers
+);
 router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
 router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
 
 // User role management
-router.get('/users', authenticate, authorize(['Admin', 'admin']), searchAdminUsers);
+router.get('/users', authenticate, authorize(['Admin', 'admin']), adminSearchLimiter, searchAdminUsers);
 router.patch('/users/:id/role', authenticate, authorize(['Admin', 'admin']), setAdminUserRole);
 
 export default router;

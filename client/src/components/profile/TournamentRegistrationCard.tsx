@@ -7,8 +7,8 @@ import './TournamentRegistrationCard.css';
 const STATUS_LABELS: Record<string, string> = {
     none: 'לא התחלת רישום לטורניר',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין למספר חשבונית',
-    invoice_assigned: 'הוזן מספר חשבונית — הזן למטה להפעלה',
+    awaiting_invoice: 'ממתין למספר חשבונית — ניתן להזין למטה',
+    invoice_assigned: 'חשבונית הוזנה — ניתן לעדכן למטה',
     active: 'רישום פעיל לעונה',
     archived: 'עונה בארכיון',
 };
@@ -17,6 +17,7 @@ interface RegistrationSummary {
     seasonId: string;
     division: string;
     status: string;
+    invoiceAlert?: string | null;
     pendingJoin?: { id: string; teamId: number; status: string } | null;
     pendingCreation?: { id: string; teamName: string; status: string } | null;
     pendingTransfer?: { fromTeamId: number; toTeamId: number } | null;
@@ -121,6 +122,12 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 <strong>{STATUS_LABELS[reg.status] ?? reg.status}</strong>
             </p>
 
+            {reg.invoiceAlert && (
+                <div className="alert alert-warning py-2 small mb-3" role="alert">
+                    {reg.invoiceAlert}
+                </div>
+            )}
+
             {reg.pendingCreation && (
                 <p className="small text-warning mb-2">
                     בקשת הקמת קבוצה &quot;{reg.pendingCreation.teamName}&quot; ממתינה לאישור מנהל.
@@ -165,8 +172,12 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
             {showInvoiceForm && (
                 <form onSubmit={handleRedeem} className="mt-3">
+                    <p className="small text-muted mb-2">
+                        ניתן להזין חשבונית לפני אישור המנהל. הזנה חוזרת מחליפה את הקודמת.
+                        מוגבל ל־3 ניסיונות ביום.
+                    </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
-                        מספר חשבונית (קוד הפעלה — כפי שנמסר לאחר תשלום)
+                        מספר חשבונית (לאחר תשלום)
                     </label>
                     <div className="input-group">
                         <input
@@ -182,7 +193,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             aria-invalid={!!err}
                         />
                         <button type="submit" className={submitBtnClass} disabled={submitting || !invoiceCode.trim()}>
-                            {submitting ? 'שולח…' : 'הפעל רישום'}
+                            {submitting ? 'שולח…' : 'שלח חשבונית'}
                         </button>
                     </div>
                 </form>

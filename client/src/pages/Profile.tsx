@@ -1,7 +1,7 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { usersAPI, teamsAPI, statsAPI, registrationAPI } from '../api/client';
+import { usersAPI, teamsAPI, statsAPI, registrationAPI, type TournamentSlug } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
@@ -22,6 +22,23 @@ const Profile = () => {
 
     // Player profile editing
     const playerProfile = user ? (user as any).playerProfile : null;
+    const onRoster =
+        user?.tournamentRegistration?.boys?.onRoster ??
+        user?.tournamentRegistration?.girls?.onRoster;
+    const ownsTeam =
+        user?.tournamentRegistration?.boys?.ownedTeamId ??
+        user?.tournamentRegistration?.girls?.ownedTeamId;
+    const isCaptain = user?.role === 'Captain' || !!ownsTeam;
+    const pendingJoin =
+        user?.tournamentRegistration?.boys?.pendingJoin ??
+        user?.tournamentRegistration?.girls?.pendingJoin;
+    const canEditPlayer =
+        !!(
+            playerProfile ||
+            onRoster ||
+            pendingJoin ||
+            user?.mappedPlayerInfo?.status === 'approved'
+        );
     const [editingPlayer, setEditingPlayer] = useState(false);
     const [playerForm, setPlayerForm] = useState({ firstName: '', lastName: '', nickname: '', number: '', position: '', bio: '' });
     const [playerSaving, setPlayerSaving] = useState(false);
@@ -146,8 +163,9 @@ const Profile = () => {
 
     const handleTeamRequest = async (e: React.FormEvent) => {
         e.preventDefault();
+        const slug: TournamentSlug = user?.activeDivision === 'girls' ? 'girls' : 'boys';
         try {
-            await registrationAPI.submitCreation(teamName, teamDesc, 'boys');
+            await registrationAPI.submitCreation(teamName, teamDesc, slug);
             setTeamRequestMsg(
                 'הבקשה נשלחה. הזן את מספר החשבונית בכרטיס הרישום למעלה — אישור המנהל רק לאחר הפעלת הרישום.'
             );
@@ -263,7 +281,9 @@ const Profile = () => {
         !girlsReg?.pendingTransfer &&
         (!pendingTeam || pendingTeam.status === 'rejected') &&
         !boysReg?.onRoster &&
-        !boysReg?.ownedTeamId;
+        !boysReg?.ownedTeamId &&
+        !girlsReg?.onRoster &&
+        !girlsReg?.ownedTeamId;
     const mappingStatus = user.mappedPlayerInfo?.status;
 
     // We hide the status banner entirely once the user is actually a Player or Captain, 
@@ -368,14 +388,14 @@ const Profile = () => {
 
                 {/* Editable Player Info (For Players and Captains) */}
                 {/* Editable Player Info (For Players and Captains) */}
-                {(user.role === 'Player' || user.role === 'Captain') && (
+                {canEditPlayer && (
                     <div className="card mb-4 p-4">
                         <div className="d-flex justify-content-between align-items-center mb-3">
                             <h4 className="mb-0">פרטי שחקן</h4>
                             <div className="d-flex gap-2">
                                 {!editingPlayer && (
                                     <>
-                                        {user.role !== 'Captain' && (
+                                        {!isCaptain && (
                                             <button type="button" className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>
                                                 <i className="bi bi-box-arrow-right me-1" />עזוב קבוצה
                                             </button>
@@ -425,7 +445,18 @@ const Profile = () => {
                                             onChange={e => setPlayerForm(p => ({ ...p, bio: e.target.value }))} placeholder="ספר מעט על עצמך..." />
                                     </div>
                                 </div>
-                                {playerMsg && <div className={`alert ${playerMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2 mt-3`}>{playerMsg}</div>}
+                                {playerMsg && (
+                                    <div
+                                        className={`alert ${
+                                            playerMsg === 'הפרטים עודכנו בהצלחה'
+                                                ? 'alert-success'
+                                                : 'alert-danger'
+                                        } py-2 mt-3`}
+                                        role="alert"
+                                    >
+                                        {playerMsg}
+                                    </div>
+                                )}
                                 <div className="d-flex gap-2 mt-3">
                                     <button type="button" className="btn btn-secondary" onClick={() => setEditingPlayer(false)}>בטל</button>
                                     <button type="submit" className="btn btn-success" disabled={playerSaving}>

@@ -2,6 +2,7 @@ import { Response } from 'express';
 import { UserRole } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
 import { AdminUserService } from '../services/AdminUserService';
+import { isUuid } from '../utils/sanitizeSearchQuery';
 
 export const searchAdminUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -22,9 +23,15 @@ export const setAdminUserRole = async (req: AuthRequest, res: Response): Promise
       return;
     }
 
+    const targetId = req.params.id;
+    if (!isUuid(targetId)) {
+      res.status(400).json({ error: 'מזהה משתמש לא תקין' });
+      return;
+    }
+
     const user = await AdminUserService.setUserRole(
       req.userId!,
-      req.params.id,
+      targetId,
       role as UserRole
     );
     res.json({

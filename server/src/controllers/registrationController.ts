@@ -3,6 +3,8 @@ import { Division, SquadRole } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 import { RegistrationService } from '../services/RegistrationService';
+import { INVOICE_CODE_MAX_LEN, parsePositiveTeamId } from '../utils/inputValidation';
+import { isUuid } from '../utils/sanitizeSearchQuery';
 
 function divisionFromQuery(req: TournamentRequest): Division {
   const q = req.query.division as string | undefined;
@@ -25,7 +27,12 @@ export const redeemInvoice = async (req: AuthRequest, res: Response): Promise<vo
   try {
     const { code } = req.body as { code?: string };
     const division = divisionFromQuery(req as TournamentRequest);
-    await RegistrationService.redeemInvoice(req.userId!, String(code ?? ''), division);
+    const codeStr = String(code ?? '').trim();
+    if (codeStr.length > INVOICE_CODE_MAX_LEN) {
+      res.status(400).json({ error: 'מספר חשבונית ארוך מדי' });
+      return;
+    }
+    await RegistrationService.redeemInvoice(req.userId!, codeStr, division);
     const summary = await RegistrationService.getSummary(req.userId!, division);
     res.json({ message: 'קוד התשלום אושר בהצלחה', registration: summary });
   } catch (error) {
@@ -67,7 +74,7 @@ export const submitTeamCreation = async (req: AuthRequest, res: Response): Promi
 
 export const submitJoinRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const teamId = parseInt(req.params.id, 10);
+    const teamId = parsePositiveTeamId(req.params.id);
     const division = divisionFromQuery(req as TournamentRequest);
     const request = await RegistrationService.submitJoinRequest(req.userId!, division, teamId);
     res.json({ message: 'בקשת הצטרפות נשלחה', request });
@@ -79,12 +86,17 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response): Promis
 
 export const submitTransferRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { toTeamId } = req.body as { toTeamId?: number };
+    const { toTeamId } = req.body as { toTeamId?: number | string };
+    if (toTeamId === undefined || toTeamId === null || String(toTeamId).trim() === '') {
+      res.status(400).json({ error: 'יעד העברה נדרש' });
+      return;
+    }
+    const teamId = parsePositiveTeamId(toTeamId);
     const division = divisionFromQuery(req as TournamentRequest);
     const request = await RegistrationService.submitTransfer(
       req.userId!,
       division,
-      Number(toTeamId)
+      teamId
     );
     res.json({ message: 'בקשת העברה נשלחה', request });
   } catch (error) {
@@ -95,7 +107,7 @@ export const submitTransferRequest = async (req: AuthRequest, res: Response): Pr
 
 export const listOwnerJoinRequests = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const teamId = parseInt(req.params.id, 10);
+    const teamId = parsePositiveTeamId(req.params.id);
     const division = divisionFromQuery(req as TournamentRequest);
     const rows = await RegistrationService.listPendingJoinsForOwner(
       req.userId!,
@@ -123,7 +135,11 @@ export const listAvailableTeams = async (req: AuthRequest, res: Response): Promi
 export const ownerReviewJoin = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { requestId, approve } = req.body as { requestId?: string; approve?: boolean };
-    await RegistrationService.ownerReviewJoin(req.userId!, String(requestId), approve === true);
+    if (!requestId || !isUuid(requestId)) {
+      res.status(400).json({ error: 'מזהה בקשה לא תקין' });
+      return;
+    }
+    await RegistrationService.ownerReviewJoin(req.userId!, requestId, approve === true);
     res.json({ message: approve ? 'הבקשה אושרה על ידי הבעלים' : 'הבקשה נדחתה' });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
@@ -133,7 +149,7 @@ export const ownerReviewJoin = async (req: AuthRequest, res: Response): Promise<
 
 export const setSquadRoles = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const teamId = parseInt(req.params.id, 10);
+    const teamId = parsePositiveTeamId(req.params.id);
     const { roles } = req.body as { roles?: { memberId: number; squadRole: string | null }[] };
     const division = divisionFromQuery(req as TournamentRequest);
     const parsed = (roles ?? []).map((r) => ({
@@ -153,7 +169,7 @@ export const setSquadRoles = async (req: AuthRequest, res: Response): Promise<vo
 
 export const addSelfToRoster = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const teamId = parseInt(req.params.id, 10);
+    const teamId = parsePositiveTeamId(req.params.id);
     const division = divisionFromQuery(req as TournamentRequest);
     const memberId = await RegistrationService.addOwnerToRoster(req.userId!, teamId, division);
     res.json({ message: 'נוספת לסגל בהצלחה', memberId });

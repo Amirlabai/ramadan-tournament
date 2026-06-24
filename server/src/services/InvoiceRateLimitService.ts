@@ -1,7 +1,7 @@
 import { getRedis } from '../config/redis';
 import { config } from '../config/env';
 
-const MAX_ATTEMPTS = 5;
+export const MAX_INVOICE_ATTEMPTS = 3;
 const PREFIX = 'rt:invoice:attempts:';
 
 function secondsUntilJerusalemMidnight(): number {
@@ -29,7 +29,7 @@ export class InvoiceRateLimitService {
 
   static async isLocked(userId: string, seasonId: string): Promise<boolean> {
     const count = await this.getAttemptCount(userId, seasonId);
-    return count >= MAX_ATTEMPTS;
+    return count >= MAX_INVOICE_ATTEMPTS;
   }
 
   static async getAttemptCount(userId: string, seasonId: string): Promise<number> {

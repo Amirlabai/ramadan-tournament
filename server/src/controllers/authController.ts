@@ -85,27 +85,43 @@ const hydrateUserPayload = async (userDoc: any) => {
         (payload as any).tournamentRegistration = { boys, girls };
         (payload as any).activeDivision = boys?.activeDivision ?? girls?.activeDivision ?? null;
 
+        const ownedTeamId = boys?.ownedTeamId ?? girls?.ownedTeamId ?? null;
         const roster = boys?.onRoster ?? girls?.onRoster;
+        if (ownedTeamId) {
+            payload.role = 'Captain';
+        } else if (roster) {
+            payload.role = 'Player';
+        }
+
         if (roster && (!payload.mappedPlayerInfo || payload.mappedPlayerInfo.status !== 'approved')) {
             (payload as any).mappedPlayerInfo = {
                 teamId: roster.teamId,
                 memberId: roster.memberId,
                 status: 'approved',
             };
-            const team = await Team.findOne({ id: roster.teamId });
+        }
+
+        const mapTeamId = payload.mappedPlayerInfo?.teamId ?? roster?.teamId;
+        const mapMemberId = payload.mappedPlayerInfo?.memberId ?? roster?.memberId;
+        if (mapTeamId && mapTeamId > 0 && mapMemberId && mapMemberId > 0) {
+            const team = await Team.findOne({ id: mapTeamId });
             if (team) {
                 (payload.mappedPlayerInfo as any).teamName = team.name;
-                const player = team.players.find((p) => p.memberId === roster.memberId);
+                (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;
+                (payload.mappedPlayerInfo as any).logoPosition = team.logoPosition;
+                const player = team.players.find((p) => p.memberId === mapMemberId);
                 if (player) {
                     (payload.mappedPlayerInfo as any).playerName = `${player.firstName} ${player.lastName}`;
-                    payload.playerProfile = {
-                        firstName: player.firstName,
-                        lastName: player.lastName,
-                        nickname: player.nickname,
-                        number: player.number,
-                        position: player.position,
-                        bio: player.bio,
-                    };
+                    if (['Player', 'Captain', 'Admin', 'admin'].includes(payload.role)) {
+                        payload.playerProfile = {
+                            firstName: player.firstName,
+                            lastName: player.lastName,
+                            nickname: player.nickname,
+                            number: player.number,
+                            position: player.position,
+                            bio: player.bio,
+                        };
+                    }
                 }
             }
         }

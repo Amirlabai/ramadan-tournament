@@ -75,7 +75,7 @@ function parseArgs(argv: string[]): GenerateFixturesOptions {
     division,
     matchesPerDay,
     times,
-    location: get('--location') ?? 'מרכז צעירים',
+    location: (get('--location') ?? 'מרכז צעירים').slice(0, 120),
     replace: argv.includes('--replace'),
     dryRun: argv.includes('--dry-run'),
   };
