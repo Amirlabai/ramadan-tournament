@@ -8,6 +8,7 @@ import {
   seedBannedWords,
 } from './seedHelpers';
 import { InvoiceRateLimitService } from '../src/services/InvoiceRateLimitService';
+import { SeasonService } from '../src/services/SeasonService';
 
 loadServerEnvFromCwd();
 
@@ -25,6 +26,7 @@ async function main() {
 
   await wipeDatabase(prisma);
 
+  await SeasonService.invalidateActiveSeasonCache();
   await InvoiceRateLimitService.clearAllAttempts().catch(() => {
     console.warn('Could not clear Redis invoice rate-limit keys (REDIS_URL unset or unreachable).');
   });

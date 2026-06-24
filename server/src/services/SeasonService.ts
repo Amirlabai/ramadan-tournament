@@ -10,10 +10,26 @@ const SLUG_TO_DIVISION: Record<TournamentSlug, Division> = {
 };
 
 export class SeasonService {
+  static async invalidateActiveSeasonCache(division?: Division): Promise<void> {
+    if (division) {
+      await CacheService.del(CacheService.key('season', 'active', division));
+      return;
+    }
+    await CacheService.invalidatePattern('rt:season:active:*');
+  }
+
   static async getActiveSeason(division: Division = Division.boys): Promise<Season> {
     const cacheKey = CacheService.key('season', 'active', division);
     const cached = await CacheService.get<Season>(cacheKey);
-    if (cached) return cached;
+    if (cached) {
+      const stillActive = await prisma.season.findFirst({
+        where: { id: cached.id, division, isActive: true },
+      });
+      if (stillActive) {
+        return stillActive;
+      }
+      await CacheService.del(cacheKey);
+    }
 
     const season = await prisma.season.findFirst({
       where: { division, isActive: true },

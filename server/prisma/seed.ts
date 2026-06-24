@@ -9,6 +9,7 @@ import {
   parseJerusalemDate,
   seedBannedWords,
 } from './seedHelpers';
+import { SeasonService } from '../src/services/SeasonService';
 
 loadServerEnvFromCwd();
 
@@ -37,6 +38,7 @@ async function main() {
   console.log('Seeding database...');
 
   await wipeDatabase(prisma);
+  await SeasonService.invalidateActiveSeasonCache();
 
   const boysSeason = await createBoysSeason(prisma, {
     yearMonth: '2026-02',
