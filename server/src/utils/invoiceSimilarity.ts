@@ -20,7 +20,12 @@ function levenshtein(a: string, b: string): number {
   return row[n];
 }
 
-/** Compare two normalized invoice numbers (same normalization applied upstream). */
+/** Strict match for user-facing good / not-good (no fuzzy tier). */
+export function invoicesMatchExactly(a: string, b: string): boolean {
+  return a === b;
+}
+
+/** Fuzzy compare — admin duplicate detection across users only. */
 export function classifyInvoiceMatch(a: string, b: string): InvoiceMatchKind {
   if (a === b) {
     return 'exact';
@@ -42,14 +47,5 @@ export function classifyInvoiceMatch(a: string, b: string): InvoiceMatchKind {
   return 'mismatch';
 }
 
-export const INVOICE_ALERT_SIMILAR =
-  'המנהל רשם במערכת חשבונית דומה לשלך. ודא שמספר החשבונית שהזנת נכון; אם יש טעות — עדכן למטה או פנה למנהל.';
-
-export const INVOICE_ALERT_MISMATCH =
-  'מספר החשבונית שהמנהל רשם במערכת שונה מה שהזנת. בדוק את המספר, עדכן למטה או פנה למנהל.';
-
-export const INVOICE_ALERT_USER_DIFFERS_FROM_ADMIN =
-  'הזנת חשבונית שונה ממה שהוקצה עבורך על ידי המנהל. ודא שהמספר נכון.';
-
-export const INVOICE_ALERT_USER_SIMILAR_TO_ADMIN =
-  'הזנת חשבונית דומה למה שהוקצה עבורך על ידי המנהל. ודא שאין טעות בהקלדה.';
+export const INVOICE_ALERT_NOT_MATCHING =
+  'מספר החשבונית לא תואם. נסה שוב או פנה למנהל.';

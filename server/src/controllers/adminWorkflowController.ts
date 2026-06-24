@@ -81,9 +81,6 @@ export const assignUserInvoice = async (req: AuthRequest, res: Response): Promis
           : 'מספר החשבונית הוקצה. המשתמש מזין את אותו מספר בפרופיל להפעלה.'),
       invoiceNumber: result.invoiceNumber,
       updated: result.updated,
-      verifyOnly: result.verifyOnly ?? false,
-      match: result.match,
-      userAlertSet: result.userAlertSet ?? false,
       similarToUser: result.similarToUser,
     });
   } catch (error) {

@@ -20,6 +20,7 @@ interface AwaitingInvoiceRow {
     pendingTeamName?: string | null;
     joinStatus?: string | null;
     hasUnredeemedCode?: boolean;
+    submittedInvoiceNumber?: string | null;
     assignedInvoiceNumber?: string | null;
 }
 
@@ -29,6 +30,7 @@ interface SearchUserRow {
     email: string | null;
     registrationStatus: string;
     hasUnredeemedCode: boolean;
+    submittedInvoiceNumber?: string | null;
     assignedInvoiceNumber?: string | null;
 }
 
@@ -162,28 +164,14 @@ export default function RegistrationWorkflowAdmin() {
         try {
             const res = await adminAPI.assignInvoice(userId, data.season.id, trimmed);
             const num = res.data.invoiceNumber as string;
-            const verifyOnly = Boolean(res.data.verifyOnly);
-            const match = res.data.match as string | undefined;
             const similarToUser = res.data.similarToUser as { displayName: string } | undefined;
             const apiMessage = res.data.message as string | undefined;
 
-            let text = apiMessage ?? '';
-            if (!text) {
-                if (verifyOnly) {
-                    text =
-                        match === 'exact'
-                            ? `תואם לחשבונית של ${displayName} (${num}).`
-                            : match === 'similar'
-                              ? `דומה לחשבונית של ${displayName} — המשתמש יקבל התראה בפרופיל.`
-                              : match === 'mismatch'
-                                ? `שונה מחשבונית של ${displayName} — המשתמש יקבל התראה בפרופיל.`
-                                : `נבדק עבור ${displayName}.`;
-                } else {
-                    text = res.data.updated
-                        ? `מספר החשבונית עודכן ל־${num} (${displayName}).`
-                        : `מספר חשבונית ${num} הוקצה ל־${displayName}.`;
-                }
-            }
+            let text =
+                apiMessage ??
+                (res.data.updated
+                    ? `מספר החשבונית עודכן ל־${num} (${displayName}).`
+                    : `מספר חשבונית ${num} נרשם ל־${displayName}.`);
             if (similarToUser) {
                 text += ` שים לב: דומה לחשבונית של ${similarToUser.displayName}.`;
             }
@@ -210,6 +198,15 @@ export default function RegistrationWorkflowAdmin() {
         }
     };
 
+    const renderUserSubmittedCell = (submittedInvoiceNumber?: string | null) => {
+        const value = submittedInvoiceNumber?.trim();
+        return (
+            <span dir="ltr" className={`small ${value ? 'font-monospace' : 'text-muted'}`}>
+                {value ?? '—'}
+            </span>
+        );
+    };
+
     const renderAssignCell = (row: {
         user: WorkflowUser;
         hasUnredeemedCode?: boolean;
@@ -222,9 +219,7 @@ export default function RegistrationWorkflowAdmin() {
 
         const isCorrection =
             row.hasUnredeemedCode || regStatus === 'invoice_assigned';
-        const isVerifyOnly = regStatus === 'active';
-        const value =
-            invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
+        const value = invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
 
         return (
             <div className="d-flex flex-column gap-1">
@@ -233,7 +228,7 @@ export default function RegistrationWorkflowAdmin() {
                         type="text"
                         className="form-control form-control-sm"
                         style={{ maxWidth: '10rem' }}
-                        placeholder={isVerifyOnly ? 'מספר מהמערכת' : isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
+                        placeholder={isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
                         value={value}
                         onChange={(e) =>
                             setInvoiceInputs((prev) => ({
@@ -249,26 +244,19 @@ export default function RegistrationWorkflowAdmin() {
                     <button
                         type="button"
                         className={`btn btn-sm text-nowrap ${
-                            isVerifyOnly ? 'btn-outline-primary' : isCorrection ? 'btn-warning' : 'btn-success'
+                            isCorrection ? 'btn-warning' : 'btn-success'
                         }`}
                         disabled={assigningId === user.id || !value.trim()}
                         onClick={() => void assignToUser(user.id, user.displayName, value)}
                     >
                         {assigningId === user.id
-                            ? 'בודק…'
-                            : isVerifyOnly
-                              ? 'השווה'
-                              : isCorrection
-                                ? 'עדכן'
-                                : 'הקצה'}
+                            ? 'שומר…'
+                            : isCorrection
+                              ? 'עדכן'
+                              : 'הקצה'}
                     </button>
                 </div>
-                {isVerifyOnly && (
-                    <span className="text-muted small">
-                        משתמש פעיל — השוואה לחשבונית שהזין; אי־התאמה תוצג לו בפרופיל
-                    </span>
-                )}
-                {isCorrection && !isVerifyOnly && (
+                {isCorrection && (
                     <span className="text-muted small">
                         הוקצה — ניתן לתקן לפני שהמשתמש מפעיל בפרופיל
                     </span>
@@ -325,10 +313,11 @@ export default function RegistrationWorkflowAdmin() {
                     )}
 
                     <section className="mb-4 p-3 border rounded">
-                        <h5 className="h6 mb-2">ממתינים להקצאת חשבונית ({data.awaitingInvoice.length})</h5>
+                        <h5 className="h6 mb-2">הקצאת חשבונית ({data.awaitingInvoice.length})</h5>
                         <p className="text-muted small mb-3">
-                            הזן את <strong>מספר החשבונית</strong> מהתשלום בפועל. ניתן ללחוץ{' '}
-                            <strong>עדכן</strong> לתיקון טעות לפני שהשחקן מפעיל בפרופיל.
+                            הזן את <strong>מספר החשבונית</strong> מהתשלום בפועל ולחץ <strong>הקצה</strong>.
+                            עמודת <strong>הזנת משתמש</strong> מציגה לקריאה בלבד מה שהשחקן הזין בפרופיל.
+                            ניתן גם לחפש משתמש למטה.
                         </p>
                         <div className="table-responsive">
                             <table className="table table-sm table-hover align-middle mb-0">
@@ -341,7 +330,8 @@ export default function RegistrationWorkflowAdmin() {
                                         <th scope="col">אימייל</th>
                                         <th scope="col">סטטוס</th>
                                         <th scope="col">קבוצה</th>
-                                        <th scope="col">מספר חשבונית</th>
+                                        <th scope="col">הזנת משתמש</th>
+                                        <th scope="col">מספר חשבונית (מנהל)</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -360,6 +350,7 @@ export default function RegistrationWorkflowAdmin() {
                                                 )}
                                             </td>
                                             <td className="small">{r.pendingTeamName ?? '—'}</td>
+                                            <td>{renderUserSubmittedCell(r.submittedInvoiceNumber)}</td>
                                             <td>{renderAssignCell(r)}</td>
                                         </tr>
                                     ))}
@@ -391,7 +382,8 @@ export default function RegistrationWorkflowAdmin() {
                                             <th scope="col">שם</th>
                                             <th scope="col">אימייל</th>
                                             <th scope="col">רישום לעונה</th>
-                                            <th scope="col">מספר חשבונית</th>
+                                            <th scope="col">הזנת משתמש</th>
+                                            <th scope="col">מספר חשבונית (מנהל)</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -405,6 +397,7 @@ export default function RegistrationWorkflowAdmin() {
                                                     {REG_STATUS_LABELS[u.registrationStatus] ??
                                                         u.registrationStatus}
                                                 </td>
+                                                <td>{renderUserSubmittedCell(u.submittedInvoiceNumber)}</td>
                                                 <td>
                                                     {renderAssignCell({
                                                         user: {

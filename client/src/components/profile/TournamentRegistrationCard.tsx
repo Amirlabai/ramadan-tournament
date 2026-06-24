@@ -67,13 +67,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         try {
             await usersAPI.redeemInvoice(invoiceCode.trim(), slug);
             setInvoiceCode('');
-            const [, refreshed] = await Promise.all([refreshUser(), load()]);
-            const hasPending = !!(refreshed?.pendingJoin || refreshed?.pendingCreation);
-            setMsg(
-                hasPending
-                    ? 'מספר החשבונית אושר. הרישום פעיל לעונה.'
-                    : 'החשבונית אושרה — כעת ניתן לשלוח בקשת הצטרפות או הקמת קבוצה.'
-            );
+            await Promise.all([refreshUser(), load()]);
         } catch (e: unknown) {
             const ax = e as { response?: { data?: { error?: string } } };
             setErr(ax.response?.data?.error || 'שגיאה באימות מספר החשבונית');
@@ -119,7 +113,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) return null;
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
-    const showInvoiceForm = reg.status !== 'active';
+    const showInvoiceForm = reg.status !== 'active' || !!reg.invoiceAlert;
 
     return (
         <div className={cardClass} lang="he" aria-live="polite">
@@ -132,6 +126,12 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             {reg.invoiceAlert && (
                 <div className="alert alert-warning py-2 small mb-3" role="alert">
                     {reg.invoiceAlert}
+                </div>
+            )}
+
+            {reg.status === 'active' && !reg.invoiceAlert && (
+                <div className="alert alert-success py-2 small mb-3" role="status">
+                    מספר החשבונית אושר. הרישום פעיל לעונה.
                 </div>
             )}
 
@@ -184,8 +184,9 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             {showInvoiceForm && (
                 <form onSubmit={handleRedeem} className="mt-3">
                     <p className="small text-muted mb-2">
-                        שלב ראשון: הזן את מספר החשבונית לאחר התשלום. רק לאחר מכן ניתן לשלוח בקשת
-                        הצטרפות או הקמת קבוצה. הזנה חוזרת מחליפה את הקודמת. מוגבל ל־3 ניסיונות ביום.
+                        {reg.invoiceAlert
+                            ? 'עדכן את מספר החשבונית ושלח שוב, או פנה למנהל.'
+                            : 'שלב ראשון: הזן את מספר החשבונית לאחר התשלום. רק לאחר מכן ניתן לשלוח בקשת הצטרפות או הקמת קבוצה. הזנה חוזרת מחליפה את הקודמת. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
                         מספר חשבונית (לאחר תשלום)
@@ -204,19 +205,16 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             aria-invalid={!!err}
                         />
                         <button type="submit" className={submitBtnClass} disabled={submitting || !invoiceCode.trim()}>
-                            {submitting ? 'שולח…' : 'שלח חשבונית'}
+                            {submitting ? 'שולח…' : reg.invoiceAlert ? 'שלח שוב' : 'שלח חשבונית'}
                         </button>
                     </div>
                 </form>
             )}
 
             {msg && (
-                <p
-                    className={`small mt-2 mb-0 ${slug === 'girls' ? 'registration-status-success' : 'text-success'}`}
-                    role="status"
-                >
+                <div className="alert alert-success py-2 small mt-2 mb-0" role="status">
                     {msg}
-                </p>
+                </div>
             )}
             {err && (
                 <p id={`invoice-err-${slug}`} className="text-danger small mt-2 mb-0" role="alert">

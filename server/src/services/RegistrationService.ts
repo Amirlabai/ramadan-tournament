@@ -16,11 +16,8 @@ import { sanitizeSearchQuery } from '../utils/sanitizeSearchQuery';
 import { sanitizeTeamCreationFields } from '../utils/inputValidation';
 import {
   classifyInvoiceMatch,
-  INVOICE_ALERT_MISMATCH,
-  INVOICE_ALERT_SIMILAR,
-  INVOICE_ALERT_USER_DIFFERS_FROM_ADMIN,
-  INVOICE_ALERT_USER_SIMILAR_TO_ADMIN,
-  type InvoiceMatchKind,
+  INVOICE_ALERT_NOT_MATCHING,
+  invoicesMatchExactly,
 } from '../utils/invoiceSimilarity';
 
 export type WorkflowDivision = Division;
@@ -290,12 +287,14 @@ export class RegistrationService {
   private static async assertInvoiceUniqueInSeason(
     seasonId: string,
     normalized: string,
-    excludeInvoiceId?: string
+    excludeInvoiceId?: string,
+    excludeAssignedUserId?: string
   ): Promise<void> {
     const exactOther = await prisma.invoiceCode.findFirst({
       where: {
         seasonId,
         codeNormalized: normalized,
+        ...(excludeAssignedUserId ? { NOT: { assignedUserId: excludeAssignedUserId } } : {}),
         ...(excludeInvoiceId ? { NOT: { id: excludeInvoiceId } } : {}),
       },
     });
@@ -350,68 +349,200 @@ export class RegistrationService {
     return null;
   }
 
-  private static async verifyAdminInvoiceAgainstUser(
+  private static pickInvoiceDisplayForAdmin(
+    codes: Array<{ codeNormalized: string | null; redeemedAt: Date | null }>
+  ): {
+    submittedInvoiceNumber: string | null;
+    assignedInvoiceNumber: string | null;
+    hasUnredeemedCode: boolean;
+  } {
+    const unredeemed = codes.find((c) => c.redeemedAt === null);
+    const redeemed = codes
+      .filter((c) => c.redeemedAt !== null && c.codeNormalized)
+      .sort((a, b) => b.redeemedAt!.getTime() - a.redeemedAt!.getTime());
+    return {
+      submittedInvoiceNumber: redeemed[0]?.codeNormalized ?? null,
+      assignedInvoiceNumber: unredeemed?.codeNormalized ?? null,
+      hasUnredeemedCode: !!unredeemed,
+    };
+  }
+
+  private static async getUserInvoiceDisplayMap(
+    seasonId: string,
+    userIds: string[]
+  ): Promise<
+    Map<
+      string,
+      {
+        submittedInvoiceNumber: string | null;
+        assignedInvoiceNumber: string | null;
+        hasUnredeemedCode: boolean;
+      }
+    >
+  > {
+    const result = new Map<
+      string,
+      {
+        submittedInvoiceNumber: string | null;
+        assignedInvoiceNumber: string | null;
+        hasUnredeemedCode: boolean;
+      }
+    >();
+    if (!userIds.length) {
+      return result;
+    }
+
+    const codes = await prisma.invoiceCode.findMany({
+      where: { seasonId, assignedUserId: { in: userIds } },
+      select: { assignedUserId: true, codeNormalized: true, redeemedAt: true },
+    });
+
+    const byUser = new Map<string, typeof codes>();
+    for (const code of codes) {
+      const list = byUser.get(code.assignedUserId) ?? [];
+      list.push(code);
+      byUser.set(code.assignedUserId, list);
+    }
+
+    for (const userId of userIds) {
+      const picked = this.pickInvoiceDisplayForAdmin(byUser.get(userId) ?? []);
+      result.set(userId, {
+        submittedInvoiceNumber: picked.submittedInvoiceNumber,
+        assignedInvoiceNumber: picked.assignedInvoiceNumber,
+        hasUnredeemedCode: picked.hasUnredeemedCode,
+      });
+    }
+    return result;
+  }
+
+  /** After admin records an invoice, compare to what the user already submitted and set profile alert. */
+  private static async syncInvoiceAlertAfterAdminAssign(
+    userId: string,
+    seasonId: string,
+    adminNormalized: string
+  ): Promise<{ userNotified: boolean }> {
+    const userInvoice = await prisma.invoiceCode.findFirst({
+      where: { seasonId, assignedUserId: userId, redeemedAt: { not: null } },
+      orderBy: { redeemedAt: 'desc' },
+      select: { codeNormalized: true, codeHash: true },
+    });
+
+    if (!userInvoice) {
+      return { userNotified: false };
+    }
+
+    const matches = userInvoice.codeNormalized
+      ? invoicesMatchExactly(adminNormalized, userInvoice.codeNormalized)
+      : await bcrypt.compare(adminNormalized, userInvoice.codeHash);
+
+    const invoiceAlert = matches ? null : INVOICE_ALERT_NOT_MATCHING;
+
+    await prisma.seasonRegistration.update({
+      where: { userId_seasonId: { userId, seasonId } },
+      data: { invoiceAlert },
+    });
+
+    return { userNotified: !matches };
+  }
+
+  private static async invoiceAlertAfterUserEntry(
+    userId: string,
+    seasonId: string,
+    userNormalized: string
+  ): Promise<string | null> {
+    const adminInvoice = await prisma.invoiceCode.findFirst({
+      where: {
+        seasonId,
+        assignedUserId: userId,
+        redeemedAt: null,
+        createdById: { not: null },
+        codeNormalized: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { codeNormalized: true },
+    });
+
+    if (!adminInvoice?.codeNormalized) {
+      return null;
+    }
+
+    return invoicesMatchExactly(userNormalized, adminInvoice.codeNormalized)
+      ? null
+      : INVOICE_ALERT_NOT_MATCHING;
+  }
+
+  private static appendAdminAssignNotifyHint(
+    baseMessage: string,
+    notify: { userNotified: boolean }
+  ): string {
+    if (!notify.userNotified) {
+      return baseMessage;
+    }
+    return `${baseMessage} המשתמש יראה התראה בפרופיל — המספר לא תואם למה שהזין.`;
+  }
+
+  private static async assignInvoiceForActiveUser(
+    adminId: string,
     userId: string,
     seasonId: string,
     normalized: string
   ): Promise<{
     invoiceNumber: string;
     updated: boolean;
-    verifyOnly: true;
-    match: InvoiceMatchKind | 'unknown';
-    userAlertSet: boolean;
-    adminMessage: string;
+    adminMessage?: string;
+    similarToUser?: { displayName: string };
   }> {
-    const userInvoice = await prisma.invoiceCode.findFirst({
-      where: { seasonId, assignedUserId: userId, redeemedAt: { not: null } },
-      orderBy: { redeemedAt: 'desc' },
+    const similarToOther = await this.findSimilarInvoiceOwner(seasonId, normalized, userId);
+
+    const existingUnused = await prisma.invoiceCode.findFirst({
+      where: { seasonId, assignedUserId: userId, redeemedAt: null },
     });
 
-    let match: InvoiceMatchKind | 'unknown' = 'unknown';
-    let userAlert: string | null = null;
-    let adminMessage: string;
-
-    if (userInvoice?.codeNormalized) {
-      match = classifyInvoiceMatch(normalized, userInvoice.codeNormalized);
-    } else if (userInvoice) {
-      match = (await bcrypt.compare(normalized, userInvoice.codeHash)) ? 'exact' : 'unknown';
-    } else {
-      throw new Error('לא נמצאה חשבונית שהמשתמש הזין');
+    if (existingUnused) {
+      await this.assertInvoiceUniqueInSeason(
+        seasonId,
+        normalized,
+        existingUnused.id,
+        userId
+      );
+      const codeHash = await bcrypt.hash(normalized, 10);
+      await prisma.invoiceCode.update({
+        where: { id: existingUnused.id },
+        data: { codeHash, codeNormalized: normalized, createdById: adminId },
+      });
+      const notify = await this.syncInvoiceAlertAfterAdminAssign(userId, seasonId, normalized);
+      const baseMessage = similarToOther
+        ? `נרשם. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
+        : 'מספר החשבונית נרשם.';
+      return {
+        invoiceNumber: normalized,
+        updated: true,
+        similarToUser: similarToOther ? { displayName: similarToOther.displayName } : undefined,
+        adminMessage: this.appendAdminAssignNotifyHint(baseMessage, notify),
+      };
     }
 
-    switch (match) {
-      case 'exact':
-        userAlert = null;
-        adminMessage = 'תואם למספר שהמשתמש הזין בפרופיל.';
-        break;
-      case 'similar':
-        userAlert = INVOICE_ALERT_SIMILAR;
-        adminMessage =
-          'דומה לחשבונית שהמשתמש הזין — המשתמש יראה התראה בפרופיל.';
-        break;
-      case 'mismatch':
-        userAlert = INVOICE_ALERT_MISMATCH;
-        adminMessage =
-          'שונה מהחשבונית שהמשתמש הזין — המשתמש יראה התראה בפרופיל.';
-        break;
-      default:
-        adminMessage =
-          'לא ניתן להשוות (חשבונית ישנה ללא נתוני השוואה) — רק התאמה מדויקת נבדקה.';
-        break;
-    }
-
-    await prisma.seasonRegistration.update({
-      where: { userId_seasonId: { userId, seasonId } },
-      data: { invoiceAlert: userAlert },
+    await this.assertInvoiceUniqueInSeason(seasonId, normalized, undefined, userId);
+    const codeHash = await bcrypt.hash(normalized, 10);
+    await prisma.invoiceCode.create({
+      data: {
+        seasonId,
+        codeHash,
+        codeNormalized: normalized,
+        assignedUserId: userId,
+        createdById: adminId,
+      },
     });
 
+    const notify = await this.syncInvoiceAlertAfterAdminAssign(userId, seasonId, normalized);
+    const baseMessage = similarToOther
+      ? `נרשם. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
+      : 'מספר החשבונית נרשם.';
     return {
       invoiceNumber: normalized,
       updated: false,
-      verifyOnly: true,
-      match,
-      userAlertSet: !!userAlert,
-      adminMessage,
+      similarToUser: similarToOther ? { displayName: similarToOther.displayName } : undefined,
+      adminMessage: this.appendAdminAssignNotifyHint(baseMessage, notify),
     };
   }
 
@@ -423,9 +554,6 @@ export class RegistrationService {
   ): Promise<{
     invoiceNumber: string;
     updated: boolean;
-    verifyOnly?: boolean;
-    match?: InvoiceMatchKind | 'unknown';
-    userAlertSet?: boolean;
     adminMessage?: string;
     similarToUser?: { displayName: string };
   }> {
@@ -442,7 +570,7 @@ export class RegistrationService {
       where: { userId_seasonId: { userId, seasonId } },
     });
     if (reg?.status === SeasonRegistrationStatus.active) {
-      return this.verifyAdminInvoiceAgainstUser(userId, seasonId, normalized);
+      return this.assignInvoiceForActiveUser(adminId, userId, seasonId, normalized);
     }
 
     const similarToOther = await this.findSimilarInvoiceOwner(seasonId, normalized, userId);
@@ -452,7 +580,12 @@ export class RegistrationService {
     });
 
     if (existingUnused) {
-      await this.assertInvoiceUniqueInSeason(seasonId, normalized, existingUnused.id);
+      await this.assertInvoiceUniqueInSeason(
+        seasonId,
+        normalized,
+        existingUnused.id,
+        userId
+      );
       const codeHash = await bcrypt.hash(normalized, 10);
       await prisma.invoiceCode.update({
         where: { id: existingUnused.id },
@@ -478,7 +611,7 @@ export class RegistrationService {
       };
     }
 
-    await this.assertInvoiceUniqueInSeason(seasonId, normalized);
+    await this.assertInvoiceUniqueInSeason(seasonId, normalized, undefined, userId);
 
     const codeHash = await bcrypt.hash(normalized, 10);
 
@@ -553,30 +686,51 @@ export class RegistrationService {
       where: { userId_seasonId: { userId, seasonId: season.id } },
     });
 
-    if (reg?.status === SeasonRegistrationStatus.active) {
+    const correctingMismatch =
+      reg?.status === SeasonRegistrationStatus.active && !!reg.invoiceAlert;
+
+    if (reg?.status === SeasonRegistrationStatus.active && !correctingMismatch) {
       throw new Error('הרישום כבר פעיל לעונה זו');
     }
 
-    const onRoster = await prisma.player.findFirst({
-      where: { userId, seasonId: season.id, active: true },
-    });
-    if (onRoster) {
-      throw new Error('אתה כבר רשום בסגל לעונה זו');
-    }
+    if (!correctingMismatch) {
+      const onRoster = await prisma.player.findFirst({
+        where: { userId, seasonId: season.id, active: true },
+      });
+      if (onRoster) {
+        throw new Error('אתה כבר רשום בסגל לעונה זו');
+      }
 
-    const ownedTeam = await prisma.team.findFirst({
-      where: { seasonId: season.id, ownerUserId: userId },
-    });
-    if (ownedTeam) {
-      throw new Error('אתה כבר בעל קבוצה לעונה זו');
+      const ownedTeam = await prisma.team.findFirst({
+        where: { seasonId: season.id, ownerUserId: userId },
+      });
+      if (ownedTeam) {
+        throw new Error('אתה כבר בעל קבוצה לעונה זו');
+      }
     }
 
     const existingUnused = await prisma.invoiceCode.findFirst({
       where: { seasonId: season.id, assignedUserId: userId, redeemedAt: null },
     });
 
+    const existingRedeemed = correctingMismatch
+      ? await prisma.invoiceCode.findFirst({
+          where: {
+            seasonId: season.id,
+            assignedUserId: userId,
+            redeemedAt: { not: null },
+          },
+          orderBy: { redeemedAt: 'desc' },
+        })
+      : null;
+
     try {
-      await this.assertInvoiceUniqueInSeason(season.id, normalized, existingUnused?.id);
+      await this.assertInvoiceUniqueInSeason(
+        season.id,
+        normalized,
+        existingUnused?.id ?? existingRedeemed?.id,
+        userId
+      );
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'מספר חשבונית לא תקין';
       return this.recordInvoiceAttemptFailure(userId, season.id, msg);
@@ -586,20 +740,45 @@ export class RegistrationService {
     const now = new Date();
 
     let invoiceAlert: string | null = null;
-    if (existingUnused?.createdById && existingUnused.codeNormalized) {
-      const match = classifyInvoiceMatch(normalized, existingUnused.codeNormalized);
-      if (match === 'similar') {
-        invoiceAlert = INVOICE_ALERT_USER_SIMILAR_TO_ADMIN;
-      } else if (match === 'mismatch') {
-        invoiceAlert = INVOICE_ALERT_USER_DIFFERS_FROM_ADMIN;
-      }
+    if (correctingMismatch) {
+      invoiceAlert = await this.invoiceAlertAfterUserEntry(userId, season.id, normalized);
+    } else if (existingUnused?.createdById && existingUnused.codeNormalized) {
+      invoiceAlert = invoicesMatchExactly(normalized, existingUnused.codeNormalized)
+        ? null
+        : INVOICE_ALERT_NOT_MATCHING;
     }
 
     await prisma.$transaction(async (tx) => {
-      if (existingUnused) {
+      if (correctingMismatch && existingRedeemed) {
+        await tx.invoiceCode.update({
+          where: { id: existingRedeemed.id },
+          data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+        });
+        await tx.seasonRegistration.update({
+          where: { userId_seasonId: { userId, seasonId: season.id } },
+          data: { invoiceAlert, redeemedAt: now },
+        });
+      } else if (existingUnused) {
         await tx.invoiceCode.update({
           where: { id: existingUnused.id },
           data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+        });
+        await tx.seasonRegistration.upsert({
+          where: { userId_seasonId: { userId, seasonId: season.id } },
+          create: {
+            userId,
+            seasonId: season.id,
+            division: season.division,
+            status: SeasonRegistrationStatus.active,
+            redeemedAt: now,
+            invoiceAlert,
+          },
+          update: {
+            status: SeasonRegistrationStatus.active,
+            redeemedAt: now,
+            division: season.division,
+            invoiceAlert,
+          },
         });
       } else {
         await tx.invoiceCode.create({
@@ -611,28 +790,29 @@ export class RegistrationService {
             redeemedAt: now,
           },
         });
+        await tx.seasonRegistration.upsert({
+          where: { userId_seasonId: { userId, seasonId: season.id } },
+          create: {
+            userId,
+            seasonId: season.id,
+            division: season.division,
+            status: SeasonRegistrationStatus.active,
+            redeemedAt: now,
+            invoiceAlert,
+          },
+          update: {
+            status: SeasonRegistrationStatus.active,
+            redeemedAt: now,
+            division: season.division,
+            invoiceAlert,
+          },
+        });
       }
-
-      await tx.seasonRegistration.upsert({
-        where: { userId_seasonId: { userId, seasonId: season.id } },
-        create: {
-          userId,
-          seasonId: season.id,
-          division: season.division,
-          status: SeasonRegistrationStatus.active,
-          redeemedAt: now,
-          invoiceAlert,
-        },
-        update: {
-          status: SeasonRegistrationStatus.active,
-          redeemedAt: now,
-          division: season.division,
-          invoiceAlert,
-        },
-      });
     });
 
-    await this.lockActiveDivision(userId, division);
+    if (!correctingMismatch) {
+      await this.lockActiveDivision(userId, division);
+    }
     await InvoiceRateLimitService.clearAttempts(userId, season.id);
   }
 
@@ -1325,6 +1505,7 @@ export class RegistrationService {
               SeasonRegistrationStatus.awaiting_invoice,
               SeasonRegistrationStatus.join_pending, // legacy pre-receipt-first
               SeasonRegistrationStatus.invoice_assigned,
+              SeasonRegistrationStatus.active, // receipt-first: user submitted invoice in profile
             ],
           },
         },
@@ -1365,27 +1546,31 @@ export class RegistrationService {
       registrationStatus: regStatusByUser.get(t.userId) ?? SeasonRegistrationStatus.none,
     }));
 
-    const awaitingInvoiceEnriched = await Promise.all(
-      awaitingInvoice.map(async (reg) => {
+    const awaitingUserIds = awaitingInvoice.map((reg) => reg.userId);
+    const invoiceByUser = await this.getUserInvoiceDisplayMap(season.id, awaitingUserIds);
+
+    const awaitingInvoiceEnriched = awaitingInvoice
+      .map((reg) => {
         const join = joinByUserId.get(reg.userId);
-        const hasUnredeemedCode = await prisma.invoiceCode.findFirst({
-          where: {
-            seasonId: season.id,
-            assignedUserId: reg.userId,
-            redeemedAt: null,
-          },
-          select: { codeNormalized: true },
-        });
+        const invoice = invoiceByUser.get(reg.userId) ?? {
+          submittedInvoiceNumber: null,
+          assignedInvoiceNumber: null,
+          hasUnredeemedCode: false,
+        };
         return {
           user: reg.user,
           status: reg.status,
           pendingTeamName: join?.team?.name ?? null,
           joinStatus: join?.status ?? null,
-          hasUnredeemedCode: !!hasUnredeemedCode,
-          assignedInvoiceNumber: hasUnredeemedCode?.codeNormalized ?? null,
+          hasUnredeemedCode: invoice.hasUnredeemedCode,
+          submittedInvoiceNumber: invoice.submittedInvoiceNumber,
+          assignedInvoiceNumber: invoice.assignedInvoiceNumber,
         };
       })
-    );
+      .filter(
+        (row) =>
+          row.status !== SeasonRegistrationStatus.active || !!row.submittedInvoiceNumber
+      );
 
     return {
       season,
@@ -1423,28 +1608,31 @@ export class RegistrationService {
     }
 
     const userIds = users.map((u) => u.id);
-    const [regs, codes] = await Promise.all([
+    const [regs, invoiceByUser] = await Promise.all([
       prisma.seasonRegistration.findMany({
         where: { seasonId, userId: { in: userIds } },
       }),
-      prisma.invoiceCode.findMany({
-        where: { seasonId, assignedUserId: { in: userIds }, redeemedAt: null },
-      }),
+      this.getUserInvoiceDisplayMap(seasonId, userIds),
     ]);
 
     const regByUser = new Map(regs.map((r) => [r.userId, r.status]));
-    const codeByUser = new Map(
-      codes.map((c) => [c.assignedUserId, c.codeNormalized ?? null])
-    );
 
-    return users.map((u) => ({
-      id: u.id,
-      displayName: u.displayName,
-      email: u.email,
-      activeDivision: u.activeDivision,
-      registrationStatus: regByUser.get(u.id) ?? SeasonRegistrationStatus.none,
-      hasUnredeemedCode: codeByUser.has(u.id),
-      assignedInvoiceNumber: codeByUser.get(u.id) ?? null,
-    }));
+    return users.map((u) => {
+      const invoice = invoiceByUser.get(u.id) ?? {
+        submittedInvoiceNumber: null,
+        assignedInvoiceNumber: null,
+        hasUnredeemedCode: false,
+      };
+      return {
+        id: u.id,
+        displayName: u.displayName,
+        email: u.email,
+        activeDivision: u.activeDivision,
+        registrationStatus: regByUser.get(u.id) ?? SeasonRegistrationStatus.none,
+        hasUnredeemedCode: invoice.hasUnredeemedCode,
+        submittedInvoiceNumber: invoice.submittedInvoiceNumber,
+        assignedInvoiceNumber: invoice.assignedInvoiceNumber,
+      };
+    });
   }
 }
