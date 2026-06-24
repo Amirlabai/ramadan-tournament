@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { registrationAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
@@ -29,8 +30,14 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const onRoster = !!reg?.onRoster;
     const pendingJoin = reg?.pendingJoin;
     const pendingCreation = reg?.pendingCreation;
+    const isPaid = reg?.status === 'active';
     const canJoin =
-        !!user && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
+        !!user && isPaid && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
+    const needsReceipt =
+        !!user && !isPaid && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
+    // Pre-receipt-first rows: pending request without active registration
+    const legacyNeedsReceipt =
+        !!user && !isPaid && !onRoster && !isOwner && !!(pendingJoin || pendingCreation);
 
     const loadPending = useCallback(async () => {
         if (!isOwner) return;
@@ -57,9 +64,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
         setJoinMsg('');
         try {
             await registrationAPI.submitJoin(teamId, slug);
-            setJoinMsg(
-                'בקשת ההצטרפות נשלחה. הזן את מספר החשבונית בפרופיל — אישור סופי רק לאחר הפעלת הרישום.'
-            );
+            setJoinMsg('בקשת ההצטרפות נשלחה וממתינה לאישור.');
             await refreshUser();
         } catch (err: unknown) {
             const ax = err as { response?: { data?: { error?: string } } };
@@ -115,12 +120,31 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                 </div>
             )}
 
+            {needsReceipt && (
+                <p className="small text-muted mb-0">
+                    להצטרפות לקבוצה יש להזין תחילה את מספר החשבונית ב
+                    <Link to="/profile" className="ms-1">
+                        פרופיל
+                    </Link>
+                    .
+                </p>
+            )}
+
             {pendingCreation && !onRoster && !isOwner && (
                 <div className="small text-warning mb-2">
                     <p className="mb-2">
                         יש לך בקשת הקמת קבוצה &quot;{pendingCreation.teamName}&quot; פעילה. בטל אותה כדי
                         לבקש הצטרפות לקבוצה זו.
                     </p>
+                    {legacyNeedsReceipt && (
+                        <p className="mb-2 text-muted">
+                            יש להזין תחילה את מספר החשבונית ב
+                            <Link to="/profile" className="ms-1">
+                                פרופיל
+                            </Link>
+                            .
+                        </p>
+                    )}
                     <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"
@@ -144,8 +168,17 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                         {pendingJoin.status === 'owner_approved'
                             ? ' (אושרה על ידי הבעלים, ממתין למנהל)'
                             : ' (ממתין לאישור בעלים)'}
-                        . הזן מספר חשבונית בפרופיל.
+                        .
                     </p>
+                    {legacyNeedsReceipt && (
+                        <p className="mb-2 text-muted">
+                            יש להזין תחילה את מספר החשבונית ב
+                            <Link to="/profile" className="ms-1">
+                                פרופיל
+                            </Link>
+                            לפני אישור המנהל.
+                        </p>
+                    )}
                     <button
                         type="button"
                         className="btn btn-sm btn-outline-danger"

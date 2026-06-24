@@ -5,11 +5,11 @@ import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationR
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
-    none: 'לא התחלת רישום לטורניר',
+    none: 'שלב 1: הזן מספר חשבונית לאחר תשלום',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין למספר חשבונית — ניתן להזין למטה',
-    invoice_assigned: 'חשבונית הוזנה — ניתן לעדכן למטה',
-    active: 'רישום פעיל לעונה',
+    awaiting_invoice: 'ממתין למספר חשבונית — הזן למטה',
+    invoice_assigned: 'חשבונית הוקצה — הזן למטה להפעלה',
+    active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
     archived: 'עונה בארכיון',
 };
 
@@ -39,14 +39,17 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const [submitting, setSubmitting] = useState(false);
     const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
 
-    const load = async () => {
-        if (!user) return;
+    const load = async (): Promise<RegistrationSummary | null> => {
+        if (!user) return null;
         setLoading(true);
         try {
             const res = await usersAPI.getRegistration(slug);
-            setReg(res.data);
+            const data = res.data as RegistrationSummary;
+            setReg(data);
+            return data;
         } catch {
             setReg(null);
+            return null;
         } finally {
             setLoading(false);
         }
@@ -64,9 +67,13 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         try {
             await usersAPI.redeemInvoice(invoiceCode.trim(), slug);
             setInvoiceCode('');
-            setMsg('מספר החשבונית אושר. הרישום פעיל לעונה.');
-            await refreshUser();
-            await load();
+            const [, refreshed] = await Promise.all([refreshUser(), load()]);
+            const hasPending = !!(refreshed?.pendingJoin || refreshed?.pendingCreation);
+            setMsg(
+                hasPending
+                    ? 'מספר החשבונית אושר. הרישום פעיל לעונה.'
+                    : 'החשבונית אושרה — כעת ניתן לשלוח בקשת הצטרפות או הקמת קבוצה.'
+            );
         } catch (e: unknown) {
             const ax = e as { response?: { data?: { error?: string } } };
             setErr(ax.response?.data?.error || 'שגיאה באימות מספר החשבונית');
@@ -131,8 +138,6 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             {reg.pendingCreation && (
                 <p className="small text-warning mb-2">
                     בקשת הקמת קבוצה &quot;{reg.pendingCreation.teamName}&quot; ממתינה לאישור מנהל.
-                    {' '}
-                    הזן את מספר החשבונית למטה לאחר התשלום — אישור המנהל יתאפשר רק לאחר הפעלת הרישום.
                 </p>
             )}
             {reg.pendingJoin && (
@@ -141,7 +146,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     {reg.pendingJoin.status === 'owner_approved'
                         ? ' — אושרה על ידי הבעלים, ממתין למנהל'
                         : ' — ממתין לאישור בעלים'}
-                    . הזן את מספר החשבונית למטה לאחר התשלום.
+                    .
                 </p>
             )}
             {hasPendingRequest && !reg.pendingTransfer && (
@@ -170,11 +175,17 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </p>
             )}
 
+            {reg.status === 'active' && !hasPendingRequest && !reg.onRoster && (
+                <p className="small text-muted mb-2">
+                    הרישום פעיל. שלח בקשת הצטרפות מעמוד קבוצות או בקשת הקמת קבוצה מהטופס בפרופיל.
+                </p>
+            )}
+
             {showInvoiceForm && (
                 <form onSubmit={handleRedeem} className="mt-3">
                     <p className="small text-muted mb-2">
-                        ניתן להזין חשבונית לפני אישור המנהל. הזנה חוזרת מחליפה את הקודמת.
-                        מוגבל ל־3 ניסיונות ביום.
+                        שלב ראשון: הזן את מספר החשבונית לאחר התשלום. רק לאחר מכן ניתן לשלוח בקשת
+                        הצטרפות או הקמת קבוצה. הזנה חוזרת מחליפה את הקודמת. מוגבל ל־3 ניסיונות ביום.
                     </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
                         מספר חשבונית (לאחר תשלום)

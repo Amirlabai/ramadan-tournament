@@ -1,6 +1,6 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth, type User } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI, registrationAPI, type TournamentSlug } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
@@ -10,6 +10,18 @@ import PageLoading from '../components/PageLoading';
 import './Profile.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+
+/** Matches server `inputValidation.ts` caps. */
+const TEAM_NAME_MAX_LEN = 80;
+const TEAM_DESC_MAX_LEN = 500;
+
+function resolveRegistrationSlug(user: User | null | undefined): TournamentSlug {
+    if (user?.activeDivision === 'girls') return 'girls';
+    if (user?.activeDivision === 'boys') return 'boys';
+    if (user?.tournamentRegistration?.girls?.status === 'active') return 'girls';
+    if (user?.tournamentRegistration?.boys?.status === 'active') return 'boys';
+    return 'boys';
+}
 
 const Profile = () => {
     const { user, loading, logout, refreshUser } = useAuth();
@@ -163,11 +175,11 @@ const Profile = () => {
 
     const handleTeamRequest = async (e: React.FormEvent) => {
         e.preventDefault();
-        const slug: TournamentSlug = user?.activeDivision === 'girls' ? 'girls' : 'boys';
+        const slug = resolveRegistrationSlug(user);
         try {
             await registrationAPI.submitCreation(teamName, teamDesc, slug);
             setTeamRequestMsg(
-                'הבקשה נשלחה. הזן את מספר החשבונית בכרטיס הרישום למעלה — אישור המנהל רק לאחר הפעלת הרישום.'
+                'הבקשה נשלחה וממתינה לאישור מנהל.'
             );
             setTeamName('');
             setTeamDesc('');
@@ -270,15 +282,14 @@ const Profile = () => {
     const pendingTeam = (user as any).pendingTeamRequest;
     const boysReg = user.tournamentRegistration?.boys;
     const girlsReg = user.tournamentRegistration?.girls;
-    const pendingCreationBoys = boysReg?.pendingCreation;
-    const pendingJoinBoys = boysReg?.pendingJoin;
+    const registrationSlug = resolveRegistrationSlug(user);
+    const divisionReg = registrationSlug === 'girls' ? girlsReg : boysReg;
+    const isRegistrationActive = divisionReg?.status === 'active';
     const canRequestTeam =
-        !pendingCreationBoys &&
-        !pendingJoinBoys &&
-        !boysReg?.pendingTransfer &&
-        !girlsReg?.pendingCreation &&
-        !girlsReg?.pendingJoin &&
-        !girlsReg?.pendingTransfer &&
+        isRegistrationActive &&
+        !divisionReg?.pendingCreation &&
+        !divisionReg?.pendingJoin &&
+        !divisionReg?.pendingTransfer &&
         (!pendingTeam || pendingTeam.status === 'rejected') &&
         !boysReg?.onRoster &&
         !boysReg?.ownedTeamId &&
@@ -677,8 +688,8 @@ const Profile = () => {
                     <div className="card mb-4 p-4">
                         <h4 className="mb-3">בקשה לפתיחת קבוצה חדשה</h4>
                         <p className="text-muted small">
-                            הגש בקשה ליצירת קבוצה חדשה בטורניר. לאחר התשלום הזן את מספר החשבונית בכרטיס
-                            הרישום למעלה. ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
+                            לאחר הזנת מספר החשבונית בכרטיס הרישום למעלה, ניתן לבקש הקמת קבוצה חדשה.
+                            ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
                         </p>
                         {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
                         {pendingTeam?.status === 'rejected' && (
@@ -687,11 +698,11 @@ const Profile = () => {
                         <form onSubmit={handleTeamRequest}>
                             <div className="mb-3">
                                 <label className="form-label">שם הקבוצה</label>
-                                <input type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={50} />
+                                <input type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={TEAM_NAME_MAX_LEN} />
                             </div>
                             <div className="mb-3">
                                 <label className="form-label">תיאור קצר (אופציונלי)</label>
-                                <textarea className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={300} />
+                                <textarea className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={TEAM_DESC_MAX_LEN} />
                             </div>
                             <button type="submit" className="btn btn-primary">שלח בקשה</button>
                         </form>

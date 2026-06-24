@@ -162,6 +162,7 @@ export class RegistrationService {
       const reg = await tx.seasonRegistration.findUnique({
         where: { userId_seasonId: { userId, seasonId: season.id } },
       });
+      // Legacy pre-receipt-first rows used join_pending; receipt-first keeps active.
       if (reg?.status === SeasonRegistrationStatus.join_pending) {
         const unredeemedInvoice = await tx.invoiceCode.findFirst({
           where: { seasonId: season.id, assignedUserId: userId, redeemedAt: null },
@@ -556,30 +557,18 @@ export class RegistrationService {
       throw new Error('הרישום כבר פעיל לעונה זו');
     }
 
-    const [pendingJoin, pendingCreation] = await Promise.all([
-      prisma.teamJoinRequest.findFirst({
-        where: {
-          userId,
-          seasonId: season.id,
-          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-        },
-      }),
-      prisma.teamCreationRequest.findFirst({
-        where: { userId, seasonId: season.id, status: RequestStatus.pending },
-      }),
-    ]);
+    const onRoster = await prisma.player.findFirst({
+      where: { userId, seasonId: season.id, active: true },
+    });
+    if (onRoster) {
+      throw new Error('אתה כבר רשום בסגל לעונה זו');
+    }
 
-    const eligible =
-      !!pendingJoin ||
-      !!pendingCreation ||
-      reg?.status === SeasonRegistrationStatus.join_pending ||
-      reg?.status === SeasonRegistrationStatus.awaiting_invoice ||
-      reg?.status === SeasonRegistrationStatus.invoice_assigned;
-
-    if (!eligible) {
-      throw new Error(
-        'אין בקשת רישום פעילה — שלח בקשת הצטרפות או הקמת קבוצה לפני הזנת חשבונית'
-      );
+    const ownedTeam = await prisma.team.findFirst({
+      where: { seasonId: season.id, ownerUserId: userId },
+    });
+    if (ownedTeam) {
+      throw new Error('אתה כבר בעל קבוצה לעונה זו');
     }
 
     const existingUnused = await prisma.invoiceCode.findFirst({
@@ -647,6 +636,18 @@ export class RegistrationService {
     await InvoiceRateLimitService.clearAttempts(userId, season.id);
   }
 
+  static async assertRegistrationActiveForRequest(
+    userId: string,
+    seasonId: string
+  ): Promise<void> {
+    const reg = await prisma.seasonRegistration.findUnique({
+      where: { userId_seasonId: { userId, seasonId } },
+    });
+    if (reg?.status !== SeasonRegistrationStatus.active) {
+      throw new Error('הזן את מספר החשבונית בפרופיל לפני שליחת בקשה');
+    }
+  }
+
   static async submitTeamCreation(
     userId: string,
     division: Division,
@@ -659,6 +660,7 @@ export class RegistrationService {
     );
     const season = await SeasonService.getActiveSeason(division);
     await this.assertDivisionAccess(userId, division);
+    await this.assertRegistrationActiveForRequest(userId, season.id);
     await this.lockActiveDivision(userId, division);
 
     const pending = await prisma.teamCreationRequest.findFirst({
@@ -666,6 +668,17 @@ export class RegistrationService {
     });
     if (pending) {
       throw new Error('יש לך כבר בקשת הקמת קבוצה ממתינה. בטל אותה לפני שליחת בקשה חדשה.');
+    }
+
+    const pendingJoin = await prisma.teamJoinRequest.findFirst({
+      where: {
+        userId,
+        seasonId: season.id,
+        status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+      },
+    });
+    if (pendingJoin) {
+      throw new Error('יש לך בקשת הצטרפות ממתינה. בטל אותה לפני בקשת הקמת קבוצה.');
     }
 
     const onRoster = await prisma.player.findFirst({
@@ -701,9 +714,9 @@ export class RegistrationService {
           userId,
           seasonId: season.id,
           division,
-          status: SeasonRegistrationStatus.join_pending,
+          status: SeasonRegistrationStatus.active,
         },
-        update: { status: SeasonRegistrationStatus.join_pending, division },
+        update: { division },
       });
 
       return req;
@@ -802,6 +815,7 @@ export class RegistrationService {
   static async submitJoinRequest(userId: string, division: Division, teamId: number) {
     const season = await SeasonService.getActiveSeason(division);
     await this.assertDivisionAccess(userId, division);
+    await this.assertRegistrationActiveForRequest(userId, season.id);
     await this.lockActiveDivision(userId, division);
 
     const onRoster = await prisma.player.findFirst({
@@ -830,6 +844,13 @@ export class RegistrationService {
     });
     if (recentReject) {
       throw new Error('ניתן לבקש שוב את אותה קבוצה רק לאחר יום מהדחייה האחרונה');
+    }
+
+    const pendingCreation = await prisma.teamCreationRequest.findFirst({
+      where: { userId, seasonId: season.id, status: RequestStatus.pending },
+    });
+    if (pendingCreation) {
+      throw new Error('יש לך בקשת הקמת קבוצה ממתינה. בטל אותה לפני בקשת הצטרפות.');
     }
 
     return prisma.$transaction(async (tx) => {
@@ -866,9 +887,9 @@ export class RegistrationService {
           userId,
           seasonId: season.id,
           division,
-          status: SeasonRegistrationStatus.join_pending,
+          status: SeasonRegistrationStatus.active,
         },
-        update: { status: SeasonRegistrationStatus.join_pending, division },
+        update: { division },
       });
 
       return req;
@@ -1302,7 +1323,7 @@ export class RegistrationService {
           status: {
             in: [
               SeasonRegistrationStatus.awaiting_invoice,
-              SeasonRegistrationStatus.join_pending,
+              SeasonRegistrationStatus.join_pending, // legacy pre-receipt-first
               SeasonRegistrationStatus.invoice_assigned,
             ],
           },
@@ -1353,6 +1374,7 @@ export class RegistrationService {
             assignedUserId: reg.userId,
             redeemedAt: null,
           },
+          select: { codeNormalized: true },
         });
         return {
           user: reg.user,
@@ -1360,6 +1382,7 @@ export class RegistrationService {
           pendingTeamName: join?.team?.name ?? null,
           joinStatus: join?.status ?? null,
           hasUnredeemedCode: !!hasUnredeemedCode,
+          assignedInvoiceNumber: hasUnredeemedCode?.codeNormalized ?? null,
         };
       })
     );
@@ -1410,7 +1433,9 @@ export class RegistrationService {
     ]);
 
     const regByUser = new Map(regs.map((r) => [r.userId, r.status]));
-    const codeByUser = new Set(codes.map((c) => c.assignedUserId));
+    const codeByUser = new Map(
+      codes.map((c) => [c.assignedUserId, c.codeNormalized ?? null])
+    );
 
     return users.map((u) => ({
       id: u.id,
@@ -1419,6 +1444,7 @@ export class RegistrationService {
       activeDivision: u.activeDivision,
       registrationStatus: regByUser.get(u.id) ?? SeasonRegistrationStatus.none,
       hasUnredeemedCode: codeByUser.has(u.id),
+      assignedInvoiceNumber: codeByUser.get(u.id) ?? null,
     }));
   }
 }
