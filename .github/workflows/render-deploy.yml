@@ -1,0 +1,21 @@
+# Trigger Render API redeploy after server changes (requires repo secret).
+name: Render API deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - 'render.yaml'
+      - 'scripts/render-api-build.mjs'
+      - 'package-lock.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ secrets.RENDER_DEPLOY_HOOK != '' }}
+    steps:
+      - name: Deploy ramadan-tournament-api
+        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK"
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
