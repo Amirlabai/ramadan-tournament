@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import type { Standing, TopScorer, Match } from '../types';
 import SEO from '../components/SEO';
+import PageLoading from '../components/PageLoading';
+import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
 import './Stats.css';
 
@@ -47,9 +49,10 @@ const Stats = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <div className="loading" role="status"><span className="visually-hidden">טוען...</span>טוען...</div>;
+    if (loading) return <PageLoading label="טוען סטטיסטיקות..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
+    const hasStats = standings.length > 0 || topScorers.length > 0;
     return (
         <div className="stats-page container py-4">
             <SEO
@@ -59,6 +62,13 @@ const Stats = () => {
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">סטטיסטיקות</h2>
 
+            {!hasStats ? (
+                <EmptyState
+                    title="אין נתונים עדיין"
+                    message="טבלת הליגה ומלכי השערים יתמלאו לאחר משחקי העונה."
+                />
+            ) : (
+            <>
             {/* Playoff Bracket */}
             {playoffMatches.length > 0 && (
                 <PlayoffBracket matches={playoffMatches} />
@@ -144,6 +154,8 @@ const Stats = () => {
                     </div>
                 </div>
             </div>
+            </>
+            )}
         </div>
     );
 };

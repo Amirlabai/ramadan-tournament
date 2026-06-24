@@ -1,11 +1,12 @@
 ﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { usersAPI, teamsAPI, statsAPI } from '../api/client';
+import { usersAPI, teamsAPI, statsAPI, registrationAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
+import PageLoading from '../components/PageLoading';
 import './Profile.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
@@ -104,7 +105,7 @@ const Profile = () => {
     }, [user]);
 
     if (loading) {
-        return <div className="text-center mt-5"><span className="spinner-border text-success"></span></div>;
+        return <PageLoading label="טוען פרופיל..." />;
     }
 
     if (!user) return null;
@@ -146,8 +147,10 @@ const Profile = () => {
     const handleTeamRequest = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await usersAPI.requestTeam(teamName, teamDesc);
-            setTeamRequestMsg('הבקשה נשלחה בהצלחה! ממתינה לאישור מנהל.');
+            await registrationAPI.submitCreation(teamName, teamDesc, 'boys');
+            setTeamRequestMsg(
+                'הבקשה נשלחה. הזן את מספר החשבונית בכרטיס הרישום למעלה — אישור המנהל רק לאחר הפעלת הרישום.'
+            );
             setTeamName('');
             setTeamDesc('');
             await refreshUser();
@@ -247,7 +250,20 @@ const Profile = () => {
     };
 
     const pendingTeam = (user as any).pendingTeamRequest;
-    const canRequestTeam = !pendingTeam || pendingTeam.status === 'rejected';
+    const boysReg = user.tournamentRegistration?.boys;
+    const girlsReg = user.tournamentRegistration?.girls;
+    const pendingCreationBoys = boysReg?.pendingCreation;
+    const pendingJoinBoys = boysReg?.pendingJoin;
+    const canRequestTeam =
+        !pendingCreationBoys &&
+        !pendingJoinBoys &&
+        !boysReg?.pendingTransfer &&
+        !girlsReg?.pendingCreation &&
+        !girlsReg?.pendingJoin &&
+        !girlsReg?.pendingTransfer &&
+        (!pendingTeam || pendingTeam.status === 'rejected') &&
+        !boysReg?.onRoster &&
+        !boysReg?.ownedTeamId;
     const mappingStatus = user.mappedPlayerInfo?.status;
 
     // We hide the status banner entirely once the user is actually a Player or Captain, 
@@ -409,7 +425,7 @@ const Profile = () => {
                                             onChange={e => setPlayerForm(p => ({ ...p, bio: e.target.value }))} placeholder="ספר מעט על עצמך..." />
                                     </div>
                                 </div>
-                                {playerMsg && <div className={`alert ${playerMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py - 2 mt - 3`}>{playerMsg}</div>}
+                                {playerMsg && <div className={`alert ${playerMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2 mt-3`}>{playerMsg}</div>}
                                 <div className="d-flex gap-2 mt-3">
                                     <button type="button" className="btn btn-secondary" onClick={() => setEditingPlayer(false)}>בטל</button>
                                     <button type="submit" className="btn btn-success" disabled={playerSaving}>
@@ -579,7 +595,7 @@ const Profile = () => {
                                         </div>
                                     </div>
 
-                                    {teamSettingsMsg && <div className={`alert ${teamSettingsMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py - 2`}>{teamSettingsMsg}</div>}
+                                    {teamSettingsMsg && <div className={`alert ${teamSettingsMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamSettingsMsg}</div>}
 
                                     <div className="d-flex gap-2">
                                         <button type="button" className="btn btn-secondary" onClick={() => setEditingTeam(false)}>ביטול</button>
@@ -629,8 +645,11 @@ const Profile = () => {
                 {canRequestTeam && user.role !== 'Captain' && user.role !== 'Admin' && user.role !== 'admin' && user.role !== 'Player' && (
                     <div className="card mb-4 p-4">
                         <h4 className="mb-3">בקשה לפתיחת קבוצה חדשה</h4>
-                        <p className="text-muted small">הגש בקשה ליצירת קבוצה חדשה בטורניר. לאחר אישור המנהל, תועלה לדרגת קפטן.</p>
-                        {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py - 2`}>{teamRequestMsg}</div>}
+                        <p className="text-muted small">
+                            הגש בקשה ליצירת קבוצה חדשה בטורניר. לאחר התשלום הזן את מספר החשבונית בכרטיס
+                            הרישום למעלה. ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
+                        </p>
+                        {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
                         {pendingTeam?.status === 'rejected' && (
                             <div className="alert alert-danger py-2 mb-3">הבקשה הקודמת שלך נדחתה. תוכל לשלוח בקשה חדשה.</div>
                         )}
@@ -645,14 +664,6 @@ const Profile = () => {
                             </div>
                             <button type="submit" className="btn btn-primary">שלח בקשה</button>
                         </form>
-                    </div>
-                )}
-
-                {/* Pending Team Request status */}
-                {pendingTeam?.status === 'pending' && (
-                    <div className="alert alert-info mb-4">
-                        <i className="bi bi-hourglass-split me-2" />
-                        <strong>בקשת יצירת קבוצה ממתינה לאישור: </strong> "{pendingTeam.teamName}"
                     </div>
                 )}
 

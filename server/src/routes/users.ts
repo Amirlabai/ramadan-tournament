@@ -3,13 +3,14 @@ import multer from 'multer';
 import os from 'os';
 import { authenticate } from '../middleware/auth';
 import { requestPlayerMapping, uploadAvatar, deleteAvatar, updatePlayerProfile, requestTeamCreation, leaveTeam } from '../controllers/userController';
-import { getRegistrationStatus, redeemInvoice } from '../controllers/registrationController';
+import { getRegistrationStatus, redeemInvoice, cancelRegistrationRequest } from '../controllers/registrationController';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
 
 router.get('/registration', authenticate, getRegistrationStatus);
 router.post('/redeem-invoice', authenticate, redeemInvoice);
+router.post('/cancel-registration-request', authenticate, cancelRegistrationRequest);
 
 // Legacy claim flow — prefer join-request via /api/teams
 router.post('/map-player', authenticate, requestPlayerMapping);

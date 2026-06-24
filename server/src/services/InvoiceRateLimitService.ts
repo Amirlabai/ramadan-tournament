@@ -69,4 +69,21 @@ export class InvoiceRateLimitService {
     }
     await getRedis().del(key);
   }
+
+  /** Wipe all invoice attempt counters (e.g. after db:fresh). */
+  static async clearAllAttempts(): Promise<void> {
+    if (!config.redisUrl) {
+      memoryAttempts.clear();
+      return;
+    }
+    const redis = getRedis();
+    let cursor = '0';
+    do {
+      const [next, keys] = await redis.scan(cursor, 'MATCH', `${PREFIX}*`, 'COUNT', 200);
+      cursor = next;
+      if (keys.length > 0) {
+        await redis.del(...keys);
+      }
+    } while (cursor !== '0');
+  }
 }

@@ -7,6 +7,8 @@ import { useTournament } from '../contexts/TournamentContext';
 import type { Team } from '../types';
 import SEO from '../components/SEO';
 import AccessibleModal from '../components/AccessibleModal';
+import PageLoading from '../components/PageLoading';
+import EmptyState from '../components/EmptyState';
 import { resolveAssetUrl } from '../utils/assetUrl';
 
 const Teams = () => {
@@ -134,6 +136,21 @@ const Teams = () => {
         setExpandedTeam(expandedTeam === teamId ? null : teamId);
     };
 
+    const handleTeamRowClick = (e: React.MouseEvent, teamId: number) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('button, a, input, select, textarea, [data-no-row-toggle]')) {
+            return;
+        }
+        toggleTeam(teamId);
+    };
+
+    const handleTeamRowKeyDown = (e: React.KeyboardEvent, teamId: number) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            toggleTeam(teamId);
+        }
+    };
+
     const handleVoteClick = (player: any, e: React.MouseEvent) => {
         e.stopPropagation();
 
@@ -166,7 +183,7 @@ const Teams = () => {
         }
     };
 
-    if (loading) return <div className="text-center p-5"><div className="spinner-border text-success" role="status"><span className="visually-hidden">טוען...</span></div></div>;
+    if (loading) return <PageLoading label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     return (
@@ -178,19 +195,26 @@ const Teams = () => {
             />
             <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
 
-            {(voteLoaded && !dismissPrompt && (!isLoggedIn || !myVote)) && (
-                <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
-                    <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong>
-                    <span className="ms-2">
-                        {isLoggedIn
-                            ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'
-                            : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
-                    </span>
-                    <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="סגור"></button>
-                </div>
-            )}
+            {teams.length === 0 ? (
+                <EmptyState
+                    title="אין קבוצות רשומות"
+                    message="הקבוצות יופיעו כאן לאחר רישום ואישור בעונה הנוכחית."
+                />
+            ) : (
+                <>
+                    {(voteLoaded && !dismissPrompt && (!isLoggedIn || !myVote)) && (
+                        <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
+                            <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong>
+                            <span className="ms-2">
+                                {isLoggedIn
+                                    ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'
+                                    : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
+                            </span>
+                            <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="סגור"></button>
+                        </div>
+                    )}
 
-            <div className="table-responsive">
+                    <div className="table-responsive">
                 <table className="table table-hover" id="teamsTable">
                     <caption className="visually-hidden">רשימת קבוצות הטורניר</caption>
                     <thead>
@@ -214,6 +238,13 @@ const Teams = () => {
                                     <tr
                                         id={`team-row-${team.id}`}
                                         className={`team-row ${isExpanded ? 'bg-light' : ''}`}
+                                        role="button"
+                                        tabIndex={0}
+                                        aria-expanded={isExpanded}
+                                        aria-controls={`team-details-${team.id}`}
+                                        aria-label={isExpanded ? `כווץ פרטי ${team.name}` : `הרחב פרטי ${team.name}`}
+                                        onClick={(e) => handleTeamRowClick(e, team.id)}
+                                        onKeyDown={(e) => handleTeamRowKeyDown(e, team.id)}
                                     >
                                         <td>{team.id}</td>
                                         <td className="fw-bold fs-8">
@@ -230,18 +261,9 @@ const Teams = () => {
                                         <td className="d-none d-md-table-cell">{players.length}</td>
                                         <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
                                         <td>
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-link expand-toggle"
-                                                aria-expanded={isExpanded}
-                                                aria-controls={`team-details-${team.id}`}
-                                                onClick={() => toggleTeam(team.id)}
-                                                aria-label={isExpanded ? `כווץ פרטי ${team.name}` : `הרחב פרטי ${team.name}`}
-                                            >
-                                                <span className="expand-icon" aria-hidden="true">
-                                                    {isExpanded ? '▼' : '►'}
-                                                </span>
-                                            </button>
+                                            <span className="expand-icon" aria-hidden="true">
+                                                {isExpanded ? '▼' : '►'}
+                                            </span>
                                         </td>
                                     </tr>
                                     {isExpanded && (
@@ -326,7 +348,9 @@ const Teams = () => {
                         })}
                     </tbody>
                 </table>
-            </div>
+                    </div>
+                </>
+            )}
 
             {/* Player Details Modal */}
             <AccessibleModal open={!!selectedPlayer} onClose={() => setSelectedPlayer(null)} titleId="player-modal-title">

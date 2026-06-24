@@ -34,6 +34,20 @@ export const redeemInvoice = async (req: AuthRequest, res: Response): Promise<vo
   }
 };
 
+export const cancelRegistrationRequest = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const division = divisionFromQuery(req as TournamentRequest);
+    const summary = await RegistrationService.cancelPendingRegistrationRequest(
+      req.userId!,
+      division
+    );
+    res.json({ message: 'הבקשה בוטלה', registration: summary });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
 export const submitTeamCreation = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { teamName, description } = req.body as { teamName?: string; description?: string };

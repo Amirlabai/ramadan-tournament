@@ -13,7 +13,9 @@
         "db:migrate": "prisma migrate deploy",
         "db:push": "prisma db push",
         "db:seed": "tsx prisma/seed.ts",
+        "db:fresh": "tsx prisma/seed-empty.ts",
         "db:studio": "prisma studio",
+        "fixtures:generate": "tsx src/scripts/generate-group-fixtures.ts",
         "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts"
     },
     "prisma": {

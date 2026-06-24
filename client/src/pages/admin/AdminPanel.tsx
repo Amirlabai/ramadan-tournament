@@ -8,6 +8,8 @@ import MatchTableRow from '../../components/admin/MatchTableRow';
 import NewsForm from '../../components/admin/NewsForm';
 import RosterManager from '../../components/admin/RosterManager';
 import GirlsSeasonAdmin from '../../components/admin/GirlsSeasonAdmin';
+import PageLoading from '../../components/PageLoading';
+import EmptyState from '../../components/EmptyState';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -16,7 +18,7 @@ const AdminPanel = () => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
 
-    type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster' | 'girls';
+    type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster' | 'users' | 'girls';
     const { user, loading: authLoading, logout } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
@@ -32,6 +34,14 @@ const AdminPanel = () => {
     const [playoffSyncLoading, setPlayoffSyncLoading] = useState(false);
 
     const [searchFilter, setSearchFilter] = useState('');
+    const [userSearchQuery, setUserSearchQuery] = useState('');
+    const [userSearchResults, setUserSearchResults] = useState<
+        { id: string; displayName: string; email?: string | null; username?: string | null; role: string }[]
+    >([]);
+    const [userSearchLoading, setUserSearchLoading] = useState(false);
+    const [userRoleMsg, setUserRoleMsg] = useState('');
+    const [userRoleActingId, setUserRoleActingId] = useState<string | null>(null);
+    const [userSearchSubmitted, setUserSearchSubmitted] = useState(false);
     const navigate = useNavigate();
 
     const handleFileUpload = async () => {
@@ -195,6 +205,16 @@ const AdminPanel = () => {
         return matchDate < now ? 'finished' : 'upcoming';
     };
 
+    const filteredAdminMatches = matches.filter((match) => {
+        if (matchFilter === 'all') return true;
+        if (matchFilter === 'today') {
+            const d = new Date(match.date);
+            const now = new Date();
+            return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+        }
+        return getMatchStatus(match) === matchFilter;
+    });
+
     const fetchBannedWords = async () => {
         try {
             const response = await adminAPI.getBannedWords();
@@ -258,6 +278,47 @@ const AdminPanel = () => {
         }
     };
 
+    const handleUserSearch = async (e: React.FormEvent) => {
+        e.preventDefault();
+        const q = userSearchQuery.trim();
+        if (q.length < 2) {
+            setUserRoleMsg('הקלד לפחות שני תווים לחיפוש');
+            return;
+        }
+        setUserSearchLoading(true);
+        setUserRoleMsg('');
+        setUserSearchSubmitted(true);
+        try {
+            const res = await adminAPI.searchUsers(q);
+            setUserSearchResults(Array.isArray(res.data) ? res.data : []);
+        } catch (err: unknown) {
+            const ax = err as { response?: { data?: { error?: string } } };
+            setUserRoleMsg(ax.response?.data?.error || 'שגיאה בחיפוש');
+            setUserSearchResults([]);
+        } finally {
+            setUserSearchLoading(false);
+        }
+    };
+
+    const handleSetUserRole = async (userId: string, role: 'admin' | 'user') => {
+        if (role === 'admin' && !confirm('להעניק הרשאת מנהל למשתמש זה?')) return;
+        if (role === 'user' && !confirm('להסיר הרשאת מנהל ממשתמש זה?')) return;
+        setUserRoleActingId(userId);
+        setUserRoleMsg('');
+        try {
+            const res = await adminAPI.setUserRole(userId, role);
+            setUserRoleMsg(res.data?.message || 'תפקיד עודכן');
+            setUserSearchResults((rows) =>
+                rows.map((row) => (row.id === userId ? { ...row, role } : row))
+            );
+        } catch (err: unknown) {
+            const ax = err as { response?: { data?: { error?: string } } };
+            setUserRoleMsg(ax.response?.data?.error || 'שגיאה בעדכון תפקיד');
+        } finally {
+            setUserRoleActingId(null);
+        }
+    };
+
     const handleTriggerAutomation = async () => {
         setAutomationLoading(true);
         try {
@@ -301,7 +362,7 @@ const AdminPanel = () => {
         }
     };
 
-    if (loading) return <div className="loading">טוען...</div>;
+    if (loading) return <PageLoading label="טוען פאנל ניהול..." />;
 
     return (
         <div className="admin-panel">
@@ -386,6 +447,17 @@ const AdminPanel = () => {
                             onClick={() => setActiveTab('roster')}
                         >
                             סגל ורישום
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            id="admin-tab-users"
+                            aria-controls="admin-panel-users"
+                            aria-selected={activeTab === 'users'}
+                            className={`tab ${activeTab === 'users' ? 'active' : ''}`}
+                            onClick={() => setActiveTab('users')}
+                        >
+                            משתמשים
                         </button>
                         <button
                             type="button"
@@ -485,17 +557,21 @@ const AdminPanel = () => {
                                             startInEditMode
                                         />
                                     )}
-                                    {matches
-                                        .filter(match => {
-                                            if (matchFilter === 'all') return true;
-                                            if (matchFilter === 'today') {
-                                                const d = new Date(match.date);
-                                                const now = new Date();
-                                                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                                            }
-                                            return getMatchStatus(match) === matchFilter;
-                                        })
-                                        .map((match, index) => (
+                                    {!addingNewMatch && filteredAdminMatches.length === 0 && (
+                                        <tr>
+                                            <td colSpan={8}>
+                                                <EmptyState
+                                                    title="אין משחקים להצגה"
+                                                    message={
+                                                        matches.length === 0
+                                                            ? 'אין משחקים במערכת. הוסף משחק ידנית או הפעל את מחולל לוח המשחקים מהשרת.'
+                                                            : 'אין משחקים בסינון שנבחר.'
+                                                    }
+                                                />
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {filteredAdminMatches.map((match, index) => (
                                             <MatchTableRow
                                                 key={match._id}
                                                 match={match}
@@ -748,6 +824,106 @@ const AdminPanel = () => {
                 <div role="tabpanel" id="admin-panel-roster" aria-labelledby="admin-tab-roster" className="tab-content" tabIndex={0}>
                     <div className="card p-3">
                         <RosterManager />
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'users' && (
+                <div role="tabpanel" id="admin-panel-users" aria-labelledby="admin-tab-users" className="tab-content" tabIndex={0}>
+                    <div className="card p-4">
+                        <h3 className="h5 mb-3">ניהול הרשאות מנהל</h3>
+                        <p className="text-muted small mb-3">
+                            חפש משתמש לפי שם, אימייל או שם משתמש. לאחר שינוי תפקיד, המשתמש צריך להתחבר מחדש.
+                        </p>
+                        <form onSubmit={(e) => void handleUserSearch(e)} className="mb-4">
+                            <label htmlFor="admin-user-search" className="form-label">
+                                חיפוש משתמש
+                            </label>
+                            <div className="input-group">
+                                <input
+                                    id="admin-user-search"
+                                    type="search"
+                                    className="form-control"
+                                    value={userSearchQuery}
+                                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                                    minLength={2}
+                                    autoComplete="off"
+                                />
+                                <button type="submit" className="btn btn-primary" disabled={userSearchLoading}>
+                                    {userSearchLoading ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm me-1" aria-hidden="true" />
+                                            מחפש…
+                                        </>
+                                    ) : (
+                                        'חפש'
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+
+                        {userSearchLoading && (
+                            <PageLoading label="מחפש משתמשים..." />
+                        )}
+
+                        {!userSearchLoading && userSearchSubmitted && userSearchResults.length === 0 && !userRoleMsg && (
+                            <EmptyState message="לא נמצאו משתמשים לחיפוש זה." />
+                        )}
+
+                        {!userSearchLoading && !userSearchSubmitted && (
+                            <p className="text-muted small mb-0">הקלד לפחות שני תווים ולחץ חפש.</p>
+                        )}
+
+                        {userRoleMsg && (
+                            <p className="small text-muted mb-3" role="status">
+                                {userRoleMsg}
+                            </p>
+                        )}
+
+                        {userSearchResults.length > 0 && !userSearchLoading && (
+                            <ul className="list-unstyled mb-0">
+                                {userSearchResults.map((row) => (
+                                    <li
+                                        key={row.id}
+                                        className="d-flex flex-wrap align-items-center justify-content-between gap-2 py-3 border-bottom"
+                                    >
+                                        <div>
+                                            <strong>{row.displayName}</strong>
+                                            {row.email && (
+                                                <span className="text-muted small ms-2" dir="ltr">
+                                                    {row.email}
+                                                </span>
+                                            )}
+                                            <div className="small text-muted">
+                                                תפקיד: {row.role === 'admin' ? 'מנהל' : 'משתמש'}
+                                            </div>
+                                        </div>
+                                        <span className="d-flex gap-1">
+                                            {row.role !== 'admin' && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-success"
+                                                    disabled={userRoleActingId === row.id}
+                                                    onClick={() => void handleSetUserRole(row.id, 'admin')}
+                                                >
+                                                    הפוך למנהל
+                                                </button>
+                                            )}
+                                            {row.role === 'admin' && row.id !== user?.id && (
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-sm btn-outline-danger"
+                                                    disabled={userRoleActingId === row.id}
+                                                    onClick={() => void handleSetUserRole(row.id, 'user')}
+                                                >
+                                                    הסר הרשאת מנהל
+                                                </button>
+                                            )}
+                                        </span>
+                                    </li>
+                                ))}
+                            </ul>
+                        )}
                     </div>
                 </div>
             )}

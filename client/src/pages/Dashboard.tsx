@@ -4,12 +4,12 @@ import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
+import PageLoading from '../components/PageLoading';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import './Dashboard.css';
-
-const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 const Dashboard = () => {
     const [data, setData] = useState<DashboardData | null>(null);
@@ -60,7 +60,7 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, [data?.nextMatches?.length]);
 
-    if (loading) return <div className="loading">טוען...</div>;
+    if (loading) return <PageLoading label="טוען לוח בקרה..." />;
     if (error) return <div className="error">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 
@@ -94,7 +94,7 @@ const Dashboard = () => {
     };
 
     const renderTeamNameWithLogo = (teamName: string, logoUrl?: string, logoPosition?: string) => {
-        const logo = logoUrl ? (logoUrl.startsWith('http') ? logoUrl : `${VITE_API_URL}${logoUrl}`) : null;
+        const logo = resolveAssetUrl(logoUrl);
         const position = logoPosition || 'right';
 
         if (!logo || position === 'none') return <span className="team-name">{teamName}</span>;

@@ -1,0 +1,2 @@
+id,user_id,season_id,team_id,status,owner_reviewed_at,owner_reviewed_by,admin_reviewed_at,admin_reviewed_by,created_at
+c5d336dc-12a3-4a65-a088-d167dfa9ea22,501142eb-7aff-42a1-b7f2-0dfb83d7732f,62c19bea-94b2-418e-8cc4-79dd9c67eae8,1,pending,,,,,2026-06-24 19:12:25.068

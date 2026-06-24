@@ -1,154 +1,150 @@
-# Ramadan Tournament - Backend Server
+# Ramadan Tournament — Backend API
 
-Node.js/Express backend API with MongoDB for tournament management.
+Node.js / Express API with **PostgreSQL (Prisma)** and optional **Redis** caching.
 
-## Quick Start
+See also [`../context.md`](../context.md) for architecture and the full fresh-season workflow.
 
-### 1. Configure Environment
+## Quick start
 
-Copy [`server/.env.example`](.env.example) to `server/.env` and fill in values. **Server reads only `server/.env`** (not a repo-root `.env`).
+### 1. Environment
 
-**Option A — Mock dev (no Postgres, e.g. while Render is paused):**
-```bash
-# From server/ or repo root
+Copy [`.env.example`](.env.example) to `.env`. The server loads **only** `server/.env`.
+
+**Mock dev (no Postgres):**
+```powershell
 npm run dev:mock
 ```
-Uses `env.mock` (committed) and `data/*.json`. Admin: `admin` / `admin123`.
+Uses `env.mock` and `data/*.json`. Admin: `admin` / `admin123`.
 
-**Option B — Full stack (PostgreSQL):** copy `server/.env.example` to `server/.env` and set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_*` (do not set `MOCK_DEV_DATA`).
+**Full stack (Postgres):** set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and optionally `REDIS_URL`, `SMTP_*`, `GOOGLE_CLIENT_ID`.
 
-Required variables (Postgres mode):
-- `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - Secret key for JWT (generate with `openssl rand -base64 32`)
-- `ADMIN_USERNAME` - Initial admin username
-- `ADMIN_PASSWORD` - Initial admin password
-- `SMTP_USER` - SMTP username for sending verification emails
-- `SMTP_PASS` - SMTP password for sending verification emails
-- `GEMINI_API_KEY` - API key for Google Gemini to generate AI summaries
+Optional fresh-season overrides:
+- `SEASON_YEAR_MONTH` (default `2026-06`)
+- `SEASON_DISPLAY_NAME` (default `טורניר קיץ 2026`)
 
-### 2. Install Dependencies
-```bash
-# From repository root
-cmd /c npm install
+### 2. Install and migrate
 
-# Or directly in server folder
-cd server
-cmd /c npm install
+```powershell
+npm install
+npm run db:migrate
 ```
 
-### 3. Migrate Data
-Import existing JSON data:
-```bash
-cmd /c npm run migrate
+### 3. Seed or fresh start
+
+| Command | Purpose |
+|---------|---------|
+| `npm run db:seed` | Wipe + load demo teams/matches from `data/*.json` (local dev) |
+| `npm run db:fresh` | Wipe + **season + admin only** (no teams/players/matches) |
+
+Remote Postgres requires `--yes`:
+```powershell
+npm run db:fresh -- --yes
 ```
 
-### 4. Start Development Server
-```bash
-cmd /c npm run dev
+### 4. Run API
+
+```powershell
+npm run dev
 ```
 
-Server starts on `http://localhost:5000`
+API: `http://localhost:5000`
 
-## API Endpoints
+## Database scripts
 
-### Public Endpoints
-- `GET /api/health` - Health check
-- `GET /api/teams` - Get all teams
-- `GET /api/matches` - Get all matches
-- `GET /api/news` - Get all news
-- `GET /api/stats/standings` - Get calculated standings
-- `GET /api/stats/top-scorers` - Get top scorers
-- `GET /api/stats/player-stats` - Get player statistics
-- `GET /api/stats/dashboard` - Get dashboard summary
+Run from `server/` with `DATABASE_URL` set.
 
-### Admin Endpoints (Require JWT)
-- `POST /api/auth/login` - Admin login
-- `POST /api/auth/verify` - Verify registration OTP
-- `POST /api/auth/resend-code` - Resend verification OTP
-- `GET /api/auth/me` - Get current user
-- `POST /api/matches` - Create match
-- `PUT /api/matches/:id` - Update match
-- `DELETE /api/matches/:id` - Delete match
-- `POST /api/news` - Create news
-- `PUT /api/news/:id` - Update news
-- `DELETE /api/news/:id` - Delete news
+### `db:fresh` — clean tournament start
 
-## Testing Locally
+Wipes all tables, then creates:
+- One active **boys** football season
+- Admin user from `ADMIN_USERNAME` / `ADMIN_PASSWORD`
+- Baseline banned words (`spam`, `test`)
 
-### Health Check
-```bash
+Does **not** create teams, players, or matches.
+
+### `fixtures:generate` — round-robin schedule
+
+After teams exist and are **active**, generate group-stage fixtures (single round-robin):
+
+```powershell
+npm run fixtures:generate -- --help
+npm run fixtures:generate -- --start-date 2026-07-01 --dry-run
+npm run fixtures:generate -- --start-date 2026-07-01
+npm run fixtures:generate -- --start-date 2026-07-01 --replace --yes
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--start-date` | *(required)* | `YYYY-MM-DD` |
+| `--division` | `boys` | `boys` or `girls` |
+| `--matches-per-day` | `2` | Matches per calendar day before advancing |
+| `--times` | `18:00,20:00` | Jerusalem wall-clock times (comma-separated) |
+| `--location` | `מרכז צעירים` | Venue on all generated matches |
+| `--replace` | off | Delete existing group matches (+ goals) first |
+| `--dry-run` | off | Print pairings only |
+| `--yes` | — | Required when DB host is not localhost |
+
+Edit real dates/times in the client Admin panel → **ניהול משחקים**.
+
+### Other
+
+| Command | Purpose |
+|---------|---------|
+| `npm run db:migrate` | Apply Prisma migrations (`prisma migrate deploy`) |
+| `npm run db:studio` | Prisma Studio |
+| `npm run db:seed` | Full demo seed from `data/*.json` |
+
+**Production:** do not run `db:seed` or `db:fresh` unless you intend to wipe data.
+
+## Admin role management
+
+After `db:fresh`, only the env admin exists. Promote Google/email users:
+
+- **UI:** `/admin` → tab **משתמשים** — search by name/email, grant or revoke `admin`.
+- **API** (admin JWT required):
+  - `GET /api/admin/users?q=search` — min 2 characters
+  - `PATCH /api/admin/users/:id/role` — body `{ "role": "admin" | "user" }`
+
+Guards: cannot demote yourself or the last admin. The affected user must **log in again** for their JWT role to update (API checks DB on each request).
+
+## API overview
+
+### Public
+- `GET /api/health`
+- `GET /api/teams`, `/api/matches`, `/api/news`, `/api/stats/*`
+
+### Auth
+- `POST /api/auth/login`, `POST /api/auth/google`, `GET /api/auth/me`
+
+### Admin (authenticated + `admin` role)
+- Matches: `POST|PUT|DELETE /api/matches`, `POST /api/matches/sync-playoffs`
+- Registration workflows: `/api/admin/workflows`, `/api/admin/users/invoice`, etc.
+- User roles: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role`
+
+## Local smoke tests
+
+```powershell
 curl http://localhost:5000/api/health
-```
-
-### Admin Login
-```bash
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d "{\"username\":\"admin\",\"password\":\"your-password\"}"
-```
-
-### Get Teams
-```bash
 curl http://localhost:5000/api/teams
 ```
 
-### Get Standings
-```bash
-curl http://localhost:5000/api/stats/standings
-```
+## Project layout
 
-## MongoDB Atlas Setup
-
-1. Go to https://www.mongodb.com/cloud/atlas
-2. Create a free account
-3. Create a new cluster (M0 Free tier)
-4. Add database user (Database Access)
-5. Allow connections from anywhere (Network Access → IP Whitelist → `0.0.0.0/0`)
-6. Get connection string:
-   - Click "Connect"
-   - Choose "Connect your application"
-   - Copy connection string
-   - Replace `<password>` with your database user password
-   - Replace `<dbname>` with `tournament`
-
-Example: 
-```
-mongodb+srv://admin:mypassword@cluster0.abc123.mongodb.net/tournament?retryWrites=true&w=majority
-```
-
-## Season Maintenance
-
-To close a season and prepare for a public showcase:
-
-1. **Archive & Anonymize**:
-   ```bash
-   npx tsx src/scripts/archive-season.ts
-   ```
-   This will:
-   - Create timestamped backups (e.g. `teams_2026_03`).
-   - Anonymize player names/photos in the active `teams` collection for the showcase.
-   - Skip `users` to keep your admin/captain logins working.
-
-2. **Historical Record**:
-   - Use the `/archive` page in the frontend to view the "frozen" results of past seasons.
-
-## Project Structure
 ```
 server/
+├── prisma/
+│   ├── schema.prisma
+│   ├── seed.ts           # demo data from data/*.json
+│   ├── seed-empty.ts     # db:fresh
+│   └── wipeDatabase.ts
 ├── src/
-│   ├── config/       # Environment and database config
-│   ├── models/       # Mongoose schemas
-│   ├── routes/       # Express routes
-│   ├── controllers/  # Route handlers
-│   ├── middleware/   # Auth, error handling
-│   ├── services/     # Business logic (stats)
-│   ├── scripts/      # Migration scripts
-│   └── index.ts      # Server entry point
-├── package.json
-└── tsconfig.json
+│   ├── controllers/
+│   ├── routes/
+│   ├── services/         # RegistrationService, SeasonService, …
+│   ├── scripts/
+│   │   └── generate-group-fixtures.ts
+│   └── index.ts
+└── package.json
 ```
 
-## Next Steps
-- Set up React frontend
-- Configure deployment to Render
-- Add environment variables to hosting platform
+Legacy Mongo scripts under `src/scripts/` are not used in production builds.

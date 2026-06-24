@@ -75,6 +75,48 @@
   color: var(--text-light);
 }
 
+.page-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  gap: 0.75rem;
+  min-height: 12rem;
+}
+
+.page-loading__spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.page-loading__label {
+  margin: 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 2.5rem 1.5rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  background: var(--bg-secondary, rgba(0, 0, 0, 0.03));
+}
+
+.empty-state__title {
+  margin: 0 0 0.5rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.empty-state__message {
+  margin: 0;
+  color: var(--text-light);
+  max-width: 28rem;
+  margin-inline: auto;
+}
+
 .error {
   background: #fee2e2;
   border: 1px solid #fca5a5;

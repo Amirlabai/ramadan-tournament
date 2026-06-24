@@ -6,6 +6,7 @@ import {
   Navigate,
 } from 'react-router-dom'
 import { useRef, lazy, Suspense } from 'react'
+import PageLoading from './components/PageLoading'
 import Dashboard from './pages/Dashboard'
 import Teams from './pages/Teams'
 import Schedule from './pages/Schedule'
@@ -63,7 +64,7 @@ function AppRoutes() {
 
   return (
     <RouteErrorBoundary key={location.pathname}>
-      <Suspense fallback={<div className="loading p-4 text-center">טוען...</div>}>
+      <Suspense fallback={<PageLoading label="טוען עמוד..." />}>
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/teams" element={<Teams />} />

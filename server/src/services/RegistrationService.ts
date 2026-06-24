@@ -81,6 +81,93 @@ export class RegistrationService {
     });
   }
 
+  /** After cancel/reject of join or creation, restore season registration unless already active. */
+  private static async restoreRegistrationStatusAfterCancel(
+    userId: string,
+    seasonId: string,
+    division: Division
+  ): Promise<void> {
+    const reg = await prisma.seasonRegistration.findUnique({
+      where: { userId_seasonId: { userId, seasonId } },
+    });
+    if (reg?.status === SeasonRegistrationStatus.active) {
+      return;
+    }
+
+    const unredeemedInvoice = await prisma.invoiceCode.findFirst({
+      where: { seasonId, assignedUserId: userId, redeemedAt: null },
+    });
+    const nextStatus = unredeemedInvoice
+      ? SeasonRegistrationStatus.invoice_assigned
+      : SeasonRegistrationStatus.none;
+    await this.upsertSeasonRegistration(userId, seasonId, division, nextStatus);
+  }
+
+  static async cancelPendingRegistrationRequest(userId: string, division: Division) {
+    const season = await SeasonService.getActiveSeason(division);
+    await this.assertDivisionAccess(userId, division);
+
+    const [join, creation, transfer] = await Promise.all([
+      prisma.teamJoinRequest.findFirst({
+        where: {
+          userId,
+          seasonId: season.id,
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+      }),
+      prisma.teamCreationRequest.findFirst({
+        where: { userId, seasonId: season.id, status: RequestStatus.pending },
+      }),
+      prisma.teamTransferRequest.findFirst({
+        where: { userId, seasonId: season.id, status: RequestStatus.pending },
+      }),
+    ]);
+
+    if (!join && !creation && !transfer) {
+      throw new Error('אין בקשה פעילה לביטול');
+    }
+
+    await prisma.$transaction(async (tx) => {
+      if (join) {
+        await tx.teamJoinRequest.update({
+          where: { id: join.id },
+          data: { status: RequestStatus.invalidated },
+        });
+      }
+      if (creation) {
+        await tx.teamCreationRequest.update({
+          where: { id: creation.id },
+          data: { status: RequestStatus.invalidated },
+        });
+      }
+      if (transfer) {
+        await tx.teamTransferRequest.update({
+          where: { id: transfer.id },
+          data: { status: RequestStatus.invalidated },
+        });
+      }
+
+      const reg = await tx.seasonRegistration.findUnique({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+      });
+      if (reg?.status === SeasonRegistrationStatus.join_pending) {
+        const unredeemedInvoice = await tx.invoiceCode.findFirst({
+          where: { seasonId: season.id, assignedUserId: userId, redeemedAt: null },
+        });
+        const nextStatus = unredeemedInvoice
+          ? SeasonRegistrationStatus.invoice_assigned
+          : SeasonRegistrationStatus.none;
+        await tx.seasonRegistration.upsert({
+          where: { userId_seasonId: { userId, seasonId: season.id } },
+          create: { userId, seasonId: season.id, division, status: nextStatus },
+          update: { status: nextStatus, division },
+        });
+      }
+    });
+
+    return this.getSummary(userId, division);
+  }
+
   static async getSummary(userId: string, division: Division): Promise<RegistrationSummary> {
     const season = await SeasonService.getActiveSeason(division);
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
@@ -314,7 +401,7 @@ export class RegistrationService {
       where: { userId, seasonId: season.id, status: RequestStatus.pending },
     });
     if (pending) {
-      throw new Error('יש לך כבר בקשת הקמת קבוצה ממתינה');
+      throw new Error('יש לך כבר בקשת הקמת קבוצה ממתינה. בטל אותה לפני שליחת בקשה חדשה.');
     }
 
     const onRoster = await prisma.player.findFirst({
@@ -324,24 +411,39 @@ export class RegistrationService {
       throw new Error('אתה כבר בסגל. השתמש בבקשת העברה לשינוי קבוצה.');
     }
 
-    const req = await prisma.teamCreationRequest.create({
-      data: {
-        userId,
-        seasonId: season.id,
-        teamName: teamName.trim(),
-        description: description.trim(),
-        status: RequestStatus.pending,
-      },
+    return prisma.$transaction(async (tx) => {
+      await tx.teamJoinRequest.updateMany({
+        where: {
+          userId,
+          seasonId: season.id,
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+        data: { status: RequestStatus.invalidated },
+      });
+
+      const req = await tx.teamCreationRequest.create({
+        data: {
+          userId,
+          seasonId: season.id,
+          teamName: teamName.trim(),
+          description: description.trim(),
+          status: RequestStatus.pending,
+        },
+      });
+
+      await tx.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+        create: {
+          userId,
+          seasonId: season.id,
+          division,
+          status: SeasonRegistrationStatus.join_pending,
+        },
+        update: { status: SeasonRegistrationStatus.join_pending, division },
+      });
+
+      return req;
     });
-
-    await this.upsertSeasonRegistration(
-      userId,
-      season.id,
-      division,
-      SeasonRegistrationStatus.join_pending
-    );
-
-    return req;
   }
 
   static async approveTeamCreation(requestId: string, approve: boolean) {
@@ -359,7 +461,19 @@ export class RegistrationService {
         where: { id: requestId },
         data: { status: RequestStatus.rejected },
       });
+      await this.restoreRegistrationStatusAfterCancel(
+        req.userId,
+        req.seasonId,
+        req.season.division
+      );
       return null;
+    }
+
+    const reg = await prisma.seasonRegistration.findUnique({
+      where: { userId_seasonId: { userId: req.userId, seasonId: req.seasonId } },
+    });
+    if (reg?.status !== SeasonRegistrationStatus.active) {
+      throw new Error('לא ניתן לאשר הקמת קבוצה לפני פדיון קוד תשלום (סטטוס רישום לא פעיל)');
     }
 
     const teamId = await this.getNextTeamId(req.seasonId);
@@ -436,32 +550,47 @@ export class RegistrationService {
       throw new Error('ניתן לבקש שוב את אותה קבוצה רק לאחר יום מהדחייה האחרונה');
     }
 
-    await prisma.teamJoinRequest.updateMany({
-      where: {
-        userId,
-        seasonId: season.id,
-        status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-      },
-      data: { status: RequestStatus.invalidated },
+    return prisma.$transaction(async (tx) => {
+      await tx.teamJoinRequest.updateMany({
+        where: {
+          userId,
+          seasonId: season.id,
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+        data: { status: RequestStatus.invalidated },
+      });
+
+      await tx.teamCreationRequest.updateMany({
+        where: {
+          userId,
+          seasonId: season.id,
+          status: RequestStatus.pending,
+        },
+        data: { status: RequestStatus.invalidated },
+      });
+
+      const req = await tx.teamJoinRequest.create({
+        data: {
+          userId,
+          seasonId: season.id,
+          teamId,
+          status: RequestStatus.pending,
+        },
+      });
+
+      await tx.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+        create: {
+          userId,
+          seasonId: season.id,
+          division,
+          status: SeasonRegistrationStatus.join_pending,
+        },
+        update: { status: SeasonRegistrationStatus.join_pending, division },
+      });
+
+      return req;
     });
-
-    const req = await prisma.teamJoinRequest.create({
-      data: {
-        userId,
-        seasonId: season.id,
-        teamId,
-        status: RequestStatus.pending,
-      },
-    });
-
-    await this.upsertSeasonRegistration(
-      userId,
-      season.id,
-      division,
-      SeasonRegistrationStatus.join_pending
-    );
-
-    return req;
   }
 
   static async ownerReviewJoin(
@@ -494,6 +623,14 @@ export class RegistrationService {
         ownerReviewedBy: ownerId,
       },
     });
+
+    if (!approve) {
+      await this.restoreRegistrationStatusAfterCancel(
+        req.userId,
+        req.seasonId,
+        req.season.division
+      );
+    }
   }
 
   static async adminReviewJoin(requestId: string, adminId: string, approve: boolean) {
@@ -518,6 +655,11 @@ export class RegistrationService {
           adminReviewedBy: adminId,
         },
       });
+      await this.restoreRegistrationStatusAfterCancel(
+        req.userId,
+        req.seasonId,
+        req.season.division
+      );
       return;
     }
 

@@ -19,6 +19,7 @@ import {
   reviewJoinRequest,
   reviewTransferRequest,
 } from '../controllers/adminWorkflowController';
+import { searchAdminUsers, setAdminUserRole } from '../controllers/adminUserController';
 import { authenticate, authorize } from '../middleware/auth';
 import os from 'os';
 
@@ -71,5 +72,9 @@ router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assig
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
 router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
+
+// User role management
+router.get('/users', authenticate, authorize(['Admin', 'admin']), searchAdminUsers);
+router.patch('/users/:id/role', authenticate, authorize(['Admin', 'admin']), setAdminUserRole);
 
 export default router;

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -16,8 +17,8 @@ interface RegistrationSummary {
     seasonId: string;
     division: string;
     status: string;
-    pendingJoin?: { teamId: number; status: string } | null;
-    pendingCreation?: { teamName: string } | null;
+    pendingJoin?: { id: string; teamId: number; status: string } | null;
+    pendingCreation?: { id: string; teamName: string; status: string } | null;
     pendingTransfer?: { fromTeamId: number; toTeamId: number } | null;
     onRoster?: { teamId: number; memberId: number } | null;
 }
@@ -35,6 +36,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const [err, setErr] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
 
     const load = async () => {
         if (!user) return;
@@ -72,6 +74,20 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         }
     };
 
+    const handleCancelRequest = async () => {
+        setMsg('');
+        setErr('');
+        const result = await cancelRegistrationRequest(
+            'לבטל את הבקשה הפעילה? תוכל לשלוח בקשה אחרת לאחר מכן.'
+        );
+        if (result.ok) {
+            setMsg('הבקשה בוטלה.');
+            await load();
+        } else if (result.error) {
+            setErr(result.error);
+        }
+    };
+
     if (!user) return null;
 
     const cardClass =
@@ -94,6 +110,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
     if (!reg) return null;
 
+    const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
     const showInvoiceForm = reg.status !== 'active';
 
     return (
@@ -107,6 +124,8 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             {reg.pendingCreation && (
                 <p className="small text-warning mb-2">
                     בקשת הקמת קבוצה &quot;{reg.pendingCreation.teamName}&quot; ממתינה לאישור מנהל.
+                    {' '}
+                    הזן את מספר החשבונית למטה לאחר התשלום — אישור המנהל יתאפשר רק לאחר הפעלת הרישום.
                 </p>
             )}
             {reg.pendingJoin && (
@@ -115,7 +134,23 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     {reg.pendingJoin.status === 'owner_approved'
                         ? ' — אושרה על ידי הבעלים, ממתין למנהל'
                         : ' — ממתין לאישור בעלים'}
+                    . הזן את מספר החשבונית למטה לאחר התשלום.
                 </p>
+            )}
+            {hasPendingRequest && !reg.pendingTransfer && (
+                <p className="small text-muted mb-2">
+                    ניתן להחזיק בקשה אחת בלבד (הצטרפות או הקמת קבוצה). לשינוי — בטל את הבקשה הנוכחית.
+                </p>
+            )}
+            {hasPendingRequest && (
+                <button
+                    type="button"
+                    className="btn btn-sm btn-outline-danger mb-3"
+                    onClick={() => void handleCancelRequest()}
+                    disabled={cancelling}
+                >
+                    {cancelling ? 'מבטל…' : reg.pendingTransfer ? 'בטל בקשת העברה' : 'בטל בקשה'}
+                </button>
             )}
             {reg.pendingTransfer && (
                 <p className="small text-warning mb-2">

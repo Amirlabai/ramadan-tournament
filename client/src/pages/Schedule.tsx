@@ -3,10 +3,11 @@ import { Link, useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import SEO from '../components/SEO';
+import PageLoading from '../components/PageLoading';
+import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import './Schedule.css';
-
-const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 const Schedule = () => {
     const [matches, setMatches] = useState<Match[]>([]);
@@ -73,12 +74,7 @@ const Schedule = () => {
         return () => clearInterval(interval);
     }, [matches.length]);
 
-    if (loading) return (
-        <div className="loading" role="status">
-            <span className="visually-hidden">טוען...</span>
-            טוען...
-        </div>
-    );
+    if (loading) return <PageLoading label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const getTeamName = (teamId: number) => {
@@ -88,8 +84,7 @@ const Schedule = () => {
 
     const getTeamLogo = (teamId: number) => {
         const team = teams.find(t => t.id === teamId);
-        if (!team || !team.logoUrl) return null;
-        return team.logoUrl.startsWith('http') ? team.logoUrl : `${VITE_API_URL}${team.logoUrl}`;
+        return resolveAssetUrl(team?.logoUrl);
     };
 
     const getTeamLogoPosition = (teamId: number) => {
@@ -220,6 +215,14 @@ const Schedule = () => {
             </div>
 
             <div className="matches-list">
+                {matches.length === 0 ? (
+                    <EmptyState
+                        title="אין משחקים בלוח"
+                        message="לוח המשחקים יפורסם לאחר רישום הקבוצות והפעלת העונה."
+                    />
+                ) : filteredMatches.length === 0 ? (
+                    <EmptyState message="אין משחקים בסינון שנבחר. נסה קטגוריה אחרת." />
+                ) : null}
                 {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
                     return (

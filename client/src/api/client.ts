@@ -108,6 +108,8 @@ export const usersAPI = {
         api.get('/users/registration', { params: { division: slug } }),
     redeemInvoice: (code: string, slug: TournamentSlug = 'boys') =>
         api.post('/users/redeem-invoice', { code }, { params: { division: slug } }),
+    cancelRegistrationRequest: (slug: TournamentSlug = 'boys') =>
+        api.post('/users/cancel-registration-request', {}, { params: { division: slug } }),
     uploadAvatar: (formData: FormData) =>
         api.post('/users/avatar', formData),
     deleteAvatar: () =>
@@ -182,6 +184,9 @@ export const adminAPI = {
         api.patch(`/admin/requests/join/${id}`, { approve }),
     reviewTransferRequest: (id: string, approve: boolean) =>
         api.patch(`/admin/requests/transfer/${id}`, { approve }),
+    searchUsers: (q: string) => api.get('/admin/users', { params: { q } }),
+    setUserRole: (userId: string, role: 'admin' | 'user') =>
+        api.patch(`/admin/users/${userId}/role`, { role }),
 };
 
 export const commentsAPI = {

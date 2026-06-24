@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { registrationAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
 
 type PendingJoin = {
     id: string;
@@ -20,12 +21,16 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const [pending, setPending] = useState<PendingJoin[]>([]);
     const [loadingPending, setLoadingPending] = useState(false);
     const [actingId, setActingId] = useState<string | null>(null);
+    const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
 
     const reg =
         slug === 'boys' || slug === 'girls' ? user?.tournamentRegistration?.[slug] : undefined;
     const isOwner = reg?.ownedTeamId === teamId;
     const onRoster = !!reg?.onRoster;
-    const canJoin = !!user && !onRoster && !isOwner;
+    const pendingJoin = reg?.pendingJoin;
+    const pendingCreation = reg?.pendingCreation;
+    const canJoin =
+        !!user && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
 
     const loadPending = useCallback(async () => {
         if (!isOwner) return;
@@ -52,11 +57,23 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
         setJoinMsg('');
         try {
             await registrationAPI.submitJoin(teamId, slug);
-            setJoinMsg('בקשת ההצטרפות נשלחה. לאחר תשלום — הזן את מספר החשבונית בפרופיל.');
+            setJoinMsg(
+                'בקשת ההצטרפות נשלחה. הזן את מספר החשבונית בפרופיל — אישור סופי רק לאחר הפעלת הרישום.'
+            );
             await refreshUser();
         } catch (err: unknown) {
             const ax = err as { response?: { data?: { error?: string } } };
             setJoinMsg(ax.response?.data?.error || 'שגיאה בשליחת הבקשה');
+        }
+    };
+
+    const handleCancelRequest = async () => {
+        setJoinMsg('');
+        const result = await cancelRegistrationRequest('לבטל את הבקשה הפעילה?');
+        if (result.ok) {
+            setJoinMsg('הבקשה בוטלה.');
+        } else if (result.error) {
+            setJoinMsg(result.error);
         }
     };
 
@@ -89,6 +106,53 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                         aria-label={`בקש להצטרף ל${teamName}`}
                     >
                         בקש להצטרף לקבוצה
+                    </button>
+                    {joinMsg && (
+                        <p className="small text-muted mt-2 mb-0" role="status" aria-live="polite">
+                            {joinMsg}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {pendingCreation && !onRoster && !isOwner && (
+                <div className="small text-warning mb-2">
+                    <p className="mb-2">
+                        יש לך בקשת הקמת קבוצה &quot;{pendingCreation.teamName}&quot; פעילה. בטל אותה כדי
+                        לבקש הצטרפות לקבוצה זו.
+                    </p>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => void handleCancelRequest()}
+                        disabled={cancelling}
+                    >
+                        {cancelling ? 'מבטל…' : 'בטל בקשת הקמת קבוצה'}
+                    </button>
+                    {joinMsg && (
+                        <p className="small text-muted mt-2 mb-0" role="status" aria-live="polite">
+                            {joinMsg}
+                        </p>
+                    )}
+                </div>
+            )}
+
+            {pendingJoin && !onRoster && !isOwner && (
+                <div className="small text-warning mb-2">
+                    <p className="mb-2">
+                        בקשת הצטרפות לקבוצה #{pendingJoin.teamId} בתהליך
+                        {pendingJoin.status === 'owner_approved'
+                            ? ' (אושרה על ידי הבעלים, ממתין למנהל)'
+                            : ' (ממתין לאישור בעלים)'}
+                        . הזן מספר חשבונית בפרופיל.
+                    </p>
+                    <button
+                        type="button"
+                        className="btn btn-sm btn-outline-danger"
+                        onClick={() => void handleCancelRequest()}
+                        disabled={cancelling}
+                    >
+                        {cancelling ? 'מבטל…' : 'בטל בקשת הצטרפות'}
                     </button>
                     {joinMsg && (
                         <p className="small text-muted mt-2 mb-0" role="status" aria-live="polite">

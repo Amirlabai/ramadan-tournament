@@ -1,0 +1,107 @@
+member_id,team_id,season_id,user_id,first_name,last_name,nickname,number,position,squad_role,is_captain,head_photo,pending_head_photo,bio,personal_id_enc,birth_year,active,created_at
+100,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אנדי,שובש,SHOBASH,1,שוער,,f,assets/images/players/heads/100.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+106,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,חמזה,לבאי,LABAY,4,הגנה,,f,assets/images/players/heads/106.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+110,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,טום,לאוז,LAOZ,5,הגנה,,f,assets/images/players/heads/110.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+107,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סינאל,שווג,SHVEG,10,הגנה,,f,assets/images/players/heads/107.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+103,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אנדי,לאוז,KALIBER,13,הגנה,,f,assets/images/players/heads/103.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+109,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עבד,שוגן,SHOGAN,14,הגנה,,f,assets/images/players/heads/109.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+108,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נוח,שמסי,SHAMSI,19,התקפה,,f,assets/images/players/heads/108.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+105,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נאתי,גרכד,GERHAD,30,התקפה,,f,assets/images/players/heads/105.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+104,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,שמסי,SHAMSI,44,קישור,,t,assets/images/players/heads/104.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+101,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,הרון,שמסי,SHAMSI,77,התקפה,,f,assets/images/players/heads/101.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+102,1,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עלי,שפסו,SHAPSO,82,התקפה,,f,assets/images/players/heads/102.jpg,,משחק בעד ניגריה,,,t,2026-05-18 18:04:20.982
+111,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יעקוב,אשמוז,Ashmouz,1,שוער,,f,assets/images/players/heads/111.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+113,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סאוו,חאכו,Hako,3,בלם,,f,assets/images/players/heads/113.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+115,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,נתכו,Natkho,4,בלם,,f,assets/images/players/heads/115.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+116,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יחיא,שוגן,Shogan,8,חלוץ,,f,assets/images/players/heads/116.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+118,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נארת,נפסו,NART,10,קשר,,f,assets/images/players/heads/118.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+117,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יחיא,חוראן,Khoranov,11,קשר,,f,assets/images/players/heads/117.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+112,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,איברהים,צוסחא,Mu3jeza,14,קשר אחורי,,t,assets/images/players/heads/112.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+114,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,וואס,שובש,$hoBash,17,קשר,,f,assets/images/players/heads/114.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+120,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,וואס,נפסו,Diddy,69,בלם,,f,assets/images/players/heads/120.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+119,2,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עומר,חזלט,gezee,89,חלוץ,,f,assets/images/players/heads/119.jpg,,משחק בעד kazan,,,t,2026-05-18 18:04:21.588
+121,3,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,בילאל,חאכו,Haco,9,בלם,,f,assets/images/players/heads/121.jpg,,משחק בעד Kazan,,,t,2026-05-18 18:04:22.018
+125,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,הארון,פייסל,פייסל,2,מחמם ספסל,,f,assets/images/players/heads/125.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+131,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עות'מאן,שוגן,שוגן,3,מחמם ספסל,,f,assets/images/players/heads/131.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+132,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,תאיימז,נאפסו,נאפסו,5,מחמם ספסל,,f,assets/images/players/heads/132.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+126,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יוסף,הזאר,הזאר,7,מחמם ספסל,,f,assets/images/players/heads/126.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+135,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נורדין,שומאף,שומאף,9,מחמם ספסל,,f,assets/images/players/heads/135.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+128,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נורדין,שמסי,שמסי,10,מחמם ספסל,,f,assets/images/players/heads/128.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+130,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סאם,תחאוכו,תחאוכו,11,מחמם ספסל,,f,assets/images/players/heads/130.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+124,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אסלאן,נאש,נאש,17,מחמם ספסל,,f,assets/images/players/heads/124.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+127,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נור,חתוקאי,חתוקאי,21,מחמם ספסל,,f,assets/images/players/heads/127.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+129,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סאם,לבאי,לבאי,22,מחמם ספסל,,f,assets/images/players/heads/129.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+123,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אסלאם,סגס,סגס,25,מחמם ספסל,,f,assets/images/players/heads/123.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+133,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יוסף,שוגן,שוגן,30,מחמם ספסל,,f,assets/images/players/heads/133.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+134,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נארת,שומאף,שומאף,41,מחמם ספסל,,f,assets/images/players/heads/134.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+122,4,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,איסמאעיל,שוגן,שוגן,55,מחמם ספסל,,t,assets/images/players/heads/122.jpg,,משחק בעד Dar al fajir Fc,,,t,2026-05-18 18:04:22.441
+136,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נאלבי,נפסו,Nalby,1,שוער,,f,assets/images/players/heads/136.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+144,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ארמבי,נאש,Bay,3,בלם,,f,assets/images/players/heads/144.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+143,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אנדי,צוסחה,Chosha,4,בלם,,f,assets/images/players/heads/143.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+138,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ביברס,סגס,Sagas,6,קשר אמצע,,f,assets/images/players/heads/138.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+141,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אנדי,לבאי,Andy,8,בלם,,f,assets/images/players/heads/141.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+137,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אדם,תחאוכה,Tehaowkha,9,קשר אמצע,,t,assets/images/players/heads/137.jpg,,אין דבר כזה כישלון יש רק דרך צעדים להצלחה,,,t,2026-05-18 18:04:22.865
+139,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דניאל,צוסחה,Dani,10,חלוץ,,f,assets/images/players/heads/139.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+142,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,הילאל,אבגאנה,Branov,11,מגן/כנף,,f,assets/images/players/heads/142.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+140,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,בכר,נאפסו,Bkr,38,מגן/כנף,,f,assets/images/players/heads/140.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+145,5,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סלים,חתוקאי,Soli,69,קשר אחורי,,f,assets/images/players/heads/145.jpg,,משחק בעד המוסד לביטוח לאומי,,,t,2026-05-18 18:04:22.865
+153,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נורדין,גרכד,Gerchad,2,בלם,,f,assets/images/players/heads/153.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+157,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,חורשיד,Horshed,3,קשר,,f,assets/images/players/heads/157.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+147,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נור,נאש,epstein,4,מגן תוקף,,t,assets/images/players/heads/147.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+159,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אידריס,חדיש,Hadish,5,בלם,,f,assets/images/players/heads/159.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+160,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סינאל,שובש,Shobash,6,קשר,,f,assets/images/players/heads/160.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+149,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,איידין,אשמוז,Ashmoz,7,חלוץ,,f,assets/images/players/heads/149.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+151,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,שובש,Fazy,8,קשר,,f,assets/images/players/heads/151.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+152,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עומר,חתוקאי,Malmol,9,חלוץ אגדי,,f,assets/images/players/heads/152.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+150,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,מתין,חורשיד,Horshid JR,10,חלוץ,,f,assets/images/players/heads/150.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+158,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נול,אשמוז,Zizo,11,בלם,,f,assets/images/players/heads/158.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+148,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,מוחמד,צוסחה,Chosha,12,קשר,,f,assets/images/players/heads/148.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+146,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,מוחמד,ג'נדר,Gander Bey,17,שוער,,f,assets/images/players/heads/146.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+156,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,מאף,חואג,Khwaj,21,קשר,,f,assets/images/players/heads/156.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+155,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אידריס,חתוקאי,Hatrap,23,חלוץ,,f,assets/images/players/heads/155.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+154,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,חזמה,שמסי,Shamsi,47,שוער/ שחקן,,f,assets/images/players/heads/154.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+161,6,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,אשמוז,ashmouz,70,בלם,,f,assets/images/players/heads/161.jpg,,משחק בעד ביתר רוסייפה,,,t,2026-05-18 18:04:23.224
+164,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דין,נאפסו,napso,2,מגן,,f,assets/images/players/heads/164.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+172,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,סינאל,בושנק,Boshnak,5,מחמם ספסל,,f,assets/images/players/heads/172.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+167,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ווסלי,תחאוכו,wesly,6,קשר,,f,assets/images/players/heads/167.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+165,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נוח,סגס,sagas,8,בלם,,f,assets/images/players/heads/165.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+166,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נארת,חאכו,pedro,9,חלוץ,,f,assets/images/players/heads/166.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+170,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,תומאס,אשמוז,thomas,10,קשר,,f,assets/images/players/heads/170.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+163,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,גרכד,garhad,11,בלם,,f,assets/images/players/heads/163.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+162,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ירין,חתוקאי,hatokay,15,קשר,,t,assets/images/players/heads/162.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+169,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אנדי,תחאוכו,thawcho,17,בלם,,f,assets/images/players/heads/169.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+171,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יוסף,לבאי,itay,67,מגן,,f,assets/images/players/heads/171.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+168,7,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אסלן,נאתכו,natho,99,חלוץ,,f,assets/images/players/heads/168.jpg,,משחק בעד שישי בקטנה,,,t,2026-05-18 18:04:23.659
+179,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,Hatokaia,"",Hatokaia,2,מחמם ספסל,,f,assets/images/players/heads/179.jpg,,משחק בעד ספטרק נאלציק,,,t,2026-05-18 18:04:24.019
+178,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,Lt.,Aldo Raine,Lt. Aldo Raine,3,הכל,,f,assets/images/players/heads/178.jpg,,גמור,,,t,2026-05-18 18:04:24.019
+182,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ווסלי,שפסו,Vasilies,4,מאמן/שחקן,,f,assets/images/players/heads/182.jpg,,שיא,,,t,2026-05-18 18:04:24.019
+183,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,תאופיק,חטוקאי,Tofo,7,מחמם ספסל,,f,assets/images/players/heads/183.jpg,,משחק בעד ספטרק נאלציק,,,t,2026-05-18 18:04:24.019
+176,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,Ashmoz,"",Ashmoz,8,מחמם ספסל,,f,assets/images/players/heads/176.jpg,,משחק בעד ספטרק נאלציק,,,t,2026-05-18 18:04:24.019
+175,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יאן,תחאוכו,Thawko,9,חלוץ,,t,assets/images/players/heads/175.jpg,,קאמבק,,,t,2026-05-18 18:04:24.019
+184,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,מתן,נאבסו,Matthew,10,מחמם ספסל,,f,assets/images/players/heads/184.jpg,,משחק בעד ספטרק נאלציק,,,t,2026-05-18 18:04:24.019
+180,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נוח,לאויז,Lawiz,14,מגן,,f,assets/images/players/heads/180.jpg,,בכושר שיא,,,t,2026-05-18 18:04:24.019
+177,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דין,אבזח,Abzah,20,הכל,,f,assets/images/players/heads/177.jpg,,הזיות,,,t,2026-05-18 18:04:24.019
+181,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דין,אשמוז,Ashmoz,77,כנפיים,,f,assets/images/players/heads/181.jpg,,עולמי,,,t,2026-05-18 18:04:24.019
+173,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עומר,חתוקאי,Hatukay,94,שוער,,f,assets/images/players/heads/173.jpg,,מתלמד,,,t,2026-05-18 18:04:24.019
+174,8,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ירין,אשמוז,Yarin,99,קשר,,f,assets/images/players/heads/174.jpg,,בכושר שיא,,,t,2026-05-18 18:04:24.019
+185,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ינאל,בזדוג,Bazdog,1,שוער,,f,assets/images/players/heads/185.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+192,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,וואס,נפסו,Wass,4,מגן,,f,assets/images/players/heads/192.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+187,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,טארק,שמסי,Shamsi,7,חלוץ,,f,assets/images/players/heads/187.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+189,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נפן,גוש,Gosh,11,קשר,,f,assets/images/players/heads/189.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+188,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עלי,נבסו,Napso,39,קשר,,t,assets/images/players/heads/188.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+193,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,שאן,לאוז,Laoz,66,מגן,,f,assets/images/players/heads/193.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+191,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,יוסף,אשמוז,Mogli,67,מגן,,f,assets/images/players/heads/191.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+190,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ינאל,שווג,Shveg,77,מגן,,f,assets/images/players/heads/190.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+186,9,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דאוד,חתוקאי,Coach,99,חלוץ,,f,assets/images/players/heads/186.jpg,,משחק בעד Fc ילדים,,,t,2026-05-18 18:04:24.506
+195,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אדם,שהין,ADAM,2,קשר,,t,assets/images/players/heads/195.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+194,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נאל,תעלו,NAL,4,שוער,,f,assets/images/players/heads/194.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+197,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,ריאן,טקסס,TEXAS,8,חלוץ,,f,assets/images/players/heads/197.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+200,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,נארת,שובש,SHOBASH,9,בלם,,f,assets/images/players/heads/200.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+196,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,דין,יעקוב,DEAN,11,בלם,,f,assets/images/players/heads/196.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+201,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אדם,גרכד,GARHAD,12,חלוץ,,f,assets/images/players/heads/201.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+202,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,עלי,תחאוכו,THAWKO,19,חלוץ,,f,assets/images/players/heads/202.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+203,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,שאן,גרכד,SHAN,20,קשר,,f,assets/images/players/heads/203.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+204,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אסא,נאש,NASH,26,בלם,,f,assets/images/players/heads/204.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+198,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,אדם,לאוז,LAOZ,31,קשר,,f,assets/images/players/heads/198.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+199,10,62c19bea-94b2-418e-8cc4-79dd9c67eae8,,הרון,בזדוג,PONZI,666,חלוץ,,f,assets/images/players/heads/199.jpg,,משחק בעד הפטישים,,,t,2026-05-18 18:04:24.92
+205,11,62c19bea-94b2-418e-8cc4-79dd9c67eae8,501142eb-7aff-42a1-b7f2-0dfb83d7732f,Amir,Labai,Amir Labai,1,"",captain,t,,,"",,,t,2026-06-24 19:13:58.876

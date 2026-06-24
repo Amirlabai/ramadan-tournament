@@ -9,8 +9,8 @@
 ## Architecture
 - **Monorepo**: `client`, `server`, `data/`, `.incoming/` (PRD and drops).
 - **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Legacy controllers use thin Mongoose-shaped adapters over Prisma.
-- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`).
-- **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`) and fetching external alarm data periodically (`fetch_alarms.py`).
+- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`). For a **clean tournament start** (no teams/players/matches), use `npm run db:fresh` instead of `db:seed`.
+- **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`), backing up Postgres to CSV (`backup_postgres.py` → `archive/postgres/`), and fetching external alarm data periodically (`fetch_alarms.py`). Treat `archive/postgres/` as sensitive (PII in user/player exports); do not publish or share publicly without redaction.
 
 ## Environment variables (who needs what)
 
@@ -80,12 +80,31 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 **Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) (req→file map, open gaps, smoke commands). Formal stakeholder RTM: `Review/phase-1.5-rtm-qa-may-2026.md` (may lag code).
 
 ## Current Focus
-- **Phase 2 (May 2026):** Tournament registration via `RegistrationService` — `season_registrations`, `invoice_codes` (admin assign + user redeem, Redis rate limit), `team_*_requests`, `active_division`, owner join review. APIs: `/api/users/registration`, `/api/users/redeem-invoice`, `/api/teams/creation-request`, `/:id/join-request`, admin `/api/admin/workflows`. UI: Profile invoice cards, Admin → סגל ורישום → `RegistrationWorkflowAdmin`, Teams join button.
+- **Phase 2 (May 2026):** Tournament registration via `RegistrationService` — `season_registrations`, `invoice_codes` (admin assign + user redeem, Redis rate limit), `team_*_requests`, `active_division`, owner join review. APIs: `/api/users/registration`, `/api/users/redeem-invoice`, `/api/users/cancel-registration-request`, `/api/teams/creation-request`, `/:id/join-request`, admin `/api/admin/workflows`. **One pending request per user per season** (join *or* team creation); both require invoice redeem before admin final approval. UI: Profile invoice cards + cancel, Teams join/creation actions, Admin → סגל ורישום → `RegistrationWorkflowAdmin`.
 - **Phase 1.5:** Girls read/write scaffold; division-scoped news/teams/archive.
 - **Legacy (shrinking):** `mappedPlayerInfo` / Captain still in old admin mapping UI; `/users/map-player` returns 410; roster hydration merges Prisma `players` into `/auth/me`.
 - **Deploy:** Push API + client for Phase 2; ensure `REDIS_URL` on Render for invoice lockout.
 
+## Fresh tournament start (June 2026)
+
+Operational workflow when resetting for a new season:
+
+1. **`npm run db:fresh`** (from `server/`) — wipes all data; creates active boys season + env admin only. Remote Postgres requires `--yes`.
+2. **Promote admins** — Admin → **משתמשים**: search by email/name, grant `admin`. Changed user must **re-login** for JWT role to update.
+3. **Teams** — via registration workflow (join / team creation + invoice redeem + admin approval).
+4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams; placeholder Jerusalem times (default 2 matches/day at 18:00, 20:00). Use `--dry-run` to preview, `--replace` to regenerate.
+5. **Fix schedule** — Admin → ניהול משחקים: edit date/time per match.
+
+Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/src/scripts/generate-group-fixtures.ts`](server/src/scripts/generate-group-fixtures.ts). Demo data still available via `npm run db:seed` (loads `data/*.json`). Full CLI reference: [`server/README.md`](server/README.md#database-scripts).
+
+**Admin role API** (also available in UI → משתמשים):
+- `GET /api/admin/users?q=` — search users (min 2 chars)
+- `PATCH /api/admin/users/:id/role` — `{ "role": "admin" | "user" }`
+
+**Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
+
 ## Recent Changes
+- **June 2026 — Fresh season tooling:** `db:fresh` (empty seed), `fixtures:generate` (round-robin CLI), Admin **משתמשים** tab + `GET/PATCH /api/admin/users` for role management. Documented in `context.md` and `server/README.md`.
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
 - **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [review/world-cup-phase.md](review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.

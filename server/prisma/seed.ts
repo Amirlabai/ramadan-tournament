@@ -1,8 +1,14 @@
-import { PrismaClient, Division, ScoringMode, MatchPhase, NewsPriority } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import { PrismaClient, MatchPhase, NewsPriority } from '@prisma/client';
 import * as fs from 'fs';
 import * as path from 'path';
 import { loadServerEnvFromCwd } from '../src/config/loadServerEnv';
+import { wipeDatabase } from './wipeDatabase';
+import {
+  createAdminUser,
+  createBoysSeason,
+  parseJerusalemDate,
+  seedBannedWords,
+} from './seedHelpers';
 
 loadServerEnvFromCwd();
 
@@ -27,61 +33,17 @@ function resolveDataDir(): string {
 
 const dataDir = resolveDataDir();
 
-function parseJerusalemDate(dateStr: string): Date {
-  return new Date(`${dateStr}T12:00:00+02:00`);
-}
-
 async function main() {
   console.log('Seeding database...');
 
-  // Order matters: Vote.team uses onDelete SetNull on (seasonId, teamId) — delete votes before teams.
-  await prisma.$transaction([
-    prisma.goal.deleteMany(),
-    prisma.comment.deleteMany(),
-    prisma.bracketSlot.deleteMany(),
-    prisma.match.deleteMany(),
-    prisma.vote.deleteMany(),
-    prisma.pointEntry.deleteMany(),
-    prisma.teamJoinRequest.deleteMany(),
-    prisma.teamTransferRequest.deleteMany(),
-    prisma.player.deleteMany(),
-    prisma.team.deleteMany(),
-    prisma.news.deleteMany(),
-    prisma.statsSnapshot.deleteMany(),
-    prisma.teamCreationRequest.deleteMany(),
-    prisma.invoiceCode.deleteMany(),
-    prisma.seasonRegistration.deleteMany(),
-    prisma.seasonArchive.deleteMany(),
-    prisma.season.deleteMany(),
-    prisma.bannedWord.deleteMany(),
-    prisma.user.deleteMany(),
-  ]);
+  await wipeDatabase(prisma);
 
-  const boysSeason = await prisma.season.create({
-    data: {
-      yearMonth: '2026-02',
-      division: Division.boys,
-      displayName: 'טורניר כדורגל רמדאן 2026',
-      scoringMode: ScoringMode.football,
-      isActive: true,
-    },
+  const boysSeason = await createBoysSeason(prisma, {
+    yearMonth: '2026-02',
+    displayName: 'טורניר כדורגל רמדאן 2026',
   });
 
-  const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
-  if (!process.env.ADMIN_PASSWORD) {
-    console.warn('ADMIN_PASSWORD not set — using default admin123 for local seed only');
-  }
-  const hashedPassword = await bcrypt.hash(adminPassword, 10);
-  await prisma.user.create({
-    data: {
-      username: adminUsername,
-      password: hashedPassword,
-      displayName: 'Admin',
-      role: 'admin',
-      isVerified: true,
-    },
-  });
+  const adminUsername = await createAdminUser(prisma);
   console.log(`Admin user: ${adminUsername}`);
 
   const teamsData = JSON.parse(fs.readFileSync(path.join(dataDir, 'teams.json'), 'utf-8'));
@@ -187,10 +149,7 @@ async function main() {
     console.log(`Bracket slots: ${slots.length} (${linked} linked to matches)`);
   }
 
-  const bannedSeed = ['spam', 'test'];
-  for (const word of bannedSeed) {
-    await prisma.bannedWord.create({ data: { word: word.toLowerCase(), language: 'en' } });
-  }
+  await seedBannedWords(prisma);
 
   console.log('Seed complete.');
 }

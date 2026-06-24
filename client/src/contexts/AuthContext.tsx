@@ -16,6 +16,8 @@ export interface TournamentRegistrationSummary {
     division: string;
     status: string;
     activeDivision?: string | null;
+    pendingJoin?: { id: string; teamId: number; status: string } | null;
+    pendingCreation?: { id: string; teamName: string; status: string } | null;
     onRoster?: { teamId: number; memberId: number } | null;
     ownedTeamId?: number | null;
 }

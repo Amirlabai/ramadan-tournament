@@ -40,7 +40,9 @@
 | Cross-division lock | `RegistrationService.lockActiveDivision` / `assertDivisionAccess` |
 | Legacy roster (retire) | `mappedPlayerInfo` in `Profile.tsx`, `AuthContext.tsx`, `RosterManager.tsx`, `Dashboard.tsx` |
 | MVP votes | `voteController.ts` — still `playerMemberId` only; PRD girls = `team_id` |
-| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts` |
+| Schema / seed | `prisma/schema.prisma`, `prisma/seed.ts`, `prisma/seed-empty.ts` |
+| Fresh season + fixtures | `npm run db:fresh`, `src/scripts/generate-group-fixtures.ts` — see `context.md` § Fresh tournament start |
+| Admin user roles | `AdminUserService.ts`, `GET/PATCH /api/admin/users`, AdminPanel tab **משתמשים** |
 
 ---
 
@@ -68,7 +70,15 @@ curl.exe -s https://ramadan-tournament-api.onrender.com/api/health
 # UI-only: client/.env VITE_API_URL → prod API, npm run dev in client
 ```
 
-**Do not** run `db:seed` on production unless wiping is intended.
+**Do not** run `db:seed` or `db:fresh` on production unless wiping is intended. Remote DB requires `--yes`.
+
+```powershell
+# Fresh season (local)
+cd server; npm run db:fresh
+
+# Preview fixtures (needs 2+ active teams)
+npm run fixtures:generate -- --start-date 2026-07-01 --dry-run
+```
 
 ---
 
