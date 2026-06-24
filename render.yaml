@@ -23,7 +23,7 @@ services:
       - key: WORLD_CUP_ENABLED
         value: "true"
       - key: WORLD_CUP_ONLY
-        value: "true"
+        value: "false"
       - key: FOOTBALL_DATA_API_KEY
         sync: false
       - key: FOOTBALL_DATA_SEASON
