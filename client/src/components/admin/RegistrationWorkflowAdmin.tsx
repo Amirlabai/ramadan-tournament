@@ -20,6 +20,7 @@ interface AwaitingInvoiceRow {
     pendingTeamName?: string | null;
     joinStatus?: string | null;
     hasUnredeemedCode?: boolean;
+    assignedInvoiceNumber?: string | null;
 }
 
 interface SearchUserRow {
@@ -28,6 +29,7 @@ interface SearchUserRow {
     email: string | null;
     registrationStatus: string;
     hasUnredeemedCode: boolean;
+    assignedInvoiceNumber?: string | null;
 }
 
 interface WorkflowData {
@@ -212,13 +214,17 @@ export default function RegistrationWorkflowAdmin() {
         user: WorkflowUser;
         hasUnredeemedCode?: boolean;
         registrationStatus?: string;
+        status?: string;
+        assignedInvoiceNumber?: string | null;
     }) => {
         const { user } = row;
+        const regStatus = row.registrationStatus ?? row.status;
 
         const isCorrection =
-            row.hasUnredeemedCode || row.registrationStatus === 'invoice_assigned';
-        const isVerifyOnly = row.registrationStatus === 'active';
-        const value = invoiceInputs[user.id] ?? '';
+            row.hasUnredeemedCode || regStatus === 'invoice_assigned';
+        const isVerifyOnly = regStatus === 'active';
+        const value =
+            invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
 
         return (
             <div className="d-flex flex-column gap-1">
@@ -408,6 +414,7 @@ export default function RegistrationWorkflowAdmin() {
                                                         },
                                                         hasUnredeemedCode: u.hasUnredeemedCode,
                                                         registrationStatus: u.registrationStatus,
+                                                        assignedInvoiceNumber: u.assignedInvoiceNumber,
                                                     })}
                                                 </td>
                                             </tr>

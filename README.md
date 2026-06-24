@@ -148,10 +148,13 @@ Access the admin panel → Comment Management tab to:
 
 #### Syncing Photos to Local
 If your local or production environment is missing player photos, use the sync tool:
-```bash
-python sync_photos.py
+
+```powershell
+# One-time: python -m venv .venv; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe sync_photos.py
 ```
-Requires `requests`, `python-dotenv`, and optionally `psycopg2-binary` (for user avatars via `DATABASE_URL`).
+
+Loads `server/.env` for `DATABASE_URL` and `VITE_API_URL` when present.
 
 ## Stats Automation & AI (Node.js Service)
 

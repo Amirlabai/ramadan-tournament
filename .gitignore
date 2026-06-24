@@ -4,10 +4,14 @@ status.md
 exgemini.md
 
 
+# IDE / editor (local Cursor config)
+.cursor/
+
 # Dependencies
 node_modules/
 server/node_modules
 client/node_modules
+.venv/
 
 # Build outputs
 server/dist
@@ -24,3 +28,4 @@ client/.env
 !server/.env.example
 !client/.env.example
 generate_message - Copy.py
+__pycache__/
