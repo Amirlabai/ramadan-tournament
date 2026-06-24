@@ -44,10 +44,11 @@ export const config = {
   },
 };
 
-/** API serves only /api/worldcup/* — no Postgres, Redis optional (in-memory cache). */
+/** WC-only when no Postgres URL — DATABASE_URL always wins over WORLD_CUP_ONLY. */
 export const worldCupStandalone =
   !config.mockDevData &&
-  (config.worldCupOnly || (config.worldCupEnabled && !config.databaseUrl));
+  !config.databaseUrl &&
+  (config.worldCupOnly || config.worldCupEnabled);
 
 if (!config.mockDevData && !worldCupStandalone && !config.databaseUrl) {
   throw new Error('DATABASE_URL is required (or set MOCK_DEV_DATA=1 for local JSON mock)');

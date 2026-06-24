@@ -2,8 +2,13 @@ export const worldCupEnabled =
   import.meta.env.VITE_WORLD_CUP_ENABLED === 'true' ||
   import.meta.env.VITE_WORLD_CUP_ENABLED === '1';
 
+const dualTournament =
+  import.meta.env.VITE_DUAL_TOURNAMENT === 'true' ||
+  import.meta.env.VITE_DUAL_TOURNAMENT === '1';
+
 /** When true, hide local boys/girls tournaments and redirect legacy routes to /world-cup/* */
 export const worldCupOnly =
+  !dualTournament &&
   worldCupEnabled &&
   (import.meta.env.VITE_WORLD_CUP_ONLY === 'true' ||
     import.meta.env.VITE_WORLD_CUP_ONLY === '1');
