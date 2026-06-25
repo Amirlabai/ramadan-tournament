@@ -1,2 +1,2 @@
-id,user_id,season_id,division,status,redeemed_at,created_at,updated_at
-80d6679c-9eac-4b36-8c06-e239890d709c,501142eb-7aff-42a1-b7f2-0dfb83d7732f,62c19bea-94b2-418e-8cc4-79dd9c67eae8,boys,join_pending,,2026-06-24 19:12:25.071,2026-06-24 19:13:42.008
+id,user_id,season_id,division,status,redeemed_at,created_at,updated_at,invoice_alert
+9afac294-f2f4-4c4f-bfce-00b46a74e947,780acbbd-088a-46aa-978f-589d53a8d503,eb19f900-c99f-486f-8930-6b56a74293d6,boys,active,2026-06-24 20:59:12.19,2026-06-24 20:59:12.195,2026-06-24 20:59:12.195,

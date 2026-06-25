@@ -1,1 +1,2 @@
-id,season_id,code_hash,assigned_user_id,created_by_id,redeemed_at,created_at
+id,season_id,assigned_user_id,created_by_id,redeemed_at,created_at
+3124e130-32e7-4553-8247-cb4e5fd67576,eb19f900-c99f-486f-8930-6b56a74293d6,780acbbd-088a-46aa-978f-589d53a8d503,,2026-06-24 20:59:12.19,2026-06-24 20:59:12.192
