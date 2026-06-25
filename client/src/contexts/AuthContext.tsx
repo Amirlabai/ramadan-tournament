@@ -51,7 +51,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 function mapUser(data: Record<string, unknown>): User {
     return {
-        id: (data.id ?? data._id) as string,
+        id: data.id as string,
         username: data.username as string | undefined,
         email: data.email as string | undefined,
         displayName: data.displayName as string,

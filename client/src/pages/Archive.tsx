@@ -4,7 +4,7 @@ import SEO from '../components/SEO';
 import './Archive.tsx.css';
 
 interface SeasonMetadata {
-  _id: string;
+  id: string;
   yearMonth: string;
   displayName: string;
   winner: {

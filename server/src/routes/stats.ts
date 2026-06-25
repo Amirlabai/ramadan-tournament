@@ -1,5 +1,8 @@
 import { Router } from 'express';
 import { getStandings, getTopScorers, getPlayerStats, getDashboard } from '../controllers/statsController';
+import { Match } from '../models/Match';
+import { Team } from '../models/Team';
+import { countUnplayedGroupMatches } from '../repositories/matchQueryRepository';
 
 const router = Router();
 
@@ -10,13 +13,7 @@ router.get('/player-stats', getPlayerStats);
 router.get('/dashboard', getDashboard);
 router.get('/playoffs', async (req, res) => {
     try {
-        const { Match } = require('../models/Match');
-        const { Team } = require('../models/Team');
-
-        const unplayedGroupMatches = await Match.countDocuments({ 
-            phase: 'group',
-            $or: [{ score1: null }, { score2: null }]
-        });
+        const unplayedGroupMatches = await countUnplayedGroupMatches();
 
         if (unplayedGroupMatches > 0) {
             return res.json([]);
@@ -24,16 +21,20 @@ router.get('/playoffs', async (req, res) => {
 
         const matches = await Match.find({ phase: 'knockout' }).sort({ id: 1 });
         const teams = await Team.find().select('id name logoUrl logoPosition');
-        const teamMap = new Map();
-        teams.forEach((t: any) => teamMap.set(t.id, t));
+        const teamMap = new Map<number, { name: string; logoUrl?: string; logoPosition?: string }>();
+        teams.forEach((t) => teamMap.set(t.id, t));
 
-        const enriched = matches.map((m: any) => {
+        const enriched = matches.map((m) => {
             const t1 = teamMap.get(m.team1Id);
             const t2 = teamMap.get(m.team2Id);
             return {
                 ...m.toObject(),
-                team1Name: t1?.name, team1LogoUrl: t1?.logoUrl, team1LogoPosition: t1?.logoPosition,
-                team2Name: t2?.name, team2LogoUrl: t2?.logoUrl, team2LogoPosition: t2?.logoPosition
+                team1Name: t1?.name,
+                team1LogoUrl: t1?.logoUrl,
+                team1LogoPosition: t1?.logoPosition,
+                team2Name: t2?.name,
+                team2LogoUrl: t2?.logoUrl,
+                team2LogoPosition: t2?.logoPosition,
             };
         });
         res.json(enriched);

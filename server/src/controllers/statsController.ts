@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { StatsService } from '../services/StatsService';
 import { News } from '../models/News';
 import { Match } from '../models/Match';
+import { listMatches, countUnplayedGroupMatches, findNextUpcomingMatchDate } from '../repositories/matchQueryRepository';
 import { Team } from '../models/Team';
 
 export const getStandings = async (req: Request, res: Response): Promise<void> => {
@@ -52,15 +53,12 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
         });
 
         // Find the date of the next upcoming match
-        const nextMatchDate = await Match.findOne({ date: { $gte: new Date() } })
-            .sort({ date: 1 })
-            .select('date');
+        const nextDate = await findNextUpcomingMatchDate();
 
         let nextMatches: any[] = [];
 
-        // Fetch all matches for that specific date
-        if (nextMatchDate) {
-            const date = new Date(nextMatchDate.date);
+        if (nextDate) {
+            const date = new Date(nextDate);
 
             // Set start of day in Jerusalem timezone
             // We want to find the UTC timestamp that corresponds to 00:00:00 JLM on that day
@@ -102,32 +100,13 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             const startOfDay = getUtcFromJlm(year, month, day, 0, 0); // 00:00 JLM
             const endOfDay = getUtcFromJlm(year, month, day, 23, 59); // 23:59 JLM
 
-            const rawNextMatches = await Match.aggregate([
-                {
-                    $match: {
-                        date: { $gte: startOfDay, $lte: endOfDay }
-                    }
-                },
-                { $sort: { date: 1 } },
-                {
-                    $lookup: {
-                        from: 'comments',
-                        localField: 'id',
-                        foreignField: 'matchId',
-                        as: 'comments'
-                    }
-                },
-                {
-                    $addFields: {
-                        commentCount: { $size: '$comments' }
-                    }
-                },
-                {
-                    $project: {
-                        comments: 0
-                    }
-                }
-            ]);
+            const rawNextMatches = await listMatches({
+                dateFrom: startOfDay,
+                dateTo: endOfDay,
+                sortField: 'date',
+                sortDirection: 'asc',
+                includeCommentCount: true,
+            });
 
             nextMatches = rawNextMatches.map(match => {
                 const t1 = teamMap.get(match.team1Id);
@@ -144,29 +123,13 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             });
         }
 
-        const recentMatchesWithComments = await Match.aggregate([
-            { $match: { score1: { $ne: null } } },
-            { $sort: { date: -1 } },
-            { $limit: 5 },
-            {
-                $lookup: {
-                    from: 'comments',
-                    localField: 'id',
-                    foreignField: 'matchId',
-                    as: 'comments'
-                }
-            },
-            {
-                $addFields: {
-                    commentCount: { $size: '$comments' }
-                }
-            },
-            {
-                $project: {
-                    comments: 0
-                }
-            }
-        ]);
+        const recentMatchesWithComments = await listMatches({
+            finishedOnly: true,
+            sortField: 'date',
+            sortDirection: 'desc',
+            limit: 5,
+            includeCommentCount: true,
+        });
 
         const enrichedRecentMatches = recentMatchesWithComments.map((match: any) => {
             const t1 = teamMap.get(match.team1Id);
@@ -182,10 +145,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
             };
         });
 
-        const unplayedGroupMatches = await Match.countDocuments({ 
-            phase: 'group',
-            $or: [{ score1: null }, { score2: null }]
-        });
+        const unplayedGroupMatches = await countUnplayedGroupMatches();
 
         const isGroupPhaseComplete = unplayedGroupMatches === 0;
 

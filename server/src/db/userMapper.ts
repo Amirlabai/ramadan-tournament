@@ -25,7 +25,6 @@ export interface IPlayerProfile {
 }
 
 export interface IUser {
-  _id: string;
   id: string;
   username?: string;
   email?: string;
@@ -59,7 +58,6 @@ function mapRoleToDb(role: UserRole): 'admin' | 'user' {
 
 export function prismaUserToIUser(row: PrismaUser): IUser {
   const base: IUser = {
-    _id: row.id,
     id: row.id,
     username: row.username ?? undefined,
     email: row.email ?? undefined,

@@ -163,8 +163,8 @@ const WorldCupSchedule = () => {
             const status = getMatchStatus(match);
             return (
               <div
-                key={match._id}
-                id={`wc-match-${match._id}`}
+                key={match.id}
+                id={`wc-match-${match.id}`}
                 className={`match-card card ${status}`}
               >
                 <span className={`match-status ${status}`}>

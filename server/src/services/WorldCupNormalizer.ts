@@ -31,7 +31,6 @@ export interface FdMatch {
 }
 
 export interface NormalizedMatch {
-  _id: string;
   id: number;
   date: string;
   location: string;
@@ -75,7 +74,6 @@ export interface NormalizedTopScorer {
 }
 
 export interface NormalizedTeam {
-  _id: string;
   id: number;
   name: string;
   logoUrl?: string;
@@ -128,7 +126,6 @@ export function normalizeMatch(raw: FdMatch): NormalizedMatch {
   const score2 = raw.score?.fullTime?.away ?? null;
 
   return {
-    _id: `wc-${raw.id}`,
     id: raw.id,
     date: raw.utcDate,
     location: wcVenue(raw.venue) || '—',
@@ -314,7 +311,6 @@ export function normalizeTeamsResponse(data: {
       };
     });
     return {
-      _id: `wc-team-${t.id}`,
       id: t.id,
       name: wcTeamName(t.name, t.id),
       logoUrl: t.crest || undefined,

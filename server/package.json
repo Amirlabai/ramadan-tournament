@@ -16,6 +16,7 @@
         "db:fresh": "tsx prisma/seed-empty.ts",
         "db:studio": "prisma studio",
         "fixtures:generate": "tsx src/scripts/generate-group-fixtures.ts",
+        "db:sync-banned-words": "tsx src/scripts/syncBannedWords.ts",
         "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts"
     },
     "prisma": {

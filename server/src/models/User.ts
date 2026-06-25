@@ -10,8 +10,11 @@ function buildWhere(query: Record<string, unknown>) {
   if (query.username) where.username = query.username;
   if (query.googleId) where.googleId = query.googleId;
   if (query.verificationToken) where.verificationToken = query.verificationToken;
-  if (query.verificationTokenExpires && typeof query.verificationTokenExpires === 'object') {
-    const gt = (query.verificationTokenExpires as { $gt?: Date }).$gt;
+  if (query.verificationTokenExpiresAfter instanceof Date) {
+    where.verificationTokenExpires = { gt: query.verificationTokenExpiresAfter };
+  } else if (query.verificationTokenExpires && typeof query.verificationTokenExpires === 'object') {
+    const gt = (query.verificationTokenExpires as { gt?: Date; $gt?: Date }).gt
+      ?? (query.verificationTokenExpires as { $gt?: Date }).$gt;
     if (gt) where.verificationTokenExpires = { gt };
   }
   if (query['mappedPlayerInfo.teamId']) where.mappedPlayerInfo = { path: ['teamId'], equals: query['mappedPlayerInfo.teamId'] };
@@ -19,7 +22,6 @@ function buildWhere(query: Record<string, unknown>) {
 }
 
 export class User {
-  _id?: string;
   id?: string;
   username?: string;
   email?: string;
@@ -38,7 +40,6 @@ export class User {
 
   constructor(data: Partial<IUser> & Record<string, unknown>) {
     Object.assign(this, data);
-    if (data._id) this.id = data._id as string;
   }
 
   async save(): Promise<IUser> {
@@ -60,9 +61,9 @@ export class User {
       verificationTokenExpires: this.verificationTokenExpires,
     };
 
-    if (this.id || this._id) {
+    if (this.id) {
       const updated = await prisma.user.update({
-        where: { id: (this.id || this._id) as string },
+        where: { id: this.id },
         data,
       });
       return prismaUserToIUser(updated);
@@ -70,14 +71,13 @@ export class User {
 
     const created = await prisma.user.create({ data });
     const mapped = prismaUserToIUser(created);
-    this._id = mapped._id;
     this.id = mapped.id;
     return mapped;
   }
 
   toObject(): IUser {
     return prismaUserToIUser({
-      id: this.id || this._id || '',
+      id: this.id || '',
       username: this.username ?? null,
       email: this.email ?? null,
       password: this.password ?? null,
@@ -183,52 +183,5 @@ export class User {
 
   static async deleteMany(_filter: Record<string, unknown> = {}) {
     await prisma.user.deleteMany();
-  }
-
-  static async updateMany(filter: Record<string, unknown>, update: Record<string, unknown>): Promise<{ modifiedCount: number }> {
-    let modifiedCount = 0;
-    const rows = await prisma.user.findMany();
-    const set = update.$set as Record<string, unknown> | undefined;
-    for (const row of rows) {
-      const m = row.mappedPlayerInfo as IMappedPlayerInfo | null;
-      if (!m) continue;
-      const filterId = filter._id as { $ne?: string } | undefined;
-      if (filterId?.$ne && row.id === filterId.$ne) continue;
-      if (filter['mappedPlayerInfo.teamId'] != null && m.teamId !== filter['mappedPlayerInfo.teamId']) {
-        continue;
-      }
-      if (
-        filter['mappedPlayerInfo.memberId'] != null &&
-        m.memberId !== filter['mappedPlayerInfo.memberId']
-      ) {
-        continue;
-      }
-      if (filter['mappedPlayerInfo.status'] && m.status !== filter['mappedPlayerInfo.status']) {
-        continue;
-      }
-      if (set?.['mappedPlayerInfo.status']) {
-        m.status = set['mappedPlayerInfo.status'] as IMappedPlayerInfo['status'];
-        await prisma.user.update({
-          where: { id: row.id },
-          data: { mappedPlayerInfo: toInputJson(m) },
-        });
-        modifiedCount++;
-      }
-    }
-    return { modifiedCount };
-  }
-
-  static async updateOne(filter: Record<string, unknown>, update: Record<string, unknown>) {
-    const id = (filter._id || filter.id) as string;
-    if (!id) return;
-    const set = update.$set as Record<string, unknown> | undefined;
-    const unset = update.$unset as Record<string, unknown> | undefined;
-    const data: Record<string, unknown> = { ...set };
-    if (unset) {
-      for (const key of Object.keys(unset)) {
-        data[key] = null;
-      }
-    }
-    await prisma.user.update({ where: { id: String(id) }, data: data as any });
   }
 }

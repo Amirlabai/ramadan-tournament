@@ -52,8 +52,6 @@ export interface ITeam {
 
   seasonId?: string;
 
-  markModified(_field: string): void;
-
   save(): Promise<ITeam>;
 
   toObject(): ITeam;
@@ -119,8 +117,6 @@ function mapTeam(row: any, players: any[]): ITeam {
     seasonId: row.seasonId,
 
     players: players.map(mapPlayer),
-
-    markModified() {},
 
     async save() {
 
@@ -476,10 +472,6 @@ export class Team {
     Object.assign(this, data);
 
   }
-
-
-
-  markModified(_field: string) {}
 
 
 

@@ -130,7 +130,7 @@ const WorldCupTeams = () => {
           const sections = groupPlayersByPosition(team.players);
 
           return (
-            <article key={team._id} className={`wc-team-card card ${isOpen ? 'is-open' : ''}`}>
+            <article key={team.id} className={`wc-team-card card ${isOpen ? 'is-open' : ''}`}>
               <button
                 type="button"
                 className="wc-team-header btn w-100 border-0 bg-transparent"

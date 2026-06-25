@@ -6,6 +6,14 @@ import path from 'path';
 import fs from 'fs';
 import { TeamDataService } from '../services/TeamDataService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
+import {
+    clearMappingsForDeletedPlayer,
+    clearPlayerProfile,
+    findApprovedClaimedMemberIds,
+    findPendingMappingsForTeam,
+    moveApprovedMappingTeam,
+    rejectOtherPendingMappings,
+} from '../repositories/userMappingRepository';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
@@ -44,19 +52,12 @@ export const getAvailablePlayers = async (req: Request, res: Response): Promise<
         if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
 
         // Get all memberIds that are already approved-claimed
-        const claimedUsers = await User.find({
-            'mappedPlayerInfo.teamId': teamId,
-            'mappedPlayerInfo.status': 'approved',
-            'mappedPlayerInfo.memberId': { $gt: 0 }
-        }).select('mappedPlayerInfo.memberId');
-
-        const claimedMemberIds = new Set(claimedUsers.map(u => u.mappedPlayerInfo!.memberId));
+        const claimedMemberIds = new Set(await findApprovedClaimedMemberIds(teamId));
 
         const available = team.players
             .filter(p => !claimedMemberIds.has(p.memberId))
             .map(p => {
-                const obj = (p as any).toObject();
-                const { personalId, ...rest } = obj;
+                const { personalId, ...rest } = p as typeof p & { personalId?: string };
                 return rest;
             });
 
@@ -73,10 +74,7 @@ export const getTeamRequests = async (req: AuthRequest, res: Response): Promise<
         const teamId = parseInt(req.params.id);
 
         // Find users who have requested to map to this team
-        const pendingUsers = await User.find({
-            'mappedPlayerInfo.teamId': teamId,
-            'mappedPlayerInfo.status': 'pending'
-        }).select('displayName email avatarUrl mappedPlayerInfo');
+        const pendingUsers = await findPendingMappingsForTeam(teamId);
 
         res.json(pendingUsers);
     } catch (error) {
@@ -152,22 +150,14 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
                 }
 
                 // Mark the team array as modified and save
-                teamDoc.markModified('players');
                 await teamDoc.save();
             }
 
-            // Auto reject any other pending requests for the same player (unless it's a brand new custom player that no one else could've requested)
             if (userToUpdate.mappedPlayerInfo.memberId > 0) {
-                await User.updateMany(
-                    {
-                        _id: { $ne: userToUpdate._id },
-                        'mappedPlayerInfo.teamId': teamId,
-                        'mappedPlayerInfo.memberId': userToUpdate.mappedPlayerInfo.memberId,
-                        'mappedPlayerInfo.status': 'pending'
-                    },
-                    {
-                        $set: { 'mappedPlayerInfo.status': 'rejected' }
-                    }
+                await rejectOtherPendingMappings(
+                    userToUpdate.id,
+                    teamId,
+                    userToUpdate.mappedPlayerInfo.memberId,
                 );
             }
         } else if (status === 'rejected') {
@@ -179,12 +169,9 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
 
         await userToUpdate.save();
 
-        // Always forcefully wipe the embedded playerProfile data because the Team record is now the source of truth,
-        // or if rejected, the data shouldn't exist anyway.
-        await User.updateOne({ _id: userToUpdate._id }, { $unset: { playerProfile: "" } });
+        await clearPlayerProfile(userToUpdate.id);
 
-        // Re-fetch the user to return the cleansed data back to the client
-        const cleansedUser = await User.findById(userToUpdate._id);
+        const cleansedUser = await User.findById(userToUpdate.id);
         res.json({ message: `Request ${status} successfully`, user: cleansedUser });
     } catch (error) {
         console.error('Approve team request error:', error);
@@ -366,7 +353,6 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
         };
 
         team.players.push(newPlayer);
-        team.markModified('players');
         await team.save();
 
         res.json({ message: 'שחקן נוסף בהצלחה', player: newPlayer });
@@ -395,14 +381,9 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
         }
 
         team.players.splice(playerIndex, 1);
-        team.markModified('players');
         await team.save();
 
-        // Clear any user mappings pointing to this deleted player so no orphaned accounts remain
-        await User.updateMany(
-            { 'mappedPlayerInfo.teamId': teamId, 'mappedPlayerInfo.memberId': memberId },
-            { $set: { role: 'User' }, $unset: { mappedPlayerInfo: '' } }
-        );
+        await clearMappingsForDeletedPlayer(teamId, memberId);
 
         res.json({ message: 'שחקן נמחק בהצלחה' });
     } catch (error) {
@@ -439,21 +420,14 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
         }
 
         // Capture the player and remove from source
-        const playerObj: any = (sourceTeam.players[playerIndex] as any).toObject();
+        const player = sourceTeam.players[playerIndex];
         sourceTeam.players.splice(playerIndex, 1);
-        sourceTeam.markModified('players');
 
-        // memberIds are globally unique — keep the original ID so match goal records stay intact
-        targetTeam.players.push(playerObj);
-        targetTeam.markModified('players');
+        targetTeam.players.push({ ...player });
 
         await Promise.all([sourceTeam.save(), targetTeam.save()]);
 
-        // Update any approved user mapping to reflect the new team
-        await User.updateMany(
-            { 'mappedPlayerInfo.teamId': sourceTeamId, 'mappedPlayerInfo.memberId': memberId },
-            { $set: { 'mappedPlayerInfo.teamId': parseInt(targetTeamId) } }
-        );
+        await moveApprovedMappingTeam(sourceTeamId, memberId, parseInt(targetTeamId));
 
         res.json({ message: 'שחקן הועבר בהצלחה', memberId });
     } catch (error) {

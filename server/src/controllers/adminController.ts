@@ -163,7 +163,7 @@ export const addBannedWord = async (req: Request, res: Response) => {
         await bannedWord.save();
         res.status(201).json(bannedWord);
     } catch (error: any) {
-        if (error.code === 11000) {
+        if (error.code === 'P2002') {
             return res.status(400).json({ error: 'Word already exists in banned list' });
         }
         console.error('Error adding banned word:', error);
@@ -174,7 +174,7 @@ export const addBannedWord = async (req: Request, res: Response) => {
 export const removeBannedWord = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const result = await BannedWord.findByIdAndDelete(id);
+        const result = await BannedWord.deleteById(id);
 
         if (!result) {
             return res.status(404).json({ error: 'Banned word not found' });
@@ -206,7 +206,7 @@ export const deleteComment = async (req: Request, res: Response) => {
     try {
         const { Comment } = await import('../models/Comment');
         const { id } = req.params;
-        const result = await Comment.findByIdAndDelete(id);
+        const result = await Comment.deleteById(id);
 
         if (!result) {
             return res.status(404).json({ error: 'Comment not found' });

@@ -14,7 +14,7 @@ const Schedule = () => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+    const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
     const location = useLocation();
 
@@ -226,7 +226,7 @@ const Schedule = () => {
                 {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
                     return (
-                        <div key={match._id} className={`match-card card ${status}`}>
+                        <div key={match.id} className={`match-card card ${status}`}>
                             <span className={`match-status ${status}`}>
                                 {status === 'upcoming' ? 'עתיד' : status === 'live' ? 'Live' : 'הסתיים'}
                             </span>
@@ -304,10 +304,10 @@ const Schedule = () => {
                                 <button
                                     type="button"
                                     className="btn-comments"
-                                    aria-expanded={expandedMatchId === match._id}
-                                    onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
+                                    aria-expanded={expandedMatchId === match.id}
+                                    onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
                                 >
-                                    {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
+                                    {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
                                         <>
                                             💬 תגובות
                                             {match.commentCount && match.commentCount > 0 ? (
@@ -320,7 +320,7 @@ const Schedule = () => {
                                 </button>
                             </div>
 
-                            {expandedMatchId === match._id && (
+                            {expandedMatchId === match.id && (
                                 <CommentSection matchId={match.id} />
                             )}
                         </div>

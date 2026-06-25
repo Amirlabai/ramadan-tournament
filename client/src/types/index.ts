@@ -16,7 +16,6 @@ export interface Player {
 }
 
 export interface Team {
-    _id: string;
     id: number;
     name: string;
     players: Player[];
@@ -32,7 +31,6 @@ export interface Goal {
 }
 
 export interface Match {
-    _id: string;
     id: number;
     date: string;
     location: string;
@@ -56,7 +54,6 @@ export interface Match {
 }
 
 export interface News {
-    _id: string;
     id: number;
     title: string;
     message: string;
@@ -109,7 +106,7 @@ export interface MappedPlayerInfo {
 }
 
 export interface User {
-    _id: string;
+    id: string;
     email: string;
     displayName: string;
     role: 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';

@@ -6,7 +6,7 @@ import './CaptainTeamRequests.css';
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 interface PendingUser {
-    _id: string;
+    id: string;
     displayName: string;
     email: string;
     avatarUrl?: string;
@@ -57,7 +57,7 @@ const CaptainTeamRequests = () => {
         try {
             await teamsAPI.approveRequest(captainTeamId, userId, action);
             // Remove the user from the pending list
-            setRequests(prev => prev.filter(req => req._id !== userId));
+            setRequests(prev => prev.filter(req => req.id !== userId));
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה בביצוע הפעולה');
         } finally {
@@ -90,7 +90,7 @@ const CaptainTeamRequests = () => {
                         </thead>
                         <tbody>
                             {requests.map((req) => (
-                                <tr key={req._id}>
+                                <tr key={req.id}>
                                     <td>
                                         <div className="d-flex align-items-center gap-3">
                                             {req.avatarUrl ? (
@@ -112,17 +112,17 @@ const CaptainTeamRequests = () => {
                                         <div className="d-flex gap-2">
                                             <button
                                                 className="btn btn-theme-green btn-sm px-3"
-                                                onClick={() => handleAction(req._id, 'approved')}
+                                                onClick={() => handleAction(req.id, 'approved')}
                                                 disabled={!!actionLoading}
                                             >
-                                                {actionLoading === req._id ? <span className="spinner-border spinner-border-sm" /> : 'אשר'}
+                                                {actionLoading === req.id ? <span className="spinner-border spinner-border-sm" /> : 'אשר'}
                                             </button>
                                             <button
                                                 className="btn btn-secondary btn-sm px-3"
-                                                onClick={() => handleAction(req._id, 'rejected')}
+                                                onClick={() => handleAction(req.id, 'rejected')}
                                                 disabled={!!actionLoading}
                                             >
-                                                {actionLoading === req._id ? <span className="spinner-border spinner-border-sm" /> : 'דחה'}
+                                                {actionLoading === req.id ? <span className="spinner-border spinner-border-sm" /> : 'דחה'}
                                             </button>
                                         </div>
                                     </td>

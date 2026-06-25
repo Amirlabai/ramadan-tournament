@@ -3,7 +3,7 @@ import { commentsAPI } from '../api/client';
 import './CommentSection.css';
 
 interface Comment {
-    _id: string;
+    id: string;
     matchId: number;
     author: string;
     content: string;
@@ -173,7 +173,7 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                     <div className="no-comments">אין עדיין תגובות. היה הראשון להגיב!</div>
                 ) : (
                     comments.map((comment) => (
-                        <div key={comment._id} className="comment-item">
+                        <div key={comment.id} className="comment-item">
                             <div className="comment-header">
                                 <span className="comment-author">{comment.author}</span>
                                 <span className="comment-date">{formatDate(comment.createdAt)}</span>

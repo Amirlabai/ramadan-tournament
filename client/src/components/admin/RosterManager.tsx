@@ -6,7 +6,7 @@ import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
 import './RosterManager.css';
 
 interface TeamRequest {
-    _id: string;
+    id: string;
     displayName: string;
     email?: string;
     avatarUrl?: string;
@@ -19,7 +19,7 @@ interface TeamRequest {
 }
 
 interface MappedUser {
-    _id: string;
+    id: string;
     displayName: string;
     email?: string;
     avatarUrl?: string;
@@ -227,7 +227,7 @@ const RosterManager = () => {
                             </thead>
                             <tbody>
                                 {teamRequests.map(req => (
-                                    <tr key={req._id} className="match-table-row">
+                                    <tr key={req.id} className="match-table-row">
                                         <td>
                                             <div className="d-flex align-items-center gap-2">
                                                 {req.avatarUrl && <img src={req.avatarUrl} alt="" className="avatar-sm" />}
@@ -241,8 +241,8 @@ const RosterManager = () => {
                                         <td className="small text-muted">{req.pendingTeamRequest.description || '—'}</td>
                                         <td>
                                             <div className="d-flex gap-2">
-                                                <button className="btn btn-theme-green btn-sm" disabled={!!actionLoading} onClick={() => handleTeamRequest(req._id, 'approved')}>אשר</button>
-                                                <button className="btn btn-secondary btn-sm" disabled={!!actionLoading} onClick={() => handleTeamRequest(req._id, 'rejected')}>דחה</button>
+                                                <button className="btn btn-theme-green btn-sm" disabled={!!actionLoading} onClick={() => handleTeamRequest(req.id, 'approved')}>אשר</button>
+                                                <button className="btn btn-secondary btn-sm" disabled={!!actionLoading} onClick={() => handleTeamRequest(req.id, 'rejected')}>דחה</button>
                                             </div>
                                         </td>
                                     </tr>
@@ -271,7 +271,7 @@ const RosterManager = () => {
                             </thead>
                             <tbody>
                                 {pendingMappings.map(u => (
-                                    <tr key={u._id} className="match-table-row">
+                                    <tr key={u.id} className="match-table-row">
                                         <td>
                                             <div className="d-flex align-items-center gap-2">
                                                 {u.avatarUrl && <img src={u.avatarUrl} alt="" className="avatar-sm" />}
@@ -288,15 +288,15 @@ const RosterManager = () => {
                                         <td>
                                             <div className="d-flex gap-2">
                                                 <button className="btn btn-theme-green btn-sm" disabled={!!actionLoading}
-                                                    onClick={() => handleMappingAction(u._id, u.mappedPlayerInfo.teamId, 'approved', 'Player')}>
+                                                    onClick={() => handleMappingAction(u.id, u.mappedPlayerInfo.teamId, 'approved', 'Player')}>
                                                     אשר כשחקן
                                                 </button>
                                                 <button className="btn btn-warning btn-sm" disabled={!!actionLoading}
-                                                    onClick={() => handleMappingAction(u._id, u.mappedPlayerInfo.teamId, 'approved', 'Captain')}>
+                                                    onClick={() => handleMappingAction(u.id, u.mappedPlayerInfo.teamId, 'approved', 'Captain')}>
                                                     אשר כקפטן
                                                 </button>
                                                 <button className="btn btn-secondary btn-sm" disabled={!!actionLoading}
-                                                    onClick={() => handleMappingAction(u._id, u.mappedPlayerInfo.teamId, 'rejected', 'User')}>
+                                                    onClick={() => handleMappingAction(u.id, u.mappedPlayerInfo.teamId, 'rejected', 'User')}>
                                                     דחה
                                                 </button>
                                             </div>
@@ -484,7 +484,7 @@ const RosterManager = () => {
                                                                         onClick={(e) => {
                                                                             e.stopPropagation();
                                                                             if (confirm(`האם לנתק את השיוך של ${mappedUser.displayName} משחקן זה? המשתמש יחזור לדרגת 'User'.`)) {
-                                                                                handleMappingAction(mappedUser._id, team.id, 'rejected', 'User');
+                                                                                handleMappingAction(mappedUser.id, team.id, 'rejected', 'User');
                                                                             }
                                                                         }}
                                                                     >

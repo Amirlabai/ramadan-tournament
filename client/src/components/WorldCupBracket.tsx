@@ -59,7 +59,7 @@ const WorldCupBracket = ({ matches }: WorldCupBracketProps) => {
             <h4 className="h6 fw-bold mb-2">{stageLabel(stage)}</h4>
             <ul className="list-unstyled mb-0">
               {(byStage.get(stage) || []).map((match) => (
-                <li key={match._id} className="wc-bracket-match mb-2 pb-2 border-bottom">
+                <li key={match.id} className="wc-bracket-match mb-2 pb-2 border-bottom">
                   <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span className="d-flex align-items-center gap-2">
                       {match.team1LogoUrl && (

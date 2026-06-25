@@ -7,6 +7,12 @@ import fs from 'fs';
 import { config } from '../config/env';
 import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../services/emailService';
 import { PlayerService } from '../services/PlayerService';
+import {
+    clearPlayerProfile,
+    findPendingTeamCreationRequests,
+    findUsersWithMapping,
+    rejectOtherPendingMappings,
+} from '../repositories/userMappingRepository';
 
 // Voluntary leave team
 export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -127,7 +133,6 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
                 const pIndex = team.players.findIndex(p => p.memberId === user.mappedPlayerInfo!.memberId);
                 if (pIndex !== -1) {
                     team.players[pIndex].head_photo = user.avatarUrl;
-                    team.markModified('players');
                     await team.save();
                 }
             }
@@ -162,7 +167,6 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
                 const pIndex = team.players.findIndex(p => p.memberId === user.mappedPlayerInfo!.memberId);
                 if (pIndex !== -1) {
                     team.players[pIndex].head_photo = user.avatarUrl || '';
-                    team.markModified('players');
                     await team.save();
                 }
             }
@@ -177,8 +181,7 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
 
 export const getPendingTeamRequests = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const users = await User.find({ 'pendingTeamRequest.status': 'pending' })
-            .select('displayName email avatarUrl role pendingTeamRequest createdAt');
+        const users = await findPendingTeamCreationRequests();
         res.json(users);
     } catch (error) {
         console.error('Error fetching team requests:', error);
@@ -236,10 +239,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
 
 export const getUserMappings = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const users = await User.find({ mappedPlayerInfo: { $exists: true } })
-            .select('displayName email avatarUrl role mappedPlayerInfo playerProfile createdAt')
-            .sort({ 'mappedPlayerInfo.status': 1, createdAt: -1 })
-            .lean();
+        const users = await findUsersWithMapping();
 
         // Hydrate team and player names for each user
         const teams = await Team.find({}).lean();
@@ -347,19 +347,14 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
                             }
                         }
                     }
-                    teamDoc.markModified('players');
                     await teamDoc.save();
                 }
 
                 if (user.mappedPlayerInfo.memberId > 0) {
-                    await User.updateMany(
-                        {
-                            _id: { $ne: user._id },
-                            'mappedPlayerInfo.teamId': currentTeamId,
-                            'mappedPlayerInfo.memberId': user.mappedPlayerInfo.memberId,
-                            'mappedPlayerInfo.status': 'pending'
-                        },
-                        { $set: { 'mappedPlayerInfo.status': 'rejected' } }
+                    await rejectOtherPendingMappings(
+                        user.id,
+                        currentTeamId,
+                        user.mappedPlayerInfo.memberId,
                     );
                 }
             } else if (status === 'rejected') {
@@ -370,15 +365,14 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
         await user.save();
 
         if (status === 'approved' || status === 'rejected') {
-            await User.updateOne({ _id: user._id }, { $unset: { playerProfile: "" } });
-            // re-fetch to update local object reference
-            const refreshed = await User.findById(user._id);
+            await clearPlayerProfile(user.id);
+            const refreshed = await User.findById(user.id);
             if (refreshed) Object.assign(user, refreshed.toObject());
         }
         res.json({
             message: 'Mapping updated',
             user: {
-                id: user._id,
+                id: user.id,
                 displayName: user.displayName,
                 role: user.role,
                 mappedPlayerInfo: user.mappedPlayerInfo

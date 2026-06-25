@@ -16,7 +16,7 @@ const Dashboard = () => {
     const [data, setData] = useState<DashboardData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [expandedMatchId, setExpandedMatchId] = useState<string | null>(null);
+    const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
     const [showClaimModal, setShowClaimModal] = useState(false);
     const [hideClaimBanner, setHideClaimBanner] = useState(() => {
         return localStorage.getItem('hideClaimBanner') === 'true';
@@ -172,7 +172,7 @@ const Dashboard = () => {
                         <h2 className="dashboard-card-title">המשחקים הבאים</h2>
                         <div className="next-matches-list">
                             {data.nextMatches.map((match) => (
-                                <div key={match._id} className="upcoming-match-item">
+                                <div key={match.id} className="upcoming-match-item">
                                     <div className="match-main-info">
                                         <div className="team-right">
                                             {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
@@ -196,10 +196,10 @@ const Dashboard = () => {
                                         <button
                                             type="button"
                                             className="btn-comments"
-                                            aria-expanded={expandedMatchId === match._id}
-                                            onClick={() => setExpandedMatchId(expandedMatchId === match._id ? null : match._id)}
+                                            aria-expanded={expandedMatchId === match.id}
+                                            onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
                                         >
-                                            {expandedMatchId === match._id ? '🔼 הסתר תגובות' : (
+                                            {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
                                                 <>
                                                     💬 תגובות
                                                     {match.commentCount && match.commentCount > 0 ? (
@@ -211,7 +211,7 @@ const Dashboard = () => {
                                             )}
                                         </button>
                                     </div>
-                                    {expandedMatchId === match._id && (
+                                    {expandedMatchId === match.id && (
                                         <CommentSection matchId={match.id} />
                                     )}
                                 </div>
@@ -229,7 +229,7 @@ const Dashboard = () => {
                             {data.recentMatches.slice(0, 5).map((match) => (
                                 <button
                                     type="button"
-                                    key={match._id}
+                                    key={match.id}
                                     className="match-item w-100 border-0 text-start bg-transparent"
                                     onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
                                 >

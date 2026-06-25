@@ -166,7 +166,7 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
         counts.set(v.teamId, (counts.get(v.teamId) || 0) + 1);
       }
       const sorted = [...counts.entries()]
-        .map(([_id, voteCount]) => ({ _id, votes: voteCount }))
+        .map(([teamId, voteCount]) => ({ teamId, votes: voteCount }))
         .sort((a, b) => b.votes - a.votes)
         .slice(0, 10);
 
@@ -175,7 +175,7 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
         return;
       }
 
-      const teamIds = sorted.map((r) => r._id);
+      const teamIds = sorted.map((r) => r.teamId);
       const teams = await prisma.team.findMany({
         where: { seasonId: season.id, id: { in: teamIds } },
         select: { id: true, name: true },
@@ -184,9 +184,9 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
 
       res.json({
         leaderboard: sorted.map((r) => ({
-          teamId: r._id,
+          teamId: r.teamId,
           votes: r.votes,
-          teamName: teamById.get(r._id)?.name ?? '',
+          teamName: teamById.get(r.teamId)?.name ?? '',
         })),
       });
       return;
@@ -198,7 +198,7 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
       counts.set(v.playerMemberId, (counts.get(v.playerMemberId) || 0) + 1);
     }
     const results = [...counts.entries()]
-      .map(([_id, voteCount]) => ({ _id, votes: voteCount }))
+      .map(([memberId, voteCount]) => ({ memberId, votes: voteCount }))
       .sort((a, b) => b.votes - a.votes)
       .slice(0, 10);
 
@@ -207,7 +207,7 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
       return;
     }
 
-    const memberIds = results.map((r) => r._id);
+    const memberIds = results.map((r) => r.memberId);
     const players = await prisma.player.findMany({
       where: { seasonId: season.id, memberId: { in: memberIds }, active: true },
       include: { team: { select: { name: true } } },
@@ -217,10 +217,10 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
     res.json({
       leaderboard: results
         .map((result) => {
-          const player = playerByMember.get(result._id);
+          const player = playerByMember.get(result.memberId);
           if (!player) return null;
           return {
-            memberId: result._id,
+            memberId: result.memberId,
             votes: result.votes,
             player: {
               firstName: player.firstName,

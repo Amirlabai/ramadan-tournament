@@ -15,7 +15,7 @@ import { AuthRateLimitService } from '../services/AuthRateLimitService';
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
-        { userId: user._id, role: user.role },
+        { userId: user.id, role: user.role },
         config.jwtSecret,
         { expiresIn: '7d' }
     );
@@ -39,13 +39,13 @@ const normalizeEmail = (email: string): string => {
 // Helper: Hydrate player profile from the Team database if user is an approved player
 const hydrateUserPayload = async (userDoc: any) => {
     const payload = {
-        id: userDoc._id,
+        id: userDoc.id,
         username: userDoc.username,
         email: userDoc.email,
         displayName: userDoc.displayName,
         role: userDoc.role,
         avatarUrl: userDoc.avatarUrl,
-        mappedPlayerInfo: userDoc.mappedPlayerInfo ? { ...userDoc.mappedPlayerInfo.toObject() } : null,
+        mappedPlayerInfo: userDoc.mappedPlayerInfo ? { ...userDoc.mappedPlayerInfo } : null,
         playerProfile: userDoc.playerProfile // fallback to custom player data
     };
 
@@ -80,8 +80,8 @@ const hydrateUserPayload = async (userDoc: any) => {
     }
 
     try {
-        const boys = await RegistrationService.getSummary(userDoc._id, Division.boys).catch(() => null);
-        const girls = await RegistrationService.getSummary(userDoc._id, Division.girls).catch(() => null);
+        const boys = await RegistrationService.getSummary(userDoc.id, Division.boys).catch(() => null);
+        const girls = await RegistrationService.getSummary(userDoc.id, Division.girls).catch(() => null);
         (payload as any).tournamentRegistration = { boys, girls };
         (payload as any).activeDivision = boys?.activeDivision ?? girls?.activeDivision ?? null;
 
@@ -365,7 +365,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
         const user = await User.findOne({
             email: normalizedEmail,
             verificationToken: code,
-            verificationTokenExpires: { $gt: new Date() }
+            verificationTokenExpiresAfter: new Date(),
         });
 
         if (!user) {

@@ -16,8 +16,15 @@ import {
   getTopScorers,
 } from './mockStats';
 import worldcupRoutes from '../routes/worldcup';
+import { DEFAULT_BANNED_WORDS } from '../data/defaultBannedWords';
 
 const MOCK_ADMIN_ID = 'mock-dev-admin';
+
+const mockBannedWords = DEFAULT_BANNED_WORDS.map((entry, index) => ({
+  id: `mock-banned-word-${index}`,
+  word: entry.word,
+  language: entry.language,
+}));
 
 function mockAdminUser() {
   return {
@@ -214,7 +221,7 @@ export function registerMockRoutes(app: Express): void {
   });
 
   app.get('/api/admin/banned-words', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
-    res.json([]);
+    res.json(mockBannedWords);
   });
   app.get('/api/admin/comments', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
     res.json([]);

@@ -130,7 +130,7 @@ const WorldCupDashboard = () => {
             <h2 className="dashboard-card-title">המשחקים הבאים</h2>
             <div className="next-matches-list">
               {data.nextMatches.map((match) => (
-                <div key={match._id} className="upcoming-match-item">
+                <div key={match.id} className="upcoming-match-item">
                   <div className="match-main-info">
                     <div className="team-right">
                       {renderCrest(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl)}
@@ -164,11 +164,11 @@ const WorldCupDashboard = () => {
               {data.recentMatches.slice(0, 5).map((match) => (
                 <button
                   type="button"
-                  key={match._id}
+                  key={match.id}
                   className="match-item w-100 border-0 text-start bg-transparent"
                   onClick={() =>
                     navigate('/world-cup/schedule', {
-                      state: { filter: 'finished', matchId: match._id },
+                      state: { filter: 'finished', matchId: match.id },
                     })
                   }
                 >

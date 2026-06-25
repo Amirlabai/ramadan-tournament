@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import { Division, PrismaClient, ScoringMode } from '@prisma/client';
 import { jerusalemDateTime } from '../src/utils/jerusalemDate';
+import { DEFAULT_BANNED_WORDS } from '../src/data/defaultBannedWords';
 
 export function parseJerusalemDate(dateStr: string): Date {
   return jerusalemDateTime(dateStr, '12:00');
@@ -60,7 +61,14 @@ export async function createAdminUser(prisma: PrismaClient): Promise<string> {
 }
 
 export async function seedBannedWords(prisma: PrismaClient): Promise<void> {
-  for (const word of ['spam', 'test']) {
-    await prisma.bannedWord.create({ data: { word: word.toLowerCase(), language: 'en' } });
-  }
+  const result = await prisma.bannedWord.createMany({
+    data: DEFAULT_BANNED_WORDS.map(({ word, language }) => ({
+      word: word.toLowerCase(),
+      language,
+    })),
+    skipDuplicates: true,
+  });
+  console.log(
+    `Banned words: ${result.count} inserted (${DEFAULT_BANNED_WORDS.length} in default list)`
+  );
 }

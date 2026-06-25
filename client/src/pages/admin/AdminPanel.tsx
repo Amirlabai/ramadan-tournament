@@ -10,6 +10,7 @@ import RosterManager from '../../components/admin/RosterManager';
 import GirlsSeasonAdmin from '../../components/admin/GirlsSeasonAdmin';
 import PageLoading from '../../components/PageLoading';
 import EmptyState from '../../components/EmptyState';
+import { entityId } from '../../utils/entityId';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -56,6 +57,8 @@ const AdminPanel = () => {
             return;
         }
 
+        const isAdmin = user.role === 'Admin' || user.role === 'admin';
+
         const fetchData = async () => {
             try {
                 const [matchesRes, teamsRes] = await Promise.all([
@@ -65,6 +68,17 @@ const AdminPanel = () => {
                 const matchesSorted = matchesRes.data.sort((a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime());
                 setMatches(matchesSorted);
                 setTeams(teamsRes.data);
+
+                if (isAdmin) {
+                    await Promise.all([
+                        adminAPI.getBannedWords()
+                            .then((res) => setBannedWords(res.data))
+                            .catch((err) => console.error('Error fetching banned words:', err)),
+                        adminAPI.getComments()
+                            .then((res) => setComments(res.data))
+                            .catch((err) => console.error('Error fetching comments:', err)),
+                    ]);
+                }
             } catch (err) {
                 console.error(err);
                 navigate('/admin/login');
@@ -80,10 +94,39 @@ const AdminPanel = () => {
             fetchBannedWords();
         } else if (activeTab === 'comments') {
             fetchComments();
-        } else if (activeTab === 'news') {
-            newsAPI.getAll(newsDivision).then((res) => setNews(res.data)).catch(console.error);
         }
-    }, [activeTab, newsDivision]);
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (!user || (user.role !== 'Admin' && user.role !== 'admin')) return;
+
+        let cancelled = false;
+        newsAPI.getAll(newsDivision)
+            .then((res) => {
+                if (!cancelled) setNews(res.data);
+            })
+            .catch((err) => console.error('Error fetching news:', err));
+
+        return () => {
+            cancelled = true;
+        };
+    }, [newsDivision, user]);
+
+    useEffect(() => {
+        if (activeTab !== 'news') return;
+        if (!user || (user.role !== 'Admin' && user.role !== 'admin')) return;
+
+        let cancelled = false;
+        newsAPI.getAll(newsDivision)
+            .then((res) => {
+                if (!cancelled) setNews(res.data);
+            })
+            .catch((err) => console.error('Error fetching news:', err));
+
+        return () => {
+            cancelled = true;
+        };
+    }, [activeTab, newsDivision, user]);
 
     const handleLogout = async () => {
         await logout();
@@ -228,7 +271,7 @@ const AdminPanel = () => {
 
         try {
             await adminAPI.removeBannedWord(id);
-            setBannedWords(bannedWords.filter(w => w._id !== id));
+            setBannedWords(bannedWords.filter(w => entityId(w) !== id));
         } catch (err) {
             alert('שגיאה במחיקת מילה');
         }
@@ -248,7 +291,7 @@ const AdminPanel = () => {
 
         try {
             await adminAPI.deleteComment(id);
-            setComments(comments.filter(c => c._id !== id));
+            setComments(comments.filter(c => entityId(c) !== id));
         } catch (err) {
             alert('שגיאה במחיקת תגובה');
         }
@@ -505,7 +548,6 @@ const AdminPanel = () => {
                                         <MatchTableRow
                                             key="new-match"
                                             match={{
-                                                _id: 'new',
                                                 id: -1,
                                                 team1Id: teams[0]?.id ?? 1,
                                                 team2Id: teams[1]?.id ?? 2,
@@ -538,7 +580,7 @@ const AdminPanel = () => {
                                     )}
                                     {filteredAdminMatches.map((match, index) => (
                                             <MatchTableRow
-                                                key={match._id}
+                                                key={match.id}
                                                 match={match}
                                                 index={index}
                                                 teams={teams}
@@ -586,7 +628,7 @@ const AdminPanel = () => {
                             </div>
                             <div className="items-list">
                                 {news.map(item => (
-                                    <div key={item._id} className="item">
+                                    <div key={item.id} className="item">
                                         <div className="item-info">
                                             <strong>{item.title}</strong>
                                             <span>{item.message}</span>
@@ -655,8 +697,10 @@ const AdminPanel = () => {
                                 {bannedWords.length === 0 ? (
                                     <div className="text-center text-muted p-4">אין מילים חסומות</div>
                                 ) : (
-                                    bannedWords.map((word) => (
-                                        <div key={word._id} className="item">
+                                    bannedWords.map((word) => {
+                                        const wordId = entityId(word);
+                                        return (
+                                        <div key={wordId} className="item">
                                             <div className="item-info">
                                                 <strong>{word.word}</strong>
                                                 <span className="badge" style={{
@@ -673,14 +717,15 @@ const AdminPanel = () => {
                                             </div>
                                             <div className="item-actions">
                                                 <button
-                                                    onClick={() => handleRemoveBannedWord(word._id)}
+                                                    onClick={() => handleRemoveBannedWord(wordId)}
                                                     className="btn btn-danger"
                                                 >
                                                     מחק
                                                 </button>
                                             </div>
                                         </div>
-                                    ))
+                                        );
+                                    })
                                 )}
                             </div>
                         </div>
@@ -718,8 +763,9 @@ const AdminPanel = () => {
                                         )
                                         .map((comment) => {
                                             const match = matches.find(m => m.id === comment.matchId);
+                                            const commentId = entityId(comment);
                                             return (
-                                                <div key={comment._id} className="item">
+                                                <div key={commentId} className="item">
                                                     <div className="item-info" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                                                         <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', width: '100%' }}>
                                                             <strong>{comment.author}</strong>
@@ -736,7 +782,7 @@ const AdminPanel = () => {
                                                     </div>
                                                     <div className="item-actions">
                                                         <button
-                                                            onClick={() => handleDeleteComment(comment._id)}
+                                                            onClick={() => handleDeleteComment(commentId)}
                                                             className="btn btn-danger"
                                                         >
                                                             מחק
