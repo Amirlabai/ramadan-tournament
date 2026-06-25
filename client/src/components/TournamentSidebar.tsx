@@ -65,6 +65,7 @@ const TournamentSidebar = ({
     { to: '/about', label: 'אודות' },
     { to: '/privacy', label: 'פרטיות' },
     { to: '/terms', label: 'תנאים' },
+    { to: '/accessibility', label: 'נגישות' },
   ]
 
   const sidebarContent = (

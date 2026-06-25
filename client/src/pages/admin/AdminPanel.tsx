@@ -18,13 +18,11 @@ const AdminPanel = () => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
 
-    type TabType = 'matches' | 'news' | 'import' | 'banned-words' | 'comments' | 'roster' | 'users' | 'girls';
+    type TabType = 'matches' | 'news' | 'banned-words' | 'comments' | 'roster' | 'users' | 'girls';
     const { user, loading: authLoading, logout } = useAuth();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
     const [newsDivision, setNewsDivision] = useState<TournamentSlug>('boys');
-    const [file, setFile] = useState<File | null>(null);
-    const [uploading, setUploading] = useState(false);
     const [bannedWords, setBannedWords] = useState<any[]>([]);
     const [newWord, setNewWord] = useState('');
     const [newWordLanguage, setNewWordLanguage] = useState('other');
@@ -43,28 +41,6 @@ const AdminPanel = () => {
     const [userRoleActingId, setUserRoleActingId] = useState<string | null>(null);
     const [userSearchSubmitted, setUserSearchSubmitted] = useState(false);
     const navigate = useNavigate();
-
-    const handleFileUpload = async () => {
-        if (!file) return;
-        if (!confirm('פעולה זו תמחק ותחליף את כל נתוני הקבוצות. להמשיך?')) return;
-
-        setUploading(true);
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            await adminAPI.uploadPlayers(formData);
-            alert('ייבוא בוצע בהצלחה!');
-            setFile(null);
-            // Refresh logic if needed
-        } catch (err: any) {
-            console.error(err);
-            const message = err.response?.data?.details || err.response?.data?.error || 'שגיאה בייבוא הקובץ';
-            alert(message);
-        } finally {
-            setUploading(false);
-        }
-    };
 
     useEffect(() => {
         if (authLoading) return;
@@ -407,17 +383,6 @@ const AdminPanel = () => {
                         <button
                             type="button"
                             role="tab"
-                            id="admin-tab-import"
-                            aria-controls="admin-panel-import"
-                            aria-selected={activeTab === 'import'}
-                            className={`tab ${activeTab === 'import' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('import')}
-                        >
-                            ייבוא שחקנים
-                        </button>
-                        <button
-                            type="button"
-                            role="tab"
                             id="admin-tab-banned-words"
                             aria-controls="admin-panel-banned-words"
                             aria-selected={activeTab === 'banned-words'}
@@ -644,39 +609,6 @@ const AdminPanel = () => {
                             onCancel={() => { setShowNewsForm(false); setEditingNews(null); }}
                         />
                     )}
-                </div>
-            )}
-
-            {activeTab === 'import' && (
-                <div role="tabpanel" id="admin-panel-import" aria-labelledby="admin-tab-import" className="tab-content" tabIndex={0}>
-                    <div className="card">
-                        <h2>ייבוא שחקנים</h2>
-                        <div className="p-4 text-center">
-                            <p className="mb-4">
-                                העלה קובץ CSV עם נתוני שחקנים לעדכון מהיר של כל הקבוצות.<br />
-                                <strong>שים לב: פעולה זו תמחק את כל הקבוצות והשחקנים הקיימים ותחליף אותם בנתונים החדשים!</strong>
-                            </p>
-
-                            <div className="mb-3">
-                                <label htmlFor="csvFile" className="form-label">קובץ CSV (players-data.csv)</label>
-                                <input
-                                    className="form-control"
-                                    type="file"
-                                    id="csvFile"
-                                    accept=".csv"
-                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                />
-                            </div>
-
-                            <button
-                                onClick={handleFileUpload}
-                                className="btn btn-success btn-lg mt-3"
-                                disabled={!file || uploading}
-                            >
-                                {uploading ? 'מעלה...' : 'ייבא שחקנים'}
-                            </button>
-                        </div>
-                    </div>
                 </div>
             )}
 

@@ -315,8 +315,8 @@ export default function RegistrationWorkflowAdmin() {
                     <section className="mb-4 p-3 border rounded">
                         <h5 className="h6 mb-2">הקצאת חשבונית ({data.awaitingInvoice.length})</h5>
                         <p className="text-muted small mb-3">
-                            הזן את <strong>מספר החשבונית</strong> מהתשלום בפועל ולחץ <strong>הקצה</strong>.
-                            עמודת <strong>הזנת משתמש</strong> מציגה לקריאה בלבד מה שהשחקן הזין בפרופיל.
+                            הזן את מספר החשבונית מהתשלום בפועל ולחץ הקצה.
+                            עמודת הזנת משתמש מציגה לקריאה בלבד מה שהשחקן הזין בפרופיל.
                             ניתן גם לחפש משתמש למטה.
                         </p>
                         <div className="table-responsive">

@@ -48,8 +48,6 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
     )
   }
 
-  items.push({ to: '/accessibility', label: 'נגישות' })
-
   if (user) {
     items.push({
       to: '/profile',
