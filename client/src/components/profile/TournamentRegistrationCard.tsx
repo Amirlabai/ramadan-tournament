@@ -5,10 +5,10 @@ import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationR
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
-    none: 'שלב 1: הזן מספר חשבונית לאחר תשלום',
+    none: 'שלב 1: ממתין שהמנהל ירשום את מספר החשבונית',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין למספר חשבונית — הזן למטה',
-    invoice_assigned: 'חשבונית הוקצה — הזן למטה להפעלה',
+    awaiting_invoice: 'ממתין למספר חשבונית מהמנהל',
+    invoice_assigned: 'המנהל רשם חשבונית — הזן את אותו מספר בדיוק להפעלה',
     active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
     archived: 'עונה בארכיון',
 };
@@ -131,7 +131,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
             {reg.status === 'active' && !reg.invoiceAlert && (
                 <div className="alert alert-success py-2 small mb-3" role="status">
-                    מספר החשבונית אושר. הרישום פעיל לעונה.
+                    מספר החשבונית תואם לרישום המנהל. הרישום פעיל לעונה.
                 </div>
             )}
 
@@ -186,7 +186,9 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     <p className="small text-muted mb-2">
                         {reg.invoiceAlert
                             ? 'עדכן את מספר החשבונית ושלח שוב, או פנה למנהל.'
-                            : 'שלב ראשון: הזן את מספר החשבונית לאחר התשלום. רק לאחר מכן ניתן לשלוח בקשת הצטרפות או הקמת קבוצה. הזנה חוזרת מחליפה את הקודמת. מוגבל ל־3 ניסיונות ביום.'}
+                            : reg.status === 'invoice_assigned'
+                              ? 'שלב 2: המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. רק לאחר התאמה ניתן לשלוח בקשת הצטרפות או הקמת קבוצה. מוגבל ל־3 ניסיונות ביום.'
+                              : 'שלב 1: המנהל ירשום את מספר החשבונית לאחר התשלום. לאחר מכן הזן כאן בדיוק את אותו מספר. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
                         מספר חשבונית (לאחר תשלום)

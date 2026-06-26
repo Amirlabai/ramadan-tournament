@@ -122,7 +122,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
 
             {needsReceipt && (
                 <p className="small text-muted mb-0">
-                    להצטרפות לקבוצה יש להזין תחילה את מספר החשבונית ב
+                    להצטרפות לקבוצה המנהל ירשום תחילה את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
                     <Link to="/profile" className="ms-1">
                         פרופיל
                     </Link>
@@ -138,11 +138,11 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                     </p>
                     {legacyNeedsReceipt && (
                         <p className="mb-2 text-muted">
-                            יש להזין תחילה את מספר החשבונית ב
+                            המנהל ירשום את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
-                            .
+                            לפני אישור המנהל.
                         </p>
                     )}
                     <button
@@ -172,7 +172,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                     </p>
                     {legacyNeedsReceipt && (
                         <p className="mb-2 text-muted">
-                            יש להזין תחילה את מספר החשבונית ב
+                            המנהל ירשום את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
