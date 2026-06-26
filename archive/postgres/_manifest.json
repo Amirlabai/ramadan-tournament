@@ -1,18 +1,9 @@
 {
-  "exported_at": "2026-06-25T08:59:46+03:00",
+  "exported_at": "2026-06-26T09:04:03+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
-    "seasons.csv",
     "users.csv",
-    "season_registrations.csv",
-    "invoice_codes.csv",
-    "teams.csv",
-    "players.csv",
-    "matches.csv",
-    "bracket_slots.csv",
     "news.csv",
-    "team_creation_requests.csv",
-    "team_join_requests.csv",
     "banned_words.csv"
   ],
   "tables": {
@@ -21,7 +12,7 @@
       "file": "seasons.csv"
     },
     "users": {
-      "rows": 2,
+      "rows": 3,
       "file": "users.csv"
     },
     "season_registrations": {
@@ -53,7 +44,7 @@
       "file": "bracket_slots.csv"
     },
     "news": {
-      "rows": 0,
+      "rows": 1,
       "file": "news.csv"
     },
     "comments": {
@@ -89,7 +80,7 @@
       "file": "team_transfer_requests.csv"
     },
     "banned_words": {
-      "rows": 2,
+      "rows": 58,
       "file": "banned_words.csv"
     }
   },
