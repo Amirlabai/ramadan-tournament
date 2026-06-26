@@ -36,7 +36,6 @@ import WorldCupSchedule from './pages/worldcup/WorldCupSchedule'
 import WorldCupStats from './pages/worldcup/WorldCupStats'
 import { worldCupEnabled, worldCupOnly, worldCupOnlyRedirect } from './utils/worldCupEnabled'
 import Footer from './components/Footer'
-import AlarmsWidget from './components/AlarmsWidget'
 import ScrollToTop from './components/ScrollToTop'
 import Archive from './pages/Archive'
 import Accessibility from './pages/Accessibility'
@@ -54,7 +53,7 @@ import { getMainNavItems } from './utils/mainNavItems'
 import { useAuth } from './contexts/AuthContext'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
 
 function AppRoutes() {
   const location = useLocation()
@@ -98,7 +97,6 @@ function AppRoutes() {
 }
 
 function AppShell() {
-  const [activeWidget, setActiveWidget] = useState<'none' | 'alarms'>('none')
   const { isGirls, isWorldCup, paths } = useTournament()
   const { user } = useAuth()
   const isAdmin = user?.role === 'Admin' || user?.role === 'admin'
@@ -137,10 +135,6 @@ function AppShell() {
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
         </a>
-        <AlarmsWidget
-          isActive={activeWidget === 'alarms'}
-          onToggle={(active) => setActiveWidget(active ? 'alarms' : 'none')}
-        />
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
