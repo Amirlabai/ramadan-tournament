@@ -77,6 +77,19 @@ const REG_STATUS_LABELS: Record<string, string> = {
     archived: 'בארכיון',
 };
 
+const pendingApprovalHint = (
+    registrationStatus: string,
+    invoicesMatched?: boolean
+): string => {
+    if (registrationStatus !== 'active') {
+        return `ממתין לרישום פעיל (${REG_STATUS_LABELS[registrationStatus] ?? registrationStatus})`;
+    }
+    if (invoicesMatched === false) {
+        return 'ממתין להתאמת חשבונית (מנהל + משתמש)';
+    }
+    return 'ממתין להתאמת חשבונית';
+};
+
 const JOIN_STATUS_LABELS: Record<string, string> = {
     pending: 'ממתין לבעלים',
     owner_approved: 'אושר ע״י בעלים',
@@ -467,9 +480,10 @@ export default function RegistrationWorkflowAdmin() {
                                                     </span>
                                                     {!paid && (
                                                         <span className="d-block small text-muted mt-1">
-                                                            {c.invoicesMatched === false
-                                                                ? 'ממתין להתאמת חשבונית (מנהל + משתמש)'
-                                                                : `ממתין לרישום פעיל (${REG_STATUS_LABELS[c.registrationStatus] ?? c.registrationStatus})`}
+                                                            {pendingApprovalHint(
+                                                                c.registrationStatus,
+                                                                c.invoicesMatched
+                                                            )}
                                                         </span>
                                                     )}
                                                 </td>
@@ -500,8 +514,19 @@ export default function RegistrationWorkflowAdmin() {
                                                                 : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
                                                         }
                                                         onClick={async () => {
-                                                            await adminAPI.reviewCreationRequest(c.id, true);
-                                                            load();
+                                                            setMsg('');
+                                                            try {
+                                                                await adminAPI.reviewCreationRequest(c.id, true);
+                                                                await load();
+                                                            } catch (e: unknown) {
+                                                                const ax = e as {
+                                                                    response?: { data?: { error?: string } };
+                                                                };
+                                                                setMsg(
+                                                                    ax.response?.data?.error ||
+                                                                        'לא ניתן לאשר את הבקשה'
+                                                                );
+                                                            }
                                                         }}
                                                     >
                                                         אשר
@@ -573,9 +598,10 @@ export default function RegistrationWorkflowAdmin() {
                                                         <span className="d-block small">→ {j.team.name}</span>
                                                         {!paid && (
                                                             <span className="d-block small text-muted mt-1">
-                                                                {j.invoicesMatched === false
-                                                                    ? 'ממתין להתאמת חשבונית (מנהל + משתמש)'
-                                                                    : `ממתין לרישום פעיל (${REG_STATUS_LABELS[j.registrationStatus] ?? j.registrationStatus})`}
+                                                                {pendingApprovalHint(
+                                                                    j.registrationStatus,
+                                                                    j.invoicesMatched
+                                                                )}
                                                             </span>
                                                         )}
                                                     </td>
@@ -606,8 +632,19 @@ export default function RegistrationWorkflowAdmin() {
                                                                     : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
                                                             }
                                                             onClick={async () => {
-                                                                await adminAPI.reviewJoinRequest(j.id, true);
-                                                                load();
+                                                                setMsg('');
+                                                                try {
+                                                                    await adminAPI.reviewJoinRequest(j.id, true);
+                                                                    await load();
+                                                                } catch (e: unknown) {
+                                                                    const ax = e as {
+                                                                        response?: { data?: { error?: string } };
+                                                                    };
+                                                                    setMsg(
+                                                                        ax.response?.data?.error ||
+                                                                            'לא ניתן לאשר את הבקשה'
+                                                                    );
+                                                                }
                                                             }}
                                                         >
                                                             אשר סגל

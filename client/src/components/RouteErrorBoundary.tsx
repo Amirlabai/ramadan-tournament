@@ -1,5 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { isChunkLoadError } from '../utils/lazyWithRetry';
+import { chunkErrorMessage, isChunkLoadError } from '../utils/lazyWithRetry';
 
 interface Props {
   children: ReactNode;
@@ -22,7 +22,7 @@ export default class RouteErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.error) {
-      const chunkError = isChunkLoadError(this.state.error.message);
+      const chunkError = isChunkLoadError(chunkErrorMessage(this.state.error));
 
       if (chunkError) {
         return (

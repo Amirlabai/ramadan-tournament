@@ -425,28 +425,48 @@ export class RegistrationService {
     hasAdminAssignment: boolean;
     hasUserSubmission: boolean;
   }> {
-    const displayMap = await this.getUserInvoiceDisplayMap(seasonId, [userId]);
+    const [reg, displayMap, adminCode] = await Promise.all([
+      prisma.seasonRegistration.findUnique({
+        where: { userId_seasonId: { userId, seasonId } },
+        select: { status: true, invoiceAlert: true },
+      }),
+      this.getUserInvoiceDisplayMap(seasonId, [userId]),
+      prisma.invoiceCode.findFirst({
+        where: {
+          seasonId,
+          assignedUserId: userId,
+          createdById: { not: null },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: { codeNormalized: true },
+      }),
+    ]);
+
     const display = displayMap.get(userId) ?? {
       submittedInvoiceNumber: null,
       assignedInvoiceNumber: null,
       hasUnredeemedCode: false,
     };
 
-    const adminAssignment = await prisma.invoiceCode.findFirst({
-      where: {
-        seasonId,
-        assignedUserId: userId,
-        redeemedAt: null,
-        createdById: { not: null },
-      },
-      orderBy: { createdAt: 'desc' },
-      select: { codeNormalized: true },
-    });
-
-    const hasAdminAssignment = !!adminAssignment;
+    const hasAdminAssignment = !!adminCode;
     const hasUserSubmission = !!display.submittedInvoiceNumber;
-    const assignedInvoiceNumber = display.assignedInvoiceNumber;
+    const assignedInvoiceNumber =
+      display.assignedInvoiceNumber ?? adminCode?.codeNormalized ?? null;
     const submittedInvoiceNumber = display.submittedInvoiceNumber;
+
+    if (
+      reg?.status === SeasonRegistrationStatus.active &&
+      !reg.invoiceAlert &&
+      hasUserSubmission
+    ) {
+      return {
+        submittedInvoiceNumber,
+        assignedInvoiceNumber: assignedInvoiceNumber ?? submittedInvoiceNumber,
+        invoicesMatched: true,
+        hasAdminAssignment,
+        hasUserSubmission,
+      };
+    }
 
     const invoicesMatched =
       hasAdminAssignment &&
@@ -470,6 +490,9 @@ export class RegistrationService {
     });
     if (reg?.invoiceAlert) {
       throw new Error(reg.invoiceAlert);
+    }
+    if (reg?.status === SeasonRegistrationStatus.active && !reg.invoiceAlert) {
+      return;
     }
 
     const state = await this.getInvoiceMatchState(userId, seasonId);
@@ -1649,38 +1672,20 @@ export class RegistrationService {
         : [];
     const regStatusByUser = new Map(workflowRegs.map((r) => [r.userId, r.status]));
 
-    const workflowInvoiceByUser = await this.getUserInvoiceDisplayMap(season.id, workflowUserIds);
-    const adminAssignments = workflowUserIds.length
-      ? await prisma.invoiceCode.findMany({
-          where: {
-            seasonId: season.id,
-            assignedUserId: { in: workflowUserIds },
-            redeemedAt: null,
-            createdById: { not: null },
-          },
-          select: { assignedUserId: true, codeNormalized: true },
-        })
-      : [];
-    const hasAdminAssignmentByUser = new Set(adminAssignments.map((a) => a.assignedUserId));
+    const workflowInvoiceStates = await Promise.all(
+      workflowUserIds.map(async (userId) => {
+        const state = await this.getInvoiceMatchState(userId, season.id);
+        return [userId, state] as const;
+      })
+    );
+    const invoiceStateByUser = new Map(workflowInvoiceStates);
 
     const enrichWorkflowInvoice = (userId: string) => {
-      const invoice = workflowInvoiceByUser.get(userId) ?? {
-        submittedInvoiceNumber: null,
-        assignedInvoiceNumber: null,
-        hasUnredeemedCode: false,
-      };
-      const hasAdminAssignment = hasAdminAssignmentByUser.has(userId);
-      const hasUserSubmission = !!invoice.submittedInvoiceNumber;
-      const invoicesMatched =
-        hasAdminAssignment &&
-        hasUserSubmission &&
-        !!invoice.assignedInvoiceNumber &&
-        !!invoice.submittedInvoiceNumber &&
-        invoicesMatchExactly(invoice.assignedInvoiceNumber, invoice.submittedInvoiceNumber);
+      const state = invoiceStateByUser.get(userId);
       return {
-        submittedInvoiceNumber: invoice.submittedInvoiceNumber,
-        assignedInvoiceNumber: invoice.assignedInvoiceNumber,
-        invoicesMatched,
+        submittedInvoiceNumber: state?.submittedInvoiceNumber ?? null,
+        assignedInvoiceNumber: state?.assignedInvoiceNumber ?? null,
+        invoicesMatched: state?.invoicesMatched ?? false,
       };
     };
 

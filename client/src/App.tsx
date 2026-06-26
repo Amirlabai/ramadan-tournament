@@ -14,10 +14,10 @@ import Schedule from './pages/Schedule'
 import Stats from './pages/Stats'
 import MVPs from './pages/MVPs'
 
-const Login = lazyWithRetry(() => import('./pages/admin/Login'))
-const AdminPanel = lazyWithRetry(() => import('./pages/admin/AdminPanel'))
-const Profile = lazyWithRetry(() => import('./pages/Profile'))
-const PlayerZone = lazyWithRetry(() => import('./pages/PlayerZone'))
+const Login = lazyWithRetry('Login', () => import('./pages/admin/Login'))
+const AdminPanel = lazyWithRetry('AdminPanel', () => import('./pages/admin/AdminPanel'))
+const Profile = lazyWithRetry('Profile', () => import('./pages/Profile'))
+const PlayerZone = lazyWithRetry('PlayerZone', () => import('./pages/PlayerZone'))
 import TournamentSidebar from './components/TournamentSidebar'
 import TournamentSwitcher from './components/TournamentSwitcher'
 import NewsBanner from './components/NewsBanner'
