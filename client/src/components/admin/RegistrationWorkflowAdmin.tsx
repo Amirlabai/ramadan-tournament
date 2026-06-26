@@ -72,6 +72,7 @@ const REG_STATUS_LABELS: Record<string, string> = {
     none: 'לא התחיל',
     join_pending: 'בקשת הצטרפות',
     awaiting_invoice: 'ממתין לחשבונית',
+    awaiting_invoice_user_submitted: 'המשתמש הזין — ממתין לאישור מנהל',
     invoice_assigned: 'חשבונית הוקצה (ממתין להזנה בפרופיל)',
     active: 'פעיל',
     archived: 'בארכיון',
@@ -233,12 +234,15 @@ export default function RegistrationWorkflowAdmin() {
         registrationStatus?: string;
         status?: string;
         assignedInvoiceNumber?: string | null;
+        submittedInvoiceNumber?: string | null;
     }) => {
         const { user } = row;
         const regStatus = row.registrationStatus ?? row.status;
 
         const isCorrection =
-            row.hasUnredeemedCode || regStatus === 'invoice_assigned';
+            row.hasUnredeemedCode ||
+            regStatus === 'invoice_assigned' ||
+            (regStatus === 'awaiting_invoice' && !!row.assignedInvoiceNumber);
         const value = invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
 
         return (
@@ -279,6 +283,11 @@ export default function RegistrationWorkflowAdmin() {
                 {isCorrection && (
                     <span className="text-muted small">
                         הוקצה — ניתן לתקן לפני שהמשתמש מפעיל בפרופיל
+                    </span>
+                )}
+                {regStatus === 'awaiting_invoice' && row.submittedInvoiceNumber && !row.assignedInvoiceNumber && (
+                    <span className="text-muted small">
+                        המשתמש הזין — הזן את אותו מספר לאישור
                     </span>
                 )}
             </div>
@@ -336,8 +345,8 @@ export default function RegistrationWorkflowAdmin() {
                         <h5 className="h6 mb-2">הקצאת חשבונית ({data.awaitingInvoice.length})</h5>
                         <p className="text-muted small mb-3">
                             הזן את מספר החשבונית מהתשלום בפועל ולחץ הקצה.
-                            עמודת הזנת משתמש מציגה לקריאה בלבד מה שהשחקן הזין בפרופיל.
-                            ניתן גם לחפש משתמש למטה.
+                            המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהמספרים תואמים.
+                            משתמשים שהותאמו כבר לא מופיעים כאן.
                         </p>
                         <div className="table-responsive">
                             <table className="table table-sm table-hover align-middle mb-0">
@@ -362,7 +371,12 @@ export default function RegistrationWorkflowAdmin() {
                                                 {r.user.email ?? '—'}
                                             </td>
                                             <td className="small">
-                                                {REG_STATUS_LABELS[r.status] ?? r.status}
+                                                {REG_STATUS_LABELS[
+                                                    r.status === 'awaiting_invoice' &&
+                                                    r.submittedInvoiceNumber
+                                                        ? 'awaiting_invoice_user_submitted'
+                                                        : r.status
+                                                ] ?? r.status}
                                                 {r.joinStatus && (
                                                     <span className="d-block text-muted">
                                                         {JOIN_STATUS_LABELS[r.joinStatus] ?? r.joinStatus}

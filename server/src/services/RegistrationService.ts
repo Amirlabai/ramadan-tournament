@@ -28,6 +28,7 @@ export interface RegistrationSummary {
   status: SeasonRegistrationStatus;
   activeDivision: Division | null;
   invoiceAlert: string | null;
+  awaitingAdminReceipt: boolean;
   pendingJoin: { id: string; teamId: number; status: RequestStatus } | null;
   pendingCreation: { id: string; teamName: string; status: RequestStatus } | null;
   pendingTransfer: { id: string; fromTeamId: number; toTeamId: number; status: RequestStatus } | null;
@@ -182,7 +183,7 @@ export class RegistrationService {
     const season = await SeasonService.getActiveSeason(division);
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
-    const [reg, join, creation, transfer, player, ownedTeam] = await Promise.all([
+    const [reg, join, creation, transfer, player, ownedTeam, matchState] = await Promise.all([
       prisma.seasonRegistration.findUnique({
         where: { userId_seasonId: { userId, seasonId: season.id } },
       }),
@@ -212,6 +213,7 @@ export class RegistrationService {
         where: { seasonId: season.id, ownerUserId: userId },
         select: { id: true },
       }),
+      this.getInvoiceMatchState(userId, season.id),
     ]);
 
     return {
@@ -220,6 +222,10 @@ export class RegistrationService {
       status: reg?.status ?? SeasonRegistrationStatus.none,
       activeDivision: user.activeDivision,
       invoiceAlert: reg?.invoiceAlert ?? null,
+      awaitingAdminReceipt:
+        matchState.hasUserSubmission &&
+        !matchState.invoicesMatched &&
+        !matchState.hasAdminAssignment,
       pendingJoin: join
         ? { id: join.id, teamId: join.teamId, status: join.status }
         : null,
@@ -508,6 +514,99 @@ export class RegistrationService {
     }
   }
 
+  /** When both sides submitted the same receipt, activate registration. */
+  private static async tryFinalizeInvoiceMatch(
+    userId: string,
+    seasonId: string,
+    division: Division
+  ): Promise<boolean> {
+    const [userRedeemed, adminUnredeemed] = await Promise.all([
+      prisma.invoiceCode.findFirst({
+        where: { seasonId, assignedUserId: userId, redeemedAt: { not: null } },
+        orderBy: { redeemedAt: 'desc' },
+        select: { id: true, codeNormalized: true },
+      }),
+      prisma.invoiceCode.findFirst({
+        where: {
+          seasonId,
+          assignedUserId: userId,
+          redeemedAt: null,
+          createdById: { not: null },
+          codeNormalized: { not: null },
+        },
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, codeNormalized: true },
+      }),
+    ]);
+
+    if (!userRedeemed?.codeNormalized || !adminUnredeemed?.codeNormalized) {
+      return false;
+    }
+
+    const now = new Date();
+
+    if (
+      !invoicesMatchExactly(userRedeemed.codeNormalized, adminUnredeemed.codeNormalized)
+    ) {
+      await prisma.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId } },
+        create: {
+          userId,
+          seasonId,
+          division,
+          status: SeasonRegistrationStatus.invoice_assigned,
+          invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        },
+        update: {
+          invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+          status: SeasonRegistrationStatus.invoice_assigned,
+        },
+      });
+      return false;
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.invoiceCode.update({
+        where: { id: adminUnredeemed.id },
+        data: { redeemedAt: now },
+      });
+      await tx.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId } },
+        create: {
+          userId,
+          seasonId,
+          division,
+          status: SeasonRegistrationStatus.active,
+          redeemedAt: now,
+          invoiceAlert: null,
+        },
+        update: {
+          status: SeasonRegistrationStatus.active,
+          redeemedAt: now,
+          invoiceAlert: null,
+          division,
+        },
+      });
+    });
+
+    await this.lockActiveDivision(userId, division);
+    return true;
+  }
+
+  private static needsInvoiceWorkflowAction(
+    status: SeasonRegistrationStatus,
+    invoiceAlert: string | null,
+    invoicesMatched: boolean
+  ): boolean {
+    if (invoicesMatched) {
+      return false;
+    }
+    if (status === SeasonRegistrationStatus.active && !invoiceAlert) {
+      return false;
+    }
+    return true;
+  }
+
   /** After admin records an invoice, compare to what the user already submitted and set profile alert. */
   private static async syncInvoiceAlertAfterAdminAssign(
     userId: string,
@@ -694,13 +793,21 @@ export class RegistrationService {
         },
         update: { status: SeasonRegistrationStatus.invoice_assigned, division: season.division },
       });
+      const activated = await this.tryFinalizeInvoiceMatch(
+        userId,
+        seasonId,
+        season.division
+      );
+      const baseMessage = similarToOther
+        ? `נרשם. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
+        : activated
+          ? 'מספר החשבונית תואם — הרישום הופעל.'
+          : 'מספר החשבונית נרשם.';
       return {
         invoiceNumber: normalized,
         updated: true,
         similarToUser: similarToOther ? { displayName: similarToOther.displayName } : undefined,
-        adminMessage: similarToOther
-          ? `הוקצה. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
-          : 'מספר החשבונית עודכן. המשתמש מזין את המספר בפרופיל.',
+        adminMessage: baseMessage,
       };
     }
 
@@ -737,13 +844,21 @@ export class RegistrationService {
       });
     }
 
+    const activated = await this.tryFinalizeInvoiceMatch(
+      userId,
+      seasonId,
+      season.division
+    );
+
     return {
       invoiceNumber: normalized,
       updated: false,
       similarToUser: similarToOther ? { displayName: similarToOther.displayName } : undefined,
-      adminMessage: similarToOther
-        ? `הוקצה. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
-        : 'מספר החשבונית הוקצה. המשתמש מזין את אותו מספר בפרופיל.',
+      adminMessage: activated
+        ? 'מספר החשבונית תואם — הרישום הופעל.'
+        : similarToOther
+          ? `הוקצה. שים לב: דומה לחשבונית של ${similarToOther.displayName}.`
+          : 'מספר החשבונית הוקצה. המשתמש מזין את אותו מספר בפרופיל.',
     };
   }
 
@@ -828,10 +943,6 @@ export class RegistrationService {
       orderBy: { redeemedAt: 'desc' },
     });
 
-    if (!correctingMismatch && !adminAssigned) {
-      throw new Error('ממתין שהמנהל ירשום את מספר החשבונית — פנה למנהל');
-    }
-
     try {
       await this.assertInvoiceUniqueInSeason(
         season.id,
@@ -848,6 +959,44 @@ export class RegistrationService {
 
     const codeHash = await bcrypt.hash(normalized, 10);
     const now = new Date();
+
+    if (!correctingMismatch && !adminAssigned) {
+      await prisma.$transaction(async (tx) => {
+        if (existingRedeemed) {
+          await tx.invoiceCode.update({
+            where: { id: existingRedeemed.id },
+            data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+          });
+        } else {
+          await tx.invoiceCode.create({
+            data: {
+              seasonId: season.id,
+              codeHash,
+              codeNormalized: normalized,
+              assignedUserId: userId,
+              redeemedAt: now,
+            },
+          });
+        }
+        await tx.seasonRegistration.upsert({
+          where: { userId_seasonId: { userId, seasonId: season.id } },
+          create: {
+            userId,
+            seasonId: season.id,
+            division: season.division,
+            status: SeasonRegistrationStatus.awaiting_invoice,
+            invoiceAlert: null,
+          },
+          update: {
+            status: SeasonRegistrationStatus.awaiting_invoice,
+            invoiceAlert: null,
+            division: season.division,
+          },
+        });
+      });
+      await InvoiceRateLimitService.clearAttempts(userId, season.id);
+      return;
+    }
 
     if (correctingMismatch && existingRedeemed) {
       const invoiceAlert = await this.invoiceAlertAfterUserEntry(userId, season.id, normalized);
@@ -868,7 +1017,9 @@ export class RegistrationService {
           where: { userId_seasonId: { userId, seasonId: season.id } },
           data: {
             invoiceAlert,
-            ...(matches ? { redeemedAt: now } : {}),
+            ...(matches
+              ? { status: SeasonRegistrationStatus.active, redeemedAt: now }
+              : {}),
           },
         });
       });
@@ -1707,28 +1858,36 @@ export class RegistrationService {
     const awaitingUserIds = awaitingInvoice.map((reg) => reg.userId);
     const invoiceByUser = await this.getUserInvoiceDisplayMap(season.id, awaitingUserIds);
 
-    const awaitingInvoiceEnriched = awaitingInvoice
-      .map((reg) => {
-        const join = joinByUserId.get(reg.userId);
-        const invoice = invoiceByUser.get(reg.userId) ?? {
-          submittedInvoiceNumber: null,
-          assignedInvoiceNumber: null,
-          hasUnredeemedCode: false,
-        };
-        return {
-          user: reg.user,
-          status: reg.status,
-          pendingTeamName: join?.team?.name ?? null,
-          joinStatus: join?.status ?? null,
-          hasUnredeemedCode: invoice.hasUnredeemedCode,
-          submittedInvoiceNumber: invoice.submittedInvoiceNumber,
-          assignedInvoiceNumber: invoice.assignedInvoiceNumber,
-        };
-      })
-      .filter(
-        (row) =>
-          row.status !== SeasonRegistrationStatus.active || !!row.submittedInvoiceNumber
-      );
+    const awaitingInvoiceEnriched = (
+      await Promise.all(
+        awaitingInvoice.map(async (reg) => {
+          const join = joinByUserId.get(reg.userId);
+          const invoice = invoiceByUser.get(reg.userId) ?? {
+            submittedInvoiceNumber: null,
+            assignedInvoiceNumber: null,
+            hasUnredeemedCode: false,
+          };
+          const matchState = await this.getInvoiceMatchState(reg.userId, season.id);
+          return {
+            user: reg.user,
+            status: reg.status,
+            invoiceAlert: reg.invoiceAlert,
+            pendingTeamName: join?.team?.name ?? null,
+            joinStatus: join?.status ?? null,
+            hasUnredeemedCode: invoice.hasUnredeemedCode,
+            submittedInvoiceNumber: matchState.submittedInvoiceNumber,
+            assignedInvoiceNumber: matchState.assignedInvoiceNumber,
+            invoicesMatched: matchState.invoicesMatched,
+          };
+        })
+      )
+    ).filter((row) =>
+      this.needsInvoiceWorkflowAction(
+        row.status,
+        row.invoiceAlert,
+        row.invoicesMatched
+      )
+    );
 
     return {
       season,

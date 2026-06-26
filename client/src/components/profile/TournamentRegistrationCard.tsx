@@ -5,9 +5,9 @@ import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationR
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
-    none: 'שלב 1: ממתין שהמנהל ירשום את מספר החשבונית',
+    none: 'שלב 1: הזן מספר חשבונית או המתן שהמנהל ירשום',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין למספר חשבונית מהמנהל',
+    awaiting_invoice: 'ממתין לאישור מנהל (הזנת חשבונית)',
     invoice_assigned: 'המנהל רשם חשבונית — הזן את אותו מספר בדיוק להפעלה',
     active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
     archived: 'עונה בארכיון',
@@ -18,6 +18,7 @@ interface RegistrationSummary {
     division: string;
     status: string;
     invoiceAlert?: string | null;
+    awaitingAdminReceipt?: boolean;
     pendingJoin?: { id: string; teamId: number; status: string } | null;
     pendingCreation?: { id: string; teamName: string; status: string } | null;
     pendingTransfer?: { fromTeamId: number; toTeamId: number } | null;
@@ -113,15 +114,28 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) return null;
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
-    const showInvoiceForm = reg.status !== 'active' || !!reg.invoiceAlert;
+    const showInvoiceForm =
+        reg.awaitingAdminReceipt ||
+        reg.status !== 'active' ||
+        !!reg.invoiceAlert;
 
     return (
         <div className={cardClass} lang="he" aria-live="polite">
             <h3 className="h5 mb-3">{title}</h3>
             <p className="mb-2">
                 <span className="text-muted">סטטוס: </span>
-                <strong>{STATUS_LABELS[reg.status] ?? reg.status}</strong>
+                <strong>
+                    {reg.awaitingAdminReceipt
+                        ? STATUS_LABELS.awaiting_invoice
+                        : STATUS_LABELS[reg.status] ?? reg.status}
+                </strong>
             </p>
+
+            {reg.awaitingAdminReceipt && (
+                <div className="alert alert-info py-2 small mb-3" role="status">
+                    הזנת את מספר החשבונית. ממתין שהמנהל ירשום את אותו מספר — לאחר התאמה תוכל לבקש הצטרפות או הקמת קבוצה.
+                </div>
+            )}
 
             {reg.invoiceAlert && (
                 <div className="alert alert-warning py-2 small mb-3" role="alert">
@@ -186,9 +200,11 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     <p className="small text-muted mb-2">
                         {reg.invoiceAlert
                             ? 'עדכן את מספר החשבונית ושלח שוב, או פנה למנהל.'
+                            : reg.awaitingAdminReceipt
+                              ? 'ניתן לעדכן את המספר עד שהמנהל מאשר. מוגבל ל־3 ניסיונות ביום.'
                             : reg.status === 'invoice_assigned'
-                              ? 'שלב 2: המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. רק לאחר התאמה ניתן לשלוח בקשת הצטרפות או הקמת קבוצה. מוגבל ל־3 ניסיונות ביום.'
-                              : 'שלב 1: המנהל ירשום את מספר החשבונית לאחר התשלום. לאחר מכן הזן כאן בדיוק את אותו מספר. מוגבל ל־3 ניסיונות ביום.'}
+                              ? 'המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
+                              : 'הזן את מספר החשבונית מהתשלום. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
                         מספר חשבונית (לאחר תשלום)
