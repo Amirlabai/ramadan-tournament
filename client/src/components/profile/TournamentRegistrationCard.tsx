@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
@@ -40,7 +40,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const [submitting, setSubmitting] = useState(false);
     const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
 
-    const load = async (): Promise<RegistrationSummary | null> => {
+    const load = useCallback(async (): Promise<RegistrationSummary | null> => {
         if (!user) return null;
         setLoading(true);
         try {
@@ -54,11 +54,11 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         } finally {
             setLoading(false);
         }
-    };
+    }, [user, slug]);
 
     useEffect(() => {
-        load();
-    }, [user, slug]);
+        void load();
+    }, [load]);
 
     const handleRedeem = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -114,10 +114,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) return null;
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
-    const showInvoiceForm =
-        reg.awaitingAdminReceipt ||
-        reg.status !== 'active' ||
-        !!reg.invoiceAlert;
+    const showInvoiceForm = !!reg.invoiceAlert || reg.status !== 'active';
 
     return (
         <div className={cardClass} lang="he" aria-live="polite">
@@ -134,6 +131,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             {reg.awaitingAdminReceipt && (
                 <div className="alert alert-info py-2 small mb-3" role="status">
                     הזנת את מספר החשבונית. ממתין שהמנהל ירשום את אותו מספר — לאחר התאמה תוכל לבקש הצטרפות או הקמת קבוצה.
+                    טעית במספר? עדכן למטה לפני שהמנהל רושם, או פנה למנהל.
                 </div>
             )}
 
@@ -201,10 +199,10 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                         {reg.invoiceAlert
                             ? 'עדכן את מספר החשבונית ושלח שוב, או פנה למנהל.'
                             : reg.awaitingAdminReceipt
-                              ? 'ניתן לעדכן את המספר עד שהמנהל מאשר. מוגבל ל־3 ניסיונות ביום.'
-                            : reg.status === 'invoice_assigned'
-                              ? 'המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
-                              : 'הזן את מספר החשבונית מהתשלום. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
+                              ? 'ניתן לעדכן את המספר אם טעית. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים.'
+                              : reg.status === 'invoice_assigned'
+                                ? 'המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
+                                : 'הזן את מספר החשבונית מהתשלום. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
                     <label htmlFor={`invoice-code-${slug}`} className="form-label">
                         מספר חשבונית (לאחר תשלום)
@@ -223,7 +221,11 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             aria-invalid={!!err}
                         />
                         <button type="submit" className={submitBtnClass} disabled={submitting || !invoiceCode.trim()}>
-                            {submitting ? 'שולח…' : reg.invoiceAlert ? 'שלח שוב' : 'שלח חשבונית'}
+                            {submitting
+                                ? 'שולח…'
+                                : reg.invoiceAlert || reg.awaitingAdminReceipt
+                                  ? 'עדכן מספר'
+                                  : 'שלח חשבונית'}
                         </button>
                     </div>
                 </form>

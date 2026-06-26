@@ -300,8 +300,8 @@ export class RegistrationService {
       where: {
         seasonId,
         codeNormalized: normalized,
-        ...(excludeAssignedUserId ? { NOT: { assignedUserId: excludeAssignedUserId } } : {}),
-        ...(excludeInvoiceId ? { NOT: { id: excludeInvoiceId } } : {}),
+        ...(excludeAssignedUserId ? { assignedUserId: { not: excludeAssignedUserId } } : {}),
+        ...(excludeInvoiceId ? { id: { not: excludeInvoiceId } } : {}),
       },
     });
     if (exactOther) {
@@ -313,7 +313,7 @@ export class RegistrationService {
         seasonId,
         redeemedAt: null,
         codeNormalized: null,
-        ...(excludeInvoiceId ? { NOT: { id: excludeInvoiceId } } : {}),
+        ...(excludeInvoiceId ? { id: { not: excludeInvoiceId } } : {}),
       },
     });
     for (const inv of seasonInvoices) {

@@ -5,11 +5,23 @@ import dotenv from 'dotenv'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: join(__dirname, '..', '.env') })
-const publicDir = join(__dirname, '..', 'public')
 
-const siteUrl = (
-  process.env.VITE_SITE_URL || 'https://ramadan-tournament-client.vercel.app'
-).replace(/\/$/, '')
+let siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '')
+if (!siteUrl || /localhost|127\.0\.0\.1/i.test(siteUrl)) {
+  dotenv.config({ path: join(__dirname, '..', '.env.production'), override: true })
+  siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '')
+}
+if (!siteUrl) {
+  siteUrl = 'https://ramadan-tournament-client.vercel.app'
+}
+if (/localhost|127\.0\.0\.1/i.test(siteUrl) && process.env.ALLOW_LOCAL_SITEMAP !== '1') {
+  console.error(
+    'Refusing to write sitemap/robots with localhost URL. Set VITE_SITE_URL or ALLOW_LOCAL_SITEMAP=1.'
+  )
+  process.exit(1)
+}
+
+const publicDir = join(__dirname, '..', 'public')
 
 const worldCupPaths =
   process.env.VITE_WORLD_CUP_ENABLED === 'true' || process.env.VITE_WORLD_CUP_ENABLED === '1'

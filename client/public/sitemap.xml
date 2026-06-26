@@ -1,86 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/teams</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/teams</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/schedule</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/schedule</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/stats</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/stats</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/mvps</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/mvps</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/archive</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/archive</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/girls</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/girls</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/teams-girls</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/teams-girls</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/news-girls</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/news-girls</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/archive-girls</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/archive-girls</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/about</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/world-cup</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kksummer-wc.vercel.app/world-cup/teams</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kksummer-wc.vercel.app/world-cup/schedule</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kksummer-wc.vercel.app/world-cup/stats</loc>
+    <lastmod>2026-06-26</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://kksummer-wc.vercel.app/about</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/accessibility</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/accessibility</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/privacy</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/privacy</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://ramadan-tournament-client.vercel.app/terms</loc>
-    <lastmod>2026-06-21</lastmod>
+    <loc>https://kksummer-wc.vercel.app/terms</loc>
+    <lastmod>2026-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.5</priority>
   </url>
