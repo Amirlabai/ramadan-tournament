@@ -415,6 +415,76 @@ export class RegistrationService {
     return result;
   }
 
+  static async getInvoiceMatchState(
+    userId: string,
+    seasonId: string
+  ): Promise<{
+    submittedInvoiceNumber: string | null;
+    assignedInvoiceNumber: string | null;
+    invoicesMatched: boolean;
+    hasAdminAssignment: boolean;
+    hasUserSubmission: boolean;
+  }> {
+    const displayMap = await this.getUserInvoiceDisplayMap(seasonId, [userId]);
+    const display = displayMap.get(userId) ?? {
+      submittedInvoiceNumber: null,
+      assignedInvoiceNumber: null,
+      hasUnredeemedCode: false,
+    };
+
+    const adminAssignment = await prisma.invoiceCode.findFirst({
+      where: {
+        seasonId,
+        assignedUserId: userId,
+        redeemedAt: null,
+        createdById: { not: null },
+      },
+      orderBy: { createdAt: 'desc' },
+      select: { codeNormalized: true },
+    });
+
+    const hasAdminAssignment = !!adminAssignment;
+    const hasUserSubmission = !!display.submittedInvoiceNumber;
+    const assignedInvoiceNumber = display.assignedInvoiceNumber;
+    const submittedInvoiceNumber = display.submittedInvoiceNumber;
+
+    const invoicesMatched =
+      hasAdminAssignment &&
+      hasUserSubmission &&
+      !!assignedInvoiceNumber &&
+      !!submittedInvoiceNumber &&
+      invoicesMatchExactly(assignedInvoiceNumber, submittedInvoiceNumber);
+
+    return {
+      submittedInvoiceNumber,
+      assignedInvoiceNumber,
+      invoicesMatched,
+      hasAdminAssignment,
+      hasUserSubmission,
+    };
+  }
+
+  static async assertMatchedInvoicesForApproval(userId: string, seasonId: string): Promise<void> {
+    const reg = await prisma.seasonRegistration.findUnique({
+      where: { userId_seasonId: { userId, seasonId } },
+    });
+    if (reg?.invoiceAlert) {
+      throw new Error(reg.invoiceAlert);
+    }
+
+    const state = await this.getInvoiceMatchState(userId, seasonId);
+
+    if (!state.hasAdminAssignment) {
+      throw new Error('לא נרשמה חשבונית על ידי המנהל');
+    }
+    if (!state.hasUserSubmission) {
+      throw new Error('המשתמש לא הזין מספר חשבונית בפרופיל');
+    }
+    if (!state.invoicesMatched) {
+      throw new Error('מספרי החשבונית אינם תואמים');
+    }
+  }
+
   /** After admin records an invoice, compare to what the user already submitted and set profile alert. */
   private static async syncInvoiceAlertAfterAdminAssign(
     userId: string,
@@ -713,22 +783,39 @@ export class RegistrationService {
       where: { seasonId: season.id, assignedUserId: userId, redeemedAt: null },
     });
 
-    const existingRedeemed = correctingMismatch
-      ? await prisma.invoiceCode.findFirst({
-          where: {
-            seasonId: season.id,
-            assignedUserId: userId,
-            redeemedAt: { not: null },
-          },
-          orderBy: { redeemedAt: 'desc' },
-        })
-      : null;
+    const adminAssigned =
+      existingUnused?.createdById != null
+        ? existingUnused
+        : await prisma.invoiceCode.findFirst({
+            where: {
+              seasonId: season.id,
+              assignedUserId: userId,
+              redeemedAt: null,
+              createdById: { not: null },
+            },
+            orderBy: { createdAt: 'desc' },
+          });
+
+    const existingRedeemed = await prisma.invoiceCode.findFirst({
+      where: {
+        seasonId: season.id,
+        assignedUserId: userId,
+        redeemedAt: { not: null },
+      },
+      orderBy: { redeemedAt: 'desc' },
+    });
+
+    if (!correctingMismatch && !adminAssigned) {
+      throw new Error('ממתין שהמנהל ירשום את מספר החשבונית — פנה למנהל');
+    }
 
     try {
       await this.assertInvoiceUniqueInSeason(
         season.id,
         normalized,
-        existingUnused?.id ?? existingRedeemed?.id,
+        correctingMismatch
+          ? (existingRedeemed?.id ?? existingUnused?.id)
+          : (existingRedeemed?.id ?? adminAssigned?.id),
         userId
       );
     } catch (e) {
@@ -739,80 +826,106 @@ export class RegistrationService {
     const codeHash = await bcrypt.hash(normalized, 10);
     const now = new Date();
 
-    let invoiceAlert: string | null = null;
-    if (correctingMismatch) {
-      invoiceAlert = await this.invoiceAlertAfterUserEntry(userId, season.id, normalized);
-    } else if (existingUnused?.createdById && existingUnused.codeNormalized) {
-      invoiceAlert = invoicesMatchExactly(normalized, existingUnused.codeNormalized)
-        ? null
-        : INVOICE_ALERT_NOT_MATCHING;
-    }
+    if (correctingMismatch && existingRedeemed) {
+      const invoiceAlert = await this.invoiceAlertAfterUserEntry(userId, season.id, normalized);
+      const matches = invoiceAlert === null;
 
-    await prisma.$transaction(async (tx) => {
-      if (correctingMismatch && existingRedeemed) {
+      await prisma.$transaction(async (tx) => {
         await tx.invoiceCode.update({
           where: { id: existingRedeemed.id },
           data: { codeHash, codeNormalized: normalized, redeemedAt: now },
         });
+        if (matches && adminAssigned) {
+          await tx.invoiceCode.update({
+            where: { id: adminAssigned.id },
+            data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+          });
+        }
         await tx.seasonRegistration.update({
           where: { userId_seasonId: { userId, seasonId: season.id } },
-          data: { invoiceAlert, redeemedAt: now },
-        });
-      } else if (existingUnused) {
-        await tx.invoiceCode.update({
-          where: { id: existingUnused.id },
-          data: { codeHash, codeNormalized: normalized, redeemedAt: now },
-        });
-        await tx.seasonRegistration.upsert({
-          where: { userId_seasonId: { userId, seasonId: season.id } },
-          create: {
-            userId,
-            seasonId: season.id,
-            division: season.division,
-            status: SeasonRegistrationStatus.active,
-            redeemedAt: now,
-            invoiceAlert,
-          },
-          update: {
-            status: SeasonRegistrationStatus.active,
-            redeemedAt: now,
-            division: season.division,
-            invoiceAlert,
-          },
-        });
-      } else {
-        await tx.invoiceCode.create({
           data: {
-            seasonId: season.id,
-            codeHash,
-            codeNormalized: normalized,
-            assignedUserId: userId,
-            redeemedAt: now,
+            invoiceAlert,
+            ...(matches ? { redeemedAt: now } : {}),
           },
         });
+      });
+
+      if (!matches) {
+        return this.recordInvoiceAttemptFailure(userId, season.id, INVOICE_ALERT_NOT_MATCHING);
+      }
+      await InvoiceRateLimitService.clearAttempts(userId, season.id);
+      return;
+    }
+
+    const adminNormalized = adminAssigned?.codeNormalized;
+    if (!adminNormalized) {
+      throw new Error('ממתין שהמנהל ירשום את מספר החשבונית — פנה למנהל');
+    }
+
+    const matches = invoicesMatchExactly(normalized, adminNormalized);
+
+    if (!matches) {
+      await prisma.$transaction(async (tx) => {
+        if (existingRedeemed) {
+          await tx.invoiceCode.update({
+            where: { id: existingRedeemed.id },
+            data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+          });
+        } else {
+          await tx.invoiceCode.create({
+            data: {
+              seasonId: season.id,
+              codeHash,
+              codeNormalized: normalized,
+              assignedUserId: userId,
+              redeemedAt: now,
+            },
+          });
+        }
         await tx.seasonRegistration.upsert({
           where: { userId_seasonId: { userId, seasonId: season.id } },
           create: {
             userId,
             seasonId: season.id,
             division: season.division,
-            status: SeasonRegistrationStatus.active,
-            redeemedAt: now,
-            invoiceAlert,
+            status: SeasonRegistrationStatus.invoice_assigned,
+            invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
           },
           update: {
-            status: SeasonRegistrationStatus.active,
-            redeemedAt: now,
+            status: SeasonRegistrationStatus.invoice_assigned,
+            invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
             division: season.division,
-            invoiceAlert,
           },
         });
-      }
+      });
+      return this.recordInvoiceAttemptFailure(userId, season.id, INVOICE_ALERT_NOT_MATCHING);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.invoiceCode.update({
+        where: { id: adminAssigned!.id },
+        data: { codeHash, codeNormalized: normalized, redeemedAt: now },
+      });
+      await tx.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+        create: {
+          userId,
+          seasonId: season.id,
+          division: season.division,
+          status: SeasonRegistrationStatus.active,
+          redeemedAt: now,
+          invoiceAlert: null,
+        },
+        update: {
+          status: SeasonRegistrationStatus.active,
+          redeemedAt: now,
+          division: season.division,
+          invoiceAlert: null,
+        },
+      });
     });
 
-    if (!correctingMismatch) {
-      await this.lockActiveDivision(userId, division);
-    }
+    await this.lockActiveDivision(userId, division);
     await InvoiceRateLimitService.clearAttempts(userId, season.id);
   }
 
@@ -826,6 +939,7 @@ export class RegistrationService {
     if (reg?.status !== SeasonRegistrationStatus.active) {
       throw new Error('הזן את מספר החשבונית בפרופיל לפני שליחת בקשה');
     }
+    await this.assertMatchedInvoicesForApproval(userId, seasonId);
   }
 
   static async submitTeamCreation(
@@ -932,6 +1046,7 @@ export class RegistrationService {
     if (reg?.status !== SeasonRegistrationStatus.active) {
       throw new Error('לא ניתן לאשר הקמת קבוצה לפני פדיון קוד תשלום (סטטוס רישום לא פעיל)');
     }
+    await this.assertMatchedInvoicesForApproval(req.userId, req.seasonId);
 
     const teamId = await this.getNextTeamId(req.seasonId);
     const memberId = await this.getNextMemberId();
@@ -1152,6 +1267,7 @@ export class RegistrationService {
     if (reg?.status !== SeasonRegistrationStatus.active) {
       throw new Error('לא ניתן להוסיף לסגל לפני פדיון קוד תשלום (סטטוס רישום לא פעיל)');
     }
+    await this.assertMatchedInvoicesForApproval(req.userId, req.seasonId);
 
     const memberId = await this.getNextMemberId();
     const profile = (req.user.playerProfile as Record<string, unknown> | null) ?? {};
@@ -1533,13 +1649,50 @@ export class RegistrationService {
         : [];
     const regStatusByUser = new Map(workflowRegs.map((r) => [r.userId, r.status]));
 
+    const workflowInvoiceByUser = await this.getUserInvoiceDisplayMap(season.id, workflowUserIds);
+    const adminAssignments = workflowUserIds.length
+      ? await prisma.invoiceCode.findMany({
+          where: {
+            seasonId: season.id,
+            assignedUserId: { in: workflowUserIds },
+            redeemedAt: null,
+            createdById: { not: null },
+          },
+          select: { assignedUserId: true, codeNormalized: true },
+        })
+      : [];
+    const hasAdminAssignmentByUser = new Set(adminAssignments.map((a) => a.assignedUserId));
+
+    const enrichWorkflowInvoice = (userId: string) => {
+      const invoice = workflowInvoiceByUser.get(userId) ?? {
+        submittedInvoiceNumber: null,
+        assignedInvoiceNumber: null,
+        hasUnredeemedCode: false,
+      };
+      const hasAdminAssignment = hasAdminAssignmentByUser.has(userId);
+      const hasUserSubmission = !!invoice.submittedInvoiceNumber;
+      const invoicesMatched =
+        hasAdminAssignment &&
+        hasUserSubmission &&
+        !!invoice.assignedInvoiceNumber &&
+        !!invoice.submittedInvoiceNumber &&
+        invoicesMatchExactly(invoice.assignedInvoiceNumber, invoice.submittedInvoiceNumber);
+      return {
+        submittedInvoiceNumber: invoice.submittedInvoiceNumber,
+        assignedInvoiceNumber: invoice.assignedInvoiceNumber,
+        invoicesMatched,
+      };
+    };
+
     const creationsEnriched = creations.map((c) => ({
       ...c,
       registrationStatus: regStatusByUser.get(c.userId) ?? SeasonRegistrationStatus.none,
+      ...enrichWorkflowInvoice(c.userId),
     }));
     const joinsEnriched = joins.map((j) => ({
       ...j,
       registrationStatus: regStatusByUser.get(j.userId) ?? SeasonRegistrationStatus.none,
+      ...enrichWorkflowInvoice(j.userId),
     }));
     const transfersEnriched = transfers.map((t) => ({
       ...t,

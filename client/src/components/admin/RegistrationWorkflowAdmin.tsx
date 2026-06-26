@@ -40,12 +40,18 @@ interface WorkflowData {
         id: string;
         teamName: string;
         registrationStatus: string;
+        submittedInvoiceNumber?: string | null;
+        assignedInvoiceNumber?: string | null;
+        invoicesMatched?: boolean;
         user: WorkflowUser;
     }>;
     joins: Array<{
         id: string;
         status: string;
         registrationStatus: string;
+        submittedInvoiceNumber?: string | null;
+        assignedInvoiceNumber?: string | null;
+        invoicesMatched?: boolean;
         team: { id: number; name: string };
         user: WorkflowUser;
     }>;
@@ -59,7 +65,8 @@ interface WorkflowData {
     awaitingInvoice: AwaitingInvoiceRow[];
 }
 
-const canApproveRequest = (registrationStatus: string) => registrationStatus === 'active';
+const canApproveRequest = (registrationStatus: string, invoicesMatched?: boolean) =>
+    registrationStatus === 'active' && invoicesMatched === true;
 
 const REG_STATUS_LABELS: Record<string, string> = {
     none: 'לא התחיל',
@@ -423,62 +430,103 @@ export default function RegistrationWorkflowAdmin() {
 
                     <section className="mb-3">
                         <h5 className="h6">הקמת קבוצות ({data.creations.length})</h5>
-                        <ul className="list-group list-group-flush">
-                            {data.creations.map((c) => {
-                                const paid = canApproveRequest(c.registrationStatus);
-                                return (
-                                <li
-                                    key={c.id}
-                                    className={`list-group-item d-flex justify-content-between align-items-center${paid ? '' : ' opacity-50 bg-light'}`}
-                                    aria-disabled={!paid}
-                                >
-                                    <span>
-                                        {c.teamName} — {c.user.displayName}
-                                        {c.user.email && (
-                                            <span className="text-muted small" dir="ltr">
-                                                {' '}
-                                                ({c.user.email})
-                                            </span>
-                                        )}
-                                        {!paid && (
-                                            <span className="d-block small text-muted mt-1">
-                                                ממתין לחשבונית מהמשתמש (
-                                                {REG_STATUS_LABELS[c.registrationStatus] ?? c.registrationStatus})
-                                            </span>
-                                        )}
-                                    </span>
-                                    <span>
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm btn-success me-1"
-                                            disabled={!paid}
-                                            title={paid ? undefined : 'לא ניתן לאשר לפני הזנת חשבונית'}
-                                            onClick={async () => {
-                                                await adminAPI.reviewCreationRequest(c.id, true);
-                                                load();
-                                            }}
-                                        >
-                                            אשר
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm btn-outline-danger"
-                                            title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
-                                            onClick={async () => {
-                                                await adminAPI.reviewCreationRequest(c.id, false);
-                                                load();
-                                            }}
-                                        >
-                                            דחה
-                                        </button>
-                                    </span>
-                                </li>
-                                );
-                            })}
-                            {!data.creations.length && (
-                                <li className="list-group-item text-muted">אין</li>
-                            )}
-                        </ul>
+                        <div className="table-responsive">
+                            <table className="table table-sm table-hover align-middle mb-0">
+                                <caption className="visually-hidden">בקשות הקמת קבוצות ממתינות</caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">קבוצה / משתמש</th>
+                                        <th scope="col">הזנת משתמש</th>
+                                        <th scope="col">מספר מנהל</th>
+                                        <th scope="col">התאמה</th>
+                                        <th scope="col">פעולות</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.creations.map((c) => {
+                                        const paid = canApproveRequest(
+                                            c.registrationStatus,
+                                            c.invoicesMatched
+                                        );
+                                        return (
+                                            <tr
+                                                key={c.id}
+                                                className={paid ? '' : 'opacity-50'}
+                                                aria-disabled={!paid}
+                                            >
+                                                <td>
+                                                    <span className="fw-semibold">{c.teamName}</span>
+                                                    <span className="d-block small">
+                                                        {c.user.displayName}
+                                                        {c.user.email && (
+                                                            <span className="text-muted" dir="ltr">
+                                                                {' '}
+                                                                ({c.user.email})
+                                                            </span>
+                                                        )}
+                                                    </span>
+                                                    {!paid && (
+                                                        <span className="d-block small text-muted mt-1">
+                                                            {c.invoicesMatched === false
+                                                                ? 'ממתין להתאמת חשבונית (מנהל + משתמש)'
+                                                                : `ממתין לרישום פעיל (${REG_STATUS_LABELS[c.registrationStatus] ?? c.registrationStatus})`}
+                                                        </span>
+                                                    )}
+                                                </td>
+                                                <td>{renderUserSubmittedCell(c.submittedInvoiceNumber)}</td>
+                                                <td>
+                                                    <span
+                                                        dir="ltr"
+                                                        className={`small ${c.assignedInvoiceNumber ? 'font-monospace' : 'text-muted'}`}
+                                                    >
+                                                        {c.assignedInvoiceNumber ?? '—'}
+                                                    </span>
+                                                </td>
+                                                <td className="small">
+                                                    {c.invoicesMatched ? (
+                                                        <span className="text-success">תואם</span>
+                                                    ) : (
+                                                        <span className="text-muted">לא</span>
+                                                    )}
+                                                </td>
+                                                <td>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-success me-1"
+                                                        disabled={!paid}
+                                                        title={
+                                                            paid
+                                                                ? undefined
+                                                                : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
+                                                        }
+                                                        onClick={async () => {
+                                                            await adminAPI.reviewCreationRequest(c.id, true);
+                                                            load();
+                                                        }}
+                                                    >
+                                                        אשר
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-sm btn-outline-danger"
+                                                        title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
+                                                        onClick={async () => {
+                                                            await adminAPI.reviewCreationRequest(c.id, false);
+                                                            load();
+                                                        }}
+                                                    >
+                                                        דחה
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+                        {!data.creations.length && (
+                            <p className="text-muted small mb-0">אין</p>
+                        )}
                     </section>
 
                     <section className="mb-3">
@@ -486,65 +534,105 @@ export default function RegistrationWorkflowAdmin() {
                             הצטרפות (אחרי בעלים) (
                             {data.joins.filter((j) => j.status === 'owner_approved').length})
                         </h5>
-                        <ul className="list-group list-group-flush">
-                            {data.joins
-                                .filter((j) => j.status === 'owner_approved')
-                                .map((j) => {
-                                    const paid = canApproveRequest(j.registrationStatus);
-                                    return (
-                                    <li
-                                        key={j.id}
-                                        className={`list-group-item d-flex justify-content-between align-items-center${paid ? '' : ' opacity-50 bg-light'}`}
-                                        aria-disabled={!paid}
-                                    >
-                                        <span>
-                                            {j.user.displayName}
-                                            {j.user.email && (
-                                                <span className="text-muted small" dir="ltr">
-                                                    {' '}
-                                                    ({j.user.email})
-                                                </span>
-                                            )}{' '}
-                                            → {j.team.name}
-                                            {!paid && (
-                                                <span className="d-block small text-muted mt-1">
-                                                    ממתין לחשבונית מהמשתמש (
-                                                    {REG_STATUS_LABELS[j.registrationStatus] ?? j.registrationStatus})
-                                                </span>
-                                            )}
-                                        </span>
-                                        <span>
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-success me-1"
-                                                disabled={!paid}
-                                                title={paid ? undefined : 'לא ניתן לאשר לפני הזנת חשבונית'}
-                                                onClick={async () => {
-                                                    await adminAPI.reviewJoinRequest(j.id, true);
-                                                    load();
-                                                }}
-                                            >
-                                                אשר סגל
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className="btn btn-sm btn-outline-danger"
-                                                title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
-                                                onClick={async () => {
-                                                    await adminAPI.reviewJoinRequest(j.id, false);
-                                                    load();
-                                                }}
-                                            >
-                                                דחה
-                                            </button>
-                                        </span>
-                                    </li>
-                                    );
-                                })}
-                            {!data.joins.filter((j) => j.status === 'owner_approved').length && (
-                                <li className="list-group-item text-muted">אין</li>
-                            )}
-                        </ul>
+                        <div className="table-responsive">
+                            <table className="table table-sm table-hover align-middle mb-0">
+                                <caption className="visually-hidden">
+                                    בקשות הצטרפות לאחר אישור בעלים
+                                </caption>
+                                <thead>
+                                    <tr>
+                                        <th scope="col">משתמש / קבוצה</th>
+                                        <th scope="col">הזנת משתמש</th>
+                                        <th scope="col">מספר מנהל</th>
+                                        <th scope="col">התאמה</th>
+                                        <th scope="col">פעולות</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {data.joins
+                                        .filter((j) => j.status === 'owner_approved')
+                                        .map((j) => {
+                                            const paid = canApproveRequest(
+                                                j.registrationStatus,
+                                                j.invoicesMatched
+                                            );
+                                            return (
+                                                <tr
+                                                    key={j.id}
+                                                    className={paid ? '' : 'opacity-50'}
+                                                    aria-disabled={!paid}
+                                                >
+                                                    <td>
+                                                        <span className="fw-semibold">{j.user.displayName}</span>
+                                                        {j.user.email && (
+                                                            <span className="text-muted small" dir="ltr">
+                                                                {' '}
+                                                                ({j.user.email})
+                                                            </span>
+                                                        )}
+                                                        <span className="d-block small">→ {j.team.name}</span>
+                                                        {!paid && (
+                                                            <span className="d-block small text-muted mt-1">
+                                                                {j.invoicesMatched === false
+                                                                    ? 'ממתין להתאמת חשבונית (מנהל + משתמש)'
+                                                                    : `ממתין לרישום פעיל (${REG_STATUS_LABELS[j.registrationStatus] ?? j.registrationStatus})`}
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td>{renderUserSubmittedCell(j.submittedInvoiceNumber)}</td>
+                                                    <td>
+                                                        <span
+                                                            dir="ltr"
+                                                            className={`small ${j.assignedInvoiceNumber ? 'font-monospace' : 'text-muted'}`}
+                                                        >
+                                                            {j.assignedInvoiceNumber ?? '—'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="small">
+                                                        {j.invoicesMatched ? (
+                                                            <span className="text-success">תואם</span>
+                                                        ) : (
+                                                            <span className="text-muted">לא</span>
+                                                        )}
+                                                    </td>
+                                                    <td>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-success me-1"
+                                                            disabled={!paid}
+                                                            title={
+                                                                paid
+                                                                    ? undefined
+                                                                    : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
+                                                            }
+                                                            onClick={async () => {
+                                                                await adminAPI.reviewJoinRequest(j.id, true);
+                                                                load();
+                                                            }}
+                                                        >
+                                                            אשר סגל
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            className="btn btn-sm btn-outline-danger"
+                                                            title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
+                                                            onClick={async () => {
+                                                                await adminAPI.reviewJoinRequest(j.id, false);
+                                                                load();
+                                                            }}
+                                                        >
+                                                            דחה
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                </tbody>
+                            </table>
+                        </div>
+                        {!data.joins.filter((j) => j.status === 'owner_approved').length && (
+                            <p className="text-muted small mb-0">אין</p>
+                        )}
                     </section>
 
                     <section className="mb-3">
