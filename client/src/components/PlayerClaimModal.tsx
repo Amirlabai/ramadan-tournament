@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import AccessibleModal from './AccessibleModal';
-import { teamsAPI, usersAPI } from '../api/client';
+import { teamsAPI, registrationAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
+import { useTournament } from '../contexts/TournamentContext';
 import type { Team } from '../types';
 import './PlayerClaimModal.css';
 
@@ -23,8 +24,8 @@ const POSITIONS = ['שוער', 'בלם', 'מגן', 'קשר', 'חלוץ'];
 
 const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     const { refreshUser } = useAuth();
+    const { slug } = useTournament();
 
-    // Step: 'team' | 'player' | 'custom'
     const [step, setStep] = useState<'team' | 'player' | 'custom'>('team');
     const [teams, setTeams] = useState<Team[]>([]);
     const [selectedTeamId, setSelectedTeamId] = useState<number | ''>('');
@@ -32,7 +33,6 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     const [loadingPlayers, setLoadingPlayers] = useState(false);
     const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
 
-    // Custom profile form state
     const [customProfile, setCustomProfile] = useState({ firstName: '', lastName: '', nickname: '', number: '', position: '' });
 
     const [loading, setLoading] = useState(false);
@@ -40,17 +40,17 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
-        teamsAPI.getAll()
+        teamsAPI.getAll(slug)
             .then(r => setTeams(r.data))
             .catch(() => setError('שגיאה בטעינת קבוצות'));
-    }, []);
+    }, [slug]);
 
     const handleTeamNext = async () => {
         if (!selectedTeamId) { setError('יש לבחור קבוצה'); return; }
         setError('');
         setLoadingPlayers(true);
         try {
-            const res = await teamsAPI.getAvailablePlayers(Number(selectedTeamId));
+            const res = await teamsAPI.getAvailablePlayers(Number(selectedTeamId), slug);
             setAvailablePlayers(res.data);
             setStep(res.data.length > 0 ? 'player' : 'custom');
         } catch {
@@ -61,10 +61,14 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     };
 
     const handleSubmitClaim = async () => {
+        if (!selectedMemberId) {
+            setError('יש לבחור שחקן מהרשימה');
+            return;
+        }
         setError('');
         setLoading(true);
         try {
-            await usersAPI.requestMapping({ teamId: Number(selectedTeamId), memberId: selectedMemberId ?? undefined });
+            await registrationAPI.submitJoin(Number(selectedTeamId), slug, { memberId: selectedMemberId });
             await refreshUser();
             setSuccess(true);
             setTimeout(() => onClose(), 2500);
@@ -84,9 +88,11 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
         }
         setLoading(true);
         try {
-            await usersAPI.requestMapping({
-                teamId: Number(selectedTeamId),
-                playerProfile: { ...customProfile, number: Number(customProfile.number) }
+            await registrationAPI.submitJoin(Number(selectedTeamId), slug, {
+                playerProfile: {
+                    ...customProfile,
+                    number: Number(customProfile.number),
+                },
             });
             await refreshUser();
             setSuccess(true);
@@ -117,10 +123,9 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                 <div className="text-center text-theme-green py-4">
                                     <i className="bi bi-check-circle-fill display-4 mb-3"></i>
                                     <h4>הבקשה נשלחה בהצלחה!</h4>
-                                    <p className="text-muted mt-2">הבקשה ממתינה לאישור הקפטן.</p>
+                                    <p className="text-muted mt-2">הבקשה ממתינה לאישור בעלים ומנהל.</p>
                                 </div>
                             ) : step === 'team' ? (
-                                /* ── Step 1: Pick team ───────────────────────────── */
                                 <>
                                     <p className="mb-4 text-muted">בחר את הקבוצה שאתה חלק ממנה.</p>
                                     <div className="mb-4">
@@ -145,7 +150,6 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                     </div>
                                 </>
                             ) : step === 'player' ? (
-                                /* ── Step 2a: Pick existing player ───────────────── */
                                 <>
                                     <p className="mb-3 text-muted">בחר את השחקן שאתה. שחקנים שכבר נתבעו על ידי משתמשים אחרים אינם מופיעים.</p>
                                     <div className="row g-2 mb-4" style={{ maxHeight: 340, overflowY: 'auto' }}>
@@ -191,11 +195,10 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                     </div>
                                 </>
                             ) : (
-                                /* ── Step 2b: Custom profile ─────────────────────── */
                                 <form onSubmit={handleSubmitCustom}>
                                     <p className="mb-3 text-muted">
                                         {availablePlayers.length === 0
-                                            ? 'אין שחקנים פנויים בקבוצה זו. מלא את הפרטים שלך ובקשתך תועבר לאישור הקפטן.'
+                                            ? 'אין שחקנים פנויים בקבוצה זו. מלא את הפרטים שלך ובקשתך תועבר לאישור.'
                                             : 'מלא את הפרטים שלך כשחקן חדש.'}
                                     </p>
                                     <div className="row g-3">

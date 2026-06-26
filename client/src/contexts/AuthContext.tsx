@@ -19,7 +19,7 @@ export interface TournamentRegistrationSummary {
     pendingJoin?: { id: string; teamId: number; status: string } | null;
     pendingCreation?: { id: string; teamName: string; status: string } | null;
     pendingTransfer?: { id: string; fromTeamId: number; toTeamId: number; status: string } | null;
-    onRoster?: { teamId: number; memberId: number } | null;
+    onRoster?: { teamId: number; memberId: number; isCaptain?: boolean } | null;
     ownedTeamId?: number | null;
 }
 

@@ -60,4 +60,16 @@ export class SeasonService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
+  /** Active season for a division (girls may be absent). */
+  static async getActiveSeasonForDivision(division: Division): Promise<Season> {
+    if (division === Division.girls) {
+      const season = await this.getActiveGirlsSeason();
+      if (!season) {
+        throw new Error('אין עונה פעילה לטורניר בנות');
+      }
+      return season;
+    }
+    return this.getActiveSeason(Division.boys);
+  }
 }

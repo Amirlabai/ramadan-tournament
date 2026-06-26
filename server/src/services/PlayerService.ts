@@ -1,7 +1,9 @@
-import { RequestStatus } from '@prisma/client';
+import { Division, RequestStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
 import { CacheService } from './CacheService';
+import { SeasonService } from './SeasonService';
+import { PlayerServiceError } from '../errors/PlayerServiceError';
 
 export interface PlayerProfileUpdateInput {
   firstName?: string;
@@ -181,6 +183,141 @@ export class PlayerService {
   }
 
   /** Draft profile while join is pending — validate against target team roster. */
+  static async syncAvatarToRoster(userId: string, avatarUrl: string | undefined): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { activeDivision: true },
+    });
+
+    const where: { userId: string; active: boolean; seasonId?: string } = {
+      userId,
+      active: true,
+    };
+    if (user?.activeDivision) {
+      const season = await SeasonService.getActiveSeasonForDivision(user.activeDivision).catch(
+        () => null
+      );
+      if (season) where.seasonId = season.id;
+    }
+
+    const player = await prisma.player.findFirst({
+      where,
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!player) return;
+
+    await prisma.player.update({
+      where: { memberId: player.memberId },
+      data: { headPhoto: avatarUrl ?? '' },
+    });
+    await invalidateTeamDivision(player.seasonId);
+  }
+
+  static async leaveTeam(userId: string, division: Division = Division.boys): Promise<void> {
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) {
+      throw new PlayerServiceError('NOT_ON_ROSTER', 'משתמש לא משויך לקבוצה', 400);
+    }
+
+    const player = await prisma.player.findFirst({
+      where: {
+        userId,
+        active: true,
+        seasonId: season.id,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    if (!player) {
+      throw new PlayerServiceError('NOT_ON_ROSTER', 'משתמש לא משויך לקבוצה', 400);
+    }
+
+    const ownedOnSeason = await prisma.team.findFirst({
+      where: { ownerUserId: userId, seasonId: player.seasonId },
+      select: { id: true },
+    });
+    if (ownedOnSeason) {
+      throw new PlayerServiceError(
+        'TEAM_OWNER',
+        'בעל קבוצה לא יכול לעזוב — פנה למנהל',
+        403
+      );
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.player.update({
+        where: { memberId: player.memberId },
+        data: { userId: null, active: false },
+      });
+
+      await tx.teamJoinRequest.updateMany({
+        where: {
+          userId,
+          seasonId: player.seasonId,
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+        data: { status: RequestStatus.invalidated },
+      });
+
+      await tx.teamTransferRequest.updateMany({
+        where: {
+          userId,
+          seasonId: player.seasonId,
+          status: RequestStatus.pending,
+        },
+        data: { status: RequestStatus.invalidated },
+      });
+
+      const userRow = await tx.user.findUnique({
+        where: { id: userId },
+        select: { playerProfile: true, mappedPlayerInfo: true },
+      });
+      const mapped = userRow?.mappedPlayerInfo as {
+        memberId?: number;
+        status?: string;
+      } | null;
+
+      const userUpdate: {
+        mappedPlayerInfo?: ReturnType<typeof toInputJson>;
+        playerProfile?: ReturnType<typeof toInputJson>;
+      } = {};
+
+      if (!mapped?.memberId || mapped.memberId === player.memberId) {
+        userUpdate.mappedPlayerInfo = toInputJson(null);
+      }
+
+      const otherActive = await tx.player.findFirst({
+        where: { userId, active: true },
+      });
+      const otherPending = await tx.teamJoinRequest.findFirst({
+        where: {
+          userId,
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+      });
+
+      if (!otherActive && !otherPending) {
+        userUpdate.playerProfile = toInputJson(null);
+      } else {
+        const prof = (userRow?.playerProfile as Record<string, unknown> | null) ?? {};
+        if ('requestedMemberId' in prof) {
+          const { requestedMemberId: _removed, ...rest } = prof;
+          userUpdate.playerProfile = toInputJson(
+            Object.keys(rest).length > 0 ? rest : null
+          );
+        }
+      }
+
+      if (Object.keys(userUpdate).length > 0) {
+        await tx.user.update({
+          where: { id: userId },
+          data: userUpdate,
+        });
+      }
+    });
+
+    await invalidateTeamDivision(player.seasonId);
+  }
+
   static async updatePendingProfile(userId: string, raw: PlayerProfileUpdateInput) {
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
     const pendingJoin = await prisma.teamJoinRequest.findFirst({

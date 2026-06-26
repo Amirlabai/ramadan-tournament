@@ -107,7 +107,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
-- **June 2026 — Fresh season tooling:** `db:fresh` (empty seed), `fixtures:generate` (round-robin CLI), Admin **משתמשים** tab + `GET/PATCH /api/admin/users` for role management. Documented in `context.md` and `server/README.md`.
+- **June 2026 — Migration audit:** Prisma migrations verified on Render; archive strategy = daily `backup-postgres.yml` → `archive/postgres/`; retired core `mappedPlayerInfo` paths (`PlayerService.leaveTeam`, avatar sync); removed `/users/map-player`; transfer + squad-role UI; girls teams API returns `[]` without active season.
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
 - **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [review/world-cup-phase.md](review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.

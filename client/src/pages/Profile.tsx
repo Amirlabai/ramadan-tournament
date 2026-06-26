@@ -1,9 +1,10 @@
 ﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, type User } from '../contexts/AuthContext';
-import { usersAPI, teamsAPI, statsAPI, registrationAPI, type TournamentSlug } from '../api/client';
+import { usersAPI, teamsAPI, statsAPI, statsGirlsAPI, registrationAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
+import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
@@ -15,12 +16,36 @@ const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').r
 const TEAM_NAME_MAX_LEN = 80;
 const TEAM_DESC_MAX_LEN = 500;
 
-function resolveRegistrationSlug(user: User | null | undefined): TournamentSlug {
+function resolveRegistrationSlug(user: User | null | undefined): 'boys' | 'girls' {
     if (user?.activeDivision === 'girls') return 'girls';
     if (user?.activeDivision === 'boys') return 'boys';
     if (user?.tournamentRegistration?.girls?.status === 'active') return 'girls';
     if (user?.tournamentRegistration?.boys?.status === 'active') return 'boys';
     return 'boys';
+}
+
+function managedTeamIdForReg(
+    reg?: {
+        ownedTeamId?: number | null;
+        onRoster?: { teamId: number; isCaptain?: boolean } | null;
+    } | null
+): number | null {
+    if (!reg) return null;
+    return reg.ownedTeamId ?? (reg.onRoster?.isCaptain ? reg.onRoster.teamId : null) ?? null;
+}
+
+/** Prefer active division when it has owner/captain duties; otherwise any division with management role. */
+function pickManagedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: number | null } {
+    const active = resolveRegistrationSlug(user);
+    const boys = user.tournamentRegistration?.boys;
+    const girls = user.tournamentRegistration?.girls;
+    const activeManaged = managedTeamIdForReg(active === 'girls' ? girls : boys);
+    if (activeManaged) return { slug: active, teamId: activeManaged };
+    const boysManaged = managedTeamIdForReg(boys);
+    if (boysManaged) return { slug: 'boys', teamId: boysManaged };
+    const girlsManaged = managedTeamIdForReg(girls);
+    if (girlsManaged) return { slug: 'girls', teamId: girlsManaged };
+    return { slug: active, teamId: null };
 }
 
 const Profile = () => {
@@ -34,27 +59,16 @@ const Profile = () => {
 
     // Player profile editing
     const playerProfile = user ? (user as any).playerProfile : null;
-    const onRoster =
-        user?.tournamentRegistration?.boys?.onRoster ??
-        user?.tournamentRegistration?.girls?.onRoster;
-    const ownsTeam =
-        user?.tournamentRegistration?.boys?.ownedTeamId ??
-        user?.tournamentRegistration?.girls?.ownedTeamId;
-    const managedTeamId =
-        ownsTeam ??
-        (user?.role === 'Captain' ? user.mappedPlayerInfo?.teamId : undefined) ??
-        null;
-    const isCaptain = user?.role === 'Captain' || !!ownsTeam;
-    const pendingJoin =
-        user?.tournamentRegistration?.boys?.pendingJoin ??
-        user?.tournamentRegistration?.girls?.pendingJoin;
-    const canEditPlayer =
-        !!(
-            playerProfile ||
-            onRoster ||
-            pendingJoin ||
-            user?.mappedPlayerInfo?.status === 'approved'
-        );
+    const registrationSlug = user ? resolveRegistrationSlug(user) : 'boys';
+    const managedCtx = user ? pickManagedTeamContext(user) : { slug: 'boys' as const, teamId: null };
+    const managedSlug = managedCtx.slug;
+    const divisionReg = user?.tournamentRegistration?.[registrationSlug];
+    const onRoster = divisionReg?.onRoster ?? null;
+    const ownsTeam = divisionReg?.ownedTeamId ?? null;
+    const managedTeamId = managedCtx.teamId;
+    const canLeaveActiveRoster = !!onRoster && !ownsTeam && !onRoster?.isCaptain;
+    const pendingJoin = divisionReg?.pendingJoin ?? null;
+    const canEditPlayer = !!(playerProfile || onRoster || pendingJoin);
     const [editingPlayer, setEditingPlayer] = useState(false);
     const [playerForm, setPlayerForm] = useState({ firstName: '', lastName: '', nickname: '', number: '', position: '', bio: '' });
     const [playerSaving, setPlayerSaving] = useState(false);
@@ -75,6 +89,7 @@ const Profile = () => {
     // Stats data
     const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
     const [playerGoals, setPlayerGoals] = useState<number | null>(null);
+    const [rosterTeamName, setRosterTeamName] = useState<string | null>(null);
 
     const startEditPlayer = () => {
         setPlayerForm({
@@ -110,9 +125,8 @@ const Profile = () => {
             setManagedTeam(null);
             return;
         }
-        const slug = resolveRegistrationSlug(user);
         try {
-            const res = await teamsAPI.getById(managedTeamId, slug);
+            const res = await teamsAPI.getById(managedTeamId, managedSlug);
             const team = res.data as { name: string; logoUrl?: string; logoPosition?: string };
             setManagedTeam({
                 name: team.name,
@@ -120,18 +134,9 @@ const Profile = () => {
                 logoPosition: team.logoPosition || 'right',
             });
         } catch {
-            const legacy = user.mappedPlayerInfo;
-            if (legacy?.teamId === managedTeamId) {
-                setManagedTeam({
-                    name: (legacy as { teamName?: string }).teamName || '',
-                    logoUrl: (legacy as { logoUrl?: string }).logoUrl,
-                    logoPosition: (legacy as { logoPosition?: string }).logoPosition || 'right',
-                });
-            } else {
-                setManagedTeam(null);
-            }
+            setManagedTeam(null);
         }
-    }, [user, managedTeamId]);
+    }, [user, managedTeamId, managedSlug]);
 
     useEffect(() => {
         void loadManagedTeam();
@@ -147,25 +152,39 @@ const Profile = () => {
 
     useEffect(() => {
         const fetchStats = async () => {
-            if (user && (user.role === 'Player' || user.role === 'Captain') && user.mappedPlayerInfo?.teamId) {
-                try {
+            if (!user) return;
+            const slug = resolveRegistrationSlug(user);
+            const roster = user.tournamentRegistration?.[slug]?.onRoster;
+            if (!roster) {
+                setTeamStanding(null);
+                setPlayerGoals(null);
+                setRosterTeamName(null);
+                return;
+            }
+
+            try {
+                const teamRes = await teamsAPI.getById(roster.teamId, slug);
+                setRosterTeamName((teamRes.data as { name?: string }).name ?? null);
+
+                if (slug === 'girls') {
+                    const standingsRes = await statsGirlsAPI.getStandings();
+                    const standing = standingsRes.data.find(
+                        (s: Standing & { teamId: number }) => s.teamId === roster.teamId
+                    );
+                    if (standing) setTeamStanding(standing);
+                    setPlayerGoals(null);
+                } else {
                     const [standingsRes, scorersRes] = await Promise.all([
                         statsAPI.getStandings(),
-                        statsAPI.getTopScorers()
+                        statsAPI.getTopScorers(),
                     ]);
-
-                    const teamId = user.mappedPlayerInfo.teamId;
-                    const memberId = user.mappedPlayerInfo.memberId;
-
-                    const standing = standingsRes.data.find((s: Standing) => s.teamId === teamId);
+                    const standing = standingsRes.data.find((s: Standing) => s.teamId === roster.teamId);
                     if (standing) setTeamStanding(standing);
-
-                    const scorer = scorersRes.data.find((s: TopScorer) => s.memberId === memberId);
+                    const scorer = scorersRes.data.find((s: TopScorer) => s.memberId === roster.memberId);
                     setPlayerGoals(scorer ? scorer.goals : 0);
-
-                } catch (error) {
-                    console.error('Error fetching profile stats:', error);
                 }
+            } catch (error) {
+                console.error('Error fetching profile stats:', error);
             }
         };
 
@@ -231,13 +250,13 @@ const Profile = () => {
     };
 
     const handleLeaveTeam = async () => {
-        if (user.role === 'Captain') {
-            alert('קפטן לא יכול לעזוב את הקבוצה שלו');
+        if (ownsTeam) {
+            alert('בעל קבוצה לא יכול לעזוב — פנה למנהל');
             return;
         }
         if (!confirm('האם אתה בטוח שברצונך לעזוב את הקבוצה? פעולה זו תסיר את שיוכך כשחקן.')) return;
         try {
-            await usersAPI.leaveTeam();
+            await usersAPI.leaveTeam(registrationSlug);
             await refreshUser();
             alert('עזבת את הקבוצה בהצלחה');
         } catch (err: any) {
@@ -251,8 +270,7 @@ const Profile = () => {
         setTeamSettingsSaving(true);
         setTeamSettingsMsg('');
         try {
-            const slug = resolveRegistrationSlug(user);
-            await teamsAPI.updateMetadata(managedTeamId, teamSettingsForm as any, slug);
+            await teamsAPI.updateMetadata(managedTeamId, teamSettingsForm as any, managedSlug);
             await Promise.all([refreshUser(), loadManagedTeam()]);
             setEditingTeam(false);
             setTeamSettingsMsg('פרטי הקבוצה עודכנו בהצלחה');
@@ -268,10 +286,9 @@ const Profile = () => {
         if (!file || !user || !managedTeamId) return;
         setTeamLogoLoading(true);
         try {
-            const slug = resolveRegistrationSlug(user);
             const formData = new FormData();
             formData.append('logo', file);
-            await teamsAPI.uploadLogo(managedTeamId, formData, slug);
+            await teamsAPI.uploadLogo(managedTeamId, formData, managedSlug);
             await Promise.all([refreshUser(), loadManagedTeam()]);
             alert('הלוגו הועלה בהצלחה');
         } catch (err: any) {
@@ -285,8 +302,7 @@ const Profile = () => {
         if (!user || !managedTeamId || !confirm('האם למחוק את לוגו הקבוצה?')) return;
         setTeamLogoLoading(true);
         try {
-            const slug = resolveRegistrationSlug(user);
-            await teamsAPI.deleteLogo(managedTeamId, slug);
+            await teamsAPI.deleteLogo(managedTeamId, managedSlug);
             await Promise.all([refreshUser(), loadManagedTeam()]);
             alert('הלוגו נמחק בהצלחה');
         } catch (err: any) {
@@ -333,8 +349,6 @@ const Profile = () => {
     const pendingTeam = (user as any).pendingTeamRequest;
     const boysReg = user.tournamentRegistration?.boys;
     const girlsReg = user.tournamentRegistration?.girls;
-    const registrationSlug = resolveRegistrationSlug(user);
-    const divisionReg = registrationSlug === 'girls' ? girlsReg : boysReg;
     const isRegistrationActive = divisionReg?.status === 'active';
     const canRequestTeam =
         isRegistrationActive &&
@@ -361,6 +375,9 @@ const Profile = () => {
         user.role !== 'Player' &&
         user.role !== 'Captain';
     const showLegacyCaptain = user.role === 'Captain' && !usesPrdRegistration;
+    const managedOwnedTeamId = user.tournamentRegistration?.[managedSlug]?.ownedTeamId;
+    const showOwnerJoinPanel =
+        !!managedTeamId && managedOwnedTeamId === managedTeamId && !!managedTeam;
     const showTeamSettings = !!managedTeamId && !!managedTeam;
     const teamLogoSrc = resolveLogoSrc(managedTeam?.logoUrl);
 
@@ -459,7 +476,7 @@ const Profile = () => {
                             <div className="d-flex gap-2">
                                 {!editingPlayer && (
                                     <>
-                                        {!isCaptain && (
+                                        {canLeaveActiveRoster && (
                                             <button type="button" className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>
                                                 <i className="bi bi-box-arrow-right me-1" />עזוב קבוצה
                                             </button>
@@ -554,7 +571,7 @@ const Profile = () => {
                     <div className="card mb-4 p-4 profile-stats-card">
                         <h4 className="mb-4 d-flex align-items-center">
                             <i className="bi bi-bar-chart-fill me-2 text-primary" />
-                            סטטיסטיקות טורניר — {(user as any).mappedPlayerInfo?.teamName}
+                            סטטיסטיקות טורניר — {rosterTeamName ?? `קבוצה #${onRoster?.teamId}`}
                         </h4>
 
                         <div className="row g-3 text-center">
@@ -716,6 +733,20 @@ const Profile = () => {
                             </div>
                         )}
                         {!editingTeam && teamSettingsMsg && <div className="alert alert-success py-2 mt-3">{teamSettingsMsg}</div>}
+                    </div>
+                )}
+
+                {showOwnerJoinPanel && (
+                    <div className="card mb-4 p-4">
+                        <h4 className="mb-3 d-flex align-items-center">
+                            <i className="bi bi-shield-check me-2" />
+                            ניהול בקשות הצטרפות — {managedTeam.name}
+                        </h4>
+                        <TeamRegistrationActions
+                            teamId={managedTeamId!}
+                            teamName={managedTeam.name}
+                            slug={managedSlug}
+                        />
                     </div>
                 )}
 

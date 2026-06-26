@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
+import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
@@ -186,6 +187,18 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     רשום בסגל (קבוצה #{reg.onRoster.teamId}).
                 </p>
             )}
+
+            {reg.status === 'active' &&
+                reg.onRoster &&
+                !reg.pendingTransfer &&
+                !reg.pendingJoin &&
+                !reg.pendingCreation && (
+                    <TransferRequestForm
+                        slug={slug}
+                        currentTeamId={reg.onRoster.teamId}
+                        onSubmitted={() => void load()}
+                    />
+                )}
 
             {reg.status === 'active' && !hasPendingRequest && !reg.onRoster && (
                 <p className="small text-muted mb-2">

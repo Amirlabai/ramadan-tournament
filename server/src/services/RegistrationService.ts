@@ -19,6 +19,7 @@ import {
   INVOICE_ALERT_NOT_MATCHING,
   invoicesMatchExactly,
 } from '../utils/invoiceSimilarity';
+import { parseRequestedMemberId } from '../utils/requestedMemberId';
 
 export type WorkflowDivision = Division;
 
@@ -32,8 +33,20 @@ export interface RegistrationSummary {
   pendingJoin: { id: string; teamId: number; status: RequestStatus } | null;
   pendingCreation: { id: string; teamName: string; status: RequestStatus } | null;
   pendingTransfer: { id: string; fromTeamId: number; toTeamId: number; status: RequestStatus } | null;
-  onRoster: { teamId: number; memberId: number } | null;
+  onRoster: { teamId: number; memberId: number; isCaptain: boolean } | null;
   ownedTeamId: number | null;
+}
+
+export interface JoinRequestOptions {
+  memberId?: number;
+  playerProfile?: {
+    firstName?: string;
+    lastName?: string;
+    nickname?: string;
+    number?: number;
+    position?: string;
+    bio?: string;
+  };
 }
 
 export class RegistrationService {
@@ -51,7 +64,7 @@ export class RegistrationService {
   }
 
   static async invalidateDivisionCaches(division: Division): Promise<void> {
-    const season = await SeasonService.getActiveSeason(division).catch(() => null);
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
     if (season) {
       await CacheService.del(CacheService.key('doc', division, 'teams', 'all', season.id));
     }
@@ -114,7 +127,7 @@ export class RegistrationService {
   }
 
   static async cancelPendingRegistrationRequest(userId: string, division: Division) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     await this.assertDivisionAccess(userId, division);
 
     const [join, creation, transfer] = await Promise.all([
@@ -180,7 +193,7 @@ export class RegistrationService {
   }
 
   static async getSummary(userId: string, division: Division): Promise<RegistrationSummary> {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
 
     const [reg, join, creation, transfer, player, ownedTeam, matchState] = await Promise.all([
@@ -240,7 +253,9 @@ export class RegistrationService {
             status: transfer.status,
           }
         : null,
-      onRoster: player ? { teamId: player.teamId, memberId: player.memberId } : null,
+      onRoster: player
+        ? { teamId: player.teamId, memberId: player.memberId, isCaptain: player.isCaptain }
+        : null,
       ownedTeamId: ownedTeam?.id ?? null,
     };
   }
@@ -876,7 +891,7 @@ export class RegistrationService {
   }
 
   static async redeemInvoice(userId: string, code: string, division: Division): Promise<void> {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     await this.assertDivisionAccess(userId, division);
 
     if (await InvoiceRateLimitService.isLocked(userId, season.id)) {
@@ -1126,7 +1141,7 @@ export class RegistrationService {
       teamName,
       description
     );
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     await this.assertDivisionAccess(userId, division);
     await this.assertRegistrationActiveForRequest(userId, season.id);
     await this.lockActiveDivision(userId, division);
@@ -1281,8 +1296,13 @@ export class RegistrationService {
     return team;
   }
 
-  static async submitJoinRequest(userId: string, division: Division, teamId: number) {
-    const season = await SeasonService.getActiveSeason(division);
+  static async submitJoinRequest(
+    userId: string,
+    division: Division,
+    teamId: number,
+    options?: JoinRequestOptions
+  ) {
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     await this.assertDivisionAccess(userId, division);
     await this.assertRegistrationActiveForRequest(userId, season.id);
     await this.lockActiveDivision(userId, division);
@@ -1299,6 +1319,39 @@ export class RegistrationService {
     });
     if (!team) {
       throw new Error('הקבוצה לא נמצאה או אינה פעילה');
+    }
+
+    if (options?.memberId != null) {
+      const slot = await prisma.player.findFirst({
+        where: {
+          memberId: options.memberId,
+          teamId,
+          seasonId: season.id,
+          active: true,
+        },
+      });
+      if (!slot) {
+        throw new Error('שחקן לא נמצא בקבוצה');
+      }
+      if (slot.userId && slot.userId !== userId) {
+        throw new Error('שחקן זה כבר משויך למשתמש אחר');
+      }
+
+      const othersPending = await prisma.teamJoinRequest.findMany({
+        where: {
+          seasonId: season.id,
+          teamId,
+          userId: { not: userId },
+          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+        },
+        include: { user: { select: { playerProfile: true } } },
+      });
+      for (const pj of othersPending) {
+        const prof = pj.user.playerProfile as Record<string, unknown> | null;
+        if (parseRequestedMemberId(prof?.requestedMemberId) === options.memberId) {
+          throw new Error('שחקן זה כבר מבוקש בבקשת הצטרפות אחרת');
+        }
+      }
     }
 
     const dayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -1350,6 +1403,25 @@ export class RegistrationService {
         },
       });
 
+      if (options?.memberId != null) {
+        const othersPending = await tx.teamJoinRequest.findMany({
+          where: {
+            seasonId: season.id,
+            teamId,
+            userId: { not: userId },
+            status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+            NOT: { id: req.id },
+          },
+          include: { user: { select: { playerProfile: true } } },
+        });
+        for (const pj of othersPending) {
+          const prof = pj.user.playerProfile as Record<string, unknown> | null;
+          if (parseRequestedMemberId(prof?.requestedMemberId) === options.memberId) {
+            throw new Error('שחקן זה כבר מבוקש בבקשת הצטרפות אחרת');
+          }
+        }
+      }
+
       await tx.seasonRegistration.upsert({
         where: { userId_seasonId: { userId, seasonId: season.id } },
         create: {
@@ -1359,6 +1431,31 @@ export class RegistrationService {
           status: SeasonRegistrationStatus.active,
         },
         update: { division },
+      });
+
+      const profilePayload: Record<string, unknown> = {};
+      if (options?.memberId != null) {
+        profilePayload.requestedMemberId = options.memberId;
+      } else {
+        profilePayload.requestedMemberId = null;
+      }
+      if (options?.playerProfile) {
+        Object.assign(profilePayload, options.playerProfile);
+      }
+
+      const existing = await tx.user.findUnique({
+        where: { id: userId },
+        select: { playerProfile: true },
+      });
+      const existingProfile =
+        (existing?.playerProfile as Record<string, unknown> | null) ?? {};
+      const merged = { ...existingProfile, ...profilePayload };
+      if (merged.requestedMemberId == null) {
+        delete merged.requestedMemberId;
+      }
+      await tx.user.update({
+        where: { id: userId },
+        data: { playerProfile: toInputJson(merged) },
       });
 
       return req;
@@ -1443,28 +1540,65 @@ export class RegistrationService {
     }
     await this.assertMatchedInvoicesForApproval(req.userId, req.seasonId);
 
-    const memberId = await this.getNextMemberId();
     const profile = (req.user.playerProfile as Record<string, unknown> | null) ?? {};
+    const requestedMemberId = parseRequestedMemberId(profile.requestedMemberId);
+
     const firstName = String(profile.firstName ?? req.user.displayName).slice(0, 50);
     const lastName = String(profile.lastName ?? '').slice(0, 50);
     const nickname = String(profile.nickname ?? req.user.displayName).slice(0, 50);
     const number = Number(profile.number) || 99;
     const position = String(profile.position ?? '').slice(0, 30);
 
+    let linkFirstName = firstName;
+    let linkLastName = lastName;
+    let linkNickname = nickname;
+    let linkNumber = number;
+    let linkPosition = position;
+
     await prisma.$transaction(async (tx) => {
-      await tx.player.create({
-        data: {
-          memberId,
-          teamId: req.teamId,
-          seasonId: req.seasonId,
-          userId: req.userId,
-          firstName,
-          lastName,
-          nickname,
-          number,
-          position,
-        },
-      });
+      let memberId: number;
+
+      if (requestedMemberId != null) {
+        const slot = await tx.player.findFirst({
+          where: {
+            memberId: requestedMemberId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            active: true,
+          },
+        });
+        if (!slot) {
+          throw new Error('שחקן מבוקש לא נמצא בקבוצה');
+        }
+        if (slot.userId && slot.userId !== req.userId) {
+          throw new Error('שחקן זה כבר משויך למשתמש אחר');
+        }
+        await tx.player.update({
+          where: { memberId: requestedMemberId },
+          data: { userId: req.userId },
+        });
+        memberId = requestedMemberId;
+        linkFirstName = slot.firstName;
+        linkLastName = slot.lastName;
+        linkNickname = slot.nickname;
+        linkNumber = slot.number;
+        linkPosition = slot.position;
+      } else {
+        memberId = await this.getNextMemberId();
+        await tx.player.create({
+          data: {
+            memberId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            userId: req.userId,
+            firstName,
+            lastName,
+            nickname,
+            number,
+            position,
+          },
+        });
+      }
 
       await tx.user.update({
         where: { id: req.userId },
@@ -1475,11 +1609,11 @@ export class RegistrationService {
             status: 'approved',
           }),
           playerProfile: toInputJson({
-            firstName,
-            lastName,
-            nickname,
-            number,
-            position,
+            firstName: linkFirstName,
+            lastName: linkLastName,
+            nickname: linkNickname,
+            number: linkNumber,
+            position: linkPosition,
           }),
         },
       });
@@ -1502,7 +1636,7 @@ export class RegistrationService {
     division: Division,
     toTeamId: number
   ) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     await this.assertDivisionAccess(userId, division);
 
     const player = await prisma.player.findFirst({
@@ -1617,18 +1751,32 @@ export class RegistrationService {
   }
 
   static async setSquadRoles(
-    ownerId: string,
+    actorId: string,
     teamId: number,
     division: Division,
     roles: { memberId: number; squadRole: SquadRole | null }[]
   ) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirstOrThrow({
       where: { seasonId: season.id, id: teamId },
     });
 
-    if (team.ownerUserId !== ownerId) {
-      throw new Error('רק בעלים הקבוצה יכול לערוך תפקידים');
+    const isOwner = team.ownerUserId === actorId;
+    let isCaptain = false;
+    if (!isOwner) {
+      const captainRow = await prisma.player.findFirst({
+        where: {
+          userId: actorId,
+          teamId,
+          seasonId: season.id,
+          isCaptain: true,
+          active: true,
+        },
+      });
+      isCaptain = !!captainRow;
+    }
+    if (!isOwner && !isCaptain) {
+      throw new Error('רק בעלים או קפטן הקבוצה יכול לערוך תפקידים');
     }
 
     const captains = roles.filter((r) => r.squadRole === SquadRole.captain);
@@ -1680,7 +1828,7 @@ export class RegistrationService {
   }
 
   static async addOwnerToRoster(ownerId: string, teamId: number, division: Division) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirstOrThrow({
       where: { seasonId: season.id, id: teamId },
     });
@@ -1727,7 +1875,7 @@ export class RegistrationService {
   }
 
   static async listPendingJoinsForOwner(ownerId: string, teamId: number, division: Division) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirst({
       where: { seasonId: season.id, id: teamId, ownerUserId: ownerId },
     });
@@ -1748,7 +1896,8 @@ export class RegistrationService {
   }
 
   static async listAvailableTeams(division: Division) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) return [];
     return prisma.team.findMany({
       where: { seasonId: season.id, status: TeamStatus.active },
       select: { id: true, name: true, logoUrl: true },

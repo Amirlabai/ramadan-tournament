@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { teamsAPI } from '../../api/client';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth, type User } from '../../contexts/AuthContext';
 import './CaptainTeamRequests.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
@@ -17,6 +17,36 @@ interface PendingUser {
     };
 }
 
+function resolveLegacyCaptainTeam(user: User | null | undefined): {
+    teamId: number;
+    teamName: string;
+} | null {
+    if (!user) return null;
+
+    const boys = user.tournamentRegistration?.boys;
+    const girls = user.tournamentRegistration?.girls;
+    if (boys?.ownedTeamId) {
+        return { teamId: boys.ownedTeamId, teamName: `קבוצה #${boys.ownedTeamId}` };
+    }
+    if (boys?.onRoster?.isCaptain) {
+        return { teamId: boys.onRoster.teamId, teamName: `קבוצה #${boys.onRoster.teamId}` };
+    }
+    if (girls?.ownedTeamId) {
+        return { teamId: girls.ownedTeamId, teamName: `קבוצה #${girls.ownedTeamId}` };
+    }
+    if (girls?.onRoster?.isCaptain) {
+        return { teamId: girls.onRoster.teamId, teamName: `קבוצה #${girls.onRoster.teamId}` };
+    }
+
+    const mapped = user.mappedPlayerInfo;
+    if (mapped?.teamId) {
+        const teamName =
+            (mapped as { teamName?: string }).teamName || `קבוצה #${mapped.teamId}`;
+        return { teamId: mapped.teamId, teamName };
+    }
+    return null;
+}
+
 const CaptainTeamRequests = () => {
     const { user } = useAuth();
     const [requests, setRequests] = useState<PendingUser[]>([]);
@@ -24,11 +54,9 @@ const CaptainTeamRequests = () => {
     const [error, setError] = useState('');
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-    // Assuming the captain's user record contains their team ID in some way.
-    // For now, as an admin/captain, we will let them manage the team they are approved for.
-    // Assuming for Captain role, 'mappedPlayerInfo' points to their team.
-    const captainTeamId = user?.mappedPlayerInfo?.teamId;
-    const captainTeamName = (user?.mappedPlayerInfo as any)?.teamName || `קבוצה #${captainTeamId}`;
+    const captainTeam = useMemo(() => resolveLegacyCaptainTeam(user), [user]);
+    const captainTeamId = captainTeam?.teamId;
+    const captainTeamName = captainTeam?.teamName ?? '';
 
     useEffect(() => {
         const fetchRequests = async () => {
@@ -40,14 +68,14 @@ const CaptainTeamRequests = () => {
             try {
                 const response = await teamsAPI.getRequests(captainTeamId);
                 setRequests(response.data);
-            } catch (err) {
+            } catch {
                 setError('שגיאה בטעינת בקשות ממתינות');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchRequests();
+        void fetchRequests();
     }, [captainTeamId]);
 
     const handleAction = async (userId: string, action: 'approved' | 'rejected') => {
@@ -56,17 +84,19 @@ const CaptainTeamRequests = () => {
         setActionLoading(userId);
         try {
             await teamsAPI.approveRequest(captainTeamId, userId, action);
-            // Remove the user from the pending list
-            setRequests(prev => prev.filter(req => req.id !== userId));
-        } catch (err: any) {
-            alert(err.response?.data?.error || 'שגיאה בביצוע הפעולה');
+            setRequests((prev) => prev.filter((req) => req.id !== userId));
+        } catch (err: unknown) {
+            const ax = err as { response?: { data?: { error?: string } } };
+            alert(ax.response?.data?.error || 'שגיאה בביצוע הפעולה');
         } finally {
             setActionLoading(null);
         }
     };
 
     if (loading) return <div>טוען בקשות...</div>;
-    if (!captainTeamId) return <div className="alert alert-warning">לא נמצאה קבוצה המשויכת לקפטן זה.</div>;
+    if (!captainTeamId) {
+        return <div className="alert alert-warning">לא נמצאה קבוצה המשויכת לקפטן זה.</div>;
+    }
     if (error) return <div className="alert alert-danger">{error}</div>;
 
     return (
@@ -95,34 +125,53 @@ const CaptainTeamRequests = () => {
                                         <div className="d-flex align-items-center gap-3">
                                             {req.avatarUrl ? (
                                                 <img
-                                                    src={req.avatarUrl.startsWith('http') ? req.avatarUrl : `${VITE_API_URL}${req.avatarUrl}`}
+                                                    src={
+                                                        req.avatarUrl.startsWith('http')
+                                                            ? req.avatarUrl
+                                                            : `${VITE_API_URL}${req.avatarUrl}`
+                                                    }
                                                     alt=""
                                                     className="avatar-sm rounded-circle"
                                                 />
                                             ) : (
-                                                <div className="bg-secondary rounded-circle d-flex align-items-center justify-content-center" style={{ width: 32, height: 32 }}>
-                                                    <i className="bi bi-person"></i>
+                                                <div
+                                                    className="bg-secondary rounded-circle d-flex align-items-center justify-content-center"
+                                                    style={{ width: 32, height: 32 }}
+                                                >
+                                                    <i className="bi bi-person" />
                                                 </div>
                                             )}
                                             {req.displayName}
                                         </div>
                                     </td>
-                                    <td dir="ltr" className="text-end">{req.email}</td>
+                                    <td dir="ltr" className="text-end">
+                                        {req.email}
+                                    </td>
                                     <td>
                                         <div className="d-flex gap-2">
                                             <button
+                                                type="button"
                                                 className="btn btn-theme-green btn-sm px-3"
-                                                onClick={() => handleAction(req.id, 'approved')}
+                                                onClick={() => void handleAction(req.id, 'approved')}
                                                 disabled={!!actionLoading}
                                             >
-                                                {actionLoading === req.id ? <span className="spinner-border spinner-border-sm" /> : 'אשר'}
+                                                {actionLoading === req.id ? (
+                                                    <span className="spinner-border spinner-border-sm" />
+                                                ) : (
+                                                    'אשר'
+                                                )}
                                             </button>
                                             <button
+                                                type="button"
                                                 className="btn btn-secondary btn-sm px-3"
-                                                onClick={() => handleAction(req.id, 'rejected')}
+                                                onClick={() => void handleAction(req.id, 'rejected')}
                                                 disabled={!!actionLoading}
                                             >
-                                                {actionLoading === req.id ? <span className="spinner-border spinner-border-sm" /> : 'דחה'}
+                                                {actionLoading === req.id ? (
+                                                    <span className="spinner-border spinner-border-sm" />
+                                                ) : (
+                                                    'דחה'
+                                                )}
                                             </button>
                                         </div>
                                     </td>

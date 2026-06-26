@@ -10,6 +10,8 @@ export interface Player {
     pending_head_photo?: string;
     bio?: string;
     hasPersonalId?: boolean;
+    squadRole?: string | null;
+    lineup?: string;
     birthYear?: number;
     totalGoals?: number;
     gamesPlayed?: number;

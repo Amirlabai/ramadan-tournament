@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { teamsAPI, votesAPI } from '../../api/client';
 import TeamRegistrationActions from '../../components/registration/TeamRegistrationActions';
+import OwnerSquadRoles from '../../components/registration/OwnerSquadRoles';
 import SEO from '../../components/SEO';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTournament } from '../../contexts/TournamentContext';
@@ -21,21 +22,22 @@ const GirlsTeams = () => {
 
   const isLoggedIn = !!user;
 
-  useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const res = await teamsAPI.getAll('girls');
-        setTeams(Array.isArray(res.data) ? res.data : []);
-        setError('');
-      } catch {
-        setError('שגיאה בטעינת קבוצות');
-      } finally {
-        setLoading(false);
-      }
-    };
-    void load();
+  const loadTeams = useCallback(async () => {
+    try {
+      setLoading(true);
+      const res = await teamsAPI.getAll('girls');
+      setTeams(Array.isArray(res.data) ? res.data : []);
+      setError('');
+    } catch {
+      setError('שגיאה בטעינת קבוצות');
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    void loadTeams();
+  }, [loadTeams]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -120,6 +122,11 @@ const GirlsTeams = () => {
       <div className="teams-list">
         {teams.map((team) => {
           const players = team.players ?? [];
+          const ownedTeamId = user?.tournamentRegistration?.girls?.ownedTeamId;
+          const rosterReg = user?.tournamentRegistration?.girls?.onRoster;
+          const isOwner = ownedTeamId === team.id;
+          const isCaptain = rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
+          const canEditSquadRoles = isOwner || isCaptain;
           return (
             <article key={team.id} className="team-card mb-3" id={`team-row-${team.id}`}>
               <div className="d-flex align-items-stretch">
@@ -159,6 +166,15 @@ const GirlsTeams = () => {
               {expandedTeam === team.id && (
                 <div className="team-players p-3 border-top">
                   <TeamRegistrationActions teamId={team.id} teamName={team.name} slug="girls" />
+                  {canEditSquadRoles && (
+                    <OwnerSquadRoles
+                      key={team.id}
+                      teamId={team.id}
+                      players={players}
+                      slug="girls"
+                      onSaved={() => void loadTeams()}
+                    />
+                  )}
                   {players.length === 0 ? (
                     <p className="text-muted mb-0">אין שחקנים רשומים</p>
                   ) : (

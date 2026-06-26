@@ -102,8 +102,6 @@ export const authAPI = {
 };
 
 export const usersAPI = {
-    requestMapping: (data: { teamId: number; memberId?: number; playerProfile?: object }) =>
-        api.post('/users/map-player', data),
     getRegistration: (slug: TournamentSlug = 'boys') =>
         api.get('/users/registration', { params: { division: slug } }),
     redeemInvoice: (code: string, slug: TournamentSlug = 'boys') =>
@@ -116,7 +114,8 @@ export const usersAPI = {
         api.delete('/users/avatar'),
     updatePlayerProfile: (data: { firstName?: string; lastName?: string; nickname?: string; number?: number; position?: string }) =>
         api.patch('/users/player-profile', data),
-    leaveTeam: () => api.post('/users/leave-team'),
+    leaveTeam: (slug: TournamentSlug = 'boys') =>
+        api.post('/users/leave-team', {}, { params: { division: slug } }),
 };
 
 export const registrationAPI = {
@@ -124,8 +123,11 @@ export const registrationAPI = {
         api.get(`${teamsPath(slug)}/available`),
     listOwnerJoinRequests: (teamId: number, slug: TournamentSlug = 'boys') =>
         api.get(`${teamsPath(slug)}/${teamId}/join-requests-pending`),
-    submitJoin: (teamId: number, slug: TournamentSlug = 'boys') =>
-        api.post(`${teamsPath(slug)}/${teamId}/join-request`),
+    submitJoin: (
+        teamId: number,
+        slug: TournamentSlug = 'boys',
+        body?: { memberId?: number; playerProfile?: Record<string, unknown> }
+    ) => api.post(`${teamsPath(slug)}/${teamId}/join-request`, body ?? {}),
     submitCreation: (teamName: string, description: string, slug: TournamentSlug = 'boys') =>
         api.post(`${teamsPath(slug)}/creation-request`, { teamName, description }),
     submitTransfer: (toTeamId: number, slug: TournamentSlug = 'boys') =>

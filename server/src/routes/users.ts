@@ -4,7 +4,7 @@ import os from 'os';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
-import { requestPlayerMapping, uploadAvatar, deleteAvatar, updatePlayerProfile, leaveTeam } from '../controllers/userController';
+import { uploadAvatar, deleteAvatar, updatePlayerProfile, leaveTeam, requestPlayerMapping } from '../controllers/userController';
 import { getRegistrationStatus, redeemInvoice, cancelRegistrationRequest } from '../controllers/registrationController';
 
 const router = Router();
@@ -28,7 +28,7 @@ router.post(
   cancelRegistrationRequest
 );
 
-// Legacy claim flow — prefer join-request via /api/teams
+// Legacy claim flow — returns 410; use POST /api/teams/:id/join-request
 router.post('/map-player', authenticate, requestPlayerMapping);
 
 // Avatar upload

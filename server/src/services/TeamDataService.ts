@@ -42,7 +42,8 @@ function formatTeam(team: any, statsMap: Map<number, any>, pointsTotal?: number)
 
 export class TeamDataService {
   static async getTeamsDocument(division: Division = Division.boys) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) return [];
     const cacheKey = CacheService.key('doc', division, 'teams', 'all', season.id);
 
     return CacheService.getOrSet(cacheKey, 120, async () => {
@@ -64,7 +65,8 @@ export class TeamDataService {
   }
 
   static async getTeamById(teamId: number, division: Division = Division.boys) {
-    const season = await SeasonService.getActiveSeason(division);
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) return null;
     const [team, stats] = await Promise.all([
       prisma.team.findFirst({
         where: { seasonId: season.id, id: teamId },

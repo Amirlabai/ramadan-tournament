@@ -6,11 +6,12 @@ import { AuthRequest } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
 import { TeamDataService } from '../services/TeamDataService';
+import { SeasonService } from '../services/SeasonService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 import {
     clearMappingsForDeletedPlayer,
     clearPlayerProfile,
-    findApprovedClaimedMemberIds,
+    findReservedMemberIds,
     findPendingMappingsForTeam,
     moveApprovedMappingTeam,
     rejectOtherPendingMappings,
@@ -26,12 +27,26 @@ async function canManageTeamSettings(
     const user = await User.findById(userId);
     if (!user) return false;
     if (user.role === 'Admin' || user.role === 'admin') return true;
-    if (user.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId) return true;
     const owned = await prisma.team.findFirst({
         where: { id: teamId, ownerUserId: userId, season: { division } },
         select: { id: true },
     });
-    return !!owned;
+    if (owned) return true;
+
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) return false;
+
+    const asCaptain = await prisma.player.findFirst({
+        where: {
+            userId,
+            teamId,
+            seasonId: season.id,
+            active: true,
+            isCaptain: true,
+        },
+        select: { memberId: true },
+    });
+    return !!asCaptain;
 }
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
@@ -67,9 +82,14 @@ export const getAvailablePlayers = async (req: Request, res: Response): Promise<
         const team = await Team.findOne({ id: teamId }, requestDivision(req));
 
         if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
+        if (!team.seasonId) {
+            res.status(500).json({ error: 'Team season not configured' });
+            return;
+        }
 
-        // Get all memberIds that are already approved-claimed
-        const claimedMemberIds = new Set(await findApprovedClaimedMemberIds(teamId));
+        const claimedMemberIds = new Set(
+            await findReservedMemberIds(teamId, team.seasonId)
+        );
 
         const available = team.players
             .filter(p => !claimedMemberIds.has(p.memberId))

@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
+import OwnerSquadRoles from '../components/registration/OwnerSquadRoles';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import type { Team } from '../types';
@@ -232,6 +233,18 @@ const Teams = () => {
                             const captain = players.find(p => p.isCaptain);
                             const isExpanded = expandedTeam === team.id;
                             const logoSrc = resolveAssetUrl(team.logoUrl);
+                            const ownedTeamId =
+                                slug === 'boys' || slug === 'girls'
+                                    ? user?.tournamentRegistration?.[slug]?.ownedTeamId
+                                    : undefined;
+                            const rosterReg =
+                                slug === 'boys' || slug === 'girls'
+                                    ? user?.tournamentRegistration?.[slug]?.onRoster
+                                    : undefined;
+                            const isOwner = ownedTeamId === team.id;
+                            const isCaptain =
+                                rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
+                            const canEditSquadRoles = isOwner || isCaptain;
 
                             return (
                                 <Fragment key={team.id}>
@@ -274,6 +287,15 @@ const Teams = () => {
                                                     teamName={team.name}
                                                     slug={slug}
                                                 />
+                                                {canEditSquadRoles && (
+                                                    <OwnerSquadRoles
+                                                        key={team.id}
+                                                        teamId={team.id}
+                                                        players={players}
+                                                        slug={slug}
+                                                        onSaved={() => void fetchTeams(true)}
+                                                    />
+                                                )}
                                                 <div className="row g-3">
                                                     {(() => {
                                                         const topScorerInTeam = [...players].sort((a, b) => {

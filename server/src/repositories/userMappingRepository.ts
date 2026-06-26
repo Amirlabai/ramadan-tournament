@@ -1,7 +1,8 @@
-import { Prisma } from '@prisma/client';
+import { Prisma, RequestStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { IMappedPlayerInfo, IUser, prismaUserToIUser } from '../db/userMapper';
 import { toInputJson } from '../lib/json';
+import { parseRequestedMemberId } from '../utils/requestedMemberId';
 
 function readMapping(row: { mappedPlayerInfo: unknown }): IMappedPlayerInfo | null {
   return (row.mappedPlayerInfo as IMappedPlayerInfo | null) ?? null;
@@ -35,14 +36,71 @@ export async function findPendingMappingsForTeam(teamId: number): Promise<IUser[
     .map(prismaUserToIUser);
 }
 
-export async function findApprovedClaimedMemberIds(teamId: number): Promise<number[]> {
-  const rows = await prisma.user.findMany();
-  return rows
-    .filter((row) => {
+export async function findApprovedClaimedMemberIds(
+  teamId: number,
+  seasonId?: string
+): Promise<number[]> {
+  const claimed = new Set<number>();
+
+  const rosterRows = await prisma.player.findMany({
+    where: {
+      teamId,
+      active: true,
+      userId: { not: null },
+      ...(seasonId ? { seasonId } : {}),
+    },
+    select: { memberId: true },
+  });
+  for (const row of rosterRows) {
+    claimed.add(row.memberId);
+  }
+
+  if (!seasonId) {
+    const rows = await prisma.user.findMany({
+      where: { mappedPlayerInfo: { not: Prisma.DbNull } },
+    });
+    for (const row of rows) {
       const mapping = readMapping(row);
-      return mapping?.teamId === teamId && mapping.status === 'approved' && mapping.memberId > 0;
-    })
-    .map((row) => readMapping(row)!.memberId);
+      if (mapping?.teamId === teamId && mapping.status === 'approved' && mapping.memberId > 0) {
+        claimed.add(mapping.memberId);
+      }
+    }
+  }
+
+  return [...claimed];
+}
+
+export async function findPendingJoinClaimedMemberIds(
+  teamId: number,
+  seasonId: string
+): Promise<number[]> {
+  const reserved = new Set<number>();
+  const pendingJoins = await prisma.teamJoinRequest.findMany({
+    where: {
+      teamId,
+      seasonId,
+      status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+    },
+    include: { user: { select: { playerProfile: true } } },
+  });
+  for (const row of pendingJoins) {
+    const memberId = parseRequestedMemberId(
+      (row.user.playerProfile as Record<string, unknown> | null)?.requestedMemberId
+    );
+    if (memberId) reserved.add(memberId);
+  }
+  return [...reserved];
+}
+
+export async function findReservedMemberIds(
+  teamId: number,
+  seasonId: string
+): Promise<number[]> {
+  const [approved, pending] = await Promise.all([
+    findApprovedClaimedMemberIds(teamId, seasonId),
+    findPendingJoinClaimedMemberIds(teamId, seasonId),
+  ]);
+  return [...new Set([...approved, ...pending])];
 }
 
 export async function rejectOtherPendingMappings(

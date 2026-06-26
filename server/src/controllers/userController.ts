@@ -1,4 +1,5 @@
 import { Response } from 'express';
+import { Division } from '@prisma/client';
 import { User } from '../models/User';
 import { Team } from '../models/Team';
 import { AuthRequest } from '../middleware/auth';
@@ -7,6 +8,7 @@ import fs from 'fs';
 import { config } from '../config/env';
 import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../services/emailService';
 import { PlayerService } from '../services/PlayerService';
+import { PlayerServiceError } from '../errors/PlayerServiceError';
 import {
     clearPlayerProfile,
     findPendingTeamCreationRequests,
@@ -14,41 +16,28 @@ import {
     rejectOtherPendingMappings,
 } from '../repositories/userMappingRepository';
 
-// Voluntary leave team
+// Voluntary leave team (roster row via players.user_id)
 export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const user = await User.findById(req.userId!);
-        if (!user) {
-            res.status(404).json({ error: 'User not found' });
+        const raw = req.query.division;
+        if (raw != null && raw !== 'boys' && raw !== 'girls') {
+            res.status(400).json({ error: 'division חייב להיות boys או girls' });
             return;
         }
-
-        if (!user.mappedPlayerInfo) {
-            res.status(400).json({ error: 'משתמש לא משויך לקבוצה' });
-            return;
-        }
-
-        if (user.role === 'Captain') {
-            res.status(403).json({ error: 'קפטן לא יכול לעזוב את הקבוצה שלו (Captain sinks with the ship)' });
-            return;
-        }
-
-        // Clear mapping
-        user.mappedPlayerInfo = undefined;
-
-        // Revert role to User if they were a Player
-        if (user.role === 'Player') {
-            user.role = 'User';
-        }
-
-        await user.save();
+        const division = raw === 'girls' ? Division.girls : Division.boys;
+        await PlayerService.leaveTeam(req.userId!, division);
         res.json({ message: 'עזבת את הקבוצה בהצלחה' });
     } catch (error) {
+        if (error instanceof PlayerServiceError) {
+            res.status(error.status).json({ error: error.message, code: error.code });
+            return;
+        }
         console.error('Leave team error:', error);
         res.status(500).json({ error: 'שגיאה בשרת בעת עזיבת הקבוצה' });
     }
 };
 
+/** Deprecated — use POST /api/teams/:id/join-request */
 export const requestPlayerMapping = async (_req: AuthRequest, res: Response): Promise<void> => {
     res.status(410).json({
         error: 'שיוך שחקן ישן הוסר. השתמש ב"בקשת הצטרפות" מעמוד הקבוצות.',
@@ -124,19 +113,7 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
 
         user.avatarUrl = `/uploads/players/${filename}`;
         await user.save();
-
-        // If the user is an approved tournament participant, instantly sync the avatar to the Team roster
-        const isMappableRole = ['Player', 'Captain', 'Admin', 'admin'].includes(user.role);
-        if (isMappableRole && user.mappedPlayerInfo?.status === 'approved') {
-            const team = await Team.findOne({ id: user.mappedPlayerInfo.teamId });
-            if (team) {
-                const pIndex = team.players.findIndex(p => p.memberId === user.mappedPlayerInfo!.memberId);
-                if (pIndex !== -1) {
-                    team.players[pIndex].head_photo = user.avatarUrl;
-                    await team.save();
-                }
-            }
-        }
+        await PlayerService.syncAvatarToRoster(req.userId!, user.avatarUrl);
 
         res.json({ message: 'Avatar updated successfully', avatarUrl: user.avatarUrl });
     } catch (error) {
@@ -158,19 +135,7 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
         // Revert to Google profile picture, or clear entirely
         user.avatarUrl = user.googlePictureUrl ?? undefined;
         await user.save();
-
-        // If the user is an approved tournament participant, instantly sync the deletion to the Team roster
-        const isMappableRole = ['Player', 'Captain', 'Admin', 'admin'].includes(user.role);
-        if (isMappableRole && user.mappedPlayerInfo?.status === 'approved') {
-            const team = await Team.findOne({ id: user.mappedPlayerInfo.teamId });
-            if (team) {
-                const pIndex = team.players.findIndex(p => p.memberId === user.mappedPlayerInfo!.memberId);
-                if (pIndex !== -1) {
-                    team.players[pIndex].head_photo = user.avatarUrl || '';
-                    await team.save();
-                }
-            }
-        }
+        await PlayerService.syncAvatarToRoster(req.userId!, user.avatarUrl);
 
         res.json({ message: 'Avatar deleted', avatarUrl: user.avatarUrl ?? null });
     } catch (error) {

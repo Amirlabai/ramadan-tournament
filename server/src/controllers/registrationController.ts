@@ -3,6 +3,7 @@ import { Division, SquadRole } from '@prisma/client';
 import { AuthRequest } from '../middleware/auth';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 import { RegistrationService } from '../services/RegistrationService';
+import type { JoinRequestOptions } from '../services/RegistrationService';
 import { INVOICE_CODE_MAX_LEN, parsePositiveTeamId } from '../utils/inputValidation';
 import { isUuid } from '../utils/sanitizeSearchQuery';
 
@@ -76,7 +77,18 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response): Promis
   try {
     const teamId = parsePositiveTeamId(req.params.id);
     const division = divisionFromQuery(req as TournamentRequest);
-    const request = await RegistrationService.submitJoinRequest(req.userId!, division, teamId);
+    const body = req.body as {
+      memberId?: number | string;
+      playerProfile?: JoinRequestOptions['playerProfile'];
+    };
+    const memberId =
+      body.memberId != null && String(body.memberId).trim() !== ''
+        ? Number(body.memberId)
+        : undefined;
+    const request = await RegistrationService.submitJoinRequest(req.userId!, division, teamId, {
+      memberId: Number.isInteger(memberId) && memberId! > 0 ? memberId : undefined,
+      playerProfile: body.playerProfile,
+    });
     res.json({ message: 'בקשת הצטרפות נשלחה', request });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
