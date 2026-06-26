@@ -47,9 +47,9 @@ router.get('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain'
 router.post('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain']), approveTeamRequest);
 
 // Captain tools: Metadata & Logo
-router.patch('/:id/metadata', authenticate, authorize(['Admin', 'admin', 'Captain']), updateTeamMetadata);
-router.post('/:id/logo', authenticate, authorize(['Admin', 'admin', 'Captain']), upload.single('logo'), uploadTeamLogo);
-router.delete('/:id/logo', authenticate, authorize(['Admin', 'admin', 'Captain']), deleteTeamLogo);
+router.patch('/:id/metadata', authenticate, updateTeamMetadata);
+router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
+router.delete('/:id/logo', authenticate, deleteTeamLogo);
 
 // Admin tools: Player management
 router.post('/:id/players', authenticate, authorize(['Admin', 'admin']), addPlayer);

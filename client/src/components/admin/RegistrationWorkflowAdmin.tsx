@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { adminAPI } from '../../api/client';
+import './RegistrationWorkflowAdmin.css';
 
 interface WorkflowUser {
     id: string;
@@ -68,33 +69,14 @@ interface WorkflowData {
 const canApproveRequest = (registrationStatus: string, invoicesMatched?: boolean) =>
     registrationStatus === 'active' && invoicesMatched === true;
 
-const REG_STATUS_LABELS: Record<string, string> = {
-    none: 'לא התחיל',
-    join_pending: 'בקשת הצטרפות',
-    awaiting_invoice: 'ממתין לחשבונית',
-    awaiting_invoice_user_submitted: 'המשתמש הזין — ממתין לאישור מנהל',
-    invoice_assigned: 'חשבונית הוקצה (ממתין להזנה בפרופיל)',
-    active: 'פעיל',
-    archived: 'בארכיון',
-};
+const renderActiveStatus = (status: string) =>
+    status === 'active' ? (
+        <span className="text-success">פעיל</span>
+    ) : (
+        <span className="text-muted">לא פעיל</span>
+    );
 
-const pendingApprovalHint = (
-    registrationStatus: string,
-    invoicesMatched?: boolean
-): string => {
-    if (registrationStatus !== 'active') {
-        return `ממתין לרישום פעיל (${REG_STATUS_LABELS[registrationStatus] ?? registrationStatus})`;
-    }
-    if (invoicesMatched === false) {
-        return 'ממתין להתאמת חשבונית (מנהל + משתמש)';
-    }
-    return 'ממתין להתאמת חשבונית';
-};
-
-const JOIN_STATUS_LABELS: Record<string, string> = {
-    pending: 'ממתין לבעלים',
-    owner_approved: 'אושר ע״י בעלים',
-};
+const pendingApprovalHint = (): string => 'ממתין להתאמת חשבונית ורישום פעיל';
 
 export default function RegistrationWorkflowAdmin() {
     const [seasons, setSeasons] = useState<SeasonOption[]>([]);
@@ -222,7 +204,7 @@ export default function RegistrationWorkflowAdmin() {
     const renderUserSubmittedCell = (submittedInvoiceNumber?: string | null) => {
         const value = submittedInvoiceNumber?.trim();
         return (
-            <span dir="ltr" className={`small ${value ? 'font-monospace' : 'text-muted'}`}>
+            <span dir="ltr" className={`workflow-monospace ${value ? 'font-monospace' : 'text-muted'}`}>
                 {value ?? '—'}
             </span>
         );
@@ -246,51 +228,78 @@ export default function RegistrationWorkflowAdmin() {
         const value = invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
 
         return (
-            <div className="d-flex flex-column gap-1">
-                <div className="d-flex flex-wrap gap-1 align-items-center">
-                    <input
-                        type="text"
-                        className="form-control form-control-sm"
-                        style={{ maxWidth: '10rem' }}
-                        placeholder={isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
-                        value={value}
-                        onChange={(e) =>
-                            setInvoiceInputs((prev) => ({
-                                ...prev,
-                                [user.id]: e.target.value.toUpperCase(),
-                            }))
-                        }
-                        dir="ltr"
-                        aria-label={`מספר חשבונית עבור ${user.displayName}`}
-                        maxLength={24}
-                        disabled={assigningId === user.id}
-                    />
-                    <button
-                        type="button"
-                        className={`btn btn-sm text-nowrap ${
-                            isCorrection ? 'btn-warning' : 'btn-success'
-                        }`}
-                        disabled={assigningId === user.id || !value.trim()}
-                        onClick={() => void assignToUser(user.id, user.displayName, value)}
-                    >
-                        {assigningId === user.id
-                            ? 'שומר…'
-                            : isCorrection
-                              ? 'עדכן'
-                              : 'הקצה'}
-                    </button>
-                </div>
-                {isCorrection && (
-                    <span className="text-muted small">
-                        הוקצה — ניתן לתקן לפני שהמשתמש מפעיל בפרופיל
-                    </span>
-                )}
-                {regStatus === 'awaiting_invoice' && row.submittedInvoiceNumber && !row.assignedInvoiceNumber && (
-                    <span className="text-muted small">
-                        המשתמש הזין — הזן את אותו מספר לאישור
-                    </span>
-                )}
+            <div className="workflow-assign-row">
+                <input
+                    type="text"
+                    className="form-control form-control-sm workflow-invoice-input"
+                    placeholder={isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
+                    value={value}
+                    onChange={(e) =>
+                        setInvoiceInputs((prev) => ({
+                            ...prev,
+                            [user.id]: e.target.value.toUpperCase(),
+                        }))
+                    }
+                    dir="ltr"
+                    aria-label={`מספר חשבונית עבור ${user.displayName}`}
+                    maxLength={24}
+                    disabled={assigningId === user.id}
+                />
+                <button
+                    type="button"
+                    className={`btn btn-sm text-nowrap workflow-assign-btn ${
+                        isCorrection ? 'btn-warning' : 'btn-success'
+                    }`}
+                    disabled={assigningId === user.id || !value.trim()}
+                    onClick={() => void assignToUser(user.id, user.displayName, value)}
+                >
+                    {assigningId === user.id ? 'שומר…' : isCorrection ? 'עדכן' : 'הקצה'}
+                </button>
             </div>
+        );
+    };
+
+    const renderInvoiceUserCard = (row: {
+        user: WorkflowUser;
+        status?: string;
+        registrationStatus?: string;
+        pendingTeamName?: string | null;
+        hasUnredeemedCode?: boolean;
+        submittedInvoiceNumber?: string | null;
+        assignedInvoiceNumber?: string | null;
+    }) => {
+        const status = row.registrationStatus ?? row.status ?? 'none';
+
+        return (
+            <article className="workflow-user-card" aria-label={row.user.displayName}>
+                <div className="workflow-user-card__header">
+                    <div className="workflow-user-card__identity">
+                        <div className="fw-semibold">{row.user.displayName}</div>
+                        {row.user.email && (
+                            <div dir="ltr" className="text-muted small workflow-user-card__email">
+                                {row.user.email}
+                            </div>
+                        )}
+                    </div>
+                    <div className="workflow-user-card__status">{renderActiveStatus(status)}</div>
+                </div>
+                <dl className="workflow-user-card__details">
+                    {row.pendingTeamName && (
+                        <div className="workflow-user-card__row">
+                            <dt>קבוצה</dt>
+                            <dd>{row.pendingTeamName}</dd>
+                        </div>
+                    )}
+                    <div className="workflow-user-card__row">
+                        <dt>הזנת משתמש</dt>
+                        <dd>{renderUserSubmittedCell(row.submittedInvoiceNumber)}</dd>
+                    </div>
+                    <div className="workflow-user-card__row">
+                        <dt>מספר חשבונית (מנהל)</dt>
+                        <dd>{renderAssignCell(row)}</dd>
+                    </div>
+                </dl>
+            </article>
         );
     };
 
@@ -348,48 +357,12 @@ export default function RegistrationWorkflowAdmin() {
                             המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהמספרים תואמים.
                             משתמשים שהותאמו כבר לא מופיעים כאן.
                         </p>
-                        <div className="table-responsive">
-                            <table className="table table-sm table-hover align-middle mb-0">
-                                <caption className="visually-hidden">
-                                    משתמשים הממתינים להקצאת קוד תשלום
-                                </caption>
-                                <thead>
-                                    <tr>
-                                        <th scope="col">שם</th>
-                                        <th scope="col">אימייל</th>
-                                        <th scope="col">סטטוס</th>
-                                        <th scope="col">קבוצה</th>
-                                        <th scope="col">הזנת משתמש</th>
-                                        <th scope="col">מספר חשבונית (מנהל)</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {data.awaitingInvoice.map((r) => (
-                                        <tr key={r.user.id}>
-                                            <td className="fw-semibold">{r.user.displayName}</td>
-                                            <td dir="ltr" className="small text-muted">
-                                                {r.user.email ?? '—'}
-                                            </td>
-                                            <td className="small">
-                                                {REG_STATUS_LABELS[
-                                                    r.status === 'awaiting_invoice' &&
-                                                    r.submittedInvoiceNumber
-                                                        ? 'awaiting_invoice_user_submitted'
-                                                        : r.status
-                                                ] ?? r.status}
-                                                {r.joinStatus && (
-                                                    <span className="d-block text-muted">
-                                                        {JOIN_STATUS_LABELS[r.joinStatus] ?? r.joinStatus}
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td className="small">{r.pendingTeamName ?? '—'}</td>
-                                            <td>{renderUserSubmittedCell(r.submittedInvoiceNumber)}</td>
-                                            <td>{renderAssignCell(r)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="workflow-user-card-list" role="list" aria-label="משתמשים הממתינים להקצאת קוד תשלום">
+                            {data.awaitingInvoice.map((r) => (
+                                <div key={r.user.id} role="listitem">
+                                    {renderInvoiceUserCard(r)}
+                                </div>
+                            ))}
                         </div>
                         {!data.awaitingInvoice.length && (
                             <p className="text-muted small mb-0 mt-2">אין משתמשים ברשימה — חפש למטה לפי אימייל.</p>
@@ -408,48 +381,24 @@ export default function RegistrationWorkflowAdmin() {
                         />
                         {searching && <p className="text-muted small">מחפש…</p>}
                         {searchQ.trim().length >= 2 && !searching && (
-                            <div className="table-responsive">
-                                <table className="table table-sm align-middle mb-0">
-                                    <caption className="visually-hidden">תוצאות חיפוש משתמשים</caption>
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">שם</th>
-                                            <th scope="col">אימייל</th>
-                                            <th scope="col">רישום לעונה</th>
-                                            <th scope="col">הזנת משתמש</th>
-                                            <th scope="col">מספר חשבונית (מנהל)</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {searchResults.map((u) => (
-                                            <tr key={u.id}>
-                                                <td>{u.displayName}</td>
-                                                <td dir="ltr" className="small">
-                                                    {u.email ?? '—'}
-                                                </td>
-                                                <td className="small">
-                                                    {REG_STATUS_LABELS[u.registrationStatus] ??
-                                                        u.registrationStatus}
-                                                </td>
-                                                <td>{renderUserSubmittedCell(u.submittedInvoiceNumber)}</td>
-                                                <td>
-                                                    {renderAssignCell({
-                                                        user: {
-                                                            id: u.id,
-                                                            displayName: u.displayName,
-                                                            email: u.email,
-                                                        },
-                                                        hasUnredeemedCode: u.hasUnredeemedCode,
-                                                        registrationStatus: u.registrationStatus,
-                                                        assignedInvoiceNumber: u.assignedInvoiceNumber,
-                                                    })}
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
+                            <div className="workflow-user-card-list" role="list" aria-label="תוצאות חיפוש משתמשים">
+                                {searchResults.map((u) => (
+                                    <div key={u.id} role="listitem">
+                                        {renderInvoiceUserCard({
+                                            user: {
+                                                id: u.id,
+                                                displayName: u.displayName,
+                                                email: u.email,
+                                            },
+                                            registrationStatus: u.registrationStatus,
+                                            hasUnredeemedCode: u.hasUnredeemedCode,
+                                            submittedInvoiceNumber: u.submittedInvoiceNumber,
+                                            assignedInvoiceNumber: u.assignedInvoiceNumber,
+                                        })}
+                                    </div>
+                                ))}
                                 {!searchResults.length && (
-                                    <p className="text-muted small mt-2">לא נמצאו משתמשים</p>
+                                    <p className="text-muted small mt-2 mb-0">לא נמצאו משתמשים</p>
                                 )}
                             </div>
                         )}
@@ -463,9 +412,6 @@ export default function RegistrationWorkflowAdmin() {
                                 <thead>
                                     <tr>
                                         <th scope="col">קבוצה / משתמש</th>
-                                        <th scope="col">הזנת משתמש</th>
-                                        <th scope="col">מספר מנהל</th>
-                                        <th scope="col">התאמה</th>
                                         <th scope="col">פעולות</th>
                                     </tr>
                                 </thead>
@@ -494,27 +440,8 @@ export default function RegistrationWorkflowAdmin() {
                                                     </span>
                                                     {!paid && (
                                                         <span className="d-block small text-muted mt-1">
-                                                            {pendingApprovalHint(
-                                                                c.registrationStatus,
-                                                                c.invoicesMatched
-                                                            )}
+                                                            {pendingApprovalHint()}
                                                         </span>
-                                                    )}
-                                                </td>
-                                                <td>{renderUserSubmittedCell(c.submittedInvoiceNumber)}</td>
-                                                <td>
-                                                    <span
-                                                        dir="ltr"
-                                                        className={`small ${c.assignedInvoiceNumber ? 'font-monospace' : 'text-muted'}`}
-                                                    >
-                                                        {c.assignedInvoiceNumber ?? '—'}
-                                                    </span>
-                                                </td>
-                                                <td className="small">
-                                                    {c.invoicesMatched ? (
-                                                        <span className="text-success">תואם</span>
-                                                    ) : (
-                                                        <span className="text-muted">לא</span>
                                                     )}
                                                 </td>
                                                 <td>
@@ -581,9 +508,6 @@ export default function RegistrationWorkflowAdmin() {
                                 <thead>
                                     <tr>
                                         <th scope="col">משתמש / קבוצה</th>
-                                        <th scope="col">הזנת משתמש</th>
-                                        <th scope="col">מספר מנהל</th>
-                                        <th scope="col">התאמה</th>
                                         <th scope="col">פעולות</th>
                                     </tr>
                                 </thead>
@@ -612,27 +536,8 @@ export default function RegistrationWorkflowAdmin() {
                                                         <span className="d-block small">→ {j.team.name}</span>
                                                         {!paid && (
                                                             <span className="d-block small text-muted mt-1">
-                                                                {pendingApprovalHint(
-                                                                    j.registrationStatus,
-                                                                    j.invoicesMatched
-                                                                )}
+                                                                {pendingApprovalHint()}
                                                             </span>
-                                                        )}
-                                                    </td>
-                                                    <td>{renderUserSubmittedCell(j.submittedInvoiceNumber)}</td>
-                                                    <td>
-                                                        <span
-                                                            dir="ltr"
-                                                            className={`small ${j.assignedInvoiceNumber ? 'font-monospace' : 'text-muted'}`}
-                                                        >
-                                                            {j.assignedInvoiceNumber ?? '—'}
-                                                        </span>
-                                                    </td>
-                                                    <td className="small">
-                                                        {j.invoicesMatched ? (
-                                                            <span className="text-success">תואם</span>
-                                                        ) : (
-                                                            <span className="text-muted">לא</span>
                                                         )}
                                                     </td>
                                                     <td>

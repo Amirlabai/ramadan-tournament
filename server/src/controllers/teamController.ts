@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { prisma } from '../lib/prisma';
 import { Team } from '../models/Team';
 import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
@@ -16,6 +17,22 @@ import {
 } from '../repositories/userMappingRepository';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
+
+async function canManageTeamSettings(
+    userId: string,
+    teamId: number,
+    division: ReturnType<typeof requestDivision>
+): Promise<boolean> {
+    const user = await User.findById(userId);
+    if (!user) return false;
+    if (user.role === 'Admin' || user.role === 'admin') return true;
+    if (user.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId) return true;
+    const owned = await prisma.team.findFirst({
+        where: { id: teamId, ownerUserId: userId, season: { division } },
+        select: { id: true },
+    });
+    return !!owned;
+}
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -191,12 +208,8 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
             return;
         }
 
-        // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId!);
-        const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
-        const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
-
-        if (!isCaptainOfThisTeam && !isAdmin) {
+        // Legacy captain, PRD team owner, or admin
+        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }
@@ -235,12 +248,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId!);
-        const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
-        const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
-
-        if (!isCaptainOfThisTeam && !isAdmin) {
+        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }
@@ -285,12 +293,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        // Verify the user is the Captain of this team (Admins also allowed)
-        const user = await User.findById(req.userId!);
-        const isCaptainOfThisTeam = user?.role === 'Captain' && user.mappedPlayerInfo?.teamId === teamId;
-        const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
-
-        if (!isCaptainOfThisTeam && !isAdmin) {
+        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }

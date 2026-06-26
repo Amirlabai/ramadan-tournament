@@ -1,4 +1,4 @@
-﻿import { useState, useRef, useEffect } from 'react';
+﻿import { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, type User } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI, registrationAPI, type TournamentSlug } from '../api/client';
@@ -40,6 +40,10 @@ const Profile = () => {
     const ownsTeam =
         user?.tournamentRegistration?.boys?.ownedTeamId ??
         user?.tournamentRegistration?.girls?.ownedTeamId;
+    const managedTeamId =
+        ownsTeam ??
+        (user?.role === 'Captain' ? user.mappedPlayerInfo?.teamId : undefined) ??
+        null;
     const isCaptain = user?.role === 'Captain' || !!ownsTeam;
     const pendingJoin =
         user?.tournamentRegistration?.boys?.pendingJoin ??
@@ -62,6 +66,11 @@ const Profile = () => {
     const [teamSettingsSaving, setTeamSettingsSaving] = useState(false);
     const [teamSettingsMsg, setTeamSettingsMsg] = useState('');
     const [teamLogoLoading, setTeamLogoLoading] = useState(false);
+    const [managedTeam, setManagedTeam] = useState<{
+        name: string;
+        logoUrl?: string;
+        logoPosition?: string;
+    } | null>(null);
 
     // Stats data
     const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
@@ -95,6 +104,38 @@ const Profile = () => {
             setPlayerSaving(false);
         }
     };
+
+    const loadManagedTeam = useCallback(async () => {
+        if (!user || !managedTeamId) {
+            setManagedTeam(null);
+            return;
+        }
+        const slug = resolveRegistrationSlug(user);
+        try {
+            const res = await teamsAPI.getById(managedTeamId, slug);
+            const team = res.data as { name: string; logoUrl?: string; logoPosition?: string };
+            setManagedTeam({
+                name: team.name,
+                logoUrl: team.logoUrl || undefined,
+                logoPosition: team.logoPosition || 'right',
+            });
+        } catch {
+            const legacy = user.mappedPlayerInfo;
+            if (legacy?.teamId === managedTeamId) {
+                setManagedTeam({
+                    name: (legacy as { teamName?: string }).teamName || '',
+                    logoUrl: (legacy as { logoUrl?: string }).logoUrl,
+                    logoPosition: (legacy as { logoPosition?: string }).logoPosition || 'right',
+                });
+            } else {
+                setManagedTeam(null);
+            }
+        }
+    }, [user, managedTeamId]);
+
+    useEffect(() => {
+        void loadManagedTeam();
+    }, [loadManagedTeam]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -206,12 +247,13 @@ const Profile = () => {
 
     const handleSaveTeamMetadata = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!user.mappedPlayerInfo?.teamId) return;
+        if (!user || !managedTeamId) return;
         setTeamSettingsSaving(true);
         setTeamSettingsMsg('');
         try {
-            await teamsAPI.updateMetadata(user.mappedPlayerInfo.teamId, teamSettingsForm as any);
-            await refreshUser();
+            const slug = resolveRegistrationSlug(user);
+            await teamsAPI.updateMetadata(managedTeamId, teamSettingsForm as any, slug);
+            await Promise.all([refreshUser(), loadManagedTeam()]);
             setEditingTeam(false);
             setTeamSettingsMsg('פרטי הקבוצה עודכנו בהצלחה');
         } catch (err: any) {
@@ -223,13 +265,14 @@ const Profile = () => {
 
     const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !user.mappedPlayerInfo?.teamId) return;
+        if (!file || !user || !managedTeamId) return;
         setTeamLogoLoading(true);
         try {
+            const slug = resolveRegistrationSlug(user);
             const formData = new FormData();
             formData.append('logo', file);
-            await teamsAPI.uploadLogo(user.mappedPlayerInfo.teamId, formData);
-            await refreshUser();
+            await teamsAPI.uploadLogo(managedTeamId, formData, slug);
+            await Promise.all([refreshUser(), loadManagedTeam()]);
             alert('הלוגו הועלה בהצלחה');
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה בהעלאת הלוגו');
@@ -239,11 +282,12 @@ const Profile = () => {
     };
 
     const handleDeleteLogo = async () => {
-        if (!user.mappedPlayerInfo?.teamId || !confirm('האם למחוק את לוגו הקבוצה?')) return;
+        if (!user || !managedTeamId || !confirm('האם למחוק את לוגו הקבוצה?')) return;
         setTeamLogoLoading(true);
         try {
-            await teamsAPI.deleteLogo(user.mappedPlayerInfo.teamId);
-            await refreshUser();
+            const slug = resolveRegistrationSlug(user);
+            await teamsAPI.deleteLogo(managedTeamId, slug);
+            await Promise.all([refreshUser(), loadManagedTeam()]);
             alert('הלוגו נמחק בהצלחה');
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה במחיקת הלוגו');
@@ -254,12 +298,19 @@ const Profile = () => {
 
     const startEditTeam = () => {
         setTeamSettingsForm({
-            name: (user.mappedPlayerInfo as any)?.teamName || '',
-            logoPosition: (user.mappedPlayerInfo as any)?.logoPosition || 'right'
+            name: managedTeam?.name || '',
+            logoPosition: managedTeam?.logoPosition || 'right',
         });
         setTeamSettingsMsg('');
         setEditingTeam(true);
     };
+
+    const resolveLogoSrc = (logoUrl?: string) =>
+        logoUrl
+            ? logoUrl.startsWith('http')
+                ? logoUrl
+                : `${VITE_API_URL}${logoUrl}`
+            : null;
 
     const avatarSrc = user.avatarUrl
         ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl} `)
@@ -310,6 +361,8 @@ const Profile = () => {
         user.role !== 'Player' &&
         user.role !== 'Captain';
     const showLegacyCaptain = user.role === 'Captain' && !usesPrdRegistration;
+    const showTeamSettings = !!managedTeamId && !!managedTeam;
+    const teamLogoSrc = resolveLogoSrc(managedTeam?.logoUrl);
 
     return (
         <div className="profile-page">
@@ -574,101 +627,100 @@ const Profile = () => {
                     </div>
                 )}
 
-                {/* Captain Section (legacy — owners use Teams page + RegistrationWorkflowAdmin) */}
-                {showLegacyCaptain && (
-                    <div className="captain-management-zone">
-                        {/* Team Settings Card */}
-                        <div className="card mb-4 p-4">
-                            <div className="d-flex justify-content-between align-items-center mb-3">
-                                <h4 className="mb-0">הגדרות קבוצה — {(user.mappedPlayerInfo as any)?.teamName}</h4>
-                                {!editingTeam && (
-                                    <button type="button" className="btn btn-success btn-sm" onClick={startEditTeam}>
-                                        <i className="bi bi-gear-fill me-1" />ניהול קבוצה
-                                    </button>
-                                )}
-                            </div>
-
-                            {editingTeam ? (
-                                <form onSubmit={handleSaveTeamMetadata}>
-                                    <div className="row g-3 mb-4">
-                                        <div className="col-md-6">
-                                            <label className="form-label">שם הקבוצה</label>
-                                            <input className="form-control" value={teamSettingsForm.name} maxLength={50}
-                                                onChange={e => setTeamSettingsForm(t => ({ ...t, name: e.target.value }))} required />
-                                        </div>
-                                        <div className="col-md-6">
-                                            <label className="form-label">מיקום לוגו בדף הבית</label>
-                                            <select className="form-select" value={teamSettingsForm.logoPosition}
-                                                onChange={e => setTeamSettingsForm(t => ({ ...t, logoPosition: e.target.value as any }))}>
-                                                <option value="right">ימין (רגיל)</option>
-                                                <option value="left">שמאל</option>
-                                                <option value="none">אל תציג לוגו</option>
-                                            </select>
-                                        </div>
-                                    </div>
-
-                                    <div className="mb-4">
-                                        <label className="form-label d-block">לוגו הקבוצה</label>
-                                        <div className="d-flex align-items-center gap-3">
-                                            <div className="position-relative">
-                                                {(user.mappedPlayerInfo as any)?.logoUrl ? (
-                                                    <>
-                                                        <img src={(user.mappedPlayerInfo as any).logoUrl.startsWith('http') ? (user.mappedPlayerInfo as any).logoUrl : `${VITE_API_URL}${(user.mappedPlayerInfo as any).logoUrl}`}
-                                                            alt="Team Logo" className="team-logo-preview" style={{ width: 64, height: 64, objectFit: 'contain' }} />
-                                                        <button type="button" className="btn btn-danger btn-sm position-absolute top-0 start-0 p-1" onClick={handleDeleteLogo}
-                                                            title="מחק לוגו" style={{ borderRadius: '50%', transform: 'translate(-30%, -30%)' }}>
-                                                            <i className="bi bi-trash-fill" style={{ fontSize: '10px' }} />
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <div className="team-logo-placeholder d-flex align-items-center justify-content-center bg-light rounded" style={{ width: 64, height: 64 }}>
-                                                        <i className="bi bi-image text-muted" />
-                                                    </div>
-                                                )}
-                                            </div>
-                                            <div>
-                                                <input type="file" id="teamLogoInput" accept="image/*" className="d-none" onChange={handleLogoUpload} />
-                                                <label htmlFor="teamLogoInput" className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
-                                                    {teamLogoLoading ? <span className="spinner-border spinner-border-sm me-1" /> : <i className="bi bi-upload me-1" />}
-                                                    {(user.mappedPlayerInfo as any)?.logoUrl ? 'החלף לוגו' : 'העלה לוגו'}
-                                                </label>
-                                                <div className="text-muted small mt-1">מומלץ להעלות קובץ PNG שקוף</div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {teamSettingsMsg && <div className={`alert ${teamSettingsMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamSettingsMsg}</div>}
-
-                                    <div className="d-flex gap-2">
-                                        <button type="button" className="btn btn-secondary" onClick={() => setEditingTeam(false)}>ביטול</button>
-                                        <button type="submit" className="btn btn-theme-green ms-auto" disabled={teamSettingsSaving}>
-                                            {teamSettingsSaving ? <span className="spinner-border spinner-border-sm" /> : 'שמור שינויים'}
-                                        </button>
-                                    </div>
-                                </form>
-                            ) : (
-                                <div className="row">
-                                    <div className="col-md-8">
-                                        <div className="mb-2"><strong>שם הקבוצה:</strong> {(user.mappedPlayerInfo as any)?.teamName}</div>
-                                        <div><strong>מיקום לוגו:</strong> {
-                                            (user.mappedPlayerInfo as any)?.logoPosition === 'left' ? 'שמאל' :
-                                                (user.mappedPlayerInfo as any)?.logoPosition === 'none' ? 'לא מוצג' : 'ימין'
-                                        }</div>
-                                    </div>
-                                    <div className="col-md-4 text-center">
-                                        {(user.mappedPlayerInfo as any)?.logoUrl ? (
-                                            <img src={(user.mappedPlayerInfo as any).logoUrl.startsWith('http') ? (user.mappedPlayerInfo as any).logoUrl : `${VITE_API_URL}${(user.mappedPlayerInfo as any).logoUrl} `}
-                                                alt="Team Logo" className="team-logo-display" style={{ maxWidth: '100%', maxHeight: 80, objectFit: 'contain' }} />
-                                        ) : (
-                                            <div className="text-muted small">טרם הועלה לוגו קבוצה</div>
-                                        )}
-                                    </div>
-                                </div>
+                {showTeamSettings && (
+                    <div className="card mb-4 p-4">
+                        <div className="d-flex justify-content-between align-items-center mb-3">
+                            <h4 className="mb-0">הגדרות קבוצה — {managedTeam.name}</h4>
+                            {!editingTeam && (
+                                <button type="button" className="btn btn-success btn-sm" onClick={startEditTeam}>
+                                    <i className="bi bi-gear-fill me-1" />ניהול קבוצה
+                                </button>
                             )}
-                            {!editingTeam && teamSettingsMsg && <div className="alert alert-success py-2 mt-3">{teamSettingsMsg}</div>}
                         </div>
 
-                        {/* Approvals Table */}
+                        {editingTeam ? (
+                            <form onSubmit={handleSaveTeamMetadata}>
+                                <div className="row g-3 mb-4">
+                                    <div className="col-md-6">
+                                        <label className="form-label">שם הקבוצה</label>
+                                        <input className="form-control" value={teamSettingsForm.name} maxLength={50}
+                                            onChange={e => setTeamSettingsForm(t => ({ ...t, name: e.target.value }))} required />
+                                    </div>
+                                    <div className="col-md-6">
+                                        <label className="form-label">מיקום לוגו בדף הבית</label>
+                                        <select className="form-select" value={teamSettingsForm.logoPosition}
+                                            onChange={e => setTeamSettingsForm(t => ({ ...t, logoPosition: e.target.value as any }))}>
+                                            <option value="right">ימין (רגיל)</option>
+                                            <option value="left">שמאל</option>
+                                            <option value="none">אל תציג לוגו</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div className="mb-4">
+                                    <label className="form-label d-block">לוגו הקבוצה</label>
+                                    <div className="d-flex align-items-center gap-3">
+                                        <div className="position-relative">
+                                            {teamLogoSrc ? (
+                                                <>
+                                                    <img src={teamLogoSrc}
+                                                        alt="Team Logo" className="team-logo-preview" style={{ width: 64, height: 64, objectFit: 'contain' }} />
+                                                    <button type="button" className="btn btn-danger btn-sm position-absolute top-0 start-0 p-1" onClick={handleDeleteLogo}
+                                                        title="מחק לוגו" style={{ borderRadius: '50%', transform: 'translate(-30%, -30%)' }}>
+                                                        <i className="bi bi-trash-fill" style={{ fontSize: '10px' }} />
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <div className="team-logo-placeholder d-flex align-items-center justify-content-center bg-light rounded" style={{ width: 64, height: 64 }}>
+                                                    <i className="bi bi-image text-muted" />
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div>
+                                            <input type="file" id="teamLogoInput" accept="image/*" className="d-none" onChange={handleLogoUpload} />
+                                            <label htmlFor="teamLogoInput" className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
+                                                {teamLogoLoading ? <span className="spinner-border spinner-border-sm me-1" /> : <i className="bi bi-upload me-1" />}
+                                                {teamLogoSrc ? 'החלף לוגו' : 'העלה לוגו'}
+                                            </label>
+                                            <div className="text-muted small mt-1">מומלץ להעלות קובץ PNG שקוף</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {teamSettingsMsg && <div className={`alert ${teamSettingsMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamSettingsMsg}</div>}
+
+                                <div className="d-flex gap-2">
+                                    <button type="button" className="btn btn-secondary" onClick={() => setEditingTeam(false)}>ביטול</button>
+                                    <button type="submit" className="btn btn-theme-green ms-auto" disabled={teamSettingsSaving}>
+                                        {teamSettingsSaving ? <span className="spinner-border spinner-border-sm" /> : 'שמור שינויים'}
+                                    </button>
+                                </div>
+                            </form>
+                        ) : (
+                            <div className="row">
+                                <div className="col-md-8">
+                                    <div className="mb-2"><strong>שם הקבוצה:</strong> {managedTeam.name}</div>
+                                    <div><strong>מיקום לוגו:</strong> {
+                                        managedTeam.logoPosition === 'left' ? 'שמאל' :
+                                            managedTeam.logoPosition === 'none' ? 'לא מוצג' : 'ימין'
+                                    }</div>
+                                </div>
+                                <div className="col-md-4 text-center">
+                                    {teamLogoSrc ? (
+                                        <img src={teamLogoSrc}
+                                            alt="Team Logo" className="team-logo-display" style={{ maxWidth: '100%', maxHeight: 80, objectFit: 'contain' }} />
+                                    ) : (
+                                        <div className="text-muted small">טרם הועלה לוגו קבוצה</div>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                        {!editingTeam && teamSettingsMsg && <div className="alert alert-success py-2 mt-3">{teamSettingsMsg}</div>}
+                    </div>
+                )}
+
+                {showLegacyCaptain && (
+                    <div className="captain-management-zone">
                         <div className="card mb-4 premium-captain-card border-none overflow-hidden">
                             <div className="card-header bg-theme-green text-white p-3 border-none">
                                 <h4 className="mb-0 d-flex align-items-center">
