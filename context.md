@@ -47,6 +47,7 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 - Default: full build with prerender (legal pages + public SEO head + auth `noindex` baked to `dist/*/index.html`). `vite-prerender-plugin` + `vite-plugin-pwa` can leave open handles; [`client/vite.config.ts`](client/vite.config.ts) uses `force-exit-after-build` so `npm run build` exits (same iron-sight workaround).
 - Fast path: `$env:PRERENDER='0'; npm run build` — SPA only, ~3s, no legal static HTML.
 - Vercel [`client/vercel.json`](client/vercel.json): no `PRERENDER=0` — production gets baked legal routes. Deploy adds ~5–15s vs fast path, not minutes, if force-exit is present.
+- **Chunk recovery (Jun 2026):** Lazy routes use [`lazyWithRetry`](client/src/utils/lazyWithRetry.ts) (retry + one-time reload). `main.tsx` handles `vite:preloadError`. `RouteErrorBoundary` shows Hebrew reload prompt for stale chunks. Vercel: `/assets/*` immutable cache; HTML `no-cache`.
 
 ## Dual tournament UI themes
 

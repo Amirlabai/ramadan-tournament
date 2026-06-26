@@ -19,6 +19,16 @@ if (import.meta.env.PROD && !GOOGLE_CLIENT_ID) {
   throw new Error('VITE_GOOGLE_CLIENT_ID is required in production builds');
 }
 
+const VITE_CHUNK_RELOAD_KEY = 'vite-chunk-reload'
+
+window.addEventListener('vite:preloadError', (event) => {
+  event.preventDefault()
+  if (!sessionStorage.getItem(VITE_CHUNK_RELOAD_KEY)) {
+    sessionStorage.setItem(VITE_CHUNK_RELOAD_KEY, '1')
+    window.location.reload()
+  }
+})
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HelmetProvider>
@@ -34,3 +44,10 @@ createRoot(document.getElementById('root')!).render(
     </HelmetProvider>
   </StrictMode>,
 )
+
+sessionStorage.removeItem(VITE_CHUNK_RELOAD_KEY)
+for (const key of Object.keys(sessionStorage)) {
+  if (key.startsWith('chunk-reload:')) {
+    sessionStorage.removeItem(key)
+  }
+}

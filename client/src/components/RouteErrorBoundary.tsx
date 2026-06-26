@@ -1,4 +1,5 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { isChunkLoadError } from '../utils/lazyWithRetry';
 
 interface Props {
   children: ReactNode;
@@ -21,6 +22,26 @@ export default class RouteErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.error) {
+      const chunkError = isChunkLoadError(this.state.error.message);
+
+      if (chunkError) {
+        return (
+          <div className="container py-4" role="alert">
+            <h2 className="h5 mb-2">גרסה חדשה של האתר זמינה</h2>
+            <p className="text-muted small mb-3">
+              העמוד נטען מגרסה ישנה. רענון יטען את הגרסה העדכנית.
+            </p>
+            <button
+              type="button"
+              className="btn btn-success"
+              onClick={() => window.location.reload()}
+            >
+              רענן עמוד
+            </button>
+          </div>
+        );
+      }
+
       return (
         <div className="container py-4" role="alert">
           <h2 className="h5 text-danger mb-2">שגיאה בטעינת העמוד</h2>

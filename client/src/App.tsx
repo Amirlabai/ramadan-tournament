@@ -5,18 +5,19 @@ import {
   useLocation,
   Navigate,
 } from 'react-router-dom'
-import { useRef, lazy, Suspense } from 'react'
+import { useRef, Suspense } from 'react'
 import PageLoading from './components/PageLoading'
+import { lazyWithRetry } from './utils/lazyWithRetry'
 import Dashboard from './pages/Dashboard'
 import Teams from './pages/Teams'
 import Schedule from './pages/Schedule'
 import Stats from './pages/Stats'
 import MVPs from './pages/MVPs'
 
-const Login = lazy(() => import('./pages/admin/Login'))
-const AdminPanel = lazy(() => import('./pages/admin/AdminPanel'))
-const Profile = lazy(() => import('./pages/Profile'))
-const PlayerZone = lazy(() => import('./pages/PlayerZone'))
+const Login = lazyWithRetry(() => import('./pages/admin/Login'))
+const AdminPanel = lazyWithRetry(() => import('./pages/admin/AdminPanel'))
+const Profile = lazyWithRetry(() => import('./pages/Profile'))
+const PlayerZone = lazyWithRetry(() => import('./pages/PlayerZone'))
 import TournamentSidebar from './components/TournamentSidebar'
 import TournamentSwitcher from './components/TournamentSwitcher'
 import NewsBanner from './components/NewsBanner'
