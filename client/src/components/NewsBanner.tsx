@@ -52,7 +52,7 @@ const NewsBanner = () => {
         <section className={`news-banner ${isCollapsed ? 'collapsed' : ''}`}>
             <button
                 type="button"
-                className="news-banner-toggle w-100 border-0 bg-transparent text-start p-0"
+                className="news-banner-toggle w-100 border-0 bg-transparent text-center p-0"
                 aria-expanded={!isCollapsed}
                 aria-controls="news-banner-content"
                 onClick={() => setIsCollapsed(!isCollapsed)}

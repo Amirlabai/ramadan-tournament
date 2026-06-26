@@ -333,9 +333,10 @@ h2 {
   padding: 0.75rem 1rem;
 }
 
+.news-banner h2,
 .news-banner h4 {
-  color: var(--primary-green);
-  font-weight: 700;
+  color: var(--dark-gray);
+  font-weight: 500;
   margin-bottom: 5px;
   font-size: 1.5rem;
   text-shadow: none;
@@ -344,6 +345,7 @@ h2 {
   transition: all 0.3s ease;
 }
 
+.news-banner.collapsed h2,
 .news-banner.collapsed h4 {
   margin-bottom: 2px;
   font-size: 1.1rem;
