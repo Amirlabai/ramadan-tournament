@@ -10,10 +10,8 @@ import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../s
 import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
 import {
-    clearPlayerProfile,
     findPendingTeamCreationRequests,
-    findUsersWithMapping,
-    rejectOtherPendingMappings,
+    clearPlayerProfile,
 } from '../repositories/userMappingRepository';
 
 // Voluntary leave team (roster row via players.user_id)
@@ -219,149 +217,18 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-// ─── Admin: view & edit all user-team mappings ───────────────────────────────
+// ─── Admin: legacy user-team mappings (removed — use registration workflow) ───
 
-export const getUserMappings = async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-        const users = await findUsersWithMapping();
-
-        // Hydrate team and player names for each user
-        const teams = await TeamRosterService.findAllTeamsWithPlayers();
-        const hydratedUsers = users.map(user => {
-            const info = user.mappedPlayerInfo;
-            if (!info) return user;
-
-            const team = teams.find(t => t.id === info.teamId);
-            const teamName = team ? team.name : `Team #${info.teamId}`;
-            let playerName = 'Unknown';
-
-            if (info.memberId > 0 && team) {
-                const player = team.players.find(p => p.memberId === info.memberId);
-                playerName = player ? `${player.firstName} ${player.lastName}`.trim() : `Player #${info.memberId}`;
-            } else if (user.playerProfile) {
-                playerName = `${user.playerProfile.firstName} ${user.playerProfile.lastName || ''} (New)`.trim();
-            }
-
-            return {
-                ...user,
-                resolvedTeamName: teamName,
-                resolvedPlayerName: playerName
-            };
-        });
-
-        res.json(hydratedUsers);
-    } catch (error) {
-        console.error('Get user mappings error:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
+const LEGACY_MAPPING_SUNSET = {
+    error: 'ניהול שיוכי שחקנים ישן הוסר. השתמש בלשונית סגל ורישום → תהליך רישום.',
+    code: 'LEGACY_USER_MAPPINGS_DEPRECATED',
 };
 
-export const updateUserMapping = async (req: AuthRequest, res: Response): Promise<void> => {
-    try {
-        const { userId } = req.params;
-        const { teamId, status, role } = req.body;
+export const getUserMappings = async (_req: AuthRequest, res: Response): Promise<void> => {
+    res.status(410).json(LEGACY_MAPPING_SUNSET);
+};
 
-        const validStatuses = ['pending', 'approved', 'rejected'];
-
-        if (status && !validStatuses.includes(status)) {
-            res.status(400).json({ error: 'Invalid status value' });
-            return;
-        }
-        if (role && role !== 'Admin' && role !== 'admin') {
-            res.status(400).json({ error: 'Invalid role value — platform role must be Admin or admin' });
-            return;
-        }
-
-        const user = await User.findById(userId);
-        if (!user) {
-            res.status(404).json({ error: 'User not found' });
-            return;
-        }
-
-        const oldStatus = user.mappedPlayerInfo?.status;
-
-        if (!user.mappedPlayerInfo) {
-            user.mappedPlayerInfo = { teamId: teamId ?? 0, memberId: 0, status: status ?? 'pending' };
-        } else {
-            if (teamId !== undefined) user.mappedPlayerInfo.teamId = Number(teamId);
-            if (status) user.mappedPlayerInfo.status = status;
-        }
-        if (role === 'Admin' || role === 'admin') {
-            user.role = role;
-        }
-
-        // Apply side effects if the admin changed the mapping status explicitly
-        if (status && status !== oldStatus) {
-            const currentTeamId = user.mappedPlayerInfo.teamId;
-
-            if (status === 'approved') {
-                const teamDoc = await TeamRosterService.findTeamWithPlayersById(currentTeamId);
-                if (teamDoc) {
-                    let activeMemberId = user.mappedPlayerInfo.memberId;
-
-                    if (activeMemberId === 0 && user.playerProfile) {
-                        // Use global max across ALL teams to prevent cross-team memberId collisions
-                        const allTeams = await TeamRosterService.findAllTeamsWithPlayers();
-                        const allIds = allTeams.flatMap(t => t.players.map((p: any) => p.memberId || 0));
-                        const newMemberId = allIds.length > 0 ? Math.max(...allIds) + 1 : 1;
-                        teamDoc.players.push({
-                            memberId: newMemberId,
-                            firstName: user.playerProfile.firstName || '',
-                            lastName: user.playerProfile.lastName || '',
-                            nickname: user.playerProfile.nickname || '',
-                            number: user.playerProfile.number || 0,
-                            position: user.playerProfile.position || '',
-                            hasPersonalId: false,
-                            birthYear: 0,
-                            head_photo: user.avatarUrl || '',
-                            bio: user.playerProfile.bio || ''
-                        } as any);
-
-                        user.mappedPlayerInfo.memberId = newMemberId;
-                        activeMemberId = newMemberId;
-                    } else {
-                        const playerIndex = teamDoc.players.findIndex(p => p.memberId === activeMemberId);
-                        if (playerIndex !== -1) {
-                            const player = teamDoc.players[playerIndex] as any;
-                            if (player.head_photo) {
-                                user.avatarUrl = player.head_photo;
-                            } else if (user.avatarUrl) {
-                                player.head_photo = user.avatarUrl;
-                            }
-                        }
-                    }
-                    await TeamRosterService.saveTeam(teamDoc);
-                }
-
-                if (user.mappedPlayerInfo.memberId > 0) {
-                    await rejectOtherPendingMappings(
-                        user.id,
-                        currentTeamId,
-                        user.mappedPlayerInfo.memberId,
-                    );
-                }
-            }
-        }
-
-        await user.save();
-
-        if (status === 'approved' || status === 'rejected') {
-            await clearPlayerProfile(user.id);
-            const refreshed = await User.findById(user.id);
-            if (refreshed) Object.assign(user, refreshed.toObject());
-        }
-        res.json({
-            message: 'Mapping updated',
-            user: {
-                id: user.id,
-                displayName: user.displayName,
-                role: user.role,
-                mappedPlayerInfo: user.mappedPlayerInfo
-            }
-        });
-    } catch (error) {
-        console.error('Update mapping error:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
+export const updateUserMapping = async (_req: AuthRequest, res: Response): Promise<void> => {
+    res.status(410).json(LEGACY_MAPPING_SUNSET);
 };
 

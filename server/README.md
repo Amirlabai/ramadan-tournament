@@ -131,10 +131,45 @@ Failed personal-ID + birth-year submissions are rate-limited per user and season
 
 ### Admin (authenticated + `admin` role)
 - Matches: `POST|PUT|DELETE /api/matches`, `POST /api/matches/sync-playoffs`
-- Registration workflows: `/api/admin/workflows`, `/api/admin/users/identity`, etc.
+- Registration workflows: `GET /api/admin/workflows`, `GET /api/admin/workflows/user-search`, `POST /api/admin/users/identity`, `PATCH /api/admin/requests/{creation|join|transfer}/:id`
 - User roles: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role`
 
-**Legacy route aliases (sunset planned):** `POST /api/users/redeem-invoice` and `POST /api/admin/users/invoice` remain as backward-compatible aliases for identity verification and admin identity assignment. Prefer `POST /api/users/verify-identity` and `POST /api/admin/users/identity`.
+### Registration (authenticated user)
+- `GET /api/users/registration` — season registration summary
+- `POST /api/users/verify-identity` — submit personal ID + birth year
+- `POST /api/users/cancel-registration-request` — cancel pending join/creation request
+
+## Service ownership
+
+| Service | Owns |
+|---------|------|
+| `RegistrationService` | Facade over query/workflow/identity helpers |
+| `RegistrationQueryService` | Registration summary, team list, admin user search |
+| `RegistrationWorkflowService` | Join/creation/transfer requests, squad roles, admin queues |
+| `RegistrationIdentityService` | Encrypted personal ID match (user ↔ admin) |
+| `IdentityRateLimitService` | Failed identity submission throttles |
+| `TeamRosterService` | Admin roster mutations (Prisma) |
+| `TeamDataService` | Cached public team documents |
+| `PlayerService` | Avatar sync, voluntary leave |
+| `SeasonService` / `AdminSeasonService` | Active season, girls season admin |
+| `AdminUserService` | Platform admin role search and promotion |
+| `MatchDataService` / `StatsService` / `PlayoffService` | Fixtures, standings, playoffs |
+| `NewsDataService` | Division-scoped news |
+| `PointsStatsService` / `PointEntryService` | Girls points tournament |
+| `CacheService` | Redis read-through cache (`rt:` keys) |
+| `AuthRateLimitService` | Login throttles |
+
+Controllers stay thin: validate input, call the owning service, map errors to HTTP.
+
+## Legacy routes removed
+
+| Removed route | Replacement |
+|---------------|-------------|
+| `POST /api/users/redeem-invoice` | `POST /api/users/verify-identity` |
+| `POST /api/users/map-player` | `POST /api/teams/:id/join-request` |
+| `POST /api/admin/users/invoice` | `POST /api/admin/users/identity` |
+| `GET /api/admin/user-mappings` | Admin → סגל ורישום → `RegistrationWorkflowAdmin` |
+| `PATCH /api/admin/user-mappings/:userId` | Same |
 
 ## Local smoke tests
 
