@@ -7,7 +7,7 @@ import {
   createBoysSeason,
   seedBannedWords,
 } from './seedHelpers';
-import { InvoiceRateLimitService } from '../src/services/InvoiceRateLimitService';
+import { IdentityRateLimitService } from '../src/services/IdentityRateLimitService';
 import { SeasonService } from '../src/services/SeasonService';
 
 loadServerEnvFromCwd();
@@ -27,8 +27,8 @@ async function main() {
   await wipeDatabase(prisma);
 
   await SeasonService.invalidateActiveSeasonCache();
-  await InvoiceRateLimitService.clearAllAttempts().catch(() => {
-    console.warn('Could not clear Redis invoice rate-limit keys (REDIS_URL unset or unreachable).');
+  await IdentityRateLimitService.clearAllAttempts().catch(() => {
+    console.warn('Could not clear Redis identity rate-limit keys (REDIS_URL unset or unreachable).');
   });
 
   const season = await createBoysSeason(prisma);

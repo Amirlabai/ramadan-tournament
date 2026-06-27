@@ -1,6 +1,6 @@
 import { Division, SeasonRegistrationStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
-import { InvoiceRateLimitService, MAX_INVOICE_ATTEMPTS } from './InvoiceRateLimitService';
+import { IdentityRateLimitService, MAX_IDENTITY_ATTEMPTS } from './IdentityRateLimitService';
 import { SeasonService } from './SeasonService';
 import { IDENTITY_ALERT_NOT_MATCHING } from '../utils/identityAlerts';
 import {
@@ -240,11 +240,11 @@ async function recordIdentityAttemptFailure(
   seasonId: string,
   reason: string
 ): Promise<never> {
-  const attempts = await InvoiceRateLimitService.recordFailedAttempt(userId, seasonId);
-  if (attempts >= MAX_INVOICE_ATTEMPTS) {
+  const attempts = await IdentityRateLimitService.recordFailedAttempt(userId, seasonId);
+  if (attempts >= MAX_IDENTITY_ATTEMPTS) {
     throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
   }
-  const remaining = MAX_INVOICE_ATTEMPTS - attempts;
+  const remaining = MAX_IDENTITY_ATTEMPTS - attempts;
   throw new Error(`${reason} נותרו ${remaining} ניסיונים היום.`);
 }
 
@@ -340,7 +340,7 @@ export async function submitUserIdentity(
   const season = await SeasonService.getActiveSeasonForDivision(division);
   await deps.assertDivisionAccess(userId, division);
 
-  if (await InvoiceRateLimitService.isLocked(userId, season.id)) {
+  if (await IdentityRateLimitService.isLocked(userId, season.id)) {
     throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
   }
 
@@ -417,7 +417,7 @@ export async function submitUserIdentity(
         division: season.division,
       },
     });
-    await InvoiceRateLimitService.clearAttempts(userId, season.id);
+    await IdentityRateLimitService.clearAttempts(userId, season.id);
     return;
   }
 
@@ -482,5 +482,5 @@ export async function submitUserIdentity(
   });
 
   await deps.lockActiveDivision(userId, division);
-  await InvoiceRateLimitService.clearAttempts(userId, season.id);
+  await IdentityRateLimitService.clearAttempts(userId, season.id);
 }

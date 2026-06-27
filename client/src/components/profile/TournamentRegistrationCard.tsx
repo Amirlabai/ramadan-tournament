@@ -3,18 +3,10 @@ import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
+import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
-
-const STATUS_LABELS: Record<string, string> = {
-    none: 'שלב 1: הזן תעודת זהות ושנת לידה או המתן שהמנהל ירשום',
-    join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין לאישור מנהל (הזנת זהות)',
-    invoice_assigned: 'המנהל רשם את פרטיך — הזן את אותם פרטים בדיוק להפעלה',
-    active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
-    archived: 'עונה בארכיון',
-};
 
 interface RegistrationSummary {
     seasonId: string;
@@ -143,8 +135,8 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 <span className="text-muted">סטטוס: </span>
                 <strong>
                     {reg.awaitingAdminIdentity
-                        ? STATUS_LABELS.awaiting_invoice
-                        : STATUS_LABELS[reg.status] ?? reg.status}
+                        ? SEASON_REGISTRATION_STATUS_LABELS.awaiting_invoice
+                        : SEASON_REGISTRATION_STATUS_LABELS[reg.status] ?? reg.status}
                 </strong>
             </p>
 

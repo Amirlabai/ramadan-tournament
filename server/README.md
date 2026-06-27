@@ -107,6 +107,19 @@ After `db:fresh`, only the env admin exists. Promote Google/email users:
 
 Guards: cannot demote yourself or the last admin. The affected user must **log in again** for their JWT role to update (API checks DB on each request).
 
+## Identity rate limiting (`IdentityRateLimitService`)
+
+Failed personal-ID + birth-year submissions are rate-limited per user and season:
+
+- **Service:** `src/services/IdentityRateLimitService.ts`
+- **Limit:** 3 failed attempts per calendar day (Asia/Jerusalem midnight reset)
+- **Redis key prefix:** `rt:identity:attempts:{userId}:{seasonId}`
+- **Fallback:** in-memory map when `REDIS_URL` is unset (local dev only)
+
+`db:fresh` (`prisma/seed-empty.ts`) calls `IdentityRateLimitService.clearAllAttempts()` to wipe counters.
+
+**Deploy note:** After deploying this rename from the legacy `rt:invoice:attempts:` prefix, clear stale Redis keys if users were locked under the old prefix (or run `clearAllAttempts` once on deploy). New attempts use `rt:identity:attempts:` only.
+
 ## API overview
 
 ### Public
