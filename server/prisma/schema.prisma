@@ -125,15 +125,20 @@ model User {
 }
 
 model SeasonRegistration {
-  id         String                   @id @default(uuid())
-  userId     String                   @map("user_id")
-  seasonId   String                   @map("season_id")
-  division   Division
-  status     SeasonRegistrationStatus @default(none)
-  redeemedAt DateTime?                @map("redeemed_at")
-  invoiceAlert String?                @map("invoice_alert")
-  createdAt  DateTime                 @default(now()) @map("created_at")
-  updatedAt  DateTime                 @updatedAt @map("updated_at")
+  id                   String                   @id @default(uuid())
+  userId               String                   @map("user_id")
+  seasonId             String                   @map("season_id")
+  division             Division
+  status               SeasonRegistrationStatus @default(none)
+  redeemedAt           DateTime?                @map("redeemed_at")
+  invoiceAlert         String?                  @map("invoice_alert")
+  userPersonalIdEnc    String?                  @map("user_personal_id_enc")
+  userBirthYear        Int?                     @map("user_birth_year")
+  userPersonalIdMasked String?                  @map("user_personal_id_masked")
+  adminPersonalIdEnc   String?                  @map("admin_personal_id_enc")
+  adminBirthYear       Int?                     @map("admin_birth_year")
+  createdAt            DateTime                 @default(now()) @map("created_at")
+  updatedAt            DateTime                 @updatedAt @map("updated_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)

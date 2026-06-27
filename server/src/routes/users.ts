@@ -5,7 +5,7 @@ import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
 import { uploadAvatar, deleteAvatar, updatePlayerProfile, leaveTeam, requestPlayerMapping } from '../controllers/userController';
-import { getRegistrationStatus, redeemInvoice, cancelRegistrationRequest } from '../controllers/registrationController';
+import { getRegistrationStatus, verifyIdentity, redeemInvoice, cancelRegistrationRequest } from '../controllers/registrationController';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
@@ -20,6 +20,7 @@ const cancelRegistrationLimiter = rateLimit({
 });
 
 router.get('/registration', authenticate, getRegistrationStatus);
+router.post('/verify-identity', authenticate, verifyIdentity);
 router.post('/redeem-invoice', authenticate, redeemInvoice);
 router.post(
   '/cancel-registration-request',

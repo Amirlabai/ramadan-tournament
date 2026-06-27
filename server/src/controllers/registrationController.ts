@@ -4,7 +4,7 @@ import { AuthRequest } from '../middleware/auth';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 import { RegistrationService } from '../services/RegistrationService';
 import type { JoinRequestOptions } from '../services/RegistrationService';
-import { INVOICE_CODE_MAX_LEN, parsePositiveTeamId } from '../utils/inputValidation';
+import { parsePositiveTeamId } from '../utils/inputValidation';
 import { isUuid } from '../utils/sanitizeSearchQuery';
 
 function divisionFromQuery(req: TournamentRequest): Division {
@@ -24,23 +24,39 @@ export const getRegistrationStatus = async (req: AuthRequest, res: Response): Pr
   }
 };
 
-export const redeemInvoice = async (req: AuthRequest, res: Response): Promise<void> => {
+export const verifyIdentity = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { code } = req.body as { code?: string };
+    const { personalId, birthYear } = req.body as {
+      personalId?: string;
+      birthYear?: string | number;
+    };
     const division = divisionFromQuery(req as TournamentRequest);
-    const codeStr = String(code ?? '').trim();
-    if (codeStr.length > INVOICE_CODE_MAX_LEN) {
-      res.status(400).json({ error: 'מספר חשבונית ארוך מדי' });
+
+    if (
+      !personalId?.trim() ||
+      birthYear === undefined ||
+      birthYear === null ||
+      String(birthYear).trim() === ''
+    ) {
+      res.status(400).json({ error: 'תעודת זהות ושנת לידה נדרשים' });
       return;
     }
-    await RegistrationService.redeemInvoice(req.userId!, codeStr, division);
+
+    await RegistrationService.submitUserIdentity(
+      req.userId!,
+      personalId.trim(),
+      birthYear,
+      division
+    );
     const summary = await RegistrationService.getSummary(req.userId!, division);
-    res.json({ message: 'קוד התשלום אושר בהצלחה', registration: summary });
+    res.json({ message: 'פרטי הזהות נשמרו בהצלחה', registration: summary });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
     res.status(400).json({ error: message });
   }
 };
+
+export const redeemInvoice = verifyIdentity;
 
 export const cancelRegistrationRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

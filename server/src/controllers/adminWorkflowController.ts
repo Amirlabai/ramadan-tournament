@@ -1,7 +1,6 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/auth';
 import { RegistrationService } from '../services/RegistrationService';
-import { INVOICE_CODE_MAX_LEN } from '../utils/inputValidation';
 import { isUuid } from '../utils/sanitizeSearchQuery';
 
 function rejectInvalidUuid(res: Response, label: string): boolean {
@@ -17,7 +16,7 @@ function requireUuid(res: Response, value: string | undefined, label: string): v
   return true;
 }
 
-export const searchInvoiceUsers = async (req: AuthRequest, res: Response): Promise<void> => {
+export const searchIdentityUsers = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasonId = req.query.seasonId as string | undefined;
     const q = (req.query.q as string) || '';
@@ -25,13 +24,15 @@ export const searchInvoiceUsers = async (req: AuthRequest, res: Response): Promi
       res.status(400).json({ error: 'seasonId לא תקין' });
       return;
     }
-    const users = await RegistrationService.searchUsersForInvoice(seasonId, q);
+    const users = await RegistrationService.searchUsersForIdentity(seasonId, q);
     res.json({ users });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
     res.status(400).json({ error: message });
   }
 };
+
+export const searchInvoiceUsers = searchIdentityUsers;
 
 export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -48,46 +49,46 @@ export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promi
   }
 };
 
-export const assignUserInvoice = async (req: AuthRequest, res: Response): Promise<void> => {
+export const assignUserIdentity = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { userId, seasonId, invoiceNumber } = req.body as {
+    const { userId, seasonId, personalId, birthYear } = req.body as {
       userId?: string;
       seasonId?: string;
-      invoiceNumber?: string;
+      personalId?: string;
+      birthYear?: string | number;
     };
-    if (!userId || !seasonId || !invoiceNumber?.trim()) {
-      res.status(400).json({ error: 'userId, seasonId ומספר חשבונית נדרשים' });
+    if (
+      !userId ||
+      !seasonId ||
+      !personalId?.trim() ||
+      birthYear === undefined ||
+      birthYear === null ||
+      String(birthYear).trim() === ''
+    ) {
+      res.status(400).json({ error: 'userId, seasonId, תעודת זהות ושנת לידה נדרשים' });
       return;
     }
     if (!requireUuid(res, userId, 'userId') || !requireUuid(res, seasonId, 'seasonId')) {
       return;
     }
-    const codeStr = invoiceNumber.trim();
-    if (codeStr.length > INVOICE_CODE_MAX_LEN) {
-      res.status(400).json({ error: 'מספר חשבונית ארוך מדי' });
-      return;
-    }
-    const result = await RegistrationService.assignInvoice(
+    const result = await RegistrationService.assignAdminIdentity(
       req.userId!,
       userId,
       seasonId,
-      codeStr
+      personalId.trim(),
+      birthYear
     );
     res.json({
-      message:
-        result.adminMessage ??
-        (result.updated
-          ? 'מספר החשבונית עודכן. המשתמש מזין את המספר המתוקן בפרופיל.'
-          : 'מספר החשבונית הוקצה. המשתמש מזין את אותו מספר בפרופיל להפעלה.'),
-      invoiceNumber: result.invoiceNumber,
+      message: result.adminMessage ?? 'תעודת הזהות נרשמה.',
       updated: result.updated,
-      similarToUser: result.similarToUser,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
     res.status(400).json({ error: message });
   }
 };
+
+export const assignUserInvoice = assignUserIdentity;
 
 export const reviewCreationRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

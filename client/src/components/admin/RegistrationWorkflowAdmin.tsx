@@ -15,14 +15,15 @@ interface SeasonOption {
     isActive: boolean;
 }
 
-interface AwaitingInvoiceRow {
+interface AwaitingIdentityRow {
     user: WorkflowUser;
     status: string;
     pendingTeamName?: string | null;
     joinStatus?: string | null;
-    hasUnredeemedCode?: boolean;
-    submittedInvoiceNumber?: string | null;
-    assignedInvoiceNumber?: string | null;
+    hasAdminAssignment?: boolean;
+    submittedIdentityMasked?: string | null;
+    submittedBirthYear?: number | null;
+    assignedBirthYear?: number | null;
 }
 
 interface SearchUserRow {
@@ -30,9 +31,10 @@ interface SearchUserRow {
     displayName: string;
     email: string | null;
     registrationStatus: string;
-    hasUnredeemedCode: boolean;
-    submittedInvoiceNumber?: string | null;
-    assignedInvoiceNumber?: string | null;
+    hasAdminAssignment: boolean;
+    submittedIdentityMasked?: string | null;
+    submittedBirthYear?: number | null;
+    assignedBirthYear?: number | null;
 }
 
 interface WorkflowData {
@@ -41,18 +43,20 @@ interface WorkflowData {
         id: string;
         teamName: string;
         registrationStatus: string;
-        submittedInvoiceNumber?: string | null;
-        assignedInvoiceNumber?: string | null;
-        invoicesMatched?: boolean;
+        submittedIdentityMasked?: string | null;
+        submittedBirthYear?: number | null;
+        assignedBirthYear?: number | null;
+        identityMatched?: boolean;
         user: WorkflowUser;
     }>;
     joins: Array<{
         id: string;
         status: string;
         registrationStatus: string;
-        submittedInvoiceNumber?: string | null;
-        assignedInvoiceNumber?: string | null;
-        invoicesMatched?: boolean;
+        submittedIdentityMasked?: string | null;
+        submittedBirthYear?: number | null;
+        assignedBirthYear?: number | null;
+        identityMatched?: boolean;
         team: { id: number; name: string };
         user: WorkflowUser;
     }>;
@@ -63,11 +67,11 @@ interface WorkflowData {
         registrationStatus: string;
         user: WorkflowUser;
     }>;
-    awaitingInvoice: AwaitingInvoiceRow[];
+    awaitingIdentity: AwaitingIdentityRow[];
 }
 
-const canApproveRequest = (registrationStatus: string, invoicesMatched?: boolean) =>
-    registrationStatus === 'active' && invoicesMatched === true;
+const canApproveRequest = (registrationStatus: string, identityMatched?: boolean) =>
+    registrationStatus === 'active' && identityMatched === true;
 
 const renderActiveStatus = (status: string) =>
     status === 'active' ? (
@@ -76,7 +80,9 @@ const renderActiveStatus = (status: string) =>
         <span className="text-muted">לא פעיל</span>
     );
 
-const pendingApprovalHint = (): string => 'ממתין להתאמת חשבונית ורישום פעיל';
+const pendingApprovalHint = (): string => 'ממתין להתאמת זהות ורישום פעיל';
+
+type IdentityInput = { personalId: string; birthYear: string };
 
 export default function RegistrationWorkflowAdmin() {
     const [seasons, setSeasons] = useState<SeasonOption[]>([]);
@@ -85,7 +91,7 @@ export default function RegistrationWorkflowAdmin() {
     const [loading, setLoading] = useState(true);
     const [msg, setMsg] = useState('');
     const [assigningId, setAssigningId] = useState<string | null>(null);
-    const [invoiceInputs, setInvoiceInputs] = useState<Record<string, string>>({});
+    const [identityInputs, setIdentityInputs] = useState<Record<string, IdentityInput>>({});
 
     const [searchQ, setSearchQ] = useState('');
     const [searchResults, setSearchResults] = useState<SearchUserRow[]>([]);
@@ -115,7 +121,11 @@ export default function RegistrationWorkflowAdmin() {
         setMsg('');
         try {
             const res = await adminAPI.getWorkflowQueues(seasonId);
-            setData(res.data);
+            const raw = res.data as WorkflowData & { awaitingInvoice?: AwaitingIdentityRow[] };
+            setData({
+                ...raw,
+                awaitingIdentity: raw.awaitingIdentity ?? raw.awaitingInvoice ?? [],
+            });
         } catch (e: unknown) {
             setData(null);
             const ax = e as {
@@ -155,31 +165,26 @@ export default function RegistrationWorkflowAdmin() {
         return () => clearTimeout(timer);
     }, [searchQ, seasonId]);
 
-    const assignToUser = async (userId: string, displayName: string, invoiceNumber: string) => {
+    const assignToUser = async (
+        userId: string,
+        displayName: string,
+        personalId: string,
+        birthYear: string
+    ) => {
         if (!data) return;
-        const trimmed = invoiceNumber.trim();
-        if (!trimmed) {
-            setMsg('יש להזין מספר חשבונית');
+        const pid = personalId.trim();
+        const by = birthYear.trim();
+        if (!pid || !by) {
+            setMsg('יש להזין תעודת זהות ושנת לידה');
             return;
         }
         setAssigningId(userId);
         setMsg('');
         try {
-            const res = await adminAPI.assignInvoice(userId, data.season.id, trimmed);
-            const num = res.data.invoiceNumber as string;
-            const similarToUser = res.data.similarToUser as { displayName: string } | undefined;
+            const res = await adminAPI.assignIdentity(userId, data.season.id, pid, by);
             const apiMessage = res.data.message as string | undefined;
-
-            let text =
-                apiMessage ??
-                (res.data.updated
-                    ? `מספר החשבונית עודכן ל־${num} (${displayName}).`
-                    : `מספר חשבונית ${num} נרשם ל־${displayName}.`);
-            if (similarToUser) {
-                text += ` שים לב: דומה לחשבונית של ${similarToUser.displayName}.`;
-            }
-            setMsg(text);
-            setInvoiceInputs((prev) => {
+            setMsg(apiMessage ?? `פרטי הזהות נרשמו ל־${displayName}.`);
+            setIdentityInputs((prev) => {
                 const next = { ...prev };
                 delete next[userId];
                 return next;
@@ -194,55 +199,89 @@ export default function RegistrationWorkflowAdmin() {
             if (!ax.response) {
                 setMsg('לא ניתן להתחבר לשרת — ייתכן שהוא מתעדכן. המתן רגע ונסה שוב.');
             } else {
-                setMsg(ax.response.data?.error || 'שגיאה בהקצאת חשבונית');
+                setMsg(ax.response.data?.error || 'שגיאה ברישום זהות');
             }
         } finally {
             setAssigningId(null);
         }
     };
 
-    const renderUserSubmittedCell = (submittedInvoiceNumber?: string | null) => {
-        const value = submittedInvoiceNumber?.trim();
+    const renderUserSubmittedCell = (
+        submittedIdentityMasked?: string | null,
+        submittedBirthYear?: number | null
+    ) => {
+        const masked = submittedIdentityMasked?.trim();
+        if (!masked && submittedBirthYear == null) {
+            return <span className="text-muted">—</span>;
+        }
         return (
-            <span dir="ltr" className={`workflow-monospace ${value ? 'font-monospace' : 'text-muted'}`}>
-                {value ?? '—'}
+            <span dir="ltr" className="workflow-monospace font-monospace">
+                {masked ?? '—'}
+                {submittedBirthYear != null && (
+                    <span className="text-muted"> · {submittedBirthYear}</span>
+                )}
             </span>
         );
     };
 
     const renderAssignCell = (row: {
         user: WorkflowUser;
-        hasUnredeemedCode?: boolean;
+        hasAdminAssignment?: boolean;
         registrationStatus?: string;
         status?: string;
-        assignedInvoiceNumber?: string | null;
-        submittedInvoiceNumber?: string | null;
+        assignedBirthYear?: number | null;
     }) => {
         const { user } = row;
         const regStatus = row.registrationStatus ?? row.status;
 
         const isCorrection =
-            row.hasUnredeemedCode ||
+            row.hasAdminAssignment ||
             regStatus === 'invoice_assigned' ||
-            (regStatus === 'awaiting_invoice' && !!row.assignedInvoiceNumber);
-        const value = invoiceInputs[user.id] ?? row.assignedInvoiceNumber ?? '';
+            (regStatus === 'awaiting_invoice' && row.assignedBirthYear != null);
+        const stored = identityInputs[user.id];
+        const personalId = stored?.personalId ?? '';
+        const birthYear = stored?.birthYear ?? (row.assignedBirthYear != null ? String(row.assignedBirthYear) : '');
 
         return (
             <div className="workflow-assign-row">
                 <input
                     type="text"
                     className="form-control form-control-sm workflow-invoice-input"
-                    placeholder={isCorrection ? 'מספר מתוקן' : 'מספר חשבונית'}
-                    value={value}
+                    placeholder={isCorrection ? 'ת.ז. מתוקנת' : 'תעודת זהות'}
+                    value={personalId}
                     onChange={(e) =>
-                        setInvoiceInputs((prev) => ({
+                        setIdentityInputs((prev) => ({
                             ...prev,
-                            [user.id]: e.target.value.toUpperCase(),
+                            [user.id]: {
+                                personalId: e.target.value.replace(/\D/g, ''),
+                                birthYear: prev[user.id]?.birthYear ?? birthYear,
+                            },
                         }))
                     }
                     dir="ltr"
-                    aria-label={`מספר חשבונית עבור ${user.displayName}`}
-                    maxLength={24}
+                    inputMode="numeric"
+                    aria-label={`תעודת זהות עבור ${user.displayName}`}
+                    maxLength={9}
+                    disabled={assigningId === user.id}
+                />
+                <input
+                    type="number"
+                    className="form-control form-control-sm workflow-invoice-input"
+                    placeholder="שנת לידה"
+                    value={birthYear}
+                    onChange={(e) =>
+                        setIdentityInputs((prev) => ({
+                            ...prev,
+                            [user.id]: {
+                                personalId: prev[user.id]?.personalId ?? personalId,
+                                birthYear: e.target.value,
+                            },
+                        }))
+                    }
+                    dir="ltr"
+                    min={1940}
+                    max={2015}
+                    aria-label={`שנת לידה עבור ${user.displayName}`}
                     disabled={assigningId === user.id}
                 />
                 <button
@@ -250,8 +289,8 @@ export default function RegistrationWorkflowAdmin() {
                     className={`btn btn-sm text-nowrap workflow-assign-btn ${
                         isCorrection ? 'btn-warning' : 'btn-success'
                     }`}
-                    disabled={assigningId === user.id || !value.trim()}
-                    onClick={() => void assignToUser(user.id, user.displayName, value)}
+                    disabled={assigningId === user.id || !personalId.trim() || !birthYear.trim()}
+                    onClick={() => void assignToUser(user.id, user.displayName, personalId, birthYear)}
                 >
                     {assigningId === user.id ? 'שומר…' : isCorrection ? 'עדכן' : 'הקצה'}
                 </button>
@@ -259,14 +298,15 @@ export default function RegistrationWorkflowAdmin() {
         );
     };
 
-    const renderInvoiceUserCard = (row: {
+    const renderIdentityUserCard = (row: {
         user: WorkflowUser;
         status?: string;
         registrationStatus?: string;
         pendingTeamName?: string | null;
-        hasUnredeemedCode?: boolean;
-        submittedInvoiceNumber?: string | null;
-        assignedInvoiceNumber?: string | null;
+        hasAdminAssignment?: boolean;
+        submittedIdentityMasked?: string | null;
+        submittedBirthYear?: number | null;
+        assignedBirthYear?: number | null;
     }) => {
         const status = row.registrationStatus ?? row.status ?? 'none';
 
@@ -292,10 +332,15 @@ export default function RegistrationWorkflowAdmin() {
                     )}
                     <div className="workflow-user-card__row">
                         <dt>הזנת משתמש</dt>
-                        <dd>{renderUserSubmittedCell(row.submittedInvoiceNumber)}</dd>
+                        <dd>
+                            {renderUserSubmittedCell(
+                                row.submittedIdentityMasked,
+                                row.submittedBirthYear
+                            )}
+                        </dd>
                     </div>
                     <div className="workflow-user-card__row">
-                        <dt>מספר חשבונית (מנהל)</dt>
+                        <dt>תעודת זהות (מנהל)</dt>
                         <dd>{renderAssignCell(row)}</dd>
                     </div>
                 </dl>
@@ -351,20 +396,20 @@ export default function RegistrationWorkflowAdmin() {
                     )}
 
                     <section className="mb-4 p-3 border rounded">
-                        <h5 className="h6 mb-2">הקצאת חשבונית ({data.awaitingInvoice.length})</h5>
+                        <h5 className="h6 mb-2">רישום זהות ({data.awaitingIdentity.length})</h5>
                         <p className="text-muted small mb-3">
-                            הזן את מספר החשבונית מהתשלום בפועל ולחץ הקצה.
-                            המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהמספרים תואמים.
+                            הזן תעודת זהות ושנת לידה מהרישום בפועל ולחץ הקצה.
+                            המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהפרטים תואמים.
                             משתמשים שהותאמו כבר לא מופיעים כאן.
                         </p>
-                        <div className="workflow-user-card-list" role="list" aria-label="משתמשים הממתינים להקצאת קוד תשלום">
-                            {data.awaitingInvoice.map((r) => (
+                        <div className="workflow-user-card-list" role="list" aria-label="משתמשים הממתינים לרישום זהות">
+                            {data.awaitingIdentity.map((r) => (
                                 <div key={r.user.id} role="listitem">
-                                    {renderInvoiceUserCard(r)}
+                                    {renderIdentityUserCard(r)}
                                 </div>
                             ))}
                         </div>
-                        {!data.awaitingInvoice.length && (
+                        {!data.awaitingIdentity.length && (
                             <p className="text-muted small mb-0 mt-2">אין משתמשים ברשימה — חפש למטה לפי אימייל.</p>
                         )}
                     </section>
@@ -384,16 +429,17 @@ export default function RegistrationWorkflowAdmin() {
                             <div className="workflow-user-card-list" role="list" aria-label="תוצאות חיפוש משתמשים">
                                 {searchResults.map((u) => (
                                     <div key={u.id} role="listitem">
-                                        {renderInvoiceUserCard({
+                                        {renderIdentityUserCard({
                                             user: {
                                                 id: u.id,
                                                 displayName: u.displayName,
                                                 email: u.email,
                                             },
                                             registrationStatus: u.registrationStatus,
-                                            hasUnredeemedCode: u.hasUnredeemedCode,
-                                            submittedInvoiceNumber: u.submittedInvoiceNumber,
-                                            assignedInvoiceNumber: u.assignedInvoiceNumber,
+                                            hasAdminAssignment: u.hasAdminAssignment,
+                                            submittedIdentityMasked: u.submittedIdentityMasked,
+                                            submittedBirthYear: u.submittedBirthYear,
+                                            assignedBirthYear: u.assignedBirthYear,
                                         })}
                                     </div>
                                 ))}
@@ -419,7 +465,7 @@ export default function RegistrationWorkflowAdmin() {
                                     {data.creations.map((c) => {
                                         const paid = canApproveRequest(
                                             c.registrationStatus,
-                                            c.invoicesMatched
+                                            c.identityMatched
                                         );
                                         return (
                                             <tr
@@ -452,7 +498,7 @@ export default function RegistrationWorkflowAdmin() {
                                                         title={
                                                             paid
                                                                 ? undefined
-                                                                : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
+                                                                : 'לא ניתן לאשר לפני התאמת זהות ורישום פעיל'
                                                         }
                                                         onClick={async () => {
                                                             setMsg('');
@@ -475,7 +521,7 @@ export default function RegistrationWorkflowAdmin() {
                                                     <button
                                                         type="button"
                                                         className="btn btn-sm btn-outline-danger"
-                                                        title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
+                                                        title={paid ? undefined : 'דחייה זמינה גם לפני אימות זהות'}
                                                         onClick={async () => {
                                                             await adminAPI.reviewCreationRequest(c.id, false);
                                                             load();
@@ -517,7 +563,7 @@ export default function RegistrationWorkflowAdmin() {
                                         .map((j) => {
                                             const paid = canApproveRequest(
                                                 j.registrationStatus,
-                                                j.invoicesMatched
+                                                j.identityMatched
                                             );
                                             return (
                                                 <tr
@@ -548,7 +594,7 @@ export default function RegistrationWorkflowAdmin() {
                                                             title={
                                                                 paid
                                                                     ? undefined
-                                                                    : 'לא ניתן לאשר לפני התאמת חשבונית ורישום פעיל'
+                                                                    : 'לא ניתן לאשר לפני התאמת זהות ורישום פעיל'
                                                             }
                                                             onClick={async () => {
                                                                 setMsg('');
@@ -571,7 +617,7 @@ export default function RegistrationWorkflowAdmin() {
                                                         <button
                                                             type="button"
                                                             className="btn btn-sm btn-outline-danger"
-                                                            title={paid ? undefined : 'דחייה זמינה גם לפני חשבונית'}
+                                                            title={paid ? undefined : 'דחייה זמינה גם לפני אימות זהות'}
                                                             onClick={async () => {
                                                                 await adminAPI.reviewJoinRequest(j.id, false);
                                                                 load();

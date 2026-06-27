@@ -14,7 +14,9 @@ import {
 } from '../controllers/adminSeasonController';
 import {
   listWorkflowQueues,
+  searchIdentityUsers,
   searchInvoiceUsers,
+  assignUserIdentity,
   assignUserInvoice,
   reviewCreationRequest,
   reviewJoinRequest,
@@ -83,6 +85,7 @@ router.get(
   adminSearchLimiter,
   searchInvoiceUsers
 );
+router.post('/users/identity', authenticate, authorize(['Admin', 'admin']), assignUserIdentity);
 router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);

@@ -6,10 +6,10 @@ import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
 
 const STATUS_LABELS: Record<string, string> = {
-    none: 'שלב 1: הזן מספר חשבונית או המתן שהמנהל ירשום',
+    none: 'שלב 1: הזן תעודת זהות ושנת לידה או המתן שהמנהל ירשום',
     join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין לאישור מנהל (הזנת חשבונית)',
-    invoice_assigned: 'המנהל רשם חשבונית — הזן את אותו מספר בדיוק להפעלה',
+    awaiting_invoice: 'ממתין לאישור מנהל (הזנת זהות)',
+    invoice_assigned: 'המנהל רשם את פרטיך — הזן את אותם פרטים בדיוק להפעלה',
     active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
     archived: 'עונה בארכיון',
 };
@@ -19,7 +19,7 @@ interface RegistrationSummary {
     division: string;
     status: string;
     invoiceAlert?: string | null;
-    awaitingAdminReceipt?: boolean;
+    awaitingAdminIdentity?: boolean;
     pendingJoin?: { id: string; teamId: number; status: string } | null;
     pendingCreation?: { id: string; teamName: string; status: string } | null;
     pendingTransfer?: { fromTeamId: number; toTeamId: number } | null;
@@ -34,7 +34,8 @@ interface Props {
 export default function TournamentRegistrationCard({ slug, title }: Props) {
     const { user, refreshUser } = useAuth();
     const [reg, setReg] = useState<RegistrationSummary | null>(null);
-    const [invoiceCode, setInvoiceCode] = useState('');
+    const [personalId, setPersonalId] = useState('');
+    const [birthYear, setBirthYear] = useState('');
     const [msg, setMsg] = useState('');
     const [err, setErr] = useState('');
     const [loading, setLoading] = useState(true);
@@ -61,18 +62,19 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         void load();
     }, [load]);
 
-    const handleRedeem = async (e: React.FormEvent) => {
+    const handleSubmitIdentity = async (e: React.FormEvent) => {
         e.preventDefault();
         setSubmitting(true);
         setMsg('');
         setErr('');
         try {
-            await usersAPI.redeemInvoice(invoiceCode.trim(), slug);
-            setInvoiceCode('');
+            await usersAPI.verifyIdentity(personalId.trim(), birthYear.trim(), slug);
+            setPersonalId('');
+            setBirthYear('');
             await Promise.all([refreshUser(), load()]);
         } catch (e: unknown) {
             const ax = e as { response?: { data?: { error?: string } } };
-            setErr(ax.response?.data?.error || 'שגיאה באימות מספר החשבונית');
+            setErr(ax.response?.data?.error || 'שגיאה באימות פרטי הזהות');
         } finally {
             setSubmitting(false);
         }
@@ -115,7 +117,8 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) return null;
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
-    const showInvoiceForm = !!reg.invoiceAlert || reg.status !== 'active';
+    const showIdentityForm = !!reg.invoiceAlert || reg.status !== 'active';
+    const canSubmitIdentity = personalId.trim().length > 0 && birthYear.trim().length > 0;
 
     return (
         <div className={cardClass} lang="he" aria-live="polite">
@@ -123,16 +126,16 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             <p className="mb-2">
                 <span className="text-muted">סטטוס: </span>
                 <strong>
-                    {reg.awaitingAdminReceipt
+                    {reg.awaitingAdminIdentity
                         ? STATUS_LABELS.awaiting_invoice
                         : STATUS_LABELS[reg.status] ?? reg.status}
                 </strong>
             </p>
 
-            {reg.awaitingAdminReceipt && (
+            {reg.awaitingAdminIdentity && (
                 <div className="alert alert-info py-2 small mb-3" role="status">
-                    הזנת את מספר החשבונית. ממתין שהמנהל ירשום את אותו מספר — לאחר התאמה תוכל לבקש הצטרפות או הקמת קבוצה.
-                    טעית במספר? עדכן למטה לפני שהמנהל רושם, או פנה למנהל.
+                    הזנת את פרטי הזהות. ממתין שהמנהל ירשום את אותם פרטים — לאחר התאמה תוכל לבקש הצטרפות או הקמת קבוצה.
+                    טעית? עדכן למטה לפני שהמנהל רושם, או פנה למנהל.
                 </div>
             )}
 
@@ -144,7 +147,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
             {reg.status === 'active' && !reg.invoiceAlert && (
                 <div className="alert alert-success py-2 small mb-3" role="status">
-                    מספר החשבונית תואם לרישום המנהל. הרישום פעיל לעונה.
+                    פרטי הזהות תואמים לרישום המנהל. הרישום פעיל לעונה.
                 </div>
             )}
 
@@ -206,41 +209,64 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </p>
             )}
 
-            {showInvoiceForm && (
-                <form onSubmit={handleRedeem} className="mt-3">
+            {showIdentityForm && (
+                <form onSubmit={handleSubmitIdentity} className="mt-3">
                     <p className="small text-muted mb-2">
                         {reg.invoiceAlert
-                            ? 'עדכן את מספר החשבונית ושלח שוב, או פנה למנהל.'
-                            : reg.awaitingAdminReceipt
-                              ? 'ניתן לעדכן את המספר אם טעית. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים.'
+                            ? 'עדכן את פרטי הזהות ושלח שוב, או פנה למנהל.'
+                            : reg.awaitingAdminIdentity
+                              ? 'ניתן לעדכן אם טעית. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים.'
                               : reg.status === 'invoice_assigned'
-                                ? 'המנהל רשם את מספר החשבונית. הזן בדיוק את אותו מספר כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
-                                : 'הזן את מספר החשבונית מהתשלום. המנהל ירשום את אותו מספר — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
+                                ? 'המנהל רשם את פרטיך. הזן בדיוק את אותם פרטים כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
+                                : 'הזן תעודת זהות ושנת לידה. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
-                    <label htmlFor={`invoice-code-${slug}`} className="form-label">
-                        מספר חשבונית (לאחר תשלום)
-                    </label>
-                    <div className="input-group">
-                        <input
-                            id={`invoice-code-${slug}`}
-                            type="text"
-                            className="form-control"
-                            value={invoiceCode}
-                            onChange={(e) => setInvoiceCode(e.target.value.toUpperCase())}
-                            autoComplete="off"
-                            maxLength={24}
-                            dir="ltr"
-                            aria-describedby={err ? `invoice-err-${slug}` : undefined}
-                            aria-invalid={!!err}
-                        />
-                        <button type="submit" className={submitBtnClass} disabled={submitting || !invoiceCode.trim()}>
-                            {submitting
-                                ? 'שולח…'
-                                : reg.invoiceAlert || reg.awaitingAdminReceipt
-                                  ? 'עדכן מספר'
-                                  : 'שלח חשבונית'}
-                        </button>
+                    <div className="row g-2">
+                        <div className="col-sm-7">
+                            <label htmlFor={`personal-id-${slug}`} className="form-label">
+                                תעודת זהות
+                            </label>
+                            <input
+                                id={`personal-id-${slug}`}
+                                type="text"
+                                inputMode="numeric"
+                                className="form-control"
+                                value={personalId}
+                                onChange={(e) => setPersonalId(e.target.value.replace(/\D/g, ''))}
+                                autoComplete="off"
+                                maxLength={9}
+                                dir="ltr"
+                                aria-describedby={err ? `identity-err-${slug}` : undefined}
+                                aria-invalid={!!err}
+                            />
+                        </div>
+                        <div className="col-sm-5">
+                            <label htmlFor={`birth-year-${slug}`} className="form-label">
+                                שנת לידה
+                            </label>
+                            <input
+                                id={`birth-year-${slug}`}
+                                type="number"
+                                className="form-control"
+                                value={birthYear}
+                                onChange={(e) => setBirthYear(e.target.value)}
+                                min={1940}
+                                max={2015}
+                                dir="ltr"
+                                aria-invalid={!!err}
+                            />
+                        </div>
                     </div>
+                    <button
+                        type="submit"
+                        className={`${submitBtnClass} mt-3`}
+                        disabled={submitting || !canSubmitIdentity}
+                    >
+                        {submitting
+                            ? 'שולח…'
+                            : reg.invoiceAlert || reg.awaitingAdminIdentity
+                              ? 'עדכן פרטים'
+                              : 'שלח לאימות'}
+                    </button>
                 </form>
             )}
 
@@ -250,7 +276,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </div>
             )}
             {err && (
-                <p id={`invoice-err-${slug}`} className="text-danger small mt-2 mb-0" role="alert">
+                <p id={`identity-err-${slug}`} className="text-danger small mt-2 mb-0" role="alert">
                     {err}
                 </p>
             )}

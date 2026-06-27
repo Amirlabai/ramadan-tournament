@@ -771,7 +771,7 @@ const Profile = () => {
                     <div className="card mb-4 p-4">
                         <h4 className="mb-3">בקשה לפתיחת קבוצה חדשה</h4>
                         <p className="text-muted small">
-                            לאחר הזנת מספר החשבונית בכרטיס הרישום למעלה, ניתן לבקש הקמת קבוצה חדשה.
+                            לאחר הזנת תעודת זהות ושנת לידה בכרטיס הרישום למעלה, ניתן לבקש הקמת קבוצה חדשה.
                             ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
                         </p>
                         {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}

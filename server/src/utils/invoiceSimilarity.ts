@@ -48,4 +48,4 @@ export function classifyInvoiceMatch(a: string, b: string): InvoiceMatchKind {
 }
 
 export const INVOICE_ALERT_NOT_MATCHING =
-  'מספר החשבונית לא תואם. נסה שוב או פנה למנהל.';
+  'תעודת הזהות או שנת הלידה לא תואמים. נסה שוב או פנה למנהל.';

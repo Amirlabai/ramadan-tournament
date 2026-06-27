@@ -104,8 +104,10 @@ export const authAPI = {
 export const usersAPI = {
     getRegistration: (slug: TournamentSlug = 'boys') =>
         api.get('/users/registration', { params: { division: slug } }),
-    redeemInvoice: (code: string, slug: TournamentSlug = 'boys') =>
-        api.post('/users/redeem-invoice', { code }, { params: { division: slug } }),
+    verifyIdentity: (personalId: string, birthYear: string, slug: TournamentSlug = 'boys') =>
+        api.post('/users/verify-identity', { personalId, birthYear }, { params: { division: slug } }),
+    redeemInvoice: (personalId: string, birthYear: string, slug: TournamentSlug = 'boys') =>
+        api.post('/users/verify-identity', { personalId, birthYear }, { params: { division: slug } }),
     cancelRegistrationRequest: (slug: TournamentSlug = 'boys') =>
         api.post('/users/cancel-registration-request', {}, { params: { division: slug } }),
     uploadAvatar: (formData: FormData) =>
@@ -176,8 +178,10 @@ export const adminAPI = {
         api.get('/admin/workflows', { params: seasonId ? { seasonId } : {} }),
     searchInvoiceUsers: (seasonId: string, q: string) =>
         api.get('/admin/workflows/user-search', { params: { seasonId, q } }),
-    assignInvoice: (userId: string, seasonId: string, invoiceNumber: string) =>
-        api.post('/admin/users/invoice', { userId, seasonId, invoiceNumber }),
+    assignIdentity: (userId: string, seasonId: string, personalId: string, birthYear: string) =>
+        api.post('/admin/users/identity', { userId, seasonId, personalId, birthYear }),
+    assignInvoice: (userId: string, seasonId: string, personalId: string, birthYear: string) =>
+        api.post('/admin/users/identity', { userId, seasonId, personalId, birthYear }),
     reviewCreationRequest: (id: string, approve: boolean) =>
         api.patch(`/admin/requests/creation/${id}`, { approve }),
     reviewJoinRequest: (id: string, approve: boolean) =>

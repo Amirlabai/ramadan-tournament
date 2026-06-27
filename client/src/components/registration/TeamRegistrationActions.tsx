@@ -33,10 +33,10 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const isPaid = reg?.status === 'active';
     const canJoin =
         !!user && isPaid && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
-    const needsReceipt =
+    const needsIdentity =
         !!user && !isPaid && !onRoster && !isOwner && !pendingJoin && !pendingCreation;
-    // Pre-receipt-first rows: pending request without active registration
-    const legacyNeedsReceipt =
+    // Pre-identity rows: pending request without active registration
+    const legacyNeedsIdentity =
         !!user && !isPaid && !onRoster && !isOwner && !!(pendingJoin || pendingCreation);
 
     const loadPending = useCallback(async () => {
@@ -120,9 +120,9 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                 </div>
             )}
 
-            {needsReceipt && (
+            {needsIdentity && (
                 <p className="small text-muted mb-0">
-                    להצטרפות לקבוצה המנהל ירשום תחילה את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
+                    להצטרפות לקבוצה המנהל ירשום תחילה את תעודת הזהות ושנת הלידה, ואז יש להזין בדיוק את אותם פרטים ב
                     <Link to="/profile" className="ms-1">
                         פרופיל
                     </Link>
@@ -136,9 +136,9 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                         יש לך בקשת הקמת קבוצה &quot;{pendingCreation.teamName}&quot; פעילה. בטל אותה כדי
                         לבקש הצטרפות לקבוצה זו.
                     </p>
-                    {legacyNeedsReceipt && (
+                    {legacyNeedsIdentity && (
                         <p className="mb-2 text-muted">
-                            המנהל ירשום את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
+                            המנהל ירשום את תעודת הזהות ושנת הלידה, ואז יש להזין בדיוק את אותם פרטים ב
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
@@ -170,9 +170,9 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                             : ' (ממתין לאישור בעלים)'}
                         .
                     </p>
-                    {legacyNeedsReceipt && (
+                    {legacyNeedsIdentity && (
                         <p className="mb-2 text-muted">
-                            המנהל ירשום את מספר החשבונית, ואז יש להזין בדיוק את אותו מספר ב
+                            המנהל ירשום את תעודת הזהות ושנת הלידה, ואז יש להזין בדיוק את אותם פרטים ב
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
