@@ -3,7 +3,7 @@ import { StatsService } from '../services/StatsService';
 import { News } from '../models/News';
 import { Match } from '../models/Match';
 import { listMatches, countUnplayedGroupMatches, findNextUpcomingMatchDate } from '../repositories/matchQueryRepository';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 
 export const getStandings = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -38,7 +38,7 @@ export const getPlayerStats = async (req: Request, res: Response): Promise<void>
 export const getDashboard = async (req: Request, res: Response): Promise<void> => {
     try {
         const [teams, topScorers] = await Promise.all([
-            Team.find().select('id name logoUrl logoPosition'),
+            TeamRosterService.listTeamSummaries(),
             StatsService.calculateTopScorers()
         ]);
 

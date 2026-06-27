@@ -244,8 +244,8 @@ export default function RegistrationWorkflowAdmin() {
 
         const isCorrection =
             row.hasAdminAssignment ||
-            regStatus === 'invoice_assigned' ||
-            (regStatus === 'awaiting_invoice' && row.assignedBirthYear != null);
+            regStatus === 'identity_assigned' ||
+            (regStatus === 'awaiting_identity' && row.assignedBirthYear != null);
         const stored = identityInputs[user.id];
         const personalId = stored?.personalId ?? '';
         const birthYear = stored?.birthYear ?? (row.assignedBirthYear != null ? String(row.assignedBirthYear) : '');

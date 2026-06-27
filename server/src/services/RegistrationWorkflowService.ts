@@ -66,7 +66,7 @@ async function restoreRegistrationStatusAfterCancel(
 
   const hasAdminIdentity = hasAdminIdentityOnReg(reg);
   const nextStatus = hasAdminIdentity
-    ? SeasonRegistrationStatus.invoice_assigned
+    ? SeasonRegistrationStatus.identity_assigned
     : SeasonRegistrationStatus.none;
   await upsertSeasonRegistration(userId, seasonId, division, nextStatus);
 }
@@ -168,7 +168,7 @@ export class RegistrationWorkflowService {
       if (reg?.status === SeasonRegistrationStatus.join_pending) {
         const hasAdminIdentity = hasAdminIdentityOnReg(reg);
         const nextStatus = hasAdminIdentity
-          ? SeasonRegistrationStatus.invoice_assigned
+          ? SeasonRegistrationStatus.identity_assigned
           : SeasonRegistrationStatus.none;
         await tx.seasonRegistration.upsert({
           where: { userId_seasonId: { userId, seasonId: season.id } },
@@ -937,9 +937,9 @@ export class RegistrationWorkflowService {
           seasonId: season.id,
           status: {
             in: [
-              SeasonRegistrationStatus.awaiting_invoice,
+              SeasonRegistrationStatus.awaiting_identity,
               SeasonRegistrationStatus.join_pending,
-              SeasonRegistrationStatus.invoice_assigned,
+              SeasonRegistrationStatus.identity_assigned,
               SeasonRegistrationStatus.active,
             ],
           },

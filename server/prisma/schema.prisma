@@ -46,8 +46,8 @@ enum RequestStatus {
 enum SeasonRegistrationStatus {
   none
   join_pending
-  awaiting_invoice
-  invoice_assigned
+  awaiting_identity
+  identity_assigned
   active
   archived
 }

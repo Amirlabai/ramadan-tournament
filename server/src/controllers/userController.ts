@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { Division } from '@prisma/client';
 import { User } from '../models/User';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { AuthRequest } from '../middleware/auth';
 import path from 'path';
 import fs from 'fs';
@@ -196,16 +196,13 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
 
         if (action === 'approved') {
             // Find the max team ID to assign a new one
-            const maxTeam = await Team.findOne().sort({ id: -1 });
-            const newTeamId = (maxTeam?.id ?? 0) + 1;
+            const newTeamId = await TeamRosterService.getNextTeamId();
 
-            // Create the team
-            const newTeam = new Team({
+            await TeamRosterService.createTeam({
                 id: newTeamId,
                 name: user.pendingTeamRequest.teamName,
-                players: []
+                players: [],
             });
-            await newTeam.save();
 
             // Captain state lives in mappedPlayerInfo (memberId 0), not platform role
             user.mappedPlayerInfo = { teamId: newTeamId, memberId: 0, status: 'approved' };
@@ -229,7 +226,7 @@ export const getUserMappings = async (req: AuthRequest, res: Response): Promise<
         const users = await findUsersWithMapping();
 
         // Hydrate team and player names for each user
-        const teams = await Team.find({}).lean();
+        const teams = await TeamRosterService.findAllTeamsWithPlayers();
         const hydratedUsers = users.map(user => {
             const info = user.mappedPlayerInfo;
             if (!info) return user;
@@ -298,13 +295,13 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
             const currentTeamId = user.mappedPlayerInfo.teamId;
 
             if (status === 'approved') {
-                const teamDoc = await Team.findOne({ id: currentTeamId });
+                const teamDoc = await TeamRosterService.findTeamWithPlayersById(currentTeamId);
                 if (teamDoc) {
                     let activeMemberId = user.mappedPlayerInfo.memberId;
 
                     if (activeMemberId === 0 && user.playerProfile) {
                         // Use global max across ALL teams to prevent cross-team memberId collisions
-                        const allTeams = await Team.find({});
+                        const allTeams = await TeamRosterService.findAllTeamsWithPlayers();
                         const allIds = allTeams.flatMap(t => t.players.map((p: any) => p.memberId || 0));
                         const newMemberId = allIds.length > 0 ? Math.max(...allIds) + 1 : 1;
                         teamDoc.players.push({
@@ -333,7 +330,7 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
                             }
                         }
                     }
-                    await teamDoc.save();
+                    await TeamRosterService.saveTeam(teamDoc);
                 }
 
                 if (user.mappedPlayerInfo.memberId > 0) {
