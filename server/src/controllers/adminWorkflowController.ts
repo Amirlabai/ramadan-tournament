@@ -32,8 +32,6 @@ export const searchIdentityUsers = async (req: AuthRequest, res: Response): Prom
   }
 };
 
-export const searchInvoiceUsers = searchIdentityUsers;
-
 export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const seasonId = req.query.seasonId as string | undefined;
@@ -87,8 +85,6 @@ export const assignUserIdentity = async (req: AuthRequest, res: Response): Promi
     res.status(400).json({ error: message });
   }
 };
-
-export const assignUserInvoice = assignUserIdentity;
 
 export const reviewCreationRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {

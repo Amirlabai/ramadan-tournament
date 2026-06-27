@@ -118,8 +118,43 @@ Guards: cannot demote yourself or the last admin. The affected user must **log i
 
 ### Admin (authenticated + `admin` role)
 - Matches: `POST|PUT|DELETE /api/matches`, `POST /api/matches/sync-playoffs`
-- Registration workflows: `/api/admin/workflows`, `/api/admin/users/invoice`, etc.
+- Registration workflows: `GET /api/admin/workflows`, `GET /api/admin/workflows/user-search`, `POST /api/admin/users/identity`, `PATCH /api/admin/requests/{creation|join|transfer}/:id`
 - User roles: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role`
+
+### Registration (authenticated user)
+- `GET /api/users/registration` — season registration summary
+- `POST /api/users/verify-identity` — submit personal ID + birth year
+- `POST /api/users/cancel-registration-request` — cancel pending join/creation request
+
+## Service ownership (PR5)
+
+| Service | Owns |
+|---------|------|
+| `RegistrationService` | Season registration lifecycle, team create/join/transfer requests, workflow queues, squad roles |
+| `RegistrationIdentityService` | Encrypted personal ID match (user ↔ admin), identity rate limits |
+| `PlayerService` | Roster mutations, avatar sync, voluntary leave |
+| `TeamDataService` | Team CRUD, logos, division-scoped reads |
+| `SeasonService` / `AdminSeasonService` | Active season, girls season admin |
+| `AdminUserService` | Platform admin role search and promotion |
+| `MatchDataService` / `StatsService` / `PlayoffService` | Fixtures, standings, playoffs |
+| `NewsDataService` | Division-scoped news |
+| `PointsStatsService` / `PointEntryService` | Girls points tournament |
+| `CacheService` | Redis read-through cache (`rt:` keys) |
+| `AuthRateLimitService` / `InvoiceRateLimitService` | Auth and identity submission throttles |
+
+Controllers stay thin: validate input, call the owning service, map errors to HTTP.
+
+## Legacy routes removed (PR5)
+
+The following invoice / map-player aliases were sunset. Clients must use the canonical endpoints above.
+
+| Removed route | Replacement |
+|---------------|-------------|
+| `POST /api/users/redeem-invoice` | `POST /api/users/verify-identity` |
+| `POST /api/users/map-player` | `POST /api/teams/:id/join-request` (registration workflow) |
+| `POST /api/admin/users/invoice` | `POST /api/admin/users/identity` |
+| `GET /api/admin/user-mappings` | Admin → סגל ורישום → `RegistrationWorkflowAdmin` |
+| `PATCH /api/admin/user-mappings/:userId` | Same (registration workflow queues) |
 
 ## Local smoke tests
 

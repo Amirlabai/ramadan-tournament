@@ -2,7 +2,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
 import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
-import { getPendingTeamRequests, approveTeamRequest, getUserMappings, updateUserMapping } from '../controllers/userController';
+import { getPendingTeamRequests, approveTeamRequest } from '../controllers/userController';
 import {
   listSeasons,
   getGirlsAdminSummary,
@@ -15,9 +15,7 @@ import {
 import {
   listWorkflowQueues,
   searchIdentityUsers,
-  searchInvoiceUsers,
   assignUserIdentity,
-  assignUserInvoice,
   reviewCreationRequest,
   reviewJoinRequest,
   reviewTransferRequest,
@@ -58,10 +56,6 @@ router.post('/photos/delete', authenticate, authorize(['Admin', 'admin']), delet
 router.get('/team-requests', authenticate, authorize(['Admin', 'admin']), getPendingTeamRequests);
 router.post('/team-requests/:userId', authenticate, authorize(['Admin', 'admin']), approveTeamRequest);
 
-// User-team mappings (admin can view all and override any)
-router.get('/user-mappings', authenticate, authorize(['Admin', 'admin']), getUserMappings);
-router.patch('/user-mappings/:userId', authenticate, authorize(['Admin', 'admin']), updateUserMapping);
-
 // News automation
 router.post('/trigger-automation', authenticate, authorize(['Admin', 'admin']), triggerAutomation);
 
@@ -83,10 +77,9 @@ router.get(
   authenticate,
   authorize(['Admin', 'admin']),
   adminSearchLimiter,
-  searchInvoiceUsers
+  searchIdentityUsers
 );
 router.post('/users/identity', authenticate, authorize(['Admin', 'admin']), assignUserIdentity);
-router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
 router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
