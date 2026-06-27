@@ -156,7 +156,7 @@ export default function RegistrationWorkflowAdmin() {
         const timer = setTimeout(async () => {
             setSearching(true);
             try {
-                const res = await adminAPI.searchInvoiceUsers(seasonId, searchQ.trim());
+                const res = await adminAPI.searchIdentityUsers(seasonId, searchQ.trim());
                 setSearchResults(res.data.users ?? []);
             } catch {
                 setSearchResults([]);

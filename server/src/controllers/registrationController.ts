@@ -56,8 +56,6 @@ export const verifyIdentity = async (req: AuthRequest, res: Response): Promise<v
   }
 };
 
-export const redeemInvoice = verifyIdentity;
-
 export const cancelRegistrationRequest = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const division = divisionFromQuery(req as TournamentRequest);

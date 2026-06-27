@@ -15,9 +15,7 @@ import {
 import {
   listWorkflowQueues,
   searchIdentityUsers,
-  searchInvoiceUsers,
   assignUserIdentity,
-  assignUserInvoice,
   reviewCreationRequest,
   reviewJoinRequest,
   reviewTransferRequest,
@@ -83,10 +81,10 @@ router.get(
   authenticate,
   authorize(['Admin', 'admin']),
   adminSearchLimiter,
-  searchInvoiceUsers
+  searchIdentityUsers
 );
 router.post('/users/identity', authenticate, authorize(['Admin', 'admin']), assignUserIdentity);
-router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserInvoice);
+router.post('/users/invoice', authenticate, authorize(['Admin', 'admin']), assignUserIdentity);
 router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
 router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
 router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
