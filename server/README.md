@@ -118,8 +118,10 @@ Guards: cannot demote yourself or the last admin. The affected user must **log i
 
 ### Admin (authenticated + `admin` role)
 - Matches: `POST|PUT|DELETE /api/matches`, `POST /api/matches/sync-playoffs`
-- Registration workflows: `/api/admin/workflows`, `/api/admin/users/invoice`, etc.
+- Registration workflows: `/api/admin/workflows`, `/api/admin/users/identity`, etc.
 - User roles: `GET /api/admin/users`, `PATCH /api/admin/users/:id/role`
+
+**Legacy route aliases (sunset planned):** `POST /api/users/redeem-invoice` and `POST /api/admin/users/invoice` remain as backward-compatible aliases for identity verification and admin identity assignment. Prefer `POST /api/users/verify-identity` and `POST /api/admin/users/identity`.
 
 ## Local smoke tests
 

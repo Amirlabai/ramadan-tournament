@@ -9,15 +9,16 @@ import {
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
 import { CacheService } from './CacheService';
-import { InvoiceRateLimitService, MAX_INVOICE_ATTEMPTS } from './InvoiceRateLimitService';
 import { SeasonService } from './SeasonService';
 import { sanitizeSearchQuery } from '../utils/sanitizeSearchQuery';
 import { sanitizeTeamCreationFields } from '../utils/inputValidation';
 import {
   assignAdminIdentity as assignAdminIdentityImpl,
   assertMatchedIdentityForApproval,
-  getIdentityMatchState as getIdentityMatchStateImpl,
+  computeIdentityMatchState,
+  getIdentityMatchState,
   hasAdminIdentityOnReg,
+  identitySelectFields,
   needsIdentityWorkflowAction,
   submitUserIdentity as submitUserIdentityImpl,
 } from './RegistrationIdentityService';
@@ -224,7 +225,7 @@ export class RegistrationService {
         where: { seasonId: season.id, ownerUserId: userId },
         select: { id: true },
       }),
-      getIdentityMatchStateImpl(userId, season.id),
+      getIdentityMatchState(userId, season.id),
     ]);
 
     return {
@@ -295,14 +296,6 @@ export class RegistrationService {
   }
 
 
-  static async getIdentityMatchState(userId: string, seasonId: string) {
-    return getIdentityMatchStateImpl(userId, seasonId);
-  }
-
-  static async assertMatchedIdentityForApproval(userId: string, seasonId: string) {
-    return assertMatchedIdentityForApproval(userId, seasonId);
-  }
-
   static async assignAdminIdentity(
     adminId: string,
     userId: string,
@@ -330,29 +323,6 @@ export class RegistrationService {
       assertDivisionAccess: (uid, div) => this.assertDivisionAccess(uid, div),
       lockActiveDivision: (uid, div) => this.lockActiveDivision(uid, div),
     });
-  }
-
-  /** @deprecated use submitUserIdentity */
-  static async redeemInvoice(userId: string, code: string, division: Division) {
-    throw new Error('מספר חשבונית אינו בשימוש — הזן תעודת זהות ושנת לידה');
-  }
-
-  /** @deprecated use assignAdminIdentity */
-  static async assignInvoice(
-    adminId: string,
-    userId: string,
-    seasonId: string,
-    _invoiceNumber: string
-  ) {
-    void adminId;
-    void userId;
-    void seasonId;
-    throw new Error('הקצאת חשבונית אינה בשימוש — השתמש בתעודת זהות ושנת לידה');
-  }
-
-  /** @deprecated use searchUsersForIdentity */
-  static async searchUsersForInvoice(seasonId: string, query: string, limit = 20) {
-    return this.searchUsersForIdentity(seasonId, query, limit);
   }
 
   static async assertRegistrationActiveForRequest(
@@ -573,22 +543,6 @@ export class RegistrationService {
       }
       if (slot.userId && slot.userId !== userId) {
         throw new Error('שחקן זה כבר משויך למשתמש אחר');
-      }
-
-      const othersPending = await prisma.teamJoinRequest.findMany({
-        where: {
-          seasonId: season.id,
-          teamId,
-          userId: { not: userId },
-          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-        },
-        include: { user: { select: { playerProfile: true } } },
-      });
-      for (const pj of othersPending) {
-        const prof = pj.user.playerProfile as Record<string, unknown> | null;
-        if (parseRequestedMemberId(prof?.requestedMemberId) === options.memberId) {
-          throw new Error('שחקן זה כבר מבוקש בבקשת הצטרפות אחרת');
-        }
       }
     }
 
@@ -1210,13 +1164,22 @@ export class RegistrationService {
         : [];
     const regStatusByUser = new Map(workflowRegs.map((r) => [r.userId, r.status]));
 
-    const workflowIdentityStates = await Promise.all(
-      workflowUserIds.map(async (userId) => {
-        const state = await getIdentityMatchStateImpl(userId, season.id);
-        return [userId, state] as const;
-      })
+    const allIdentityUserIds = [
+      ...new Set([
+        ...workflowUserIds,
+        ...awaitingInvoice.map((r) => r.userId),
+      ]),
+    ];
+    const identityRegs =
+      allIdentityUserIds.length > 0
+        ? await prisma.seasonRegistration.findMany({
+            where: { seasonId: season.id, userId: { in: allIdentityUserIds } },
+            select: { userId: true, ...identitySelectFields },
+          })
+        : [];
+    const identityStateByUser = new Map(
+      identityRegs.map((r) => [r.userId, computeIdentityMatchState(r)])
     );
-    const identityStateByUser = new Map(workflowIdentityStates);
 
     const enrichWorkflowIdentity = (userId: string) => {
       const state = identityStateByUser.get(userId);
@@ -1243,32 +1206,30 @@ export class RegistrationService {
       registrationStatus: regStatusByUser.get(t.userId) ?? SeasonRegistrationStatus.none,
     }));
 
-    const awaitingIdentityEnriched = (
-      await Promise.all(
-        awaitingInvoice.map(async (reg) => {
-          const join = joinByUserId.get(reg.userId);
-          const matchState = await getIdentityMatchStateImpl(reg.userId, season.id);
-          return {
-            user: reg.user,
-            status: reg.status,
-            invoiceAlert: reg.invoiceAlert,
-            pendingTeamName: join?.team?.name ?? null,
-            joinStatus: join?.status ?? null,
-            hasAdminAssignment: matchState.hasAdminAssignment,
-            submittedIdentityMasked: matchState.submittedIdentityMasked,
-            submittedBirthYear: matchState.submittedBirthYear,
-            assignedBirthYear: matchState.assignedBirthYear,
-            identityMatched: matchState.identityMatched,
-          };
-        })
-      )
-    ).filter((row) =>
-      needsIdentityWorkflowAction(
-        row.status,
-        row.invoiceAlert,
-        row.identityMatched
-      )
-    );
+    const awaitingIdentityEnriched = awaitingInvoice
+      .map((reg) => {
+        const join = joinByUserId.get(reg.userId);
+        const matchState = identityStateByUser.get(reg.userId) ?? computeIdentityMatchState(null);
+        return {
+          user: reg.user,
+          status: reg.status,
+          invoiceAlert: reg.invoiceAlert,
+          pendingTeamName: join?.team?.name ?? null,
+          joinStatus: join?.status ?? null,
+          hasAdminAssignment: matchState.hasAdminAssignment,
+          submittedIdentityMasked: matchState.submittedIdentityMasked,
+          submittedBirthYear: matchState.submittedBirthYear,
+          assignedBirthYear: matchState.assignedBirthYear,
+          identityMatched: matchState.identityMatched,
+        };
+      })
+      .filter((row) =>
+        needsIdentityWorkflowAction(
+          row.status,
+          row.invoiceAlert,
+          row.identityMatched
+        )
+      );
 
     return {
       season,
