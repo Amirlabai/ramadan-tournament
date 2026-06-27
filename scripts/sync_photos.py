@@ -5,6 +5,8 @@ to server/uploads/ for local dev or repo backup.
 Data sources:
   - GET /api/teams and /api/teams-girls (public)
   - users.avatar_url from Postgres when DATABASE_URL is set
+
+Used by .github/workflows/sync-photos.yml (daily 05:30 + on push to main).
 """
 
 from __future__ import annotations
@@ -15,7 +17,9 @@ from pathlib import Path
 import requests
 from dotenv import load_dotenv
 
-env_path = Path(__file__).parent / "server" / ".env"
+from _paths import REPO_ROOT
+
+env_path = REPO_ROOT / "server" / ".env"
 if env_path.exists():
     load_dotenv(dotenv_path=env_path)
 else:
@@ -27,8 +31,8 @@ if API_BASE_URL.endswith("/api"):
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 
-PLAYERS_DIR = Path(__file__).parent / "server" / "uploads" / "players"
-LOGOS_DIR = Path(__file__).parent / "server" / "uploads" / "logos"
+PLAYERS_DIR = REPO_ROOT / "server" / "uploads" / "players"
+LOGOS_DIR = REPO_ROOT / "server" / "uploads" / "logos"
 
 
 def download_file(url: str, dest: Path) -> bool:

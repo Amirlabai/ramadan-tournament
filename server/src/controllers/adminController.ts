@@ -74,7 +74,7 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
 
             const teamId = teamIdMap[team_name];
 
-            // Logic from import_players.py: member_id = team_id * 100 + number
+            // Logic from scripts/import_players.py: member_id = team_id * 100 + number
             // If number is not provided, we need a fallback, but the Python script implies number is expected or calculated.
             // Python script: member_id = team_id * 100 + player_num
 

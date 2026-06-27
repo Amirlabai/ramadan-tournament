@@ -8,7 +8,7 @@ echo ========================================
 echo.
 
 echo [1/4] Importing players from CSV...
-python import_players.py
+python scripts\import_players.py
 if errorlevel 1 (
     echo ERROR: Player import failed!
     pause
@@ -17,7 +17,7 @@ if errorlevel 1 (
 
 echo.
 echo [2/4] Updating statistics...
-python update_stats.py
+python scripts\update_stats.py
 if errorlevel 1 (
     echo ERROR: Stats update failed!
     pause

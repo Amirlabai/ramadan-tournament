@@ -58,11 +58,14 @@ ramadan-tournament/
 │   │   ├── middleware/       # Auth & validation
 │   │   └── scripts/          # Utility scripts
 ├── .github/workflows/
+│   ├── backup-postgres.yml   # Daily Postgres CSV backup
 │   ├── fetch-alarms.yml      # Rocket alerts fetch (every 2 hours)
 │   └── sync-photos.yml       # Production photos sync
-├── fetch_alarms.py            # Rocket alerts data pipeline
-├── sync_photos.py             # Photo recovery & sync script
-└── requirements.txt           # Python dependencies (requests, psycopg2 for sync/backup)
+└── scripts/                   # Python automation (see scripts/README.md)
+    ├── backup_postgres.py
+    ├── fetch_alarms.py
+    ├── sync_photos.py
+    └── requirements.txt
 ```
 
 ## Quick Start
@@ -154,15 +157,17 @@ Access the admin panel → Comment Management tab to:
 ### Photo Management & Recovery
 - **Photo Approval System**: Dedicated admin workflow for reviewing player-uploaded photos
 - **Robust Storage**: Cross-device file move support for Windows/Linux/Docker environments
-- **Photo Recovery Script**: `sync_photos.py` utility to download missing production photos to local disk
+- **Photo Recovery Script**: `scripts/sync_photos.py` utility to download missing production photos to local disk
 
 #### Syncing Photos to Local
 If your local or production environment is missing player photos, use the sync tool:
 
 ```powershell
-# One-time: python -m venv .venv; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe sync_photos.py
+# One-time: python -m venv .venv; .\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt
+.\.venv\Scripts\python.exe scripts/sync_photos.py
 ```
+
+See [scripts/README.md](scripts/README.md) for all Python scripts and GitHub Actions schedules.
 
 Loads `server/.env` for `DATABASE_URL` and `VITE_API_URL` when present.
 

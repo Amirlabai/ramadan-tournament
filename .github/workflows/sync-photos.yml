@@ -27,13 +27,13 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: pip install -r scripts/requirements.txt
 
       - name: Run sync script
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           VITE_API_URL: ${{ secrets.VITE_API_URL }}
-        run: python sync_photos.py
+        run: python scripts/sync_photos.py
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5

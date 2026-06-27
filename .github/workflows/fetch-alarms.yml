@@ -22,10 +22,10 @@ jobs:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install -r scripts/requirements.txt
 
       - name: Run fetch script
-        run: python fetch_alarms.py
+        run: python scripts/fetch_alarms.py
 
       - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5

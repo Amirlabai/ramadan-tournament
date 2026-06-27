@@ -18,16 +18,17 @@ from zoneinfo import ZoneInfo
 
 from dotenv import load_dotenv
 
+from _paths import REPO_ROOT
+
 try:
     import psycopg2
 except ImportError as exc:  # pragma: no cover
     raise SystemExit("Install psycopg2-binary: pip install psycopg2-binary") from exc
 
-ROOT = Path(__file__).parent
-OUTPUT_DIR = ROOT / "archive" / "postgres"
+OUTPUT_DIR = REPO_ROOT / "archive" / "postgres"
 JERUSALEM = ZoneInfo("Asia/Jerusalem")
 
-env_path = ROOT / "server" / ".env"
+env_path = REPO_ROOT / "server" / ".env"
 if env_path.exists():
     load_dotenv(dotenv_path=env_path)
 else:

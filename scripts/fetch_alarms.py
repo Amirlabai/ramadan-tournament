@@ -1,9 +1,10 @@
 import csv
 import json
-import os
 import requests
 from datetime import datetime, timedelta
 from collections import defaultdict
+
+from _paths import REPO_ROOT
 
 CSV_URL = "https://raw.githubusercontent.com/yuval-harpaz/alarms/master/data/alarms.csv"
 
@@ -97,7 +98,6 @@ def fetch_and_filter():
     # Alert timestamps per city for regression (historical window)
     regression_times: dict[str, list[datetime]] = {city: [] for city in CITIES_INTEREST}
 
-    all_rows_parsed = []
     for row in cr:
         try:
             row_time = datetime.strptime(row['time'], '%Y-%m-%d %H:%M:%S')
@@ -154,15 +154,17 @@ def fetch_and_filter():
     json_str = json.dumps(result, ensure_ascii=False, indent=2)
 
     # Save to data/ (legacy / static index.html)
-    os.makedirs('data', exist_ok=True)
-    with open('data/alarms.json', 'w', encoding='utf-8') as f:
+    data_dir = REPO_ROOT / "data"
+    data_dir.mkdir(parents=True, exist_ok=True)
+    with open(data_dir / "alarms.json", 'w', encoding='utf-8') as f:
         f.write(json_str)
-    with open('data/alarms.js', 'w', encoding='utf-8') as f:
+    with open(data_dir / "alarms.js", 'w', encoding='utf-8') as f:
         f.write(f"window.ALARMS_DATA = {json_str};")
 
     # Save to client/public/data/ (Vite dev server & production build)
-    os.makedirs('client/public/data', exist_ok=True)
-    with open('client/public/data/alarms.json', 'w', encoding='utf-8') as f:
+    client_data_dir = REPO_ROOT / "client" / "public" / "data"
+    client_data_dir.mkdir(parents=True, exist_ok=True)
+    with open(client_data_dir / "alarms.json", 'w', encoding='utf-8') as f:
         f.write(json_str)
 
     print(f"Processed {len(recent_rows)} recent alarms. Stats: {stats}")
