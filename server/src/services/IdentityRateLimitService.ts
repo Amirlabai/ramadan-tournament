@@ -1,8 +1,12 @@
 import { getRedis } from '../config/redis';
 import { config } from '../config/env';
 
-export const MAX_INVOICE_ATTEMPTS = 3;
-const PREFIX = 'rt:invoice:attempts:';
+export const MAX_IDENTITY_ATTEMPTS = 3;
+
+/** @deprecated use MAX_IDENTITY_ATTEMPTS */
+export const MAX_INVOICE_ATTEMPTS = MAX_IDENTITY_ATTEMPTS;
+
+const PREFIX = 'rt:identity:attempts:';
 
 function secondsUntilJerusalemMidnight(): number {
   const now = new Date();
@@ -22,14 +26,14 @@ function secondsUntilJerusalemMidnight(): number {
 
 const memoryAttempts = new Map<string, { count: number; expiresAt: number }>();
 
-export class InvoiceRateLimitService {
+export class IdentityRateLimitService {
   static key(userId: string, seasonId: string): string {
     return `${PREFIX}${userId}:${seasonId}`;
   }
 
   static async isLocked(userId: string, seasonId: string): Promise<boolean> {
     const count = await this.getAttemptCount(userId, seasonId);
-    return count >= MAX_INVOICE_ATTEMPTS;
+    return count >= MAX_IDENTITY_ATTEMPTS;
   }
 
   static async getAttemptCount(userId: string, seasonId: string): Promise<number> {
@@ -70,7 +74,7 @@ export class InvoiceRateLimitService {
     await getRedis().del(key);
   }
 
-  /** Wipe all invoice attempt counters (e.g. after db:fresh). */
+  /** Wipe all identity attempt counters (e.g. after db:fresh). */
   static async clearAllAttempts(): Promise<void> {
     if (!config.redisUrl) {
       memoryAttempts.clear();

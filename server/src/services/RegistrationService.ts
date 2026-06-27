@@ -9,7 +9,6 @@ import {
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
 import { CacheService } from './CacheService';
-import { InvoiceRateLimitService, MAX_INVOICE_ATTEMPTS } from './InvoiceRateLimitService';
 import { SeasonService } from './SeasonService';
 import { sanitizeSearchQuery } from '../utils/sanitizeSearchQuery';
 import { sanitizeTeamCreationFields } from '../utils/inputValidation';

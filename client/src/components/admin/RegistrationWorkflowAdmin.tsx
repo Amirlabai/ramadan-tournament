@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { getRegistrationStatusLabel } from '@ramadan-tournament/shared';
 import { adminAPI } from '../../api/client';
 import { isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
@@ -75,12 +76,13 @@ interface WorkflowData {
 const canApproveRequest = (registrationStatus: string, identityMatched?: boolean) =>
     registrationStatus === 'active' && identityMatched === true;
 
-const renderActiveStatus = (status: string) =>
-    status === 'active' ? (
-        <span className="text-success">פעיל</span>
-    ) : (
-        <span className="text-muted">לא פעיל</span>
-    );
+const renderRegistrationStatus = (status: string) => {
+    const label = getRegistrationStatusLabel(status);
+    if (status === 'active') {
+        return <span className="text-success">{label}</span>;
+    }
+    return <span className="text-muted">{label}</span>;
+};
 
 const pendingApprovalHint = (): string => 'ממתין להתאמת זהות ורישום פעיל';
 
@@ -337,7 +339,7 @@ export default function RegistrationWorkflowAdmin() {
                             </div>
                         )}
                     </div>
-                    <div className="workflow-user-card__status">{renderActiveStatus(status)}</div>
+                    <div className="workflow-user-card__status">{renderRegistrationStatus(status)}</div>
                 </div>
                 <dl className="workflow-user-card__details">
                     {row.pendingTeamName && (

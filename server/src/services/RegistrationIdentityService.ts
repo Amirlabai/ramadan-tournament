@@ -1,8 +1,8 @@
 import { Division, SeasonRegistrationStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
-import { InvoiceRateLimitService, MAX_INVOICE_ATTEMPTS } from './InvoiceRateLimitService';
+import { IdentityRateLimitService, MAX_IDENTITY_ATTEMPTS } from './IdentityRateLimitService';
 import { SeasonService } from './SeasonService';
-import { INVOICE_ALERT_NOT_MATCHING } from '../utils/invoiceSimilarity';
+import { IDENTITY_ALERT_NOT_MATCHING } from '../utils/identityAlerts';
 import {
   encryptPersonalIdForStorage,
   identitiesMatch,
@@ -131,7 +131,7 @@ function syncIdentityAlertAfterAdminAssign(
     adminBirthYear
   )
     ? null
-    : INVOICE_ALERT_NOT_MATCHING;
+    : IDENTITY_ALERT_NOT_MATCHING;
 }
 
 export async function tryFinalizeIdentityMatch(
@@ -169,10 +169,10 @@ export async function tryFinalizeIdentityMatch(
         seasonId,
         division,
         status: SeasonRegistrationStatus.invoice_assigned,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
       },
       update: {
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
         status: SeasonRegistrationStatus.invoice_assigned,
       },
     });
@@ -227,11 +227,11 @@ async function recordIdentityAttemptFailure(
   seasonId: string,
   reason: string
 ): Promise<never> {
-  const attempts = await InvoiceRateLimitService.recordFailedAttempt(userId, seasonId);
-  if (attempts >= MAX_INVOICE_ATTEMPTS) {
+  const attempts = await IdentityRateLimitService.recordFailedAttempt(userId, seasonId);
+  if (attempts >= MAX_IDENTITY_ATTEMPTS) {
     throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
   }
-  const remaining = MAX_INVOICE_ATTEMPTS - attempts;
+  const remaining = MAX_IDENTITY_ATTEMPTS - attempts;
   throw new Error(`${reason} נותרו ${remaining} ניסיונים היום.`);
 }
 
@@ -327,7 +327,7 @@ export async function submitUserIdentity(
   const season = await SeasonService.getActiveSeasonForDivision(division);
   await deps.assertDivisionAccess(userId, division);
 
-  if (await InvoiceRateLimitService.isLocked(userId, season.id)) {
+  if (await IdentityRateLimitService.isLocked(userId, season.id)) {
     throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
   }
 
@@ -404,7 +404,7 @@ export async function submitUserIdentity(
         division: season.division,
       },
     });
-    await InvoiceRateLimitService.clearAttempts(userId, season.id);
+    await IdentityRateLimitService.clearAttempts(userId, season.id);
     return;
   }
 
@@ -428,18 +428,18 @@ export async function submitUserIdentity(
         userPersonalIdEnc: personalIdEnc,
         userBirthYear: birthYear,
         userPersonalIdMasked: personalIdMasked,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
       },
       update: {
         status: SeasonRegistrationStatus.invoice_assigned,
         userPersonalIdEnc: personalIdEnc,
         userBirthYear: birthYear,
         userPersonalIdMasked: personalIdMasked,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
         division: season.division,
       },
     });
-    return recordIdentityAttemptFailure(userId, season.id, INVOICE_ALERT_NOT_MATCHING);
+    return recordIdentityAttemptFailure(userId, season.id, IDENTITY_ALERT_NOT_MATCHING);
   }
 
   await prisma.seasonRegistration.upsert({
@@ -469,5 +469,5 @@ export async function submitUserIdentity(
   });
 
   await deps.lockActiveDivision(userId, division);
-  await InvoiceRateLimitService.clearAttempts(userId, season.id);
+  await IdentityRateLimitService.clearAttempts(userId, season.id);
 }
