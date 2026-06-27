@@ -4,17 +4,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
+import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
-
-const STATUS_LABELS: Record<string, string> = {
-    none: 'שלב 1: הזן תעודת זהות ושנת לידה או המתן שהמנהל ירשום',
-    join_pending: 'בקשה בתהליך',
-    awaiting_invoice: 'ממתין לאישור מנהל (הזנת זהות)',
-    invoice_assigned: 'המנהל רשם את פרטיך — הזן את אותם פרטים בדיוק להפעלה',
-    active: 'רישום פעיל — ניתן לשלוח בקשת הצטרפות או הקמת קבוצה',
-    archived: 'עונה בארכיון',
-};
 
 interface RegistrationSummary {
     seasonId: string;
@@ -131,8 +123,8 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 <span className="text-muted">סטטוס: </span>
                 <strong>
                     {reg.awaitingAdminIdentity
-                        ? STATUS_LABELS.awaiting_invoice
-                        : STATUS_LABELS[reg.status] ?? reg.status}
+                        ? SEASON_REGISTRATION_STATUS_LABELS.awaiting_identity
+                        : SEASON_REGISTRATION_STATUS_LABELS[reg.status] ?? reg.status}
                 </strong>
             </p>
 
@@ -220,7 +212,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             ? 'עדכן את פרטי הזהות ושלח שוב, או פנה למנהל.'
                             : reg.awaitingAdminIdentity
                               ? 'ניתן לעדכן אם טעית. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים.'
-                              : reg.status === 'invoice_assigned'
+                              : reg.status === 'identity_assigned'
                                 ? 'המנהל רשם את פרטיך. הזן בדיוק את אותם פרטים כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
                                 : 'הזן תעודת זהות ושנת לידה. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
                     </p>

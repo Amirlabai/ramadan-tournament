@@ -9,3 +9,4 @@ export {
   normalizePersonalId,
   sanitizePersonalIdInput,
 } from './israeliIdValidation';
+export { SEASON_REGISTRATION_STATUS_LABELS } from './registrationStatusLabels';

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 import { setPlayerCookie, clearPlayerCookie } from '../utils/authCookie';
@@ -45,7 +45,7 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        const team = await Team.findOne({ id: playerRow.teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(playerRow.teamId);
         if (!team) {
             res.status(401).json({ error: 'Player not found or invalid credentials' });
             return;
@@ -158,7 +158,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
             return;
         }
 
-        const team = await Team.findOne({ id: teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(teamId);
 
         if (!team) {
             res.status(404).json({ error: 'Player not found' });
@@ -203,7 +203,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
 
         // Update DB - save to pending_head_photo
         team.players[playerIndex].pending_head_photo = publicUrl;
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         // Send notification to admin (non-blocking)
         sendAdminNotification(`${player.firstName} ${player.lastName}`, team.name);

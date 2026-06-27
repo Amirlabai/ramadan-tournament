@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { getStandings, getTopScorers, getPlayerStats, getDashboard } from '../controllers/statsController';
 import { Match } from '../models/Match';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { countUnplayedGroupMatches } from '../repositories/matchQueryRepository';
 
 const router = Router();
@@ -20,7 +20,7 @@ router.get('/playoffs', async (req, res) => {
         }
 
         const matches = await Match.find({ phase: 'knockout' }).sort({ id: 1 });
-        const teams = await Team.find().select('id name logoUrl logoPosition');
+        const teams = await TeamRosterService.listTeamSummaries();
         const teamMap = new Map<number, { name: string; logoUrl?: string; logoPosition?: string }>();
         teams.forEach((t) => teamMap.set(t.id, t));
 

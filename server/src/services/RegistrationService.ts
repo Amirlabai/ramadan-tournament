@@ -121,7 +121,7 @@ export class RegistrationService {
 
     const hasAdminIdentity = hasAdminIdentityOnReg(reg);
     const nextStatus = hasAdminIdentity
-      ? SeasonRegistrationStatus.invoice_assigned
+      ? SeasonRegistrationStatus.identity_assigned
       : SeasonRegistrationStatus.none;
     await this.upsertSeasonRegistration(userId, seasonId, division, nextStatus);
   }
@@ -177,7 +177,7 @@ export class RegistrationService {
       if (reg?.status === SeasonRegistrationStatus.join_pending) {
         const hasAdminIdentity = hasAdminIdentityOnReg(reg);
         const nextStatus = hasAdminIdentity
-          ? SeasonRegistrationStatus.invoice_assigned
+          ? SeasonRegistrationStatus.identity_assigned
           : SeasonRegistrationStatus.none;
         await tx.seasonRegistration.upsert({
           where: { userId_seasonId: { userId, seasonId: season.id } },
@@ -1179,9 +1179,9 @@ export class RegistrationService {
           seasonId: season.id,
           status: {
             in: [
-              SeasonRegistrationStatus.awaiting_invoice,
+              SeasonRegistrationStatus.awaiting_identity,
               SeasonRegistrationStatus.join_pending, // legacy pre-receipt-first
-              SeasonRegistrationStatus.invoice_assigned,
+              SeasonRegistrationStatus.identity_assigned,
               SeasonRegistrationStatus.active, // receipt-first: user submitted invoice in profile
             ],
           },

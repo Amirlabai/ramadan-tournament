@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { OAuth2Client } from 'google-auth-library';
 import { User, IUser } from '../models/User';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 import { sendVerificationEmail } from '../services/emailService';
@@ -54,7 +54,7 @@ const hydrateUserPayload = async (userDoc: any) => {
 
     // If there's a pending or approved mapping, resolve names for the UI
     if (payload.mappedPlayerInfo && payload.mappedPlayerInfo.teamId > 0) {
-        const team = await Team.findOne({ id: payload.mappedPlayerInfo.teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(payload.mappedPlayerInfo.teamId);
         if (team) {
             (payload.mappedPlayerInfo as any).teamName = team.name;
             (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;
@@ -99,7 +99,7 @@ const hydrateUserPayload = async (userDoc: any) => {
         const mapTeamId = payload.mappedPlayerInfo?.teamId ?? roster?.teamId;
         const mapMemberId = payload.mappedPlayerInfo?.memberId ?? roster?.memberId;
         if (mapTeamId && mapTeamId > 0 && mapMemberId && mapMemberId > 0) {
-            const team = await Team.findOne({ id: mapTeamId });
+            const team = await TeamRosterService.findTeamWithPlayersById(mapTeamId);
             if (team) {
                 (payload.mappedPlayerInfo as any).teamName = team.name;
                 (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { parse } from 'csv-parse';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { BannedWord } from '../models/BannedWord';
 import { AutomationService } from '../services/AutomationService';
 import fs from 'fs';
@@ -105,18 +105,22 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
         }
 
         // Update Database
-        await Team.deleteMany({}); // Clear existing teams
-
         const teamsToInsert = Object.entries(teamsData).map(([name, players]) => ({
             id: teamIdMap[name],
             name,
             players,
             logo: `assets/images/teams/${name.toLowerCase().replace(/ /g, '_')}.png`,
-            coach: 'Coach' // Default coach
         }));
 
         if (teamsToInsert.length > 0) {
-            await Team.insertMany(teamsToInsert);
+            await TeamRosterService.replaceSeasonRoster(
+                teamsToInsert.map((t) => ({
+                    id: t.id,
+                    name: t.name,
+                    players: t.players,
+                    logoUrl: t.logo,
+                }))
+            );
         }
 
         // Cleanup uploaded file
@@ -224,7 +228,7 @@ export const getPendingPhotos = async (req: Request, res: Response) => {
     try {
         // Fetch all teams and filter in-memory for reliability
         // This ensures consistency with the AdminPanel's 'players' tab logic
-        const teams = await Team.find({});
+        const teams = await TeamRosterService.findAllTeamsWithPlayers();
 
         const pendingPhotos: any[] = [];
 
@@ -257,7 +261,7 @@ export const getPendingPhotos = async (req: Request, res: Response) => {
 export const approvePhoto = async (req: Request, res: Response) => {
     try {
         const { teamId, memberId } = req.body;
-        const team = await Team.findOne({ id: teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(teamId);
 
         if (!team) {
             return res.status(404).json({ error: 'Team not found' });
@@ -276,7 +280,7 @@ export const approvePhoto = async (req: Request, res: Response) => {
         player.head_photo = player.pending_head_photo;
         player.pending_head_photo = '';
 
-        await team.save();
+        await TeamRosterService.saveTeam(team);
         res.json({ message: 'Photo approved successfully' });
     } catch (error) {
         console.error('Error approving photo:', error);
@@ -287,7 +291,7 @@ export const approvePhoto = async (req: Request, res: Response) => {
 export const rejectPhoto = async (req: Request, res: Response) => {
     try {
         const { teamId, memberId } = req.body;
-        const team = await Team.findOne({ id: teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(teamId);
 
         if (!team) {
             return res.status(404).json({ error: 'Team not found' });
@@ -317,7 +321,7 @@ export const rejectPhoto = async (req: Request, res: Response) => {
         }
 
         player.pending_head_photo = '';
-        await team.save();
+        await TeamRosterService.saveTeam(team);
         res.json({ message: 'Photo rejected successfully' });
     } catch (error) {
         console.error('Error rejecting photo:', error);
@@ -328,7 +332,7 @@ export const rejectPhoto = async (req: Request, res: Response) => {
 export const deletePlayerPhoto = async (req: Request, res: Response) => {
     try {
         const { teamId, memberId } = req.body;
-        const team = await Team.findOne({ id: teamId });
+        const team = await TeamRosterService.findTeamWithPlayersById(teamId);
 
         if (!team) {
             return res.status(404).json({ error: 'Team not found' });
@@ -356,7 +360,7 @@ export const deletePlayerPhoto = async (req: Request, res: Response) => {
         }
 
         player.head_photo = '';
-        await team.save();
+        await TeamRosterService.saveTeam(team);
         res.json({ message: 'Photo deleted successfully' });
     } catch (error) {
         console.error('Error deleting player photo:', error);

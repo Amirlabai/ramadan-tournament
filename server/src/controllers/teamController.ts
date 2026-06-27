@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
-import { Team } from '../models/Team';
+import { TeamRosterService } from '../services/TeamRosterService';
 import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import path from 'path';
@@ -150,7 +150,7 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
 export const getAvailablePlayers = async (req: Request, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
-        const team = await Team.findOne({ id: teamId }, requestDivision(req));
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
 
         if (!team) { res.status(404).json({ error: 'Team not found' }); return; }
         if (!team.seasonId) {
@@ -224,7 +224,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
         userToUpdate.mappedPlayerInfo.status = status;
 
         if (status === 'approved') {
-            const teamDoc = await Team.findOne({ id: teamId }, division);
+            const teamDoc = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
             if (teamDoc) {
                 let activeMemberId = userToUpdate.mappedPlayerInfo.memberId;
 
@@ -268,7 +268,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
                 }
 
                 // Mark the team array as modified and save
-                await teamDoc.save();
+                await TeamRosterService.saveTeam(teamDoc);
             }
 
             if (userToUpdate.mappedPlayerInfo.memberId > 0) {
@@ -303,7 +303,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
         const teamId = parseInt(req.params.id);
         const { name, logoPosition, description } = req.body;
 
-        const team = await Team.findOne({ id: teamId }, requestDivision(req));
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -334,7 +334,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
             team.logoPosition = logoPosition;
         }
 
-        await team.save();
+        await TeamRosterService.saveTeam(team);
         res.json({ message: 'פרטי הקבוצה עודכנו בהצלחה', team });
     } catch (error) {
         console.error('Update team metadata error:', error);
@@ -353,7 +353,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        const team = await Team.findOne({ id: teamId }, requestDivision(req));
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -381,7 +381,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 
         // Update team logo URL
         team.logoUrl = `/uploads/logos/${fileName}`;
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         res.json({
             message: 'לוגו הקבוצה הועלה בהצלחה',
@@ -398,7 +398,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
     try {
         const teamId = parseInt(req.params.id);
 
-        const team = await Team.findOne({ id: teamId }, requestDivision(req));
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -419,7 +419,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 
         // Update team logo URL
         team.logoUrl = undefined;
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         res.json({ message: 'הלוגו נמחק בהצלחה' });
     } catch (error) {
@@ -450,14 +450,14 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
-        const team = await Team.findOne({ id: teamId }, division);
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
         }
 
         // Generate a globally-unique memberId by scanning all teams
-        const allTeams = await Team.find({}, division);
+        const allTeams = await TeamRosterService.findAllTeamsWithPlayers(slugToDivision(division));
         const allMemberIds = allTeams.flatMap(t => t.players.map(p => p.memberId));
         const maxId = allMemberIds.length > 0 ? Math.max(...allMemberIds) : 0;
         const newMemberId = maxId + 1;
@@ -477,7 +477,7 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
         };
 
         team.players.push(newPlayer);
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         res.json({ message: 'שחקן נוסף בהצלחה', player: newPlayer });
     } catch (error) {
@@ -503,7 +503,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
             return;
         }
 
-        const team = await Team.findOne({ id: teamId }, division);
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -516,7 +516,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
         }
 
         team.players.splice(playerIndex, 1);
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         await clearMappingsForDeletedPlayer(teamId, memberId);
 
@@ -544,7 +544,7 @@ export const deletePlayerPhoto = async (req: AuthRequest, res: Response): Promis
             return;
         }
 
-        const team = await Team.findOne({ id: teamId }, division);
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -573,7 +573,7 @@ export const deletePlayerPhoto = async (req: AuthRequest, res: Response): Promis
         }
 
         player.head_photo = '';
-        await team.save();
+        await TeamRosterService.saveTeam(team);
 
         res.json({ message: 'התמונה נמחקה בהצלחה' });
     } catch (error) {
@@ -596,8 +596,8 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
         const division = requestDivision(req);
         const [sourceTeam, targetTeam] = await Promise.all([
-            Team.findOne({ id: sourceTeamId }, division),
-            Team.findOne({ id: parseInt(targetTeamId) }, division),
+            TeamRosterService.findTeamWithPlayers(sourceTeamId, slugToDivision(division)),
+            TeamRosterService.findTeamWithPlayers(parseInt(targetTeamId), slugToDivision(division)),
         ]);
 
         if (!sourceTeam) { res.status(404).json({ error: 'קבוצת מקור לא נמצאה' }); return; }
@@ -615,7 +615,10 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
         targetTeam.players.push({ ...player });
 
-        await Promise.all([sourceTeam.save(), targetTeam.save()]);
+        await Promise.all([
+            TeamRosterService.saveTeam(sourceTeam),
+            TeamRosterService.saveTeam(targetTeam),
+        ]);
 
         await moveApprovedMappingTeam(sourceTeamId, memberId, parseInt(targetTeamId));
 
