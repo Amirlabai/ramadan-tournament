@@ -38,7 +38,7 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 
 - **Main app routes** (`/`, `/teams`, …): `AppShell` with header, news banner, `app-body` grid (main + right sidebar), footer.
 - **Legal routes** (`/about`, `/privacy`, `/terms`, `/accessibility`): standalone `LegalPageLayout` (no tournament chrome); prerendered at build.
-- **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). Mobile: off-canvas drawer + edge drag handle; horizontal swipe on `#main-content` moves to adjacent tab (non-looping).
+- **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). Mobile: off-canvas drawer + edge drag handle; swipe left on `#main-content` opens the mobile drawer.
 - **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx) (`pathname` + `useLocation` fallback; `noindex` on `/login`, `/admin`, `/profile`, `/player-zone`). Prebuild regenerates `public/sitemap.xml`, `public/robots.txt`, and `public/og-image.png`. Prerender bakes canonical/OG head for all sitemap paths and `noindex` for auth routes (`dist/schedule/index.html`, etc.).
 - **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept.
 

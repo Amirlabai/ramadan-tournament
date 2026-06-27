@@ -48,10 +48,7 @@ import CookieNotice from './components/CookieNotice'
 import AccessibilityToolbar from './components/AccessibilityToolbar'
 import { useCookieConsent } from './hooks/useCookieConsent'
 import { useSidebarDrawer } from './hooks/useSidebarDrawer'
-import { useSwipeTabNavigation } from './hooks/useSwipeTabNavigation'
-import { getMainNavItems } from './utils/mainNavItems'
-import { useAuth } from './contexts/AuthContext'
-import { canAccessAdminPanel } from './utils/tournamentUser'
+import { useSwipeOpenDrawer } from './hooks/useSwipeOpenDrawer'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { useEffect } from 'react'
@@ -98,14 +95,13 @@ function AppRoutes() {
 }
 
 function AppShell() {
-  const { isGirls, isWorldCup, paths } = useTournament()
-  const { user } = useAuth()
-  const showAdminNav = canAccessAdminPanel(user)
+  const { isGirls, isWorldCup } = useTournament()
   const { consent } = useCookieConsent()
   const mainRef = useRef<HTMLElement>(null)
   const {
     open: drawerOpen,
     setOpen: setDrawerOpen,
+    openDrawer,
     isMobile,
     reducedMotion,
     onHandlePointerDown,
@@ -113,12 +109,10 @@ function AppShell() {
     onHandlePointerUp,
   } = useSidebarDrawer()
 
-  const navItems = getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav })
-
   const tournamentTheme = isWorldCup ? 'worldcup' : isGirls ? 'girls' : 'boys'
 
-  useSwipeTabNavigation(mainRef, {
-    items: navItems,
+  useSwipeOpenDrawer(mainRef, {
+    onOpen: openDrawer,
     disabled: !isMobile || drawerOpen,
   })
 
