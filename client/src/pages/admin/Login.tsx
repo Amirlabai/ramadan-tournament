@@ -6,6 +6,11 @@ import { authAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import './Login.css';
 
+function safeInternalPath(path: unknown): string {
+    if (typeof path !== 'string' || !path.startsWith('/') || path.startsWith('//')) return '/';
+    return path;
+}
+
 const Login = () => {
     const [isLoginView, setIsLoginView] = useState(true);
     const [isVerifying, setIsVerifying] = useState(false);
@@ -23,7 +28,7 @@ const Login = () => {
     const location = useLocation();
     const { login } = useAuth();
 
-    const from = location.state?.from?.pathname || '/';
+    const from = safeInternalPath(location.state?.from?.pathname);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

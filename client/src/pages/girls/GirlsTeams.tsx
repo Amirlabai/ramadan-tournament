@@ -73,7 +73,7 @@ const GirlsTeams = () => {
     if (isVoting) return;
     try {
       setIsVoting(true);
-      const res = await votesAPI.castTeam(teamId, 'mvp');
+      const res = await votesAPI.castGirlsTeam(teamId, 'mvp');
       if (res.data.voted) {
         setMyVoteTeamId(teamId);
       } else {

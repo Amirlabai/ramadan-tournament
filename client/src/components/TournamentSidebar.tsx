@@ -172,7 +172,7 @@ const TournamentSidebar = ({
             <p className="tournament-sidebar-drawer-hint">החלק ימינה או הקש על הרקע לסגירה</p>
           </div>
         )}
-        <nav>{sidebarContent}</nav>
+        <nav aria-label="ניווט ראשי">{sidebarContent}</nav>
         {isMobile && (
           <button
             type="button"

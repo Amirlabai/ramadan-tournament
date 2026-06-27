@@ -46,7 +46,8 @@ const hydrateUserPayload = async (userDoc: any) => {
         role: userDoc.role,
         avatarUrl: userDoc.avatarUrl,
         mappedPlayerInfo: userDoc.mappedPlayerInfo ? { ...userDoc.mappedPlayerInfo } : null,
-        playerProfile: userDoc.playerProfile // fallback to custom player data
+        playerProfile: userDoc.playerProfile, // fallback to custom player data
+        pendingTeamRequest: userDoc.pendingTeamRequest ?? null,
     };
 
     (payload as any).isPlatformAdmin =

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
@@ -21,6 +21,8 @@ const Dashboard = () => {
     const [hideClaimBanner, setHideClaimBanner] = useState(() => {
         return localStorage.getItem('hideClaimBanner') === 'true';
     });
+    const dataRef = useRef(data);
+    dataRef.current = data;
 
     const { user } = useAuth();
     const navigate = useNavigate();
@@ -42,10 +44,9 @@ const Dashboard = () => {
     useEffect(() => {
         fetchDashboard();
 
-        // Polling logic: Every 30 seconds
         const interval = setInterval(() => {
-            // Check if we have data and if any next match is today
-            const hasMatchToday = data?.nextMatches?.some(match => {
+            const current = dataRef.current;
+            const hasMatchToday = current?.nextMatches?.some(match => {
                 const d = new Date(match.date);
                 const now = new Date();
                 return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
@@ -59,7 +60,7 @@ const Dashboard = () => {
         }, 30000);
 
         return () => clearInterval(interval);
-    }, [data?.nextMatches?.length]);
+    }, []);
 
     if (loading) return <PageLoading label="טוען לוח בקרה..." />;
     if (error) return <div className="error">{error}</div>;

@@ -412,42 +412,57 @@ const RosterManager = () => {
                                                 </h6>
                                                 <div className="row g-2">
                                                     <div className="col-6 col-md-3">
+                                                        <label htmlFor={`roster-add-firstName-${team.id}`} className="form-label visually-hidden">שם פרטי</label>
                                                         <input
+                                                            id={`roster-add-firstName-${team.id}`}
                                                             className="form-control form-control-sm"
                                                             placeholder="שם פרטי *"
+                                                            aria-label="שם פרטי"
                                                             value={addForm.firstName}
                                                             onChange={e => setAddForm(f => ({ ...f, firstName: e.target.value }))}
                                                         />
                                                     </div>
                                                     <div className="col-6 col-md-3">
+                                                        <label htmlFor={`roster-add-lastName-${team.id}`} className="form-label visually-hidden">שם משפחה</label>
                                                         <input
+                                                            id={`roster-add-lastName-${team.id}`}
                                                             className="form-control form-control-sm"
                                                             placeholder="שם משפחה"
+                                                            aria-label="שם משפחה"
                                                             value={addForm.lastName}
                                                             onChange={e => setAddForm(f => ({ ...f, lastName: e.target.value }))}
                                                         />
                                                     </div>
                                                     <div className="col-6 col-md-3">
+                                                        <label htmlFor={`roster-add-nickname-${team.id}`} className="form-label visually-hidden">כינוי</label>
                                                         <input
+                                                            id={`roster-add-nickname-${team.id}`}
                                                             className="form-control form-control-sm"
                                                             placeholder="כינוי"
+                                                            aria-label="כינוי"
                                                             value={addForm.nickname}
                                                             onChange={e => setAddForm(f => ({ ...f, nickname: e.target.value }))}
                                                         />
                                                     </div>
                                                     <div className="col-3 col-md-1">
+                                                        <label htmlFor={`roster-add-number-${team.id}`} className="form-label visually-hidden">מספר חולצה</label>
                                                         <input
+                                                            id={`roster-add-number-${team.id}`}
                                                             className="form-control form-control-sm"
                                                             placeholder="מס׳ *"
+                                                            aria-label="מספר חולצה"
                                                             type="number"
                                                             value={addForm.number}
                                                             onChange={e => setAddForm(f => ({ ...f, number: e.target.value }))}
                                                         />
                                                     </div>
                                                     <div className="col-6 col-md-2">
+                                                        <label htmlFor={`roster-add-position-${team.id}`} className="form-label visually-hidden">עמדה</label>
                                                         <input
+                                                            id={`roster-add-position-${team.id}`}
                                                             className="form-control form-control-sm"
                                                             placeholder="עמדה"
+                                                            aria-label="עמדה"
                                                             value={addForm.position}
                                                             onChange={e => setAddForm(f => ({ ...f, position: e.target.value }))}
                                                         />

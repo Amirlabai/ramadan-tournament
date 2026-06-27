@@ -4,9 +4,11 @@ import type { TournamentSlug } from '../utils/tournamentPaths';
 
 export type { TournamentSlug } from '../utils/tournamentPaths';
 
-const API_URL = import.meta.env.DEV
-    ? ''
-    : (import.meta.env.VITE_API_URL || 'http://localhost:5000');
+if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
+    throw new Error('VITE_API_URL is required in production builds');
+}
+
+const API_URL = import.meta.env.DEV ? '' : import.meta.env.VITE_API_URL;
 
 const api = axios.create({
     baseURL: `${API_URL}/api`,
@@ -112,10 +114,9 @@ export const usersAPI = {
         api.get('/users/registration', { params: { division: slug } }),
     verifyIdentity: (personalId: string, birthYear: string, slug: TournamentSlug = 'boys') =>
         api.post('/users/verify-identity', { personalId, birthYear }, { params: { division: slug } }),
-    redeemInvoice: (personalId: string, birthYear: string, slug: TournamentSlug = 'boys') =>
-        api.post('/users/verify-identity', { personalId, birthYear }, { params: { division: slug } }),
     cancelRegistrationRequest: (slug: TournamentSlug = 'boys') =>
         api.post('/users/cancel-registration-request', {}, { params: { division: slug } }),
+    cancelPlayerMapping: () => api.post('/users/cancel-mapping'),
     uploadAvatar: (formData: FormData) =>
         api.post('/users/avatar', formData),
     deleteAvatar: () =>
@@ -160,7 +161,7 @@ export const adminAPI = {
     getPendingPhotos: () => api.get('/admin/photos/pending'),
     approvePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/approve', { teamId, memberId }),
     rejectPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/reject', { teamId, memberId }),
-    deletePlayerPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/delete', { teamId, memberId }),
+    forceDeletePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/delete', { teamId, memberId }),
     getTeamRequests: () => api.get('/admin/team-requests'),
     approveTeamRequest: (userId: string, action: 'approved' | 'rejected') =>
         api.post(`/admin/team-requests/${userId}`, { action }),
@@ -185,8 +186,6 @@ export const adminAPI = {
     searchInvoiceUsers: (seasonId: string, q: string) =>
         api.get('/admin/workflows/user-search', { params: { seasonId, q } }),
     assignIdentity: (userId: string, seasonId: string, personalId: string, birthYear: string) =>
-        api.post('/admin/users/identity', { userId, seasonId, personalId, birthYear }),
-    assignInvoice: (userId: string, seasonId: string, personalId: string, birthYear: string) =>
         api.post('/admin/users/identity', { userId, seasonId, personalId, birthYear }),
     reviewCreationRequest: (id: string, approve: boolean) =>
         api.patch(`/admin/requests/creation/${id}`, { approve }),
@@ -215,7 +214,7 @@ const votesBase = (slug: TournamentSlug) => (slug === 'girls' ? '/votes-girls' :
 export const votesAPI = {
     cast: (playerMemberId: number, category: string = 'mvp', slug: TournamentSlug = 'boys') =>
         api.post(votesBase(slug), { playerMemberId, category }),
-    castTeam: (teamId: number, category: string = 'mvp') =>
+    castGirlsTeam: (teamId: number, category: string = 'mvp') =>
         api.post('/votes-girls', { teamId, category }),
     getMyVote: (category: string = 'mvp', slug: TournamentSlug = 'boys') =>
         api.get(`${votesBase(slug)}/my`, { params: { category } }),
@@ -237,5 +236,3 @@ export const archiveAPI = {
         division?: TournamentSlug;
     }) => api.post('/archive/create', data),
 };
-
-export default api;

@@ -58,7 +58,7 @@ const Profile = () => {
     const [teamRequestMsg, setTeamRequestMsg] = useState('');
 
     // Player profile editing
-    const playerProfile = user ? (user as any).playerProfile : null;
+    const playerProfile = user?.playerProfile ?? null;
     const registrationSlug = user ? resolveRegistrationSlug(user) : 'boys';
     const ownedCtx = user ? pickOwnedTeamContext(user) : { slug: 'boys' as const, teamId: null };
     const ownedSlug = ownedCtx.slug;
@@ -99,7 +99,8 @@ const Profile = () => {
         setPlayerSaving(true);
         setPlayerMsg('');
         try {
-            await usersAPI.updatePlayerProfile({ ...playerForm, number: Number(playerForm.number) });
+            const number = playerForm.number.trim() ? Number(playerForm.number) : undefined;
+            await usersAPI.updatePlayerProfile({ ...playerForm, number });
             await refreshUser();
             setEditingPlayer(false);
             setPlayerMsg('הפרטים עודכנו בהצלחה');
@@ -228,6 +229,19 @@ const Profile = () => {
         }
     };
 
+    const handleCancelMapping = async () => {
+        const confirmMsg = mappingStatus === 'pending'
+            ? 'לבטל את בקשת השיוך הממתינה?'
+            : 'לנקות את סטטוס השיוך שנדחה?';
+        if (!confirm(confirmMsg)) return;
+        try {
+            await usersAPI.cancelPlayerMapping();
+            await refreshUser();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'שגיאה בביטול הבקשה');
+        }
+    };
+
     const handleLeaveTeam = async () => {
         if (ownsTeam) {
             alert('בעל קבוצה לא יכול לעזוב — פנה למנהל');
@@ -244,7 +258,7 @@ const Profile = () => {
     };
 
     const avatarSrc = user.avatarUrl
-        ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl} `)
+        ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl}`)
         : null;
 
     const roleLabels: Record<string, string> = {
@@ -261,7 +275,7 @@ const Profile = () => {
         rejected: 'danger',
     };
 
-    const pendingTeam = (user as any).pendingTeamRequest;
+    const pendingCreation = divisionReg?.pendingCreation ?? user.pendingTeamRequest;
     const boysReg = user.tournamentRegistration?.boys;
     const girlsReg = user.tournamentRegistration?.girls;
     const isRegistrationActive = divisionReg?.status === 'active';
@@ -278,7 +292,7 @@ const Profile = () => {
         !divisionReg?.pendingCreation &&
         !divisionReg?.pendingJoin &&
         !divisionReg?.pendingTransfer &&
-        (!pendingTeam || pendingTeam.status === 'rejected') &&
+        (!pendingCreation || pendingCreation.status === 'rejected') &&
         !boysReg?.onRoster &&
         !boysReg?.ownedTeamId &&
         !girlsReg?.onRoster &&
@@ -365,7 +379,7 @@ const Profile = () => {
 
                 {/* Player Mapping Status */}
                 {showMappingBanner && mappingStatus && mappingStatus !== 'approved' && (
-                    <div className={`alert alert - ${statusColors[mappingStatus] ?? 'secondary'} mb - 4`}>
+                    <div className={`alert alert-${statusColors[mappingStatus] ?? 'secondary'} mb-4`}>
                         {mappingStatus === 'pending' && (
                             <div className="d-flex justify-content-between align-items-center">
                                 <div>
@@ -374,13 +388,13 @@ const Profile = () => {
                                     {user.mappedPlayerInfo?.teamName ? ` קבוצת ${user.mappedPlayerInfo.teamName} ` : ` קבוצה #${user.mappedPlayerInfo?.teamId} `}
                                     {user.mappedPlayerInfo?.playerName && `, השחקן ${user.mappedPlayerInfo.playerName} `}
                                 </div>
-                                <button type="button" className="btn btn-danger btn-sm" onClick={handleLeaveTeam}>ביטול בקשה</button>
+                                <button type="button" className="btn btn-danger btn-sm" onClick={handleCancelMapping}>ביטול בקשה</button>
                             </div>
                         )}
                         {mappingStatus === 'rejected' && (
                             <div className="d-flex justify-content-between align-items-center">
                                 <div><i className="bi bi-x-circle-fill me-2" /><strong>בקשת השיוך נדחתה.</strong> תוכל לנסות מחדש.</div>
-                                <button type="button" className="btn btn-secondary btn-sm" onClick={handleLeaveTeam}>נקה</button>
+                                <button type="button" className="btn btn-secondary btn-sm" onClick={handleCancelMapping}>נקה</button>
                             </div>
                         )}
                     </div>
@@ -423,36 +437,36 @@ const Profile = () => {
                             <form onSubmit={handleSavePlayer}>
                                 <div className="row g-3">
                                     <div className="col-6">
-                                        <label className="form-label">שם פרטי</label>
-                                        <input className="form-control" value={playerForm.firstName} maxLength={50}
+                                        <label htmlFor="profile-player-firstName" className="form-label">שם פרטי</label>
+                                        <input id="profile-player-firstName" className="form-control" value={playerForm.firstName} maxLength={50}
                                             onChange={e => setPlayerForm(p => ({ ...p, firstName: e.target.value }))} />
                                     </div>
                                     <div className="col-6">
-                                        <label className="form-label">שם משפחה</label>
-                                        <input className="form-control" value={playerForm.lastName} maxLength={50}
+                                        <label htmlFor="profile-player-lastName" className="form-label">שם משפחה</label>
+                                        <input id="profile-player-lastName" className="form-control" value={playerForm.lastName} maxLength={50}
                                             onChange={e => setPlayerForm(p => ({ ...p, lastName: e.target.value }))} />
                                     </div>
                                     <div className="col-6">
-                                        <label className="form-label">כינוי / תג</label>
-                                        <input className="form-control" value={playerForm.nickname} maxLength={50}
+                                        <label htmlFor="profile-player-nickname" className="form-label">כינוי / תג</label>
+                                        <input id="profile-player-nickname" className="form-control" value={playerForm.nickname} maxLength={50}
                                             onChange={e => setPlayerForm(p => ({ ...p, nickname: e.target.value }))} />
                                     </div>
                                     <div className="col-3">
-                                        <label className="form-label">מספר</label>
-                                        <input type="number" className="form-control" value={playerForm.number} min={1} max={99}
+                                        <label htmlFor="profile-player-number" className="form-label">מספר</label>
+                                        <input id="profile-player-number" type="number" className="form-control" value={playerForm.number} min={1} max={99}
                                             onChange={e => setPlayerForm(p => ({ ...p, number: e.target.value }))} />
                                     </div>
                                     <div className="col-3">
-                                        <label className="form-label">עמדה</label>
-                                        <select className="form-select" value={playerForm.position}
+                                        <label htmlFor="profile-player-position" className="form-label">עמדה</label>
+                                        <select id="profile-player-position" className="form-select" value={playerForm.position}
                                             onChange={e => setPlayerForm(p => ({ ...p, position: e.target.value }))}>
                                             <option value="">—</option>
                                             {['שוער', 'בלם', 'מגן', 'קשר', 'חלוץ'].map(pos => <option key={pos} value={pos}>{pos}</option>)}
                                         </select>
                                     </div>
                                     <div className="col-12">
-                                        <label className="form-label">אודות</label>
-                                        <textarea className="form-control" value={playerForm.bio || ''} maxLength={300} rows={3}
+                                        <label htmlFor="profile-player-bio" className="form-label">אודות</label>
+                                        <textarea id="profile-player-bio" className="form-control" value={playerForm.bio || ''} maxLength={300} rows={3}
                                             onChange={e => setPlayerForm(p => ({ ...p, bio: e.target.value }))} placeholder="ספר מעט על עצמך..." />
                                     </div>
                                 </div>
@@ -623,17 +637,17 @@ const Profile = () => {
                             ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
                         </p>
                         {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
-                        {pendingTeam?.status === 'rejected' && (
+                        {pendingCreation?.status === 'rejected' && (
                             <div className="alert alert-danger py-2 mb-3">הבקשה הקודמת שלך נדחתה. תוכל לשלוח בקשה חדשה.</div>
                         )}
                         <form onSubmit={handleTeamRequest}>
                             <div className="mb-3">
-                                <label className="form-label">שם הקבוצה</label>
-                                <input type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={TEAM_NAME_MAX_LEN} />
+                                <label htmlFor="profile-team-name" className="form-label">שם הקבוצה</label>
+                                <input id="profile-team-name" type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={TEAM_NAME_MAX_LEN} />
                             </div>
                             <div className="mb-3">
-                                <label className="form-label">תיאור קצר (אופציונלי)</label>
-                                <textarea className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={TEAM_DESC_MAX_LEN} />
+                                <label htmlFor="profile-team-desc" className="form-label">תיאור קצר (אופציונלי)</label>
+                                <textarea id="profile-team-desc" className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={TEAM_DESC_MAX_LEN} />
                             </div>
                             <button type="submit" className="btn btn-primary">שלח בקשה</button>
                         </form>

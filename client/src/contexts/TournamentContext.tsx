@@ -8,8 +8,7 @@ import {
   type ReactNode,
 } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import api from '../api/client';
-import { worldcupAPI } from '../api/client';
+import { seasonsAPI, worldcupAPI } from '../api/client';
 import {
   homePathForSlug,
   readPreferredTournament,
@@ -60,10 +59,8 @@ export function TournamentProvider({ children }: { children: ReactNode }) {
         setSeason(res.data as ActiveSeason);
         return;
       }
-      const res = await api.get<ActiveSeason>('/seasons/active', {
-        params: { division },
-      });
-      setSeason(res.data);
+      const res = await seasonsAPI.getActive(division);
+      setSeason(res.data as ActiveSeason);
     } catch {
       setSeason(null);
       setSeasonError(

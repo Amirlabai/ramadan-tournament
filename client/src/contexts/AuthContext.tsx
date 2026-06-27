@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import axios from 'axios';
 import { authAPI } from '../api/client';
 
 export type UserRole = 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';
@@ -8,6 +9,20 @@ export interface MappedPlayerInfo {
     teamName?: string;
     memberId: number;
     playerName?: string;
+    status: 'pending' | 'approved' | 'rejected';
+}
+
+export interface PlayerProfile {
+    firstName?: string;
+    lastName?: string;
+    nickname?: string;
+    number?: number;
+    position?: string;
+    bio?: string;
+}
+
+export interface PendingTeamRequest {
+    teamName: string;
     status: 'pending' | 'approved' | 'rejected';
 }
 
@@ -34,7 +49,8 @@ export interface User {
     isPlatformAdmin?: boolean;
     avatarUrl?: string;
     mappedPlayerInfo?: MappedPlayerInfo;
-    playerProfile?: any;
+    playerProfile?: PlayerProfile;
+    pendingTeamRequest?: PendingTeamRequest | null;
     activeDivision?: string | null;
     tournamentRegistration?: {
         boys: TournamentRegistrationSummary | null;
@@ -62,7 +78,8 @@ function mapUser(data: Record<string, unknown>): User {
         isPlatformAdmin: data.isPlatformAdmin as boolean | undefined,
         avatarUrl: data.avatarUrl as string | undefined,
         mappedPlayerInfo: data.mappedPlayerInfo as MappedPlayerInfo | undefined,
-        playerProfile: data.playerProfile,
+        playerProfile: data.playerProfile as PlayerProfile | undefined,
+        pendingTeamRequest: data.pendingTeamRequest as PendingTeamRequest | null | undefined,
         activeDivision: data.activeDivision as string | null | undefined,
         tournamentRegistration: data.tournamentRegistration as User['tournamentRegistration'],
     };
@@ -76,8 +93,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         try {
             const response = await authAPI.getCurrentUser();
             setUser(mapUser(response.data));
-        } catch {
-            setUser(null);
+        } catch (err) {
+            if (axios.isAxiosError(err) && err.response?.status === 401) {
+                setUser(null);
+            }
         } finally {
             setLoading(false);
         }

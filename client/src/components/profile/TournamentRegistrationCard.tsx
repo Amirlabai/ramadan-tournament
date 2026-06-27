@@ -40,6 +40,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const [birthYear, setBirthYear] = useState('');
     const [msg, setMsg] = useState('');
     const [err, setErr] = useState('');
+    const [loadErr, setLoadErr] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
@@ -47,6 +48,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const load = useCallback(async (): Promise<RegistrationSummary | null> => {
         if (!user) return null;
         setLoading(true);
+        setLoadErr('');
         try {
             const res = await usersAPI.getRegistration(slug);
             const data = res.data as RegistrationSummary;
@@ -54,6 +56,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             return data;
         } catch {
             setReg(null);
+            setLoadErr('לא ניתן לטעון את סטטוס הרישום. נסה לרענן את העמוד.');
             return null;
         } finally {
             setLoading(false);
@@ -116,7 +119,16 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         );
     }
 
-    if (!reg) return null;
+    if (!reg) {
+        if (loadErr) {
+            return (
+                <div className={cardClass} role="alert">
+                    <p className="text-danger mb-0">{loadErr}</p>
+                </div>
+            );
+        }
+        return null;
+    }
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
     const showIdentityForm = !!reg.invoiceAlert || reg.status !== 'active';

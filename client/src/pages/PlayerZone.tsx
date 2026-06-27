@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playerAPI } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
@@ -27,10 +27,15 @@ const PlayerZone = () => {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [successMsg, setSuccessMsg] = useState('');
+    const previewObjectUrlRef = useRef<string | null>(null);
 
-    // Check if already logged in? 
-    // Since we don't have a specific "getMe" for players implemented in backend yet (only login returns it),
-    // we rely on login. Or we could persist player info in localStorage.
+    useEffect(() => {
+        return () => {
+            if (previewObjectUrlRef.current) {
+                URL.revokeObjectURL(previewObjectUrlRef.current);
+            }
+        };
+    }, []);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -67,7 +72,11 @@ const PlayerZone = () => {
         if (!selectedFile) return;
 
         setFile(selectedFile);
+        if (previewObjectUrlRef.current) {
+            URL.revokeObjectURL(previewObjectUrlRef.current);
+        }
         const objectUrl = URL.createObjectURL(selectedFile);
+        previewObjectUrlRef.current = objectUrl;
         setPreview(objectUrl);
     };
 
@@ -147,7 +156,7 @@ const PlayerZone = () => {
                                     aria-invalid={yearFieldInvalid}
                                 />
                             </div>
-                            {error && <div className="alert alert-danger">{error}</div>}
+                            {error && <div className="alert alert-danger" role="alert">{error}</div>}
                             <button
                                 type="submit"
                                 className="btn btn-success btn-gated w-100"
@@ -179,7 +188,7 @@ const PlayerZone = () => {
                             <div className="photo-preview-container mx-auto mb-3" style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#f0f0f0', border: '3px solid #198754' }}>
                                 {preview ? (
                                     <>
-                                        <img src={preview} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: player.pending_head_photo ? 0.7 : 1 }} />
+                                        <img src={preview} alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: player.pending_head_photo ? 0.7 : 1 }} />
                                         {player.pending_head_photo && (
                                             <div style={{
                                                 position: 'absolute',
@@ -226,12 +235,16 @@ const PlayerZone = () => {
                             )}
                         </div>
 
-                        {successMsg && <div className="alert alert-success">{successMsg}</div>}
-                        {error && <div className="alert alert-danger">{error}</div>}
+                        {successMsg && <div className="alert alert-success" role="alert">{successMsg}</div>}
+                        {error && <div className="alert alert-danger" role="alert">{error}</div>}
 
                         <div className="mt-4 pt-3 border-top">
                             <button onClick={async () => {
                                 await playerAPI.logout();
+                                if (previewObjectUrlRef.current) {
+                                    URL.revokeObjectURL(previewObjectUrlRef.current);
+                                    previewObjectUrlRef.current = null;
+                                }
                                 setPlayer(null);
                                 setPreview(null);
                                 setFile(null);

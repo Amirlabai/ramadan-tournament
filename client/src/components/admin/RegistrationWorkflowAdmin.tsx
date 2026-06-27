@@ -180,6 +180,10 @@ export default function RegistrationWorkflowAdmin() {
             setMsg('יש להזין תעודת זהות ושנת לידה');
             return;
         }
+        if (!isValidIsraeliId(pid) || !isBirthYearInRange(by)) {
+            setMsg('תעודת זהות או שנת לידה לא תקינים');
+            return;
+        }
         setAssigningId(userId);
         setMsg('');
         try {
@@ -431,14 +435,14 @@ export default function RegistrationWorkflowAdmin() {
                     </section>
 
                     <section className="mb-4 p-3 border rounded">
-                        <h5 className="h6 mb-2">חיפוש משתמש (אימייל או שם)</h5>
+                        <label htmlFor="workflow-user-search" className="form-label">חיפוש משתמש (אימייל או שם)</label>
                         <input
+                            id="workflow-user-search"
                             type="search"
                             className="form-control mb-2"
                             placeholder="לפחות 2 תווים — למשל חלק מהאימייל"
                             value={searchQ}
                             onChange={(e) => setSearchQ(e.target.value)}
-                            aria-label="חיפוש משתמש להקצאת קוד"
                         />
                         {searching && <p className="text-muted small">מחפש…</p>}
                         {searchQ.trim().length >= 2 && !searching && (
@@ -539,8 +543,19 @@ export default function RegistrationWorkflowAdmin() {
                                                         className="btn btn-sm btn-outline-danger"
                                                         title={paid ? undefined : 'דחייה זמינה גם לפני אימות זהות'}
                                                         onClick={async () => {
-                                                            await adminAPI.reviewCreationRequest(c.id, false);
-                                                            load();
+                                                            setMsg('');
+                                                            try {
+                                                                await adminAPI.reviewCreationRequest(c.id, false);
+                                                                await load();
+                                                            } catch (e: unknown) {
+                                                                const ax = e as {
+                                                                    response?: { data?: { error?: string } };
+                                                                };
+                                                                setMsg(
+                                                                    ax.response?.data?.error ||
+                                                                        'לא ניתן לדחות את הבקשה'
+                                                                );
+                                                            }
                                                         }}
                                                     >
                                                         דחה
@@ -635,8 +650,19 @@ export default function RegistrationWorkflowAdmin() {
                                                             className="btn btn-sm btn-outline-danger"
                                                             title={paid ? undefined : 'דחייה זמינה גם לפני אימות זהות'}
                                                             onClick={async () => {
-                                                                await adminAPI.reviewJoinRequest(j.id, false);
-                                                                load();
+                                                                setMsg('');
+                                                                try {
+                                                                    await adminAPI.reviewJoinRequest(j.id, false);
+                                                                    await load();
+                                                                } catch (e: unknown) {
+                                                                    const ax = e as {
+                                                                        response?: { data?: { error?: string } };
+                                                                    };
+                                                                    setMsg(
+                                                                        ax.response?.data?.error ||
+                                                                            'לא ניתן לדחות את הבקשה'
+                                                                    );
+                                                                }
                                                             }}
                                                         >
                                                             דחה
@@ -669,8 +695,14 @@ export default function RegistrationWorkflowAdmin() {
                                             type="button"
                                             className="btn btn-sm btn-success me-1"
                                             onClick={async () => {
-                                                await adminAPI.reviewTransferRequest(t.id, true);
-                                                load();
+                                                setMsg('');
+                                                try {
+                                                    await adminAPI.reviewTransferRequest(t.id, true);
+                                                    await load();
+                                                } catch (e: unknown) {
+                                                    const ax = e as { response?: { data?: { error?: string } } };
+                                                    setMsg(ax.response?.data?.error || 'לא ניתן לאשר את ההעברה');
+                                                }
                                             }}
                                         >
                                             אשר
@@ -679,8 +711,14 @@ export default function RegistrationWorkflowAdmin() {
                                             type="button"
                                             className="btn btn-sm btn-outline-danger"
                                             onClick={async () => {
-                                                await adminAPI.reviewTransferRequest(t.id, false);
-                                                load();
+                                                setMsg('');
+                                                try {
+                                                    await adminAPI.reviewTransferRequest(t.id, false);
+                                                    await load();
+                                                } catch (e: unknown) {
+                                                    const ax = e as { response?: { data?: { error?: string } } };
+                                                    setMsg(ax.response?.data?.error || 'לא ניתן לדחות את ההעברה');
+                                                }
                                             }}
                                         >
                                             דחה

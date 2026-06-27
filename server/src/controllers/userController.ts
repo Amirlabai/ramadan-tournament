@@ -37,6 +37,29 @@ export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> 
     }
 };
 
+/** Cancel legacy pending/rejected mappedPlayerInfo (not active roster). */
+export const cancelPlayerMapping = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const user = await User.findById(req.userId!);
+        if (!user?.mappedPlayerInfo) {
+            res.status(400).json({ error: 'אין בקשת שיוך פעילה' });
+            return;
+        }
+        const { status, memberId } = user.mappedPlayerInfo;
+        if (status === 'approved' && memberId > 0) {
+            res.status(400).json({ error: 'לא ניתן לבטל שיוך מאושר — השתמש ב"עזוב קבוצה"' });
+            return;
+        }
+        user.mappedPlayerInfo = undefined;
+        await user.save();
+        await clearPlayerProfile(user.id);
+        res.json({ message: 'בקשת השיוך בוטלה' });
+    } catch (error) {
+        console.error('Cancel player mapping error:', error);
+        res.status(500).json({ error: 'שגיאה בביטול בקשת השיוך' });
+    }
+};
+
 /** Deprecated — use POST /api/teams/:id/join-request */
 export const requestPlayerMapping = async (_req: AuthRequest, res: Response): Promise<void> => {
     res.status(410).json({

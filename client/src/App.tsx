@@ -113,7 +113,7 @@ function AppShell() {
 
   useSwipeOpenDrawer(mainRef, {
     onOpen: openDrawer,
-    disabled: !isMobile || drawerOpen,
+    disabled: !isMobile || drawerOpen || reducedMotion,
   })
 
   useEffect(() => {

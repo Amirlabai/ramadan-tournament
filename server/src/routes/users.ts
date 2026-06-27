@@ -4,7 +4,7 @@ import os from 'os';
 import rateLimit from 'express-rate-limit';
 import { authenticate } from '../middleware/auth';
 import type { AuthRequest } from '../middleware/auth';
-import { uploadAvatar, deleteAvatar, updatePlayerProfile, leaveTeam, requestPlayerMapping } from '../controllers/userController';
+import { uploadAvatar, deleteAvatar, updatePlayerProfile, leaveTeam, cancelPlayerMapping, requestPlayerMapping } from '../controllers/userController';
 import { getRegistrationStatus, verifyIdentity, redeemInvoice, cancelRegistrationRequest } from '../controllers/registrationController';
 
 const router = Router();
@@ -41,5 +41,6 @@ router.patch('/player-profile', authenticate, updatePlayerProfile);
 
 // Leave team
 router.post('/leave-team', authenticate, leaveTeam);
+router.post('/cancel-mapping', authenticate, cancelPlayerMapping);
 
 export default router;
