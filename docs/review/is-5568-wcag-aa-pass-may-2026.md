@@ -80,7 +80,7 @@ Re-review of current diff. Prior pass items largely fixed; new findings below.
 
 `package-lock.json` — 🔵 nit: unrelated `peer` churn; split from a11y commit.
 
-`review/` vs `Review/` — 🔵 nit: folder casing inconsistent on case-sensitive CI/fs.
+Docs consolidated under `docs/review/` (Jun 2026).
 
 ### Pass 2 — no re-flag
 

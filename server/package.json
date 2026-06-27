@@ -17,7 +17,9 @@
         "db:studio": "prisma studio",
         "fixtures:generate": "tsx src/scripts/generate-group-fixtures.ts",
         "db:sync-banned-words": "tsx src/scripts/syncBannedWords.ts",
-        "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts"
+        "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts",
+        "test": "vitest run",
+        "test:watch": "vitest"
     },
     "prisma": {
         "seed": "tsx prisma/seed.ts"
@@ -53,6 +55,11 @@
         "tsx": "^4.7.0",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
+    },
+    "devDependencies": {
+        "@types/supertest": "^6.0.3",
+        "supertest": "^7.1.0",
+        "vitest": "^3.2.4"
     },
     "overrides": {
         "tar": "^7.5.11"

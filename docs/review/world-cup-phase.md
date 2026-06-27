@@ -83,7 +83,7 @@ Without an API key, the server serves static snapshots from `data/worldcup/*.jso
 | `client/src/components/WorldCupBracket.tsx` | Knockout bracket by stage |
 | `client/src/styles/tournament-worldcup.css` | WC theme (`data-tournament="worldcup"`) |
 | `client/src/utils/worldCupEnabled.ts` | `VITE_WORLD_CUP_ENABLED` + `VITE_WORLD_CUP_ONLY` flags and route redirects |
-| `Review/world-cup-phase.md` | This document |
+| `docs/review/world-cup-phase.md` | This document |
 
 ### Shared UI helpers (tournament-aware, revert-safe)
 

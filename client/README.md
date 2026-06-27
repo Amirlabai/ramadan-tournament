@@ -3,11 +3,17 @@
 The frontend application for the Ramadan Tournament management system. Built as a Single Page Application (SPA) utilizing modern React and Vite.
 
 ## Tech Stack
-- **Framework**: React 18, Vite
+- **Framework**: React 19, Vite 7
 - **Language**: TypeScript
 - **Styling**: Vanilla CSS, Bootstrap 5 (for grid and base layout)
 - **Routing**: React Router DOM (v7)
 - **SEO Elements**: React Helmet Async
+
+## Documentation
+
+Primary developer guide: [`../docs/client/ARCHITECTURE.md`](../docs/client/ARCHITECTURE.md)
+
+See also [`../docs/README.md`](../docs/README.md) and accessibility review [`../docs/review/is-5568-wcag-aa-pass-may-2026.md`](../docs/review/is-5568-wcag-aa-pass-may-2026.md).
 
 ## Key Capabilities
 - **Real-Time Dashboards**: View standings, scorers, matching, and schedules with Smart Background Polling logic ensuring real-time stats during game hours.

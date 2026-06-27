@@ -1,7 +1,7 @@
 # Requirements Traceability Matrix & QA Report
 
 **Project:** Ramadan Tournament (Postgres + Redis rebuild)  
-**PRD source:** [`.incoming/PRD-database-schema.md`](../.incoming/PRD-database-schema.md) v0.9  
+**PRD source:** [`docs/product/PRD-database-schema.md`](../product/PRD-database-schema.md) v0.10  
 **Report date:** 2026-05-18  
 **Author:** Implementation agent (Cursor session)  
 **Scope:** Work through May 2026 — Phase 1.5 alignment and session bug fixes. **Phase 2 (§16) is tracked in [phase-2-rtm-qa-may-2026.md](phase-2-rtm-qa-may-2026.md)** — do not use §3.4 below for current delivery status.
@@ -169,7 +169,9 @@
 
 ## 7. Related documents
 
-- [PRD-database-schema.md](../.incoming/PRD-database-schema.md)
-- [status.md](../status.md) — live checklist
-- [context.md](../context.md) — architecture snapshot
+- [PRD-database-schema.md](../product/PRD-database-schema.md)
+- [status.md](../../status.md) — live checklist
+- [context.md](../../context.md) — architecture snapshot
 - [is-5568-wcag-aa-pass-may-2026.md](is-5568-wcag-aa-pass-may-2026.md) — accessibility (separate from this RTM)
+
+**Jun 2026:** Phase 2 invoice rows superseded by personal ID + birth year — see [phase-2-rtm-qa-may-2026.md](phase-2-rtm-qa-may-2026.md) addendum and [`docs/server/BUSINESS_LOGIC.md`](../server/BUSINESS_LOGIC.md).

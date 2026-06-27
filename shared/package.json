@@ -29,9 +29,12 @@
   "description": "Shared validation constants. Client: Vite alias → source .ts. Server: require → dist/ (built by `npm run build:shared`, root `npm run build`, server `build`, and `prepare` on install unless `--ignore-scripts`).",
   "scripts": {
     "build": "tsc",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "devDependencies": {
-    "typescript": "~5.9.3"
+    "typescript": "~5.9.3",
+    "vitest": "^3.2.4"
   }
 }

@@ -122,6 +122,8 @@ Failed personal-ID + birth-year submissions are rate-limited per user and season
 
 ## API overview
 
+Full route catalog: [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFERENCE.md).
+
 ### Public
 - `GET /api/health`
 - `GET /api/teams`, `/api/matches`, `/api/news`, `/api/stats/*`
@@ -174,9 +176,20 @@ Controllers stay thin: validate input, call the owning service, map errors to HT
 ## Local smoke tests
 
 ```powershell
+npm run test
 curl http://localhost:5000/api/health
 curl http://localhost:5000/api/teams
 ```
+
+## Documentation
+
+| Doc | Purpose |
+|-----|---------|
+| [`../docs/server/BUSINESS_LOGIC.md`](../docs/server/BUSINESS_LOGIC.md) | Registration flows, services, auth matrix |
+| [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFERENCE.md) | Full route catalog |
+| [`../docs/README.md`](../docs/README.md) | Documentation index |
+
+See [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFERENCE.md) for the complete API list (summary above is abbreviated).
 
 ## Project layout
 

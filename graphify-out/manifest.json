@@ -1,0 +1,1552 @@
+{
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\package.json": {
+    "mtime": 1782590907.3035023,
+    "ast_hash": "c4a24d557ff0336fb14aeef39439906d",
+    "semantic_hash": "c4a24d557ff0336fb14aeef39439906d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\tsconfig.json": {
+    "mtime": 1770890950.11039,
+    "ast_hash": "51b7aaf79b88b41b035836f695814a69",
+    "semantic_hash": "51b7aaf79b88b41b035836f695814a69"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\vercel.json": {
+    "mtime": 1782479403.8243322,
+    "ast_hash": "db2e40ee4be70e11f9db14fbde5ebf13",
+    "semantic_hash": "db2e40ee4be70e11f9db14fbde5ebf13"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.vscode\\launch.json": {
+    "mtime": 1770912680.780454,
+    "ast_hash": "f5065aaea24671cde2146416a8a5282b",
+    "semantic_hash": "f5065aaea24671cde2146416a8a5282b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\archive\\postgres\\_manifest.json": {
+    "mtime": 1782579284.7534866,
+    "ast_hash": "2efc61f7ab7da08ee6181f5dfd62ba05",
+    "semantic_hash": "2efc61f7ab7da08ee6181f5dfd62ba05"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\eslint.config.js": {
+    "mtime": 1770892190.8069887,
+    "ast_hash": "b8893da386a89dfd3672dad848f4ec7e",
+    "semantic_hash": "b8893da386a89dfd3672dad848f4ec7e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\package.json": {
+    "mtime": 1782584319.0573542,
+    "ast_hash": "9ca4683373416bb03957df759e785705",
+    "semantic_hash": "9ca4683373416bb03957df759e785705"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\tsconfig.app.json": {
+    "mtime": 1782584320.930191,
+    "ast_hash": "a73174e8335d36146914ad16c68d9193",
+    "semantic_hash": "a73174e8335d36146914ad16c68d9193"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\tsconfig.json": {
+    "mtime": 1770892190.8527133,
+    "ast_hash": "a3d39fa780ebff65444de257f291ce6c",
+    "semantic_hash": "a3d39fa780ebff65444de257f291ce6c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\tsconfig.node.json": {
+    "mtime": 1770892190.8568473,
+    "ast_hash": "eec85c9d7c6b599801557f1afd86672c",
+    "semantic_hash": "eec85c9d7c6b599801557f1afd86672c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\vercel.json": {
+    "mtime": 1782479403.8203323,
+    "ast_hash": "343538af599f86c3f59c6fca809db160",
+    "semantic_hash": "343538af599f86c3f59c6fca809db160"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\vite.config.ts": {
+    "mtime": 1782584320.1549296,
+    "ast_hash": "c6a0443f9c36334d941dae31ec380422",
+    "semantic_hash": "c6a0443f9c36334d941dae31ec380422"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\data\\alarms.json": {
+    "mtime": 1779112382.1046214,
+    "ast_hash": "313dfdaa7e9ad4040ffed7e8a1efbf11",
+    "semantic_hash": "313dfdaa7e9ad4040ffed7e8a1efbf11"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\scripts\\generate-og-image.mjs": {
+    "mtime": 1782041927.5758886,
+    "ast_hash": "dcc78e69f0b935196a99353b157df292",
+    "semantic_hash": "dcc78e69f0b935196a99353b157df292"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\scripts\\generate-sitemap.mjs": {
+    "mtime": 1782485154.2733796,
+    "ast_hash": "fd955cc097bf1a8cdfdde648ed75234a",
+    "semantic_hash": "fd955cc097bf1a8cdfdde648ed75234a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\App.tsx": {
+    "mtime": 1782588377.6367486,
+    "ast_hash": "bccd16678c41f7ef311d2b29dd186f21",
+    "semantic_hash": "bccd16678c41f7ef311d2b29dd186f21"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\main.tsx": {
+    "mtime": 1782582929.4167411,
+    "ast_hash": "c0f6910fffffa1b9898245fe42cdaa24",
+    "semantic_hash": "c0f6910fffffa1b9898245fe42cdaa24"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\prerender.tsx": {
+    "mtime": 1781509727.2997956,
+    "ast_hash": "e52ed1d210477b02253c8069aedb8197",
+    "semantic_hash": "e52ed1d210477b02253c8069aedb8197"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\api\\client.ts": {
+    "mtime": 1782590618.704741,
+    "ast_hash": "4e762d0befc416e577d4982dfe135510",
+    "semantic_hash": "4e762d0befc416e577d4982dfe135510"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\AccessibilityToolbar.tsx": {
+    "mtime": 1779557449.6300795,
+    "ast_hash": "b7a776efd3e9aac6b2fc9f01ca34dfb3",
+    "semantic_hash": "b7a776efd3e9aac6b2fc9f01ca34dfb3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\AccessibleModal.tsx": {
+    "mtime": 1779112382.117205,
+    "ast_hash": "4fc5e98aaa49f3926ebc4b662b06f555",
+    "semantic_hash": "4fc5e98aaa49f3926ebc4b662b06f555"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\BitDonateLink.tsx": {
+    "mtime": 1782044973.644655,
+    "ast_hash": "c2446b3f3fe19d09e4f6c8cd3cab751f",
+    "semantic_hash": "c2446b3f3fe19d09e4f6c8cd3cab751f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\CommentSection.tsx": {
+    "mtime": 1782413444.2066007,
+    "ast_hash": "abdf1553a4c55659bf41ef4f1fd1e97f",
+    "semantic_hash": "abdf1553a4c55659bf41ef4f1fd1e97f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\CookieNotice.tsx": {
+    "mtime": 1779556626.8816233,
+    "ast_hash": "8acc9c371dc493027e9c2bffdeb8f166",
+    "semantic_hash": "8acc9c371dc493027e9c2bffdeb8f166"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\EmptyState.tsx": {
+    "mtime": 1782329620.630986,
+    "ast_hash": "16d2d8afe785d62e02bf458663a429cd",
+    "semantic_hash": "16d2d8afe785d62e02bf458663a429cd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\Footer.tsx": {
+    "mtime": 1782586045.4082165,
+    "ast_hash": "dd3a2b458ab1e3d51a6d5263c9a4650d",
+    "semantic_hash": "dd3a2b458ab1e3d51a6d5263c9a4650d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\IftarTimer.tsx": {
+    "mtime": 1773678983.062344,
+    "ast_hash": "0177aacbbf11819f69ce87f20ed2bfd6",
+    "semantic_hash": "0177aacbbf11819f69ce87f20ed2bfd6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\LegalPageLayout.tsx": {
+    "mtime": 1782044596.8878963,
+    "ast_hash": "5ffdc6a9f045841ce7fbf3683768d1bd",
+    "semantic_hash": "5ffdc6a9f045841ce7fbf3683768d1bd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\NewsBanner.tsx": {
+    "mtime": 1782496217.4656062,
+    "ast_hash": "5365989f81b3a3db8b96e91ec8e3305c",
+    "semantic_hash": "5365989f81b3a3db8b96e91ec8e3305c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\PageLoading.tsx": {
+    "mtime": 1782329620.3633542,
+    "ast_hash": "0c7fd6b89a6ff5ac069b88d5fc2dd36c",
+    "semantic_hash": "0c7fd6b89a6ff5ac069b88d5fc2dd36c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\PlayerClaimModal.tsx": {
+    "mtime": 1782487398.848753,
+    "ast_hash": "61282031f2817b0e8ee617710483b655",
+    "semantic_hash": "61282031f2817b0e8ee617710483b655"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\PlayoffBracket.tsx": {
+    "mtime": 1773789756.7284648,
+    "ast_hash": "f26cd0267ac43c68a5f831e4e963fb62",
+    "semantic_hash": "f26cd0267ac43c68a5f831e4e963fb62"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\RouteErrorBoundary.tsx": {
+    "mtime": 1782479403.8107748,
+    "ast_hash": "7de4a5b423c5de2672379098c1640588",
+    "semantic_hash": "7de4a5b423c5de2672379098c1640588"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\ScrollToTop.tsx": {
+    "mtime": 1773621127.516866,
+    "ast_hash": "521e5f97bba6927d46167ef03c5c52dd",
+    "semantic_hash": "521e5f97bba6927d46167ef03c5c52dd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\SEO.tsx": {
+    "mtime": 1781509591.3859668,
+    "ast_hash": "f2899fe428c074eafa11931a4fdfa548",
+    "semantic_hash": "f2899fe428c074eafa11931a4fdfa548"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\TournamentSidebar.tsx": {
+    "mtime": 1782588378.4717329,
+    "ast_hash": "9a01bfbe4a808bf8dfa6b099bff27e77",
+    "semantic_hash": "9a01bfbe4a808bf8dfa6b099bff27e77"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\TournamentSwitcher.tsx": {
+    "mtime": 1781520352.008434,
+    "ast_hash": "eefe65bad7703343028379da4cc38c5b",
+    "semantic_hash": "eefe65bad7703343028379da4cc38c5b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\WorldCupBracket.tsx": {
+    "mtime": 1782413846.0753934,
+    "ast_hash": "9d98c029cbd274d0fd70abfeba4cd133",
+    "semantic_hash": "9d98c029cbd274d0fd70abfeba4cd133"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\CaptainTeamRequests.tsx": {
+    "mtime": 1782488738.4403303,
+    "ast_hash": "ea8be44173aabd8e21e6967df80c1a32",
+    "semantic_hash": "ea8be44173aabd8e21e6967df80c1a32"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\GirlsSeasonAdmin.tsx": {
+    "mtime": 1779123780.2108428,
+    "ast_hash": "276ce0c7baf341ff50b1e6fc2dd3a6ce",
+    "semantic_hash": "276ce0c7baf341ff50b1e6fc2dd3a6ce"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\MatchForm.tsx": {
+    "mtime": 1779112382.132384,
+    "ast_hash": "d55ffcf074da2db7d77129384bcb0e64",
+    "semantic_hash": "d55ffcf074da2db7d77129384bcb0e64"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\MatchTableRow.tsx": {
+    "mtime": 1773531746.2013395,
+    "ast_hash": "14c7e843120cf56dde454a7880da3720",
+    "semantic_hash": "14c7e843120cf56dde454a7880da3720"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\NewsForm.tsx": {
+    "mtime": 1770896366.568369,
+    "ast_hash": "5791845c3f6d63a0e7a00dda94610129",
+    "semantic_hash": "5791845c3f6d63a0e7a00dda94610129"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\RegistrationWorkflowAdmin.tsx": {
+    "mtime": 1782590618.7067437,
+    "ast_hash": "5b537553a9ae9053a074ec29f8488c83",
+    "semantic_hash": "5b537553a9ae9053a074ec29f8488c83"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\admin\\RosterManager.tsx": {
+    "mtime": 1782588469.707942,
+    "ast_hash": "ec23c241937955921138834118eb7c53",
+    "semantic_hash": "ec23c241937955921138834118eb7c53"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\profile\\TournamentRegistrationCard.tsx": {
+    "mtime": 1782590618.707743,
+    "ast_hash": "cd2ad02f5fbcaf89d1f3b67875daebec",
+    "semantic_hash": "cd2ad02f5fbcaf89d1f3b67875daebec"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\registration\\OwnerSquadRoles.tsx": {
+    "mtime": 1782487944.7781122,
+    "ast_hash": "81b1d46d5d13e04336e28ac0d52aebf8",
+    "semantic_hash": "81b1d46d5d13e04336e28ac0d52aebf8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\registration\\TeamOwnerSettings.tsx": {
+    "mtime": 1782587286.7517092,
+    "ast_hash": "ec5a3fc657611deaba683abed86979ea",
+    "semantic_hash": "ec5a3fc657611deaba683abed86979ea"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\registration\\TeamRegistrationActions.tsx": {
+    "mtime": 1782579989.7481225,
+    "ast_hash": "8a6445320425d6c7172f653ec06f36ea",
+    "semantic_hash": "8a6445320425d6c7172f653ec06f36ea"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\components\\registration\\TransferRequestForm.tsx": {
+    "mtime": 1782488739.5458713,
+    "ast_hash": "1d9678c70749540a0be6406dad3fc028",
+    "semantic_hash": "1d9678c70749540a0be6406dad3fc028"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\config\\contactConfig.ts": {
+    "mtime": 1782044944.2586992,
+    "ast_hash": "433e0268748f4f3e821760f76d9b3b8a",
+    "semantic_hash": "433e0268748f4f3e821760f76d9b3b8a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\config\\seoConfig.ts": {
+    "mtime": 1782041927.593531,
+    "ast_hash": "926b31f4ca77a8bc74cd5f0686d2cfe8",
+    "semantic_hash": "926b31f4ca77a8bc74cd5f0686d2cfe8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\contexts\\A11yPreferencesContext.tsx": {
+    "mtime": 1779557317.967691,
+    "ast_hash": "905568b6cb6690ab4bcc70dd1ec6252f",
+    "semantic_hash": "905568b6cb6690ab4bcc70dd1ec6252f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\contexts\\AuthContext.tsx": {
+    "mtime": 1782588367.5952027,
+    "ast_hash": "6e098e47e3ac1082a0eab4e6741a464c",
+    "semantic_hash": "6e098e47e3ac1082a0eab4e6741a464c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\contexts\\CookieConsentContext.tsx": {
+    "mtime": 1779556711.7070017,
+    "ast_hash": "669c4807ccb06da611a4fbc9a94a2be5",
+    "semantic_hash": "669c4807ccb06da611a4fbc9a94a2be5"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\contexts\\TournamentContext.tsx": {
+    "mtime": 1782588368.9966037,
+    "ast_hash": "c81ec6e9b1b03ca2148a08bac525a2cf",
+    "semantic_hash": "c81ec6e9b1b03ca2148a08bac525a2cf"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useCancelRegistrationRequest.ts": {
+    "mtime": 1782329797.012693,
+    "ast_hash": "65b607d751abc7f24f4c09aa7c9141a9",
+    "semantic_hash": "65b607d751abc7f24f4c09aa7c9141a9"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useCookieConsent.ts": {
+    "mtime": 1779556711.9669824,
+    "ast_hash": "a2dbd7bf9b5e79b616c3f240a17ee396",
+    "semantic_hash": "a2dbd7bf9b5e79b616c3f240a17ee396"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useDrawerSwipeClose.ts": {
+    "mtime": 1779557790.304267,
+    "ast_hash": "af15d7d292c62155e27431c6acd5be38",
+    "semantic_hash": "af15d7d292c62155e27431c6acd5be38"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useFocusTrap.ts": {
+    "mtime": 1779112382.1369178,
+    "ast_hash": "5f6cfe5e458973e50cb8d4316027a510",
+    "semantic_hash": "5f6cfe5e458973e50cb8d4316027a510"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useSidebarDrawer.ts": {
+    "mtime": 1779556668.3500843,
+    "ast_hash": "a8891eb16fea000618aa8157da778940",
+    "semantic_hash": "a8891eb16fea000618aa8157da778940"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\hooks\\useSwipeOpenDrawer.ts": {
+    "mtime": 1782587588.728187,
+    "ast_hash": "c48b837d80d149b492eae8a6a2483bc8",
+    "semantic_hash": "c48b837d80d149b492eae8a6a2483bc8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\About.tsx": {
+    "mtime": 1782044030.6805654,
+    "ast_hash": "56cb3ada3983a4448593c159d324b7f3",
+    "semantic_hash": "56cb3ada3983a4448593c159d324b7f3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Accessibility.tsx": {
+    "mtime": 1782044037.5165663,
+    "ast_hash": "b9bf3695779a15057055131699ff5f9c",
+    "semantic_hash": "b9bf3695779a15057055131699ff5f9c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Archive.tsx": {
+    "mtime": 1782413538.4178083,
+    "ast_hash": "c82d7d1aa600144ac68e425816041aa6",
+    "semantic_hash": "c82d7d1aa600144ac68e425816041aa6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Dashboard.tsx": {
+    "mtime": 1782588374.1641119,
+    "ast_hash": "c2480819b1f1af21ef4b0752eff9b55d",
+    "semantic_hash": "c2480819b1f1af21ef4b0752eff9b55d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\MVPs.tsx": {
+    "mtime": 1781509534.5466516,
+    "ast_hash": "21806af117c6d0b817bc5009dd1128bb",
+    "semantic_hash": "21806af117c6d0b817bc5009dd1128bb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\NotFound.tsx": {
+    "mtime": 1779556646.050241,
+    "ast_hash": "00bed7a590ed99b570b3557a00fc0303",
+    "semantic_hash": "00bed7a590ed99b570b3557a00fc0303"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\PlayerZone.tsx": {
+    "mtime": 1782588457.9105732,
+    "ast_hash": "31721ac8e7b747e30bb7bc4d15dcf130",
+    "semantic_hash": "31721ac8e7b747e30bb7bc4d15dcf130"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Privacy.tsx": {
+    "mtime": 1782044029.3338752,
+    "ast_hash": "8206dc31e985612410b1afb843d28f58",
+    "semantic_hash": "8206dc31e985612410b1afb843d28f58"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Profile.tsx": {
+    "mtime": 1782588413.7134757,
+    "ast_hash": "9da2a323158bfeaf2c3e101eca3c3c48",
+    "semantic_hash": "9da2a323158bfeaf2c3e101eca3c3c48"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Schedule.tsx": {
+    "mtime": 1782414211.2014842,
+    "ast_hash": "a08bf11bbf61dc98987af57dede84aff",
+    "semantic_hash": "a08bf11bbf61dc98987af57dede84aff"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Stats.tsx": {
+    "mtime": 1782329650.7776053,
+    "ast_hash": "ec00a4acbdea7a806a1f768316f5c273",
+    "semantic_hash": "ec00a4acbdea7a806a1f768316f5c273"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Teams.tsx": {
+    "mtime": 1782587290.0199535,
+    "ast_hash": "7fa4167db6192b1bc154c5cf3bcce8ff",
+    "semantic_hash": "7fa4167db6192b1bc154c5cf3bcce8ff"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\Terms.tsx": {
+    "mtime": 1782044027.5754588,
+    "ast_hash": "b523608ebd9fe4e871ece7c50c2d0bb4",
+    "semantic_hash": "b523608ebd9fe4e871ece7c50c2d0bb4"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\admin\\AdminPanel.tsx": {
+    "mtime": 1782586379.2315454,
+    "ast_hash": "d40ae5e0d5a66223baf4f8eb0e977f48",
+    "semantic_hash": "d40ae5e0d5a66223baf4f8eb0e977f48"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\admin\\Login.tsx": {
+    "mtime": 1782588376.398327,
+    "ast_hash": "672f1dd5906c1eff82fc86e33ff6aa1b",
+    "semantic_hash": "672f1dd5906c1eff82fc86e33ff6aa1b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\girls\\GirlsArchive.tsx": {
+    "mtime": 1781509569.1180387,
+    "ast_hash": "19bedcffcaa859860f60a270839ec45d",
+    "semantic_hash": "19bedcffcaa859860f60a270839ec45d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\girls\\GirlsHome.tsx": {
+    "mtime": 1781509567.3680592,
+    "ast_hash": "1d72a29fe7a46f8ff91eecb40a99bfab",
+    "semantic_hash": "1d72a29fe7a46f8ff91eecb40a99bfab"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\girls\\GirlsNews.tsx": {
+    "mtime": 1781509564.979759,
+    "ast_hash": "85631b974a7d53f34f3bf49c9e4f7f49",
+    "semantic_hash": "85631b974a7d53f34f3bf49c9e4f7f49"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\girls\\GirlsTeams.tsx": {
+    "mtime": 1782588376.959587,
+    "ast_hash": "d1862634a994930739d66fec84044b80",
+    "semantic_hash": "d1862634a994930739d66fec84044b80"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\worldcup\\WorldCupDashboard.tsx": {
+    "mtime": 1782413845.016983,
+    "ast_hash": "973b5d755643b223ccd6ed27a11121cd",
+    "semantic_hash": "973b5d755643b223ccd6ed27a11121cd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\worldcup\\WorldCupSchedule.tsx": {
+    "mtime": 1782413845.9394653,
+    "ast_hash": "6f29f5fc24c7de20ceb5ada6ef733b5a",
+    "semantic_hash": "6f29f5fc24c7de20ceb5ada6ef733b5a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\worldcup\\WorldCupStats.tsx": {
+    "mtime": 1781520902.3009834,
+    "ast_hash": "7a76f31fa95f9b299cdc282704f6287c",
+    "semantic_hash": "7a76f31fa95f9b299cdc282704f6287c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\pages\\worldcup\\WorldCupTeams.tsx": {
+    "mtime": 1782413846.752842,
+    "ast_hash": "4a17a39219f873c97c97ad5d172c3e09",
+    "semantic_hash": "4a17a39219f873c97c97ad5d172c3e09"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\types\\girls.ts": {
+    "mtime": 1779122849.9360328,
+    "ast_hash": "65efa95b8a088330da7776e7d7f83a50",
+    "semantic_hash": "65efa95b8a088330da7776e7d7f83a50"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\types\\index.ts": {
+    "mtime": 1782586504.1630816,
+    "ast_hash": "4cef3bd304d67d7c9141c223db2d964d",
+    "semantic_hash": "4cef3bd304d67d7c9141c223db2d964d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\assetUrl.ts": {
+    "mtime": 1779122527.4935498,
+    "ast_hash": "22a3d427e79021ba7f7f20cc7f885dbb",
+    "semantic_hash": "22a3d427e79021ba7f7f20cc7f885dbb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\birthYearInput.ts": {
+    "mtime": 1782584228.184306,
+    "ast_hash": "b94a6a6d1637adc0d55bb7ff03401d5f",
+    "semantic_hash": "b94a6a6d1637adc0d55bb7ff03401d5f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\entityId.ts": {
+    "mtime": 1782413869.2327416,
+    "ast_hash": "5d27cab275591b4dbdcbf798c8faad8d",
+    "semantic_hash": "5d27cab275591b4dbdcbf798c8faad8d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\israeliIdValidation.ts": {
+    "mtime": 1782584228.5546217,
+    "ast_hash": "79cb695fd0a90502bf8a65df767e4227",
+    "semantic_hash": "79cb695fd0a90502bf8a65df767e4227"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\lazyWithRetry.ts": {
+    "mtime": 1782479403.8193326,
+    "ast_hash": "d0c11103993fd52fa58091370f384b3b",
+    "semantic_hash": "d0c11103993fd52fa58091370f384b3b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\mainNavItems.ts": {
+    "mtime": 1782586043.9200094,
+    "ast_hash": "6a925d37c5fc9c9620292296b5da676a",
+    "semantic_hash": "6a925d37c5fc9c9620292296b5da676a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\tournamentPaths.ts": {
+    "mtime": 1781521584.3536925,
+    "ast_hash": "702529d9e9a39741a5a3585e5aac0103",
+    "semantic_hash": "702529d9e9a39741a5a3585e5aac0103"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\tournamentUser.ts": {
+    "mtime": 1782587100.6607366,
+    "ast_hash": "12c55078cf62c6876a60cd94f2b379a8",
+    "semantic_hash": "12c55078cf62c6876a60cd94f2b379a8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\worldCupEnabled.ts": {
+    "mtime": 1782326151.485514,
+    "ast_hash": "5d83955c926d78ddee903d3c76b6eb19",
+    "semantic_hash": "5d83955c926d78ddee903d3c76b6eb19"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\worldCupKnockout.ts": {
+    "mtime": 1781516702.8550558,
+    "ast_hash": "672d5ec6772b88a8c6c9227534dad41b",
+    "semantic_hash": "672d5ec6772b88a8c6c9227534dad41b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\src\\utils\\worldCupLocale.ts": {
+    "mtime": 1781517478.0791812,
+    "ast_hash": "932c528771013a22c4dd97d3a5ebd975",
+    "semantic_hash": "932c528771013a22c4dd97d3a5ebd975"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\alarms.js": {
+    "mtime": 1779112382.322963,
+    "ast_hash": "b8009e82da865d1d7bd070262e13927e",
+    "semantic_hash": "b8009e82da865d1d7bd070262e13927e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\alarms.json": {
+    "mtime": 1779112382.4824772,
+    "ast_hash": "313dfdaa7e9ad4040ffed7e8a1efbf11",
+    "semantic_hash": "313dfdaa7e9ad4040ffed7e8a1efbf11"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\bracket.js": {
+    "mtime": 1771070400.4550276,
+    "ast_hash": "ee714ac88b8e09943fe814affebb63fa",
+    "semantic_hash": "ee714ac88b8e09943fe814affebb63fa"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\bracket.json": {
+    "mtime": 1771070400.4532385,
+    "ast_hash": "7e5c4388394f71ed7fc587fc1adbb7c7",
+    "semantic_hash": "7e5c4388394f71ed7fc587fc1adbb7c7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\matches.js": {
+    "mtime": 1770902521.6647537,
+    "ast_hash": "2a4dfee67ea6ea8311c51005d8d0f048",
+    "semantic_hash": "2a4dfee67ea6ea8311c51005d8d0f048"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\matches.json": {
+    "mtime": 1770901857.4906857,
+    "ast_hash": "f430d37e1ac30f579ed96b9d0095b315",
+    "semantic_hash": "f430d37e1ac30f579ed96b9d0095b315"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\news.js": {
+    "mtime": 1771070828.9225876,
+    "ast_hash": "8cb87008c4480a12b8c12051c9aa6179",
+    "semantic_hash": "8cb87008c4480a12b8c12051c9aa6179"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\news.json": {
+    "mtime": 1771070838.0525684,
+    "ast_hash": "acad2daf10c01f704afed218b847a822",
+    "semantic_hash": "acad2daf10c01f704afed218b847a822"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\player_stats.js": {
+    "mtime": 1771070400.4532385,
+    "ast_hash": "b1f32c335a19912d600df37fe63481ca",
+    "semantic_hash": "b1f32c335a19912d600df37fe63481ca"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\player_stats.json": {
+    "mtime": 1771070400.4511006,
+    "ast_hash": "86646414314d25636a4c06b0da525767",
+    "semantic_hash": "86646414314d25636a4c06b0da525767"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\standings.js": {
+    "mtime": 1771070400.4483876,
+    "ast_hash": "4c5d83e4d1cdc84b1c1407cf044a91ba",
+    "semantic_hash": "4c5d83e4d1cdc84b1c1407cf044a91ba"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\standings.json": {
+    "mtime": 1771070400.4483876,
+    "ast_hash": "47cdcff90dca54e4cb8eb6f1a0d9d646",
+    "semantic_hash": "47cdcff90dca54e4cb8eb6f1a0d9d646"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\teams.js": {
+    "mtime": 1771070395.7616475,
+    "ast_hash": "10687a19c83175563cfeb80f7084c354",
+    "semantic_hash": "10687a19c83175563cfeb80f7084c354"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\teams.json": {
+    "mtime": 1771070395.7582183,
+    "ast_hash": "362abb777daf3fbc22617cd0bcee7c2d",
+    "semantic_hash": "362abb777daf3fbc22617cd0bcee7c2d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\top_scorers.js": {
+    "mtime": 1771070400.4483876,
+    "ast_hash": "fadd234ec623f872cf3e7119f32243a1",
+    "semantic_hash": "fadd234ec623f872cf3e7119f32243a1"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\top_scorers.json": {
+    "mtime": 1771070400.4483876,
+    "ast_hash": "d751713988987e9331980363e24189ce",
+    "semantic_hash": "d751713988987e9331980363e24189ce"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\hebrew-locale.json": {
+    "mtime": 1781519352.2822397,
+    "ast_hash": "ed3bfc6d833a28dc887179b6952c2c0a",
+    "semantic_hash": "ed3bfc6d833a28dc887179b6952c2c0a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\matches.json": {
+    "mtime": 1781515020.4231577,
+    "ast_hash": "02fd9b4fbc431aba6acc246ee2731962",
+    "semantic_hash": "02fd9b4fbc431aba6acc246ee2731962"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\meta.json": {
+    "mtime": 1781515009.7150986,
+    "ast_hash": "105c804fce57dd8d058b326bca855952",
+    "semantic_hash": "105c804fce57dd8d058b326bca855952"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\player-overrides.json": {
+    "mtime": 1781518470.9591453,
+    "ast_hash": "fe854de14601c3565a7793109403907d",
+    "semantic_hash": "fe854de14601c3565a7793109403907d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\scorers.json": {
+    "mtime": 1781515028.0254605,
+    "ast_hash": "5546dffdda96da845871a476c7731b64",
+    "semantic_hash": "5546dffdda96da845871a476c7731b64"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\standings.json": {
+    "mtime": 1781515025.3061438,
+    "ast_hash": "45f5b89bc1e91bca6e7e1b3a936233a6",
+    "semantic_hash": "45f5b89bc1e91bca6e7e1b3a936233a6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\team-groups.json": {
+    "mtime": 1781524928.6195908,
+    "ast_hash": "1f43a7e2796e423e548f3160bb70251d",
+    "semantic_hash": "1f43a7e2796e423e548f3160bb70251d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\data\\worldcup\\teams.json": {
+    "mtime": 1781515032.9120045,
+    "ast_hash": "cd7a83f834824dd4784bafa6841912ee",
+    "semantic_hash": "cd7a83f834824dd4784bafa6841912ee"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\backup_postgres.py": {
+    "mtime": 1782590605.35191,
+    "ast_hash": "5358d0c96353f88b5e255cbc674ee6f8",
+    "semantic_hash": "5358d0c96353f88b5e255cbc674ee6f8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\fetch_alarms.py": {
+    "mtime": 1782590621.5678928,
+    "ast_hash": "7e01a6100de9bbcf09b8c6e35650468b",
+    "semantic_hash": "7e01a6100de9bbcf09b8c6e35650468b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\import_players.py": {
+    "mtime": 1782590651.0991826,
+    "ast_hash": "f000692daeda21839427c87ccbfd4bb0",
+    "semantic_hash": "f000692daeda21839427c87ccbfd4bb0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\json_to_js.py": {
+    "mtime": 1782590655.5963092,
+    "ast_hash": "019ad9f17536a060e70bb2de05fef8a6",
+    "semantic_hash": "019ad9f17536a060e70bb2de05fef8a6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\render-api-build.mjs": {
+    "mtime": 1782584948.9775107,
+    "ast_hash": "c34670032dee6b24303901583f649b94",
+    "semantic_hash": "c34670032dee6b24303901583f649b94"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\sync_photos.py": {
+    "mtime": 1782590635.6431224,
+    "ast_hash": "eba3c419fb428523171914b7c55a2196",
+    "semantic_hash": "eba3c419fb428523171914b7c55a2196"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\update_stats.py": {
+    "mtime": 1782590679.5872276,
+    "ast_hash": "87f8920ae8fc870c7d7bc77a15285c9c",
+    "semantic_hash": "87f8920ae8fc870c7d7bc77a15285c9c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\_paths.py": {
+    "mtime": 1782590582.9999838,
+    "ast_hash": "9bb58680f75a104d130b55dc88bc771a",
+    "semantic_hash": "9bb58680f75a104d130b55dc88bc771a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\package.json": {
+    "mtime": 1782590905.9949865,
+    "ast_hash": "35d92277650943a89470a5832f5574ed",
+    "semantic_hash": "35d92277650943a89470a5832f5574ed"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\tsconfig.json": {
+    "mtime": 1782584336.3227108,
+    "ast_hash": "f723462769c25de751725b4a5e01e13a",
+    "semantic_hash": "f723462769c25de751725b4a5e01e13a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\tsconfig.seed.json": {
+    "mtime": 1782041927.891834,
+    "ast_hash": "ff321f72caeda137ecefed7797f228fa",
+    "semantic_hash": "ff321f72caeda137ecefed7797f228fa"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\vitest.config.ts": {
+    "mtime": 1782590911.2268682,
+    "ast_hash": "f697357fc9758628ce176126ee57fa73",
+    "semantic_hash": "f697357fc9758628ce176126ee57fa73"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\vitest.setup.ts": {
+    "mtime": 1782590908.3501837,
+    "ast_hash": "ac190ac72eec0df208b12af3b8d30c21",
+    "semantic_hash": "ac190ac72eec0df208b12af3b8d30c21"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\seed-empty.ts": {
+    "mtime": 1782590033.4186082,
+    "ast_hash": "94c12d3b97fe16750402cf2e7fdbdb0f",
+    "semantic_hash": "94c12d3b97fe16750402cf2e7fdbdb0f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\seed.ts": {
+    "mtime": 1782334192.5859063,
+    "ast_hash": "05860710cc408df786ddcf591361e0fb",
+    "semantic_hash": "05860710cc408df786ddcf591361e0fb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\seedHelpers.ts": {
+    "mtime": 1782413122.776921,
+    "ast_hash": "867309200045500549ab716cad974686",
+    "semantic_hash": "867309200045500549ab716cad974686"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\wipeDatabase.ts": {
+    "mtime": 1782329291.5868013,
+    "ast_hash": "4479b7c043aeff2e7a5b905ed4735f54",
+    "semantic_hash": "4479b7c043aeff2e7a5b905ed4735f54"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\migrations\\20260518120000_init\\migration.sql": {
+    "mtime": 1779117388.8051429,
+    "ast_hash": "d27ba68b2148728303b05ada31e793ac",
+    "semantic_hash": "d27ba68b2148728303b05ada31e793ac"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\migrations\\20260624120000_invoice_compare\\migration.sql": {
+    "mtime": 1782330560.0426483,
+    "ast_hash": "85345202b4666125819009d9218e6cae",
+    "semantic_hash": "85345202b4666125819009d9218e6cae"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\migrations\\20260627120000_registration_identity\\migration.sql": {
+    "mtime": 1782579460.3243458,
+    "ast_hash": "fb3f3de47b6898194632fded0e890ab5",
+    "semantic_hash": "fb3f3de47b6898194632fded0e890ab5"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\migrations\\20260627140000_team_description\\migration.sql": {
+    "mtime": 1782586472.8499365,
+    "ast_hash": "d5b9d2966a117a083346a09b2caba5c4",
+    "semantic_hash": "d5b9d2966a117a083346a09b2caba5c4"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\prisma\\migrations\\20260627160000_rename_registration_status_enum\\migration.sql": {
+    "mtime": 1782590105.574111,
+    "ast_hash": "990d071986999eea1ce013c233c25a70",
+    "semantic_hash": "990d071986999eea1ce013c233c25a70"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\scripts\\buildWorldCupPlayerLocale.ts": {
+    "mtime": 1781518476.1443796,
+    "ast_hash": "8306d0f8fd0a1799a9997196fc759097",
+    "semantic_hash": "8306d0f8fd0a1799a9997196fc759097"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\index.ts": {
+    "mtime": 1782041927.8354342,
+    "ast_hash": "373d3b462395e0fbeee03fd317fb3715",
+    "semantic_hash": "373d3b462395e0fbeee03fd317fb3715"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\config\\database.ts": {
+    "mtime": 1781524863.4660263,
+    "ast_hash": "2cbf580d5219994780de30c126109dce",
+    "semantic_hash": "2cbf580d5219994780de30c126109dce"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\config\\env.ts": {
+    "mtime": 1782326148.3844697,
+    "ast_hash": "953e733e02222c23da4ff9e22f4e3ea2",
+    "semantic_hash": "953e733e02222c23da4ff9e22f4e3ea2"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\config\\loadServerEnv.ts": {
+    "mtime": 1782041927.817689,
+    "ast_hash": "29d366d0e89e0af3de5895cdae24ce2c",
+    "semantic_hash": "29d366d0e89e0af3de5895cdae24ce2c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\config\\redis.ts": {
+    "mtime": 1781524801.1719155,
+    "ast_hash": "a510255cded108093ba0cce6945b4596",
+    "semantic_hash": "a510255cded108093ba0cce6945b4596"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\adminController.ts": {
+    "mtime": 1782590736.7214775,
+    "ast_hash": "7223f77b0e8ac35bb08068a1f48f62b0",
+    "semantic_hash": "7223f77b0e8ac35bb08068a1f48f62b0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\adminSeasonController.ts": {
+    "mtime": 1779122812.0791721,
+    "ast_hash": "c7a84e1c74f583d084ea0f584d289111",
+    "semantic_hash": "c7a84e1c74f583d084ea0f584d289111"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\adminUserController.ts": {
+    "mtime": 1782331670.8877716,
+    "ast_hash": "70b39b6a19c9e9113ca27f165d24546c",
+    "semantic_hash": "70b39b6a19c9e9113ca27f165d24546c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\adminWorkflowController.ts": {
+    "mtime": 1782590004.3562763,
+    "ast_hash": "3ece43bda6eb7b801dbf25551774105c",
+    "semantic_hash": "3ece43bda6eb7b801dbf25551774105c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\authController.ts": {
+    "mtime": 1782590602.775503,
+    "ast_hash": "fdba09db5049e6192ba549160fb88c99",
+    "semantic_hash": "fdba09db5049e6192ba549160fb88c99"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\commentController.ts": {
+    "mtime": 1771148067.7000835,
+    "ast_hash": "647b1d576a262849732f56b6ce7e3369",
+    "semantic_hash": "647b1d576a262849732f56b6ce7e3369"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\matchController.ts": {
+    "mtime": 1779117129.9391167,
+    "ast_hash": "bff5b014065ea75d849b1ae14f133970",
+    "semantic_hash": "bff5b014065ea75d849b1ae14f133970"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\newsController.ts": {
+    "mtime": 1779124506.955808,
+    "ast_hash": "3b7eea63caba590d98473b2944731653",
+    "semantic_hash": "3b7eea63caba590d98473b2944731653"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\playerController.ts": {
+    "mtime": 1782590105.5801194,
+    "ast_hash": "bc2cdec4cd9c9b4d926696101e68a197",
+    "semantic_hash": "bc2cdec4cd9c9b4d926696101e68a197"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\registrationController.ts": {
+    "mtime": 1782590004.3582783,
+    "ast_hash": "4658bb5b39e98ac89bebc6662ffdee3f",
+    "semantic_hash": "4658bb5b39e98ac89bebc6662ffdee3f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\statsController.ts": {
+    "mtime": 1782590105.582115,
+    "ast_hash": "6a68130ac6d8b5d74b57b4648a46aba8",
+    "semantic_hash": "6a68130ac6d8b5d74b57b4648a46aba8"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\statsGirlsController.ts": {
+    "mtime": 1779121227.956921,
+    "ast_hash": "4891c34c5041ceb678af168843168330",
+    "semantic_hash": "4891c34c5041ceb678af168843168330"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\teamController.ts": {
+    "mtime": 1782590105.5841134,
+    "ast_hash": "65e2c811432d9822c360e678a308a8e3",
+    "semantic_hash": "65e2c811432d9822c360e678a308a8e3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\userController.ts": {
+    "mtime": 1782590602.7765152,
+    "ast_hash": "a0bf7d605308c8d54b6972fa66d7fa82",
+    "semantic_hash": "a0bf7d605308c8d54b6972fa66d7fa82"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\voteController.ts": {
+    "mtime": 1782413481.3433268,
+    "ast_hash": "5cb03124265dc905d5e8af3597c5c089",
+    "semantic_hash": "5cb03124265dc905d5e8af3597c5c089"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\controllers\\worldcupController.ts": {
+    "mtime": 1781515000.6710992,
+    "ast_hash": "f1a3d0e4224425a9714d3c89bb1e1eeb",
+    "semantic_hash": "f1a3d0e4224425a9714d3c89bb1e1eeb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\data\\defaultBannedWords.ts": {
+    "mtime": 1782413118.705801,
+    "ast_hash": "b06fe4556ff87849b8d476a7357526b9",
+    "semantic_hash": "b06fe4556ff87849b8d476a7357526b9"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\db\\userMapper.ts": {
+    "mtime": 1782413385.0138044,
+    "ast_hash": "bab4e1b170cf39a8c18bd176b688c3ca",
+    "semantic_hash": "bab4e1b170cf39a8c18bd176b688c3ca"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\errors\\PlayerServiceError.ts": {
+    "mtime": 1782487316.349368,
+    "ast_hash": "8bde238d1bf13da53bc68059207abbe3",
+    "semantic_hash": "8bde238d1bf13da53bc68059207abbe3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\lib\\json.ts": {
+    "mtime": 1779117528.8138525,
+    "ast_hash": "35757bed1d31da4f29188dac8b11976a",
+    "semantic_hash": "35757bed1d31da4f29188dac8b11976a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\lib\\prisma.ts": {
+    "mtime": 1779116908.360289,
+    "ast_hash": "7bfa0dd286e810b7177b0f9d9e843c91",
+    "semantic_hash": "7bfa0dd286e810b7177b0f9d9e843c91"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\middleware\\auth.ts": {
+    "mtime": 1782041927.841987,
+    "ast_hash": "e6c4cc2e913dcf0df6fbb9d95860a01e",
+    "semantic_hash": "e6c4cc2e913dcf0df6fbb9d95860a01e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\middleware\\errorHandler.ts": {
+    "mtime": 1770891003.9092202,
+    "ast_hash": "4667ba3cc30119096f88d8fe05344aa7",
+    "semantic_hash": "4667ba3cc30119096f88d8fe05344aa7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\middleware\\requireApiOrigin.ts": {
+    "mtime": 1782041927.8480463,
+    "ast_hash": "07c662f05b30e71e6bb2d8647176f692",
+    "semantic_hash": "07c662f05b30e71e6bb2d8647176f692"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\middleware\\tournamentDivision.ts": {
+    "mtime": 1779121213.4864864,
+    "ast_hash": "f39c590274b28ca79628fa10d536220b",
+    "semantic_hash": "f39c590274b28ca79628fa10d536220b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\mock\\dataLoader.ts": {
+    "mtime": 1781508836.0387478,
+    "ast_hash": "bb67766ba8e80b1d75b37be32a6df88a",
+    "semantic_hash": "bb67766ba8e80b1d75b37be32a6df88a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\mock\\mockStats.ts": {
+    "mtime": 1781508836.0427697,
+    "ast_hash": "60e5c7cadb68b9ffc23fcc2be5103aed",
+    "semantic_hash": "60e5c7cadb68b9ffc23fcc2be5103aed"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\mock\\registerMockRoutes.ts": {
+    "mtime": 1782413291.4506695,
+    "ast_hash": "a9fb97428cba4558717e8d6104c2296a",
+    "semantic_hash": "a9fb97428cba4558717e8d6104c2296a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\BannedWord.ts": {
+    "mtime": 1782413835.8588002,
+    "ast_hash": "f673767fdbcbec6cc4be52ab0061e747",
+    "semantic_hash": "f673767fdbcbec6cc4be52ab0061e747"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\Comment.ts": {
+    "mtime": 1782413837.4709866,
+    "ast_hash": "c9f79c8167c9c9ea077dae7ccd33ab08",
+    "semantic_hash": "c9f79c8167c9c9ea077dae7ccd33ab08"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\Match.ts": {
+    "mtime": 1779117626.315781,
+    "ast_hash": "0188daa40adf7446437259821e4dcd2a",
+    "semantic_hash": "0188daa40adf7446437259821e4dcd2a"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\News.ts": {
+    "mtime": 1779117591.4221776,
+    "ast_hash": "f0ef9f02f5b31c424405dff1c79ba477",
+    "semantic_hash": "f0ef9f02f5b31c424405dff1c79ba477"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\SeasonArchive.ts": {
+    "mtime": 1779124526.6123955,
+    "ast_hash": "1f6a5deff397d22a5dd3e28afd772531",
+    "semantic_hash": "1f6a5deff397d22a5dd3e28afd772531"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\Snapshot.ts": {
+    "mtime": 1779117613.63206,
+    "ast_hash": "7b2cd2aeb89d2d069f22585add6b9b20",
+    "semantic_hash": "7b2cd2aeb89d2d069f22585add6b9b20"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\User.ts": {
+    "mtime": 1782413938.5634456,
+    "ast_hash": "da45101a4aaac24719a232a153360cca",
+    "semantic_hash": "da45101a4aaac24719a232a153360cca"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\models\\Vote.ts": {
+    "mtime": 1782413884.5244071,
+    "ast_hash": "9d67670e6323ece266c4fa7937e135a3",
+    "semantic_hash": "9d67670e6323ece266c4fa7937e135a3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\repositories\\matchQueryRepository.ts": {
+    "mtime": 1782413904.5930965,
+    "ast_hash": "10dc0051303e0f34949f5e5dae10207c",
+    "semantic_hash": "10dc0051303e0f34949f5e5dae10207c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\repositories\\userMappingRepository.ts": {
+    "mtime": 1782488711.9839175,
+    "ast_hash": "4e0facdf4cafb9cf059f00b2044ec3e5",
+    "semantic_hash": "4e0facdf4cafb9cf059f00b2044ec3e5"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\admin.ts": {
+    "mtime": 1782590256.0782666,
+    "ast_hash": "fdaa64e165c4e841a84d7fbbc143f215",
+    "semantic_hash": "fdaa64e165c4e841a84d7fbbc143f215"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\archive.ts": {
+    "mtime": 1779124512.5523534,
+    "ast_hash": "1190da42615177823fa68810b82623bd",
+    "semantic_hash": "1190da42615177823fa68810b82623bd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\auth.ts": {
+    "mtime": 1782041927.8646352,
+    "ast_hash": "0b857a75dff4c3bab35f8156c608774f",
+    "semantic_hash": "0b857a75dff4c3bab35f8156c608774f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\comments.ts": {
+    "mtime": 1771276204.6237905,
+    "ast_hash": "b1dad94def81d723788d3695d5edfbcb",
+    "semantic_hash": "b1dad94def81d723788d3695d5edfbcb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\matches.ts": {
+    "mtime": 1773531311.8660817,
+    "ast_hash": "dcb9f9991ecc27b93c7d7bc6a3750833",
+    "semantic_hash": "dcb9f9991ecc27b93c7d7bc6a3750833"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\news.ts": {
+    "mtime": 1773003267.6541317,
+    "ast_hash": "dea842ada3d8d0f56055183657a3fc13",
+    "semantic_hash": "dea842ada3d8d0f56055183657a3fc13"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\player.ts": {
+    "mtime": 1782041927.869205,
+    "ast_hash": "7f2dc71321a03960081eadd6a033b0a2",
+    "semantic_hash": "7f2dc71321a03960081eadd6a033b0a2"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\seasons.ts": {
+    "mtime": 1779117187.657486,
+    "ast_hash": "8be6ac1ea6d969d849c5988f2b65160f",
+    "semantic_hash": "8be6ac1ea6d969d849c5988f2b65160f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\stats.ts": {
+    "mtime": 1782590105.586429,
+    "ast_hash": "d16769bb9a0ba9f5d30bc5b5be35f6cc",
+    "semantic_hash": "d16769bb9a0ba9f5d30bc5b5be35f6cc"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\statsGirls.ts": {
+    "mtime": 1779121229.3066022,
+    "ast_hash": "4f02ef2ae3795ba990d776bd4e3ce61b",
+    "semantic_hash": "4f02ef2ae3795ba990d776bd4e3ce61b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\teams.ts": {
+    "mtime": 1782587099.798037,
+    "ast_hash": "3437feca5d7b89aa12f9c3375cd641ae",
+    "semantic_hash": "3437feca5d7b89aa12f9c3375cd641ae"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\users.ts": {
+    "mtime": 1782590518.7388618,
+    "ast_hash": "4e572bde0b8c51c5573398c066004f3f",
+    "semantic_hash": "4e572bde0b8c51c5573398c066004f3f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\votes.ts": {
+    "mtime": 1773790194.3644023,
+    "ast_hash": "73e1012368ff487471fd6dec684e98ba",
+    "semantic_hash": "73e1012368ff487471fd6dec684e98ba"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\routes\\worldcup.ts": {
+    "mtime": 1781515002.7570105,
+    "ast_hash": "8714c9ca79f84874f023db00f0b8c0c1",
+    "semantic_hash": "8714c9ca79f84874f023db00f0b8c0c1"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\scripts\\generate-group-fixtures.ts": {
+    "mtime": 1782331696.633626,
+    "ast_hash": "3a58117ae235d2233c7b3dcc9b53e85d",
+    "semantic_hash": "3a58117ae235d2233c7b3dcc9b53e85d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\scripts\\syncBannedWords.ts": {
+    "mtime": 1782413120.0122063,
+    "ast_hash": "0009ac30dbb53df1ef02775acc8bd5ba",
+    "semantic_hash": "0009ac30dbb53df1ef02775acc8bd5ba"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\AdminSeasonService.ts": {
+    "mtime": 1779122800.675153,
+    "ast_hash": "567d18bacca32500c4e73433780deb67",
+    "semantic_hash": "567d18bacca32500c4e73433780deb67"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\AdminUserService.ts": {
+    "mtime": 1782331902.797055,
+    "ast_hash": "1787f2bad0d97274af4c436d0611348d",
+    "semantic_hash": "1787f2bad0d97274af4c436d0611348d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\AuthRateLimitService.ts": {
+    "mtime": 1782041927.8737242,
+    "ast_hash": "19be1226c58774841741d43c96717e62",
+    "semantic_hash": "19be1226c58774841741d43c96717e62"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\AutomationService.ts": {
+    "mtime": 1779117849.0336385,
+    "ast_hash": "bbabc2cd7dce63020647c1ae803a930e",
+    "semantic_hash": "bbabc2cd7dce63020647c1ae803a930e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\CacheService.ts": {
+    "mtime": 1781524808.446185,
+    "ast_hash": "29e946db2ebde6105e5441a18a602751",
+    "semantic_hash": "29e946db2ebde6105e5441a18a602751"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\emailService.ts": {
+    "mtime": 1773800078.4914806,
+    "ast_hash": "a421ff851a0a5ba234910c4da2e63105",
+    "semantic_hash": "a421ff851a0a5ba234910c4da2e63105"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\FootballDataClient.ts": {
+    "mtime": 1781524797.6330268,
+    "ast_hash": "1d09f7ccf3e2e1745407adea77a3d295",
+    "semantic_hash": "1d09f7ccf3e2e1745407adea77a3d295"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\FootballDataService.ts": {
+    "mtime": 1781524869.52448,
+    "ast_hash": "4ccce243b93a9339a9b6a88673f264b6",
+    "semantic_hash": "4ccce243b93a9339a9b6a88673f264b6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\IdentityRateLimitService.ts": {
+    "mtime": 1782590033.4196088,
+    "ast_hash": "7c4239c7aea39b534fa02a15b37140c0",
+    "semantic_hash": "7c4239c7aea39b534fa02a15b37140c0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\MatchDataService.ts": {
+    "mtime": 1779116990.611794,
+    "ast_hash": "87e805bc078c4a8ec91f8eac39f9c6e0",
+    "semantic_hash": "87e805bc078c4a8ec91f8eac39f9c6e0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\NewsDataService.ts": {
+    "mtime": 1779124503.9720795,
+    "ast_hash": "96b4fb725a6cba3cf3f75292750479c9",
+    "semantic_hash": "96b4fb725a6cba3cf3f75292750479c9"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\PlayerService.ts": {
+    "mtime": 1782488707.3327606,
+    "ast_hash": "61c5fd8f78360bded00105e8af53be3d",
+    "semantic_hash": "61c5fd8f78360bded00105e8af53be3d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\PlayoffService.ts": {
+    "mtime": 1773531524.354906,
+    "ast_hash": "62d6658d3143ca99c2cccc79160ac131",
+    "semantic_hash": "62d6658d3143ca99c2cccc79160ac131"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\PointEntryService.ts": {
+    "mtime": 1779122794.3756852,
+    "ast_hash": "5473e369c67e0e8dfe50f8d1c7444e0b",
+    "semantic_hash": "5473e369c67e0e8dfe50f8d1c7444e0b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\PointsStatsService.ts": {
+    "mtime": 1779121218.2748659,
+    "ast_hash": "95887b327c261b5506dfa770af69eaa3",
+    "semantic_hash": "95887b327c261b5506dfa770af69eaa3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\registrationHelpers.ts": {
+    "mtime": 1782590043.6727362,
+    "ast_hash": "5c94d07e151967b714a00a6cfb8f4a6e",
+    "semantic_hash": "5c94d07e151967b714a00a6cfb8f4a6e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\RegistrationIdentityService.ts": {
+    "mtime": 1782590133.2435331,
+    "ast_hash": "cb04c1cf9c42216d8959d9d5962f73f0",
+    "semantic_hash": "cb04c1cf9c42216d8959d9d5962f73f0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\RegistrationQueryService.ts": {
+    "mtime": 1782590043.668353,
+    "ast_hash": "fc50375dcf3b156ffe89b4fd7ab67096",
+    "semantic_hash": "fc50375dcf3b156ffe89b4fd7ab67096"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\RegistrationService.ts": {
+    "mtime": 1782590132.5112517,
+    "ast_hash": "c3375313bb0bf7a54aec2daedc0ffcf7",
+    "semantic_hash": "c3375313bb0bf7a54aec2daedc0ffcf7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\RegistrationWorkflowService.ts": {
+    "mtime": 1782590140.3883026,
+    "ast_hash": "bd6a13f85322187cf7f2958911a33c7b",
+    "semantic_hash": "bd6a13f85322187cf7f2958911a33c7b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\SeasonService.ts": {
+    "mtime": 1782487318.6503015,
+    "ast_hash": "a3ec7575f8ec7ec59173c6e18d018835",
+    "semantic_hash": "a3ec7575f8ec7ec59173c6e18d018835"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\StatsService.ts": {
+    "mtime": 1779116987.3836966,
+    "ast_hash": "9baf3cd8b245928f3391ff2ac4a38458",
+    "semantic_hash": "9baf3cd8b245928f3391ff2ac4a38458"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\TeamDataService.ts": {
+    "mtime": 1782586477.6009095,
+    "ast_hash": "a47debddd93a91ad6386620d7789c29b",
+    "semantic_hash": "a47debddd93a91ad6386620d7789c29b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\TeamRosterService.ts": {
+    "mtime": 1782590105.5904658,
+    "ast_hash": "ff14f9f7cf885f12367d0711e805d061",
+    "semantic_hash": "ff14f9f7cf885f12367d0711e805d061"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\services\\WorldCupNormalizer.ts": {
+    "mtime": 1782413844.4468522,
+    "ast_hash": "7370e9f183d9c12c454090f36f1e8d45",
+    "semantic_hash": "7370e9f183d9c12c454090f36f1e8d45"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\test\\api.mock.test.ts": {
+    "mtime": 1782591004.0483708,
+    "ast_hash": "55c628e96c590de26cf388c8585447ce",
+    "semantic_hash": "55c628e96c590de26cf388c8585447ce"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\test\\createTestApp.ts": {
+    "mtime": 1782590920.3716245,
+    "ast_hash": "7d5df61e9c05bd05e8f1723cbb2d8276",
+    "semantic_hash": "7d5df61e9c05bd05e8f1723cbb2d8276"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\types\\stats.ts": {
+    "mtime": 1774193057.7449133,
+    "ast_hash": "28b2f0af54dcec740eebe9d73bde7c14",
+    "semantic_hash": "28b2f0af54dcec740eebe9d73bde7c14"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\authCookie.ts": {
+    "mtime": 1782041927.8782818,
+    "ast_hash": "6d3ae5d3b200c97487e3c2e1f39ba244",
+    "semantic_hash": "6d3ae5d3b200c97487e3c2e1f39ba244"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\identityAlerts.ts": {
+    "mtime": 1782590004.3651557,
+    "ast_hash": "79dc6f4370cfda27edd2ef9516b0f8ce",
+    "semantic_hash": "79dc6f4370cfda27edd2ef9516b0f8ce"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\inputValidation.ts": {
+    "mtime": 1782586736.7481084,
+    "ast_hash": "1cc0e8f05d793e832d65f5a5d479710b",
+    "semantic_hash": "1cc0e8f05d793e832d65f5a5d479710b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\jerusalemDate.test.ts": {
+    "mtime": 1782590919.9443073,
+    "ast_hash": "9093b785ae94bc1c2648bfe2682461dc",
+    "semantic_hash": "9093b785ae94bc1c2648bfe2682461dc"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\jerusalemDate.ts": {
+    "mtime": 1782329299.1581945,
+    "ast_hash": "932fa23abe2a48071f6c41a001e45049",
+    "semantic_hash": "932fa23abe2a48071f6c41a001e45049"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\latinToHebrew.ts": {
+    "mtime": 1781519411.48963,
+    "ast_hash": "4788839d9b7d6d4e88cf456bfd7c38f4",
+    "semantic_hash": "4788839d9b7d6d4e88cf456bfd7c38f4"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\personalIdCrypto.ts": {
+    "mtime": 1782584614.575762,
+    "ast_hash": "2e9355d2a271c1bb83158902dfad3c25",
+    "semantic_hash": "2e9355d2a271c1bb83158902dfad3c25"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\personalIdValidation.test.ts": {
+    "mtime": 1782590915.2231832,
+    "ast_hash": "7d88119f9ce9480672c2eb36952bf063",
+    "semantic_hash": "7d88119f9ce9480672c2eb36952bf063"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\personalIdValidation.ts": {
+    "mtime": 1782584231.4460497,
+    "ast_hash": "3e455b69d36e696eef98f05a39efa8ad",
+    "semantic_hash": "3e455b69d36e696eef98f05a39efa8ad"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\readJsonFile.ts": {
+    "mtime": 1781524794.6747868,
+    "ast_hash": "2152c437ebffb049fbc0f5b0f2f90498",
+    "semantic_hash": "2152c437ebffb049fbc0f5b0f2f90498"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\requestedMemberId.ts": {
+    "mtime": 1782488693.538382,
+    "ast_hash": "980529945e76c703f0d2dac0bd4143cc",
+    "semantic_hash": "980529945e76c703f0d2dac0bd4143cc"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\roundRobin.test.ts": {
+    "mtime": 1782590917.9506342,
+    "ast_hash": "2f3a1cd26e0a6a49c215ef83c9135aa7",
+    "semantic_hash": "2f3a1cd26e0a6a49c215ef83c9135aa7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\roundRobin.ts": {
+    "mtime": 1782329301.3100433,
+    "ast_hash": "02178df4145dc4697cd2f258f3cd767f",
+    "semantic_hash": "02178df4145dc4697cd2f258f3cd767f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\sanitizeSearchQuery.test.ts": {
+    "mtime": 1782590918.8759701,
+    "ast_hash": "04b2ff7b7f77991fd81d301887450ede",
+    "semantic_hash": "04b2ff7b7f77991fd81d301887450ede"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\sanitizeSearchQuery.ts": {
+    "mtime": 1782331613.7557511,
+    "ast_hash": "4767c01c821b09a2a9750ad35cd96a07",
+    "semantic_hash": "4767c01c821b09a2a9750ad35cd96a07"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\src\\utils\\worldCupLocale.ts": {
+    "mtime": 1781518515.4398487,
+    "ast_hash": "748bb11cf90e5eddeec89a81a6d45136",
+    "semantic_hash": "748bb11cf90e5eddeec89a81a6d45136"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\birthYearBounds.test.ts": {
+    "mtime": 1782590913.3089523,
+    "ast_hash": "045ef1a7fabc9ad555805f37404f6387",
+    "semantic_hash": "045ef1a7fabc9ad555805f37404f6387"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\birthYearBounds.ts": {
+    "mtime": 1782584619.2516892,
+    "ast_hash": "bdd5a4672c6f3dd192e99916c5a25de6",
+    "semantic_hash": "bdd5a4672c6f3dd192e99916c5a25de6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\index.ts": {
+    "mtime": 1782590137.794818,
+    "ast_hash": "12ecc556cc7a76a30c7ffcebc677fb67",
+    "semantic_hash": "12ecc556cc7a76a30c7ffcebc677fb67"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\israeliIdValidation.test.ts": {
+    "mtime": 1782590912.5630772,
+    "ast_hash": "4b35bc971c83cd58dddb46c4b22b9aa5",
+    "semantic_hash": "4b35bc971c83cd58dddb46c4b22b9aa5"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\israeliIdValidation.ts": {
+    "mtime": 1782584224.5635045,
+    "ast_hash": "b4761ac69651d50b443c516853bd6425",
+    "semantic_hash": "b4761ac69651d50b443c516853bd6425"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\package.json": {
+    "mtime": 1782590906.8253582,
+    "ast_hash": "707777a1d62fea0b66cf7a429e6b95ff",
+    "semantic_hash": "707777a1d62fea0b66cf7a429e6b95ff"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\registrationStatus.ts": {
+    "mtime": 1782590137.121431,
+    "ast_hash": "b960d5b261ec2555e57ada98f543f5eb",
+    "semantic_hash": "b960d5b261ec2555e57ada98f543f5eb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\teamInputBounds.ts": {
+    "mtime": 1782586734.9834003,
+    "ast_hash": "86be7760456e665b3fc8dd07dc7af556",
+    "semantic_hash": "86be7760456e665b3fc8dd07dc7af556"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\tsconfig.json": {
+    "mtime": 1782584330.6663127,
+    "ast_hash": "bd4f910484c61499fe6e03a5b845410f",
+    "semantic_hash": "bd4f910484c61499fe6e03a5b845410f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\shared\\vitest.config.ts": {
+    "mtime": 1782590908.6992114,
+    "ast_hash": "8281e74cd2fb4664170afab04c5f5436",
+    "semantic_hash": "8281e74cd2fb4664170afab04c5f5436"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\context.md": {
+    "mtime": 1782591506.2984614,
+    "ast_hash": "139e286c12cb7be3e6d2cfab9ade0d66",
+    "semantic_hash": "139e286c12cb7be3e6d2cfab9ade0d66"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\GEMINI.md": {
+    "mtime": 1771176468.618318,
+    "ast_hash": "17aef54cc208bf83ff27afa98ebb73bd",
+    "semantic_hash": "17aef54cc208bf83ff27afa98ebb73bd"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\README.md": {
+    "mtime": 1782591515.5594635,
+    "ast_hash": "17dc21c81d40657e352c610193896b35",
+    "semantic_hash": "17dc21c81d40657e352c610193896b35"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\render.yaml": {
+    "mtime": 1782325685.902797,
+    "ast_hash": "0316824e5af7c22b1e39e0238254f3a6",
+    "semantic_hash": "0316824e5af7c22b1e39e0238254f3a6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\status.md": {
+    "mtime": 1782591508.6091273,
+    "ast_hash": "c9ad1d65f25b33cce6d15945999bcade",
+    "semantic_hash": "c9ad1d65f25b33cce6d15945999bcade"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.cursor\\agent-rtm.md": {
+    "mtime": 1782591471.3876908,
+    "ast_hash": "54f4624525f9e40b21635f8b28604309",
+    "semantic_hash": "54f4624525f9e40b21635f8b28604309"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.github\\workflows\\backup-postgres.yml": {
+    "mtime": 1782590704.7684512,
+    "ast_hash": "4d9cb6b7ac605627cc4899284fc5f7a6",
+    "semantic_hash": "4d9cb6b7ac605627cc4899284fc5f7a6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.github\\workflows\\fetch-alarms.yml": {
+    "mtime": 1782590707.9290326,
+    "ast_hash": "f4cd8243c7f9369aa8dd5dee7cb59c08",
+    "semantic_hash": "f4cd8243c7f9369aa8dd5dee7cb59c08"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.github\\workflows\\sync-photos.yml": {
+    "mtime": 1782590706.667943,
+    "ast_hash": "ed986d72dab79738574d4043ece34199",
+    "semantic_hash": "ed986d72dab79738574d4043ece34199"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.github\\workflows\\test.yml": {
+    "mtime": 1782590922.5883107,
+    "ast_hash": "b4763a4a31a1cbb8ebf07503903e6d7d",
+    "semantic_hash": "b4763a4a31a1cbb8ebf07503903e6d7d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.incoming\\PRD-database-schema.md": {
+    "mtime": 1782591436.5235972,
+    "ast_hash": "14417e017d2a6f4162806f023e74d818",
+    "semantic_hash": "14417e017d2a6f4162806f023e74d818"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\.incoming\\TOURNAMENT_HANDOFF_SEO_AND_UI.md": {
+    "mtime": 1782591436.5560784,
+    "ast_hash": "dad1d2c7bb520f3eb9608560248b81ae",
+    "semantic_hash": "dad1d2c7bb520f3eb9608560248b81ae"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\index.html": {
+    "mtime": 1779556618.5172894,
+    "ast_hash": "82d04850a6f8457b42cd78f570b30aa7",
+    "semantic_hash": "82d04850a6f8457b42cd78f570b30aa7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\README.md": {
+    "mtime": 1782591513.7365708,
+    "ast_hash": "20f3e3cfb0471f7a6154d496d732e04e",
+    "semantic_hash": "20f3e3cfb0471f7a6154d496d732e04e"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\donate.html": {
+    "mtime": 1782045194.2025685,
+    "ast_hash": "a66f71d0b8f26041818f076faf8fb02d",
+    "semantic_hash": "a66f71d0b8f26041818f076faf8fb02d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\google46edbdaa56edec34.html": {
+    "mtime": 1771797702.2689767,
+    "ast_hash": "f293b2ba16261a4ceaaab9f63b552bdc",
+    "semantic_hash": "f293b2ba16261a4ceaaab9f63b552bdc"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\ramadan-countdown.html": {
+    "mtime": 1773678725.15318,
+    "ast_hash": "c95b7e963d3be33e9dcbdf0e52cf65a0",
+    "semantic_hash": "c95b7e963d3be33e9dcbdf0e52cf65a0"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\robots.txt": {
+    "mtime": 1782588475.29433,
+    "ast_hash": "eacd9e026efe9f9de1f72f3bc1788cc2",
+    "semantic_hash": "eacd9e026efe9f9de1f72f3bc1788cc2"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\README.md": {
+    "mtime": 1782591442.75376,
+    "ast_hash": "2966f90fcbc3a02dcf66c10ecd4b9a00",
+    "semantic_hash": "2966f90fcbc3a02dcf66c10ecd4b9a00"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\agent\\HANDOFF.md": {
+    "mtime": 1782591470.8467493,
+    "ast_hash": "156513bbdeecb6d9333f804ed533efd9",
+    "semantic_hash": "156513bbdeecb6d9333f804ed533efd9"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\client\\ARCHITECTURE.md": {
+    "mtime": 1782591449.5116699,
+    "ast_hash": "9907230428ab75c7c25ea75f2730bcbf",
+    "semantic_hash": "9907230428ab75c7c25ea75f2730bcbf"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\handoff\\TOURNAMENT_HANDOFF_SEO_AND_UI.md": {
+    "mtime": 1779556821.3674154,
+    "ast_hash": "d58ea7246c28bb2092d76b3e43b18491",
+    "semantic_hash": "d58ea7246c28bb2092d76b3e43b18491"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\product\\PRD-database-schema.md": {
+    "mtime": 1782591491.252833,
+    "ast_hash": "6ce5a1b37fc39fbe015cbc310832c19d",
+    "semantic_hash": "6ce5a1b37fc39fbe015cbc310832c19d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\review\\is-5568-wcag-aa-pass-may-2026.md": {
+    "mtime": 1782591500.0667994,
+    "ast_hash": "251c129967435961785d7088e51ff885",
+    "semantic_hash": "251c129967435961785d7088e51ff885"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\review\\phase-1.5-rtm-qa-may-2026.md": {
+    "mtime": 1782591566.3432236,
+    "ast_hash": "7e1918db3943fe6223b8b8b51b6f33f3",
+    "semantic_hash": "7e1918db3943fe6223b8b8b51b6f33f3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\review\\phase-2-rtm-qa-may-2026.md": {
+    "mtime": 1782591499.0487561,
+    "ast_hash": "ac6cea3f0fb0adf2815c491c6edeca0c",
+    "semantic_hash": "ac6cea3f0fb0adf2815c491c6edeca0c"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\review\\README.md": {
+    "mtime": 1782591501.8404217,
+    "ast_hash": "d5b030ca0b442a9edd1c017597a68364",
+    "semantic_hash": "d5b030ca0b442a9edd1c017597a68364"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\review\\world-cup-phase.md": {
+    "mtime": 1782591499.8057878,
+    "ast_hash": "9f0ab2fe76056f0166c93c4dbbb01f24",
+    "semantic_hash": "9f0ab2fe76056f0166c93c4dbbb01f24"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\server\\API_REFERENCE.md": {
+    "mtime": 1782591465.4668546,
+    "ast_hash": "78e608fa60e6a81b5a0bc02d76bd03a6",
+    "semantic_hash": "78e608fa60e6a81b5a0bc02d76bd03a6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\docs\\server\\BUSINESS_LOGIC.md": {
+    "mtime": 1782591458.0470088,
+    "ast_hash": "1d39587feb7b0f718d308ed29c6c27fa",
+    "semantic_hash": "1d39587feb7b0f718d308ed29c6c27fa"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\review\\README.md": {
+    "mtime": 1782591437.262727,
+    "ast_hash": "8728f9bb8a8d8249201c05c457ebe1bf",
+    "semantic_hash": "8728f9bb8a8d8249201c05c457ebe1bf"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\README.md": {
+    "mtime": 1782590691.606798,
+    "ast_hash": "2d8ff31f748c5adb4aebd4b9ece6ed16",
+    "semantic_hash": "2d8ff31f748c5adb4aebd4b9ece6ed16"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\scripts\\requirements.txt": {
+    "mtime": 1782590583.7904246,
+    "ast_hash": "c353d9e2dc4f0b691069486c4edbe227",
+    "semantic_hash": "c353d9e2dc4f0b691069486c4edbe227"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\README.md": {
+    "mtime": 1782591519.7040534,
+    "ast_hash": "6be2b363dff5d478c54784434beb2be2",
+    "semantic_hash": "6be2b363dff5d478c54784434beb2be2"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\apple-touch-icon.png": {
+    "mtime": 1782588475.183,
+    "ast_hash": "0c6470b262fdfa7780e9e9b51772a45d",
+    "semantic_hash": "0c6470b262fdfa7780e9e9b51772a45d"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\banner-foreground.svg": {
+    "mtime": 1771178441.3991036,
+    "ast_hash": "69f61838b527887d4e5e5eb69056f894",
+    "semantic_hash": "69f61838b527887d4e5e5eb69056f894"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\donate-bit-logo.png": {
+    "mtime": 1782045044.0702136,
+    "ast_hash": "cd39534664c78feb9d456db995954190",
+    "semantic_hash": "cd39534664c78feb9d456db995954190"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\donate-paybox-logo.webp": {
+    "mtime": 1782045082.2909617,
+    "ast_hash": "af7818824724443ad476d60268a90d6b",
+    "semantic_hash": "af7818824724443ad476d60268a90d6b"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\Flag_of_Adygea.svg": {
+    "mtime": 1771180274.1119695,
+    "ast_hash": "b2caf8874e70bc7c18589d8817e6c020",
+    "semantic_hash": "b2caf8874e70bc7c18589d8817e6c020"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\og-image.jpg": {
+    "mtime": 1774194184.0896115,
+    "ast_hash": "6761a38300c30dd5c431a04d396d8e7f",
+    "semantic_hash": "6761a38300c30dd5c431a04d396d8e7f"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\og-image.png": {
+    "mtime": 1782588475.116,
+    "ast_hash": "a648c11e112adfbf21b978ac4f7f9ff7",
+    "semantic_hash": "a648c11e112adfbf21b978ac4f7f9ff7"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\pwa-192x192.png": {
+    "mtime": 1782588475.159,
+    "ast_hash": "a58809f7703efd913f731be6e73884ab",
+    "semantic_hash": "a58809f7703efd913f731be6e73884ab"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\pwa-512x512.png": {
+    "mtime": 1782588475.167,
+    "ast_hash": "c315a1a2113f77d66593f1fcc0735078",
+    "semantic_hash": "c315a1a2113f77d66593f1fcc0735078"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\to-be-logo.svg": {
+    "mtime": 1771179741.785337,
+    "ast_hash": "1c9ea957b2ef74d61bf3cff3db704262",
+    "semantic_hash": "1c9ea957b2ef74d61bf3cff3db704262"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\top-scorer.svg": {
+    "mtime": 1773797023.5020778,
+    "ast_hash": "07342fe4cebd1409a23cec2d87af00f3",
+    "semantic_hash": "07342fe4cebd1409a23cec2d87af00f3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\vite.svg": {
+    "mtime": 1770892190.9077172,
+    "ast_hash": "8e3a10e157f75ada21ab742c022d5430",
+    "semantic_hash": "8e3a10e157f75ada21ab742c022d5430"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\client\\public\\assets\\images\\players\\heads\\default.jpg": {
+    "mtime": 1774194276.9989853,
+    "ast_hash": "5f39c38b55a211a40650515c78a7a8f6",
+    "semantic_hash": "5f39c38b55a211a40650515c78a7a8f6"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\uploads\\logos\\team_10_1773085380856.jpg": {
+    "mtime": 1773085445.8363614,
+    "ast_hash": "2705715aeb9321d5c080dfa90ea245ec",
+    "semantic_hash": "2705715aeb9321d5c080dfa90ea245ec"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\uploads\\logos\\team_1_1773175168061.jpeg": {
+    "mtime": 1773184198.6630538,
+    "ast_hash": "73be68d11404c2db59ec8212fa4e75f3",
+    "semantic_hash": "73be68d11404c2db59ec8212fa4e75f3"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\uploads\\players\\player_101_1771879064750.jpg": {
+    "mtime": 1771880881.972824,
+    "ast_hash": "8584e2b6bdf1628becf2b00ad61f9754",
+    "semantic_hash": "8584e2b6bdf1628becf2b00ad61f9754"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\uploads\\players\\player_104_1771870731981.jpg": {
+    "mtime": 1771874740.6164088,
+    "ast_hash": "1d3ece44a79cad40ba9421ef1b4853bb",
+    "semantic_hash": "1d3ece44a79cad40ba9421ef1b4853bb"
+  },
+  "C:\\Users\\amirl\\OneDrive\\Documents\\GitHub\\ramadan-tournament\\server\\uploads\\players\\player_177_1771884844890.jpeg": {
+    "mtime": 1771960009.017444,
+    "ast_hash": "61c78395aed67ff4125dd70e57b36919",
+    "semantic_hash": "61c78395aed67ff4125dd70e57b36919"
+  }
+}

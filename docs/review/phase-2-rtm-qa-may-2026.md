@@ -1,7 +1,26 @@
 # Requirements Traceability Matrix & QA Report — Phase 2
 
+## Addendum — Jun 2026 identity migration
+
+**Canonical docs:** [`docs/server/BUSINESS_LOGIC.md`](../server/BUSINESS_LOGIC.md), [`docs/client/ARCHITECTURE.md`](../client/ARCHITECTURE.md)
+
+| Change | Detail |
+|--------|--------|
+| Identity gate | Personal ID + birth year replaces invoice assign/redeem |
+| User API | `POST /api/users/verify-identity` (`RegistrationIdentityService.submitUserIdentity`) |
+| Admin API | `POST /api/admin/users/identity` (`assignAdminIdentity`) |
+| Rate limit | `IdentityRateLimitService` — 3/day (Redis `rt:identity:attempts:*`) |
+| Status enums | `awaiting_identity`, `identity_assigned` (retired `awaiting_invoice`, `invoice_assigned`) |
+| **Retired** | `POST /redeem-invoice`, `POST /admin/users/invoice`, `POST /map-player`, `InvoiceRateLimitService` |
+| Service split | `RegistrationService` → `RegistrationQueryService`, `RegistrationWorkflowService`, `RegistrationIdentityService` |
+| Tests | `npm run test` — 33 tests (shared + server Vitest, mock API via `createTestApp`) |
+
+Rows below (May 2026 report) still reference invoice paths for historical traceability; treat **Retired** items as superseded by the table above.
+
+---
+
 **Project:** Ramadan Tournament (Postgres + Redis rebuild)  
-**PRD source:** [`.incoming/PRD-database-schema.md`](../.incoming/PRD-database-schema.md) v0.9 (§16, §6.B–E)  
+**PRD source:** [`docs/product/PRD-database-schema.md`](../product/PRD-database-schema.md) v0.10 (§16, §6.B–E)  
 **Plan source:** Player registration workflows (Phase 2), Postgres migration plan (schema reservation)  
 **Report date:** 2026-05-18  
 **Scope:** Phase 2 — invoice gate, `season_registrations`, team create/join/transfer, owner APIs, admin queues, Profile UI  
@@ -261,8 +280,8 @@ Update [phase-1.5-rtm-qa-may-2026.md](phase-1.5-rtm-qa-may-2026.md) §3.4 if you
 
 ## 10. Related documents
 
-- [PRD-database-schema.md](../.incoming/PRD-database-schema.md) — §16, §6
+- [PRD-database-schema.md](../product/PRD-database-schema.md) — §16, §6
 - [phase-1.5-rtm-qa-may-2026.md](phase-1.5-rtm-qa-may-2026.md)
-- [status.md](../status.md)
-- [context.md](../context.md)
+- [status.md](../../status.md)
+- [context.md](../../context.md)
 - [is-5568-wcag-aa-pass-may-2026.md](is-5568-wcag-aa-pass-may-2026.md) — accessibility for new Profile/admin controls (manual pass recommended)

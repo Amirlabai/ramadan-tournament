@@ -7,11 +7,12 @@
 - **DevOps**: Render (API + Postgres + Redis), Vercel (Frontend).
 
 ## Architecture
-- **Monorepo**: `client`, `server`, `shared/` (`@ramadan-tournament/shared` — birth-year bounds + Israeli ID validation), `data/`, `.incoming/` (PRD and drops).
+- **Monorepo**: `client`, `server`, `shared/` (`@ramadan-tournament/shared` — birth-year bounds + Israeli ID validation), `data/`, `docs/` (canonical documentation), `.incoming/` (new doc drops).
 - **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Registration split: `RegistrationQueryService`, `RegistrationWorkflowService`, `RegistrationIdentityService`; admin roster via `TeamRosterService`; public reads via `TeamDataService`. Legacy `models/User.ts` Mongoose shim remains for auth/profile.
 - **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`). For a **clean tournament start** (no teams/players/matches), use `npm run db:fresh` instead of `db:seed`.
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for peripheral tasks under `scripts/` — photo sync, Postgres CSV backup, and external alarm fetch — driven by `.github/workflows/`. See `scripts/README.md`. Treat `archive/postgres/` as sensitive (PII in user/player exports); do not publish or share publicly without redaction.
 - **Python:** `scripts/requirements.txt` + local `.venv/` at repo root (gitignored). First time: `python -m venv .venv` then `.\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt`. Run with `.\.venv\Scripts\python.exe scripts/<name>.py`. Legacy `invoice_codes` CSV exports omit `code_hash` and `code_normalized`; identity is stored encrypted on `season_registrations` (not exported in plaintext).
+- **Tests:** Vitest in `shared/` and `server/`. Root `npm run test` builds shared then runs both workspaces (33 tests). Server integration tests use `createTestApp()` (mock JSON API, no Postgres). CI: `.github/workflows/test.yml`.
 
 ## Environment variables (who needs what)
 
@@ -26,7 +27,7 @@
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
 | `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
 | `VITE_SITE_URL` | No | Yes | Canonical URL for SEO, sitemap, OG (no trailing slash) |
-| `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [Review/world-cup-phase.md](Review/world-cup-phase.md) |
+| `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
 | `WORLD_CUP_ONLY` | Yes (optional) | No | Ignored when `DATABASE_URL` is set (Jun 2026 dual-mode fix) |
 | `VITE_WORLD_CUP_ENABLED`, `VITE_DUAL_TOURNAMENT` | No | Yes (optional) | `VITE_DUAL_TOURNAMENT=true` in [`client/.env.production`](client/.env.production) forces boys+girls+WC switcher even if Vercel still has stale `VITE_WORLD_CUP_ONLY` |
 
@@ -55,7 +56,7 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 |--------|------------|--------|
 | Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — primitives in [`client/src/styles/tokens.css`](client/src/styles/tokens.css) |
 | Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) overrides `--color-*` on `[data-tournament="girls"]` |
-| World Cup (temporary) | `data-tournament="worldcup"` on `/world-cup/*` when `VITE_WORLD_CUP_ENABLED=true` | Blue/gold — [`client/src/styles/tournament-worldcup.css`](client/src/styles/tournament-worldcup.css). Read-only proxy to football-data.org; reversion guide: [Review/world-cup-phase.md](Review/world-cup-phase.md) |
+| World Cup (temporary) | `data-tournament="worldcup"` on `/world-cup/*` when `VITE_WORLD_CUP_ENABLED=true` | Blue/gold — [`client/src/styles/tournament-worldcup.css`](client/src/styles/tournament-worldcup.css). Read-only proxy to football-data.org; reversion guide: [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
 
 - **Palette (boys):** edit `--color-primary`, `--color-secondary`, etc. in `tokens.css` only. Legacy names (`--primary`, `--primary-green`, `--bg`, …) alias those primitives for existing CSS.
 - Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css` → `tournament-worldcup.css`.
@@ -71,7 +72,7 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 | Resource | Purpose |
 |----------|---------|
 | [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc) | Persistent rule for Cursor agents editing `client/**` |
-| [Review/is-5568-wcag-aa-pass-may-2026.md](Review/is-5568-wcag-aa-pass-may-2026.md) | May 2026 review (mostly resolved; coordinator contact still open) |
+| [docs/review/is-5568-wcag-aa-pass-may-2026.md](docs/review/is-5568-wcag-aa-pass-may-2026.md) | May 2026 review (mostly resolved; coordinator contact still open) |
 | [status.md](status.md) | Checklist and completion status |
 | [client/src/pages/Accessibility.tsx](client/src/pages/Accessibility.tsx) | Public accessibility statement (נגישות) |
 
@@ -79,7 +80,9 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 
 ## Agent continuity
 
-**Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) (req→file map, open gaps, smoke commands). Formal stakeholder RTM: `Review/phase-1.5-rtm-qa-may-2026.md` (may lag code).
+**Canonical documentation:** [`docs/README.md`](docs/README.md) — client/server architecture, API, PRD, QA reviews.
+
+**Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) → [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md). Business rules: [`docs/server/BUSINESS_LOGIC.md`](docs/server/BUSINESS_LOGIC.md). Frontend: [`docs/client/ARCHITECTURE.md`](docs/client/ARCHITECTURE.md). Formal stakeholder RTM: [`docs/review/phase-1.5-rtm-qa-may-2026.md`](docs/review/phase-1.5-rtm-qa-may-2026.md) (may lag code).
 
 ## Current Focus
 - **Phase 2 (Jun 2026):** Tournament registration via `RegistrationService` + `RegistrationIdentityService` — `season_registrations` (encrypted personal ID + birth year on user/admin columns), `team_*_requests`, `active_division`, owner join review. **Flow order (symmetric):** admin or user enters **תעודת זהות + שנת לידה** first → other side enters matching values → `active` only when encrypted ID and birth year match → then join or team-creation request → admin approves join/creation (requires matched identity + `active`; transfers unchanged). APIs: `/api/users/registration`, `/api/users/verify-identity`, `/api/users/cancel-registration-request` (10/15min), `/api/teams/creation-request`, `/:id/join-request`, admin `/api/admin/workflows`, `/api/admin/users/identity`. **One pending request per user per season** (join *or* team creation). UI: Profile identity card + cancel, Teams join/creation actions (gated on matched `active`), Admin → סגל ורישום → `RegistrationWorkflowAdmin` (masked user ID + birth year; admin assigns full ID + birth year). Team creation uses division-aware `/api/teams/creation-request` or `/api/teams-girls/creation-request` only (`POST /users/request-team` removed). Legacy `invoice_codes` table retained for historical rows; new registrations do not write to it.
@@ -111,7 +114,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 - **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
 - **June 2026 — PR5 server cleanup:** Removed legacy route aliases (`/redeem-invoice`, `/map-player`, `/admin/users/invoice`, `/admin/user-mappings`). Canonical identity + workflow APIs only. Service ownership table in [`server/README.md`](server/README.md).
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
-- **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [review/world-cup-phase.md](review/world-cup-phase.md).
+- **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
 - **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.
 - **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Legacy Mongo scripts and Iftar API removed (Jun 2026). Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).
@@ -140,7 +143,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 - **Bug Fix**: Fixed moon illumination percentage staying identical across days; `IftarTimer` now computes fractional days for real-time moon phase tracking.
 - **Polling Refinement**: Restricted smart polling logic (30s background refresh) to a strict 20:00–23:59 tournament window across Dashboard, Teams, and Stats pages. Added a logic guard in `Dashboard.tsx` to ensure polling ONLY occurs on days when matches are actually scheduled, preventing wasteful pings during the off-season or early morning hours.
 - **SEO & Accessibility**: Implemented a comprehensive SEO engine using `react-helmet-async`. Every main view (Dashboard, Teams, Schedule, Stats, Player Zone) now has unique, localized metadata, Open Graph tags, and canonical links. Updated `sitemap.xml` and `robots.txt`. Added descriptive `alt` tags to branding images for improved accessibility and search indexing.
-- **IS 5568 / WCAG 2.1 AA (May 2026)**: Pass 1 + pass 2 code fixes (modal portal, inert scope, MVPs guard, admin tabs, Dashboard/Login). Coordinator name/phone placeholders — update at deploy. See [status.md](status.md) and [Review/is-5568-wcag-aa-pass-may-2026.md](Review/is-5568-wcag-aa-pass-may-2026.md). Agent rule: [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc).
+- **IS 5568 / WCAG 2.1 AA (May 2026)**: Pass 1 + pass 2 code fixes (modal portal, inert scope, MVPs guard, admin tabs, Dashboard/Login). Coordinator name/phone placeholders — update at deploy. See [status.md](status.md) and [docs/review/is-5568-wcag-aa-pass-may-2026.md](docs/review/is-5568-wcag-aa-pass-may-2026.md). Agent rule: [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc).
 - **Archive UI Polish & Data Fixes (Mar 2026)**:
   - Harmonized Archive styling with the rest of the application using standard project CSS variables.
   - Fixed data mapping mismatches (e.g., `wins` vs `won`) in the historical standings table.

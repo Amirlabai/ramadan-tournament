@@ -36,6 +36,8 @@ A full-stack tournament management system with real-time statistics, news manage
 **Backend:** Node.js + Express + PostgreSQL (Prisma)  
 **Hosting:** Vercel (Frontend) + Render (Backend + Postgres + Redis)
 
+**Documentation:** [`docs/README.md`](docs/README.md) — architecture, API, PRD, QA reviews.
+
 ### Project Structure
 
 ```
