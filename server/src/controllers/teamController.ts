@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { Team } from '../models/Team';
 import { User } from '../models/User';
@@ -8,6 +9,7 @@ import fs from 'fs';
 import { TeamDataService } from '../services/TeamDataService';
 import { SeasonService } from '../services/SeasonService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
+import { sanitizeTeamDescription, sanitizeTeamName } from '../utils/inputValidation';
 import {
     clearMappingsForDeletedPlayer,
     clearPlayerProfile,
@@ -19,34 +21,103 @@ import {
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
-async function canManageTeamSettings(
+function slugToDivision(slug: ReturnType<typeof requestDivision>): Division {
+    return slug === 'girls' ? Division.girls : Division.boys;
+}
+
+/** Which active season division owns this numeric team id (legacy mapping is id-only). */
+async function divisionForLegacyMappedTeam(
+    teamId: number,
+    userActiveDivision: string | null | undefined
+): Promise<Division | null> {
+    const boysSeason = await SeasonService.getActiveSeasonForDivision(Division.boys).catch(() => null);
+    const girlsSeason = await SeasonService.getActiveSeasonForDivision(Division.girls).catch(() => null);
+
+    let inBoys = false;
+    let inGirls = false;
+
+    if (boysSeason) {
+        const t = await prisma.team.findFirst({
+            where: { id: teamId, seasonId: boysSeason.id },
+            select: { id: true },
+        });
+        inBoys = !!t;
+    }
+    if (girlsSeason) {
+        const t = await prisma.team.findFirst({
+            where: { id: teamId, seasonId: girlsSeason.id },
+            select: { id: true },
+        });
+        inGirls = !!t;
+    }
+
+    if (inBoys && !inGirls) return Division.boys;
+    if (inGirls && !inBoys) return Division.girls;
+    if (inBoys && inGirls) {
+        if (userActiveDivision === 'girls') return Division.girls;
+        if (userActiveDivision === 'boys') return Division.boys;
+        return null;
+    }
+    return null;
+}
+
+async function isPlatformAdminUser(userId: string): Promise<boolean> {
+    const user = await User.findById(userId);
+    return !!user && (user.role === 'Admin' || user.role === 'admin');
+}
+
+async function canManageTeamBranding(
     userId: string,
     teamId: number,
     division: ReturnType<typeof requestDivision>
 ): Promise<boolean> {
-    const user = await User.findById(userId);
-    if (!user) return false;
-    if (user.role === 'Admin' || user.role === 'admin') return true;
+    if (await isPlatformAdminUser(userId)) return true;
+
     const owned = await prisma.team.findFirst({
         where: { id: teamId, ownerUserId: userId, season: { division } },
         select: { id: true },
     });
-    if (owned) return true;
+    return !!owned;
+}
+
+/** Legacy map-player workflow (pre-PRD captains with memberId 0). */
+async function canReviewLegacyTeamRequests(
+    userId: string,
+    teamId: number,
+    division: ReturnType<typeof requestDivision>
+): Promise<boolean> {
+    if (await canManageTeamBranding(userId, teamId, division)) return true;
 
     const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
     if (!season) return false;
 
-    const asCaptain = await prisma.player.findFirst({
-        where: {
-            userId,
-            teamId,
-            seasonId: season.id,
-            active: true,
-            isCaptain: true,
-        },
-        select: { memberId: true },
+    const teamInDivision = await prisma.team.findFirst({
+        where: { id: teamId, seasonId: season.id },
+        select: { id: true },
     });
-    return !!asCaptain;
+    if (!teamInDivision) return false;
+
+    const user = await User.findById(userId);
+    const mapped = user?.mappedPlayerInfo;
+    if (
+        !(
+            mapped?.status === 'approved' &&
+            mapped.teamId === teamId &&
+            mapped.memberId === 0
+        )
+    ) {
+        return false;
+    }
+
+    const divisionRow = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { activeDivision: true },
+    });
+    const mappedDivision = await divisionForLegacyMappedTeam(
+        mapped.teamId,
+        divisionRow?.activeDivision ?? undefined
+    );
+    return mappedDivision === slugToDivision(division);
 }
 
 export const getTeams = async (req: Request, res: Response): Promise<void> => {
@@ -109,6 +180,12 @@ export const getAvailablePlayers = async (req: Request, res: Response): Promise<
 export const getTeamRequests = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
+        const division = requestDivision(req);
+
+        if (!(await canReviewLegacyTeamRequests(req.userId!, teamId, division))) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
 
         // Find users who have requested to map to this team
         const pendingUsers = await findPendingMappingsForTeam(teamId);
@@ -124,7 +201,13 @@ export const getTeamRequests = async (req: AuthRequest, res: Response): Promise<
 export const approveTeamRequest = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
+        const division = requestDivision(req);
         const { userId, status } = req.body; // status: 'approved' | 'rejected'
+
+        if (!(await canReviewLegacyTeamRequests(req.userId!, teamId, division))) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
 
         if (!userId || !['approved', 'rejected'].includes(status)) {
             res.status(400).json({ error: 'Valid userId and status (approved/rejected) required' });
@@ -141,9 +224,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
         userToUpdate.mappedPlayerInfo.status = status;
 
         if (status === 'approved') {
-            userToUpdate.role = 'Player';
-
-            const teamDoc = await Team.findOne({ id: teamId }, requestDivision(req));
+            const teamDoc = await Team.findOne({ id: teamId }, division);
             if (teamDoc) {
                 let activeMemberId = userToUpdate.mappedPlayerInfo.memberId;
 
@@ -216,11 +297,11 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-// Captain tool: Update team metadata (name, logo orientation)
+// Owner/admin branding: update name, description, logo position (partial PATCH — omitted fields unchanged)
 export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
-        const { name, logoPosition } = req.body;
+        const { name, logoPosition, description } = req.body;
 
         const team = await Team.findOne({ id: teamId }, requestDivision(req));
         if (!team) {
@@ -228,14 +309,24 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
             return;
         }
 
-        // Legacy captain, PRD team owner, or admin
-        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
+        // PRD team owner or platform admin
+        if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }
 
-        if (name) team.name = name;
-        if (logoPosition) {
+        try {
+            if (name !== undefined) team.name = sanitizeTeamName(String(name));
+            if (description !== undefined) {
+                team.description = sanitizeTeamDescription(String(description));
+            }
+        } catch (validationErr) {
+            const message = validationErr instanceof Error ? validationErr.message : 'קלט לא תקין';
+            res.status(400).json({ error: message });
+            return;
+        }
+
+        if (logoPosition !== undefined) {
             if (!['left', 'right', 'none'].includes(logoPosition)) {
                 res.status(400).json({ error: 'מיקום לוגו לא תקין' });
                 return;
@@ -251,7 +342,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-// Captain tool: Upload team logo
+// Owner/admin branding: Upload team logo
 export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
@@ -268,7 +359,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
+        if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }
@@ -302,7 +393,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
     }
 };
 
-// Admin/Captain tool: Delete team logo
+// Owner/admin branding: Delete team logo
 export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
@@ -313,7 +404,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        if (!(await canManageTeamSettings(req.userId!, teamId, requestDivision(req)))) {
+        if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
             res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
             return;
         }
@@ -341,6 +432,17 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
+        if (!req.userId) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+
+        const division = requestDivision(req);
+        if (!(await isPlatformAdminUser(req.userId))) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
+
         const { firstName, lastName, nickname, number, position, isCaptain, birthYear, personalId } = req.body;
 
         if (!firstName || number == null) {
@@ -348,7 +450,6 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
-        const division = requestDivision(req);
         const team = await Team.findOne({ id: teamId }, division);
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
@@ -385,13 +486,24 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
     }
 };
 
-// Admin tool: Delete a player from a team
+// Delete a player from a team (platform admin only)
 export const deletePlayer = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
         const memberId = parseInt(req.params.memberId);
 
-        const team = await Team.findOne({ id: teamId }, requestDivision(req));
+        if (!req.userId) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+
+        const division = requestDivision(req);
+        if (!(await isPlatformAdminUser(req.userId))) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
+
+        const team = await Team.findOne({ id: teamId }, division);
         if (!team) {
             res.status(404).json({ error: 'קבוצה לא נמצאה' });
             return;
@@ -412,6 +524,61 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
     } catch (error) {
         console.error('Delete player error:', error);
         res.status(500).json({ error: 'שגיאה במחיקת שחקן' });
+    }
+};
+
+// Delete a player's head photo (platform admin only)
+export const deletePlayerPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id);
+        const memberId = parseInt(req.params.memberId);
+
+        if (!req.userId) {
+            res.status(401).json({ error: 'Authentication required' });
+            return;
+        }
+
+        const division = requestDivision(req);
+        if (!(await isPlatformAdminUser(req.userId))) {
+            res.status(403).json({ error: 'Permission denied' });
+            return;
+        }
+
+        const team = await Team.findOne({ id: teamId }, division);
+        if (!team) {
+            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            return;
+        }
+
+        const player = team.players.find((p) => p.memberId === memberId);
+        if (!player) {
+            res.status(404).json({ error: 'שחקן לא נמצא בקבוצה' });
+            return;
+        }
+
+        if (!player.head_photo) {
+            res.status(400).json({ error: 'לשחקן אין תמונה' });
+            return;
+        }
+
+        const filePath = player.head_photo;
+        if (filePath.startsWith('/uploads/players/')) {
+            const fileName = filePath.split('/').pop();
+            if (fileName) {
+                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath);
+                }
+            }
+        }
+
+        player.head_photo = '';
+        await team.save();
+
+        res.json({ message: 'התמונה נמחקה בהצלחה' });
+    } catch (error) {
+        console.error('Delete player photo error:', error);
+        res.status(500).json({ error: 'שגיאה במחיקת תמונה' });
     }
 };
 

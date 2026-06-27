@@ -7,7 +7,7 @@
 - **DevOps**: Render (API + Postgres + Redis), Vercel (Frontend).
 
 ## Architecture
-- **Monorepo**: `client`, `server`, `data/`, `.incoming/` (PRD and drops).
+- **Monorepo**: `client`, `server`, `shared/` (`@ramadan-tournament/shared` — birth-year bounds + Israeli ID validation), `data/`, `.incoming/` (PRD and drops).
 - **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Legacy controllers use thin Prisma adapters with a Mongoose-like query surface (scheduled for gradual removal).
 - **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`). For a **clean tournament start** (no teams/players/matches), use `npm run db:fresh` instead of `db:seed`.
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for specific peripheral tasks such as syncing photos (`sync_photos.py`), backing up Postgres to CSV (`backup_postgres.py` → `archive/postgres/`), and fetching external alarm data periodically (`fetch_alarms.py`). Treat `archive/postgres/` as sensitive (PII in user/player exports); do not publish or share publicly without redaction.
@@ -107,6 +107,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
+- **June 2026 — Captain scope:** PRD captains approve join requests on Profile/Teams; edit team name, description, logo via `TeamOwnerSettings`. Roster add/delete and admin panel remain platform-admin only.
 - **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
 - **June 2026 — Migration audit:** Prisma migrations verified on Render; archive strategy = daily `backup-postgres.yml` → `archive/postgres/`; retired core `mappedPlayerInfo` paths (`PlayerService.leaveTeam`, avatar sync); removed `/users/map-player`; transfer + squad-role UI; girls teams API returns `[]` without active season.
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.

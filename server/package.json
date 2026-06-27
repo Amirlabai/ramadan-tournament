@@ -7,7 +7,7 @@
     "scripts": {
         "dev": "tsx watch src/index.ts",
         "dev:mock": "tsx watch src/index.ts",
-        "build": "prisma generate && tsc && tsc -p tsconfig.seed.json",
+        "build": "npm run build --workspace=@ramadan-tournament/shared && prisma generate && tsc && tsc -p tsconfig.seed.json",
         "start": "node dist/index.js",
         "postinstall": "prisma generate",
         "db:migrate": "prisma migrate deploy",
@@ -23,6 +23,7 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
+        "@ramadan-tournament/shared": "*",
         "@google/generative-ai": "^0.24.1",
         "@prisma/client": "^6.5.0",
         "@types/bcrypt": "^5.0.2",

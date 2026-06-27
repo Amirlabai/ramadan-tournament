@@ -10,6 +10,7 @@ import './index.css'
 import './styles/tournament-girls.css'
 import './styles/tournament-worldcup.css'
 import './styles/a11y-high-contrast.css'
+import './styles/btn-gated.css'
 import App from './App.tsx'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID

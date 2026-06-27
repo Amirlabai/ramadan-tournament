@@ -35,15 +35,32 @@ export function isEncryptedPersonalId(value: string): boolean {
   return value.startsWith('v1:');
 }
 
+function migrationDone(): boolean {
+  return (
+    process.env.PERSONAL_ID_MIGRATION_DONE === '1' ||
+    process.env.PERSONAL_ID_MIGRATION_DONE === 'true'
+  );
+}
+
 /** Values to match in personalIdEnc (encrypted + legacy plaintext until migrated). */
 export function personalIdLookupValues(plain: string): string[] {
-  const normalized = plain.trim();
-  if (!normalized) return [];
-  if (!config.personalIdKey) return [normalized];
-  const enc = encryptPersonalId(normalized);
-  const values = [enc];
-  if (process.env.PERSONAL_ID_MIGRATION_DONE !== '1' && process.env.PERSONAL_ID_MIGRATION_DONE !== 'true') {
-    values.push(normalized);
+  const digits = plain.trim().split('.')[0].replace(/\D/g, '');
+  if (!digits) return [];
+
+  const strictNine = /^\d{9}$/.test(digits);
+  const legacyShape = /^\d{5,9}$/.test(digits);
+  if (migrationDone() ? !strictNine : !legacyShape) {
+    return [];
+  }
+
+  if (!config.personalIdKey) return [digits];
+
+  const values: string[] = [];
+  if (strictNine) {
+    values.push(encryptPersonalId(digits));
+  }
+  if (!migrationDone()) {
+    values.push(digits);
   }
   return [...new Set(values)];
 }

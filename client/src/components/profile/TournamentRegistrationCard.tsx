@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
+import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
+import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
 
@@ -118,7 +120,9 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
     const hasPendingRequest = !!(reg.pendingJoin || reg.pendingCreation || reg.pendingTransfer);
     const showIdentityForm = !!reg.invoiceAlert || reg.status !== 'active';
-    const canSubmitIdentity = personalId.trim().length > 0 && birthYear.trim().length > 0;
+    const canSubmitIdentity = isValidIsraeliId(personalId) && isBirthYearInRange(birthYear);
+    const idFieldInvalid = personalId.length > 0 && !isValidIsraeliId(personalId);
+    const yearFieldInvalid = birthYear.length > 0 && !isBirthYearInRange(birthYear);
 
     return (
         <div className={cardClass} lang="he" aria-live="polite">
@@ -229,14 +233,14 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                                 id={`personal-id-${slug}`}
                                 type="text"
                                 inputMode="numeric"
-                                className="form-control"
+                                className={`form-control${idFieldInvalid ? ' identity-field--invalid' : personalId.length === 0 ? ' identity-field--pending' : ''}`}
                                 value={personalId}
-                                onChange={(e) => setPersonalId(e.target.value.replace(/\D/g, ''))}
+                                onChange={(e) => setPersonalId(sanitizePersonalIdInput(e.target.value))}
                                 autoComplete="off"
                                 maxLength={9}
                                 dir="ltr"
                                 aria-describedby={err ? `identity-err-${slug}` : undefined}
-                                aria-invalid={!!err}
+                                aria-invalid={idFieldInvalid || !!err}
                             />
                         </div>
                         <div className="col-sm-5">
@@ -245,21 +249,23 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                             </label>
                             <input
                                 id={`birth-year-${slug}`}
-                                type="number"
-                                className="form-control"
+                                type="text"
+                                inputMode="numeric"
+                                className={`form-control${yearFieldInvalid ? ' identity-field--invalid' : birthYear.length === 0 ? ' identity-field--pending' : ''}`}
                                 value={birthYear}
-                                onChange={(e) => setBirthYear(e.target.value)}
-                                min={1940}
-                                max={2015}
+                                onChange={(e) => setBirthYear(sanitizeBirthYearInput(e.target.value))}
+                                maxLength={4}
+                                placeholder={`${BIRTH_YEAR_MIN}–${BIRTH_YEAR_MAX}`}
                                 dir="ltr"
-                                aria-invalid={!!err}
+                                aria-invalid={yearFieldInvalid || !!err}
                             />
                         </div>
                     </div>
                     <button
                         type="submit"
-                        className={`${submitBtnClass} mt-3`}
+                        className={`${submitBtnClass} btn-gated mt-3`}
                         disabled={submitting || !canSubmitIdentity}
+                        aria-describedby={!canSubmitIdentity && !submitting ? `identity-hint-${slug}` : undefined}
                     >
                         {submitting
                             ? 'שולח…'
@@ -267,6 +273,16 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                               ? 'עדכן פרטים'
                               : 'שלח לאימות'}
                     </button>
+                    {!canSubmitIdentity && !submitting && (
+                        <p
+                            id={`identity-hint-${slug}`}
+                            className={`identity-validation-hint${personalId.length > 0 || birthYear.length > 0 ? ' identity-validation-hint--blocked' : ''}`}
+                        >
+                            {personalId.length === 0 && birthYear.length === 0
+                                ? 'הזן תעודת זהות (9 ספרות) ושנת לידה כדי להמשיך'
+                                : 'יש להשלים תעודת זהות תקינה ושנת לידה בטווח המותר'}
+                        </p>
+                    )}
                 </form>
             )}
 

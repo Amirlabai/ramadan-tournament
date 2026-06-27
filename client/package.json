@@ -11,6 +11,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ramadan-tournament/shared": "*",
     "@react-oauth/google": "^0.13.4",
     "@vercel/analytics": "^1.6.1",
     "axios": "^1.13.5",

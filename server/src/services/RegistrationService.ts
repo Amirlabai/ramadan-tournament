@@ -483,6 +483,7 @@ export class RegistrationService {
           id: teamId,
           seasonId: req.seasonId,
           name: req.teamName,
+          description: req.description || '',
           status: TeamStatus.active,
           ownerUserId: req.userId,
         },

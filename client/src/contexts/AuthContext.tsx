@@ -28,7 +28,10 @@ export interface User {
     username?: string;
     email?: string;
     displayName: string;
+    /** Platform role from DB (`admin` | `user`). Tournament captain/player state is in `tournamentRegistration`. */
     role: UserRole;
+    /** Set by `/auth/me` when role is platform admin (mirrors DB). */
+    isPlatformAdmin?: boolean;
     avatarUrl?: string;
     mappedPlayerInfo?: MappedPlayerInfo;
     playerProfile?: any;
@@ -56,6 +59,7 @@ function mapUser(data: Record<string, unknown>): User {
         email: data.email as string | undefined,
         displayName: data.displayName as string,
         role: data.role as UserRole,
+        isPlatformAdmin: data.isPlatformAdmin as boolean | undefined,
         avatarUrl: data.avatarUrl as string | undefined,
         mappedPlayerInfo: data.mappedPlayerInfo as MappedPlayerInfo | undefined,
         playerProfile: data.playerProfile,

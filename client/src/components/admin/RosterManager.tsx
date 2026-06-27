@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react';
 import { adminAPI, teamsAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import {
+    canManageTeamRoster,
+    isPlatformAdmin,
+    type RegistrationDivisionSlug,
+} from '../../utils/tournamentUser';
 import type { Team } from '../../types';
 import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
 import './RosterManager.css';
@@ -54,25 +59,39 @@ const EMPTY_FORM: AddPlayerForm = {
     isCaptain: false,
 };
 
+/** Avoid boys/girls team id collision in merged admin roster list. */
+type AdminTeamRow = { team: Team; slug: RegistrationDivisionSlug };
+
+function teamRowKey(slug: RegistrationDivisionSlug, teamId: number): string {
+    return `${slug}:${teamId}`;
+}
+
 const RosterManager = () => {
     const { user } = useAuth();
-    const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+    const platformAdmin = isPlatformAdmin(user);
 
-    const [teams, setTeams] = useState<Team[]>([]);
+    const [teams, setTeams] = useState<AdminTeamRow[]>([]);
     const [userMappings, setUserMappings] = useState<MappedUser[]>([]);
     const [teamRequests, setTeamRequests] = useState<TeamRequest[]>([]);
     const [loading, setLoading] = useState(true);
-    const [expandedTeams, setExpandedTeams] = useState<Set<number>>(new Set());
+    const [expandedTeams, setExpandedTeams] = useState<Set<string>>(new Set());
     const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-    // Add-player form state: keyed by teamId
-    const [addingToTeam, setAddingToTeam] = useState<number | null>(null);
+    // Add-player form state: keyed by composite row key
+    const [addingToTeam, setAddingToTeam] = useState<string | null>(null);
     const [addForm, setAddForm] = useState<AddPlayerForm>(EMPTY_FORM);
 
     const fetchData = async () => {
         try {
-            const teamsRes = await teamsAPI.getAll();
-            setTeams(teamsRes.data);
+            const [boysRes, girlsRes] = await Promise.all([
+                teamsAPI.getAll('boys'),
+                teamsAPI.getAll('girls').catch(() => ({ data: [] as Team[] })),
+            ]);
+            const rows: AdminTeamRow[] = [
+                ...boysRes.data.map((t: Team) => ({ team: t, slug: 'boys' as const })),
+                ...(girlsRes.data as Team[]).map((t) => ({ team: t, slug: 'girls' as const })),
+            ];
+            setTeams(rows);
             if (LEGACY_ROSTER_WORKFLOWS) {
                 const [mappingsRes, requestsRes] = await Promise.all([
                     adminAPI.getUserMappings(),
@@ -95,10 +114,10 @@ const RosterManager = () => {
         fetchData();
     }, []);
 
-    const toggleTeam = (teamId: number) => {
+    const toggleTeam = (rowKey: string) => {
         const next = new Set(expandedTeams);
-        if (next.has(teamId)) next.delete(teamId);
-        else next.add(teamId);
+        if (next.has(rowKey)) next.delete(rowKey);
+        else next.add(rowKey);
         setExpandedTeams(next);
     };
 
@@ -126,20 +145,20 @@ const RosterManager = () => {
         }
     };
 
-    const deletePlayerPhoto = async (teamId: number, memberId: number) => {
+    const deletePlayerPhoto = async (teamId: number, memberId: number, slug: RegistrationDivisionSlug) => {
         if (!confirm('האם למחוק את התמונה?')) return;
         try {
-            await adminAPI.deletePlayerPhoto(teamId, memberId);
+            await teamsAPI.deletePlayerPhoto(teamId, memberId, slug);
             await fetchData();
         } catch (err) {
             alert('שגיאה במחיקת תמונה');
         }
     };
 
-    const handleDeleteTeamLogo = async (teamId: number) => {
+    const handleDeleteTeamLogo = async (teamId: number, slug: RegistrationDivisionSlug) => {
         if (!confirm('האם למחוק את לוגו הקבוצה?')) return;
         try {
-            await teamsAPI.deleteLogo(teamId);
+            await teamsAPI.deleteLogo(teamId, slug);
             await fetchData();
         } catch (err) {
             alert('שגיאה במחיקת לוגו הקבוצה');
@@ -148,12 +167,12 @@ const RosterManager = () => {
 
     // --- New admin actions ---
 
-    const handleAddPlayer = async (teamId: number) => {
+    const handleAddPlayer = async (teamId: number, slug: RegistrationDivisionSlug) => {
         if (!addForm.firstName.trim() || !addForm.number.trim()) {
             alert('שם פרטי ומספר שחקן הם שדות חובה');
             return;
         }
-        setActionLoading(`add-${teamId}`);
+        setActionLoading(`add-${slug}-${teamId}`);
         try {
             await teamsAPI.addPlayer(teamId, {
                 firstName: addForm.firstName.trim(),
@@ -162,7 +181,7 @@ const RosterManager = () => {
                 number: Number(addForm.number),
                 position: addForm.position.trim(),
                 isCaptain: addForm.isCaptain,
-            });
+            }, slug);
             setAddingToTeam(null);
             setAddForm(EMPTY_FORM);
             await fetchData();
@@ -173,11 +192,16 @@ const RosterManager = () => {
         }
     };
 
-    const handleDeletePlayer = async (teamId: number, memberId: number, playerName: string) => {
+    const handleDeletePlayer = async (
+        teamId: number,
+        memberId: number,
+        playerName: string,
+        slug: RegistrationDivisionSlug
+    ) => {
         if (!confirm(`האם למחוק את השחקן ${playerName} מהקבוצה? פעולה זו בלתי הפיכה.`)) return;
-        setActionLoading(`del-${teamId}-${memberId}`);
+        setActionLoading(`del-${slug}-${teamId}-${memberId}`);
         try {
-            await teamsAPI.deletePlayer(teamId, memberId);
+            await teamsAPI.deletePlayer(teamId, memberId, slug);
             await fetchData();
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה במחיקת שחקן');
@@ -186,12 +210,18 @@ const RosterManager = () => {
         }
     };
 
-    const handleMovePlayer = async (teamId: number, memberId: number, targetTeamId: number, playerName: string) => {
-        const targetTeam = teams.find(t => t.id === targetTeamId);
-        if (!confirm(`להעביר את ${playerName} לקבוצה "${targetTeam?.name}"?`)) return;
-        setActionLoading(`move-${teamId}-${memberId}`);
+    const handleMovePlayer = async (
+        teamId: number,
+        memberId: number,
+        targetTeamId: number,
+        playerName: string,
+        slug: RegistrationDivisionSlug
+    ) => {
+        const targetRow = teams.find((r) => r.team.id === targetTeamId && r.slug === slug);
+        if (!confirm(`להעביר את ${playerName} לקבוצה "${targetRow?.team.name ?? targetTeamId}"?`)) return;
+        setActionLoading(`move-${slug}-${teamId}-${memberId}`);
         try {
-            await teamsAPI.movePlayer(teamId, memberId, targetTeamId);
+            await teamsAPI.movePlayer(teamId, memberId, targetTeamId, slug);
             await fetchData();
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה בהעברת שחקן');
@@ -203,10 +233,11 @@ const RosterManager = () => {
     if (loading) return <div className="text-center py-5"><span className="spinner-border text-success" /></div>;
 
     const pendingMappings = userMappings.filter(u => u.mappedPlayerInfo.status === 'pending');
+    const visibleTeams = teams;
 
     return (
         <div className="roster-manager">
-            {isAdmin && (
+            {platformAdmin && (
                 <section className="roster-section mb-5">
                     <RegistrationWorkflowAdmin />
                 </section>
@@ -312,32 +343,42 @@ const RosterManager = () => {
 
             {/* 3. Team Roster (Expandable) */}
             <section className="roster-section">
-                <h3 className="section-title"><i className="bi bi-people-fill me-2" />ניהול סגלי קבוצות</h3>
+                <h3 className="section-title">
+                    <i className="bi bi-people-fill me-2" />
+                    ניהול סגלי קבוצות
+                </h3>
                 <div className="teams-accordion">
-                    {teams.sort((a, b) => a.id - b.id).map(team => {
-                        const isExpanded = expandedTeams.has(team.id);
-                        const isAddingHere = addingToTeam === team.id;
+                    {visibleTeams
+                        .sort((a, b) => a.slug.localeCompare(b.slug) || a.team.id - b.team.id)
+                        .map(({ team, slug }) => {
+                        const rowKey = teamRowKey(slug, team.id);
+                        const isExpanded = expandedTeams.has(rowKey);
+                        const isAddingHere = addingToTeam === rowKey;
+                        const canManage = canManageTeamRoster(user, team.id);
                         return (
-                            <div key={team.id} className={`team-row ${isExpanded ? 'expanded' : ''}`}>
-                                <div className="team-header" onClick={() => toggleTeam(team.id)}>
+                            <div key={rowKey} className={`team-row ${isExpanded ? 'expanded' : ''}`}>
+                                <div className="team-header" onClick={() => toggleTeam(rowKey)}>
                                     <div className="team-info-main d-flex align-items-center gap-2">
                                         <span className="team-badge">#{team.id}</span>
+                                        <span className="badge bg-secondary">{slug === 'girls' ? 'בנות' : 'בנים'}</span>
                                         {(team as any).logoUrl && (
                                             <div className="position-relative d-flex align-items-center">
                                                 <img src={(team as any).logoUrl.startsWith('http') ? (team as any).logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${(team as any).logoUrl}`}
                                                     alt="" className="team-logo-inline" />
+                                                {platformAdmin && (
                                                 <button className="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute top-0 start-0"
                                                     style={{ width: '14px', height: '14px', borderRadius: '50%', transform: 'translate(-50%, -50%)', fontSize: '8px' }}
-                                                    onClick={(e) => { e.stopPropagation(); handleDeleteTeamLogo(team.id); }} title="מחק לוגו">
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteTeamLogo(team.id, slug); }} title="מחק לוגו">
                                                     <i className="bi bi-x" />
                                                 </button>
+                                                )}
                                             </div>
                                         )}
                                         <span className="team-name">{team.name}</span>
                                         <span className="player-count">({team.players.length} שחקנים)</span>
                                     </div>
                                     <div className="d-flex align-items-center gap-2">
-                                        {isAdmin && (
+                                        {canManage && (
                                             <button
                                                 className="btn btn-theme-green btn-sm add-player-btn"
                                                 onClick={(e) => {
@@ -346,10 +387,9 @@ const RosterManager = () => {
                                                         setAddingToTeam(null);
                                                         setAddForm(EMPTY_FORM);
                                                     } else {
-                                                        setAddingToTeam(team.id);
+                                                        setAddingToTeam(rowKey);
                                                         setAddForm(EMPTY_FORM);
-                                                        // Make sure the accordion is open
-                                                        setExpandedTeams(prev => new Set([...prev, team.id]));
+                                                        setExpandedTeams(prev => new Set([...prev, rowKey]));
                                                     }
                                                 }}
                                                 title="הוסף שחקן לקבוצה"
@@ -365,7 +405,7 @@ const RosterManager = () => {
                                 {isExpanded && (
                                     <div className="team-body px-3 py-3">
                                         {/* Add player inline form */}
-                                        {isAdmin && isAddingHere && (
+                                        {canManage && isAddingHere && (
                                             <div className="add-player-form mb-3 p-3">
                                                 <h6 className="mb-3" style={{ color: 'var(--accent)', fontWeight: 700 }}>
                                                     <i className="bi bi-person-plus-fill me-2" />הוספת שחקן ל{team.name}
@@ -425,10 +465,10 @@ const RosterManager = () => {
                                                         </div>
                                                         <button
                                                             className="btn btn-theme-green btn-sm"
-                                                            disabled={actionLoading === `add-${team.id}`}
-                                                            onClick={() => handleAddPlayer(team.id)}
+                                                            disabled={actionLoading === `add-${slug}-${team.id}`}
+                                                            onClick={() => handleAddPlayer(team.id, slug)}
                                                         >
-                                                            {actionLoading === `add-${team.id}` ? <span className="spinner-border spinner-border-sm" /> : 'שמור'}
+                                                            {actionLoading === `add-${slug}-${team.id}` ? <span className="spinner-border spinner-border-sm" /> : 'שמור'}
                                                         </button>
                                                         <button
                                                             className="btn btn-secondary btn-sm"
@@ -448,8 +488,8 @@ const RosterManager = () => {
                                                     Number(u.mappedPlayerInfo?.teamId) === team.id &&
                                                     Number(u.mappedPlayerInfo?.memberId) === player.memberId
                                                 );
-                                                const isDeleting = actionLoading === `del-${team.id}-${player.memberId}`;
-                                                const isMoving = actionLoading === `move-${team.id}-${player.memberId}`;
+                                                const isDeleting = actionLoading === `del-${slug}-${team.id}-${player.memberId}`;
+                                                const isMoving = actionLoading === `move-${slug}-${team.id}-${player.memberId}`;
 
                                                 return (
                                                     <div key={player.memberId} className="admin-player-card">
@@ -457,9 +497,11 @@ const RosterManager = () => {
                                                             {player.head_photo ? (
                                                                 <>
                                                                     <img src={player.head_photo.startsWith('http') ? player.head_photo : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${player.head_photo}`} alt="" />
-                                                                    <button className="delete-photo-btn" onClick={() => deletePlayerPhoto(team.id, player.memberId)}>
+                                                                    {canManage && (
+                                                                    <button className="delete-photo-btn" onClick={() => deletePlayerPhoto(team.id, player.memberId, slug)}>
                                                                         <i className="bi bi-trash" />
                                                                     </button>
+                                                                    )}
                                                                 </>
                                                             ) : (
                                                                 <i className="bi bi-person-fill" />
@@ -471,7 +513,7 @@ const RosterManager = () => {
                                                                 {player.isCaptain && <span className="ms-1 text-warning" title="קפטן"><i className="bi bi-star-fill small" /></span>}
                                                             </div>
                                                             <div className="player-meta">#{player.number} | {player.position}</div>
-                                                            {mappedUser && (
+                                                            {mappedUser && platformAdmin && (
                                                                 <div className="d-flex align-items-center mt-2 flex-wrap gap-2">
                                                                     <div className="mapped-user-tag m-0">
                                                                         <i className="bi bi-person-check-fill me-1" />
@@ -495,9 +537,9 @@ const RosterManager = () => {
                                                             )}
 
                                                             {/* Admin-only actions */}
-                                                            {isAdmin && (
+                                                            {canManage && (
                                                                 <div className="admin-player-actions mt-2 d-flex gap-1 flex-wrap">
-                                                                    {/* Move to another team */}
+                                                                    {platformAdmin && (
                                                                     <select
                                                                         className="form-select form-select-sm player-move-select"
                                                                         value=""
@@ -505,23 +547,23 @@ const RosterManager = () => {
                                                                         onChange={e => {
                                                                             const targetId = Number(e.target.value);
                                                                             if (targetId) {
-                                                                                handleMovePlayer(team.id, player.memberId, targetId, `${player.firstName} ${player.lastName}`);
+                                                                                handleMovePlayer(team.id, player.memberId, targetId, `${player.firstName} ${player.lastName}`, slug);
                                                                             }
                                                                         }}
                                                                         title="העבר לקבוצה אחרת"
                                                                     >
                                                                         <option value="">— העבר לקבוצה —</option>
-                                                                        {teams.filter(t => t.id !== team.id).map(t => (
-                                                                            <option key={t.id} value={t.id}>{t.name}</option>
+                                                                        {teams.filter(r => r.slug === slug && r.team.id !== team.id).map(r => (
+                                                                            <option key={teamRowKey(r.slug, r.team.id)} value={r.team.id}>{r.team.name}</option>
                                                                         ))}
                                                                     </select>
+                                                                    )}
 
-                                                                    {/* Delete player */}
                                                                     <button
                                                                         className="btn btn-danger btn-sm player-delete-btn"
                                                                         disabled={isDeleting || !!actionLoading}
                                                                         title="מחק שחקן"
-                                                                        onClick={() => handleDeletePlayer(team.id, player.memberId, `${player.firstName} ${player.lastName}`)}
+                                                                        onClick={() => handleDeletePlayer(team.id, player.memberId, `${player.firstName} ${player.lastName}`, slug)}
                                                                     >
                                                                         {isDeleting
                                                                             ? <span className="spinner-border spinner-border-sm" />

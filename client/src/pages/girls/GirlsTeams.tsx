@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { teamsAPI, votesAPI } from '../../api/client';
 import TeamRegistrationActions from '../../components/registration/TeamRegistrationActions';
+import TeamOwnerSettings from '../../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../../components/registration/OwnerSquadRoles';
 import SEO from '../../components/SEO';
 import { useAuth } from '../../contexts/AuthContext';
@@ -165,6 +166,24 @@ const GirlsTeams = () => {
               </div>
               {expandedTeam === team.id && (
                 <div className="team-players p-3 border-top">
+                  {team.description && !isOwner ? (
+                    <p className="text-muted small mb-3">{team.description}</p>
+                  ) : null}
+                  {isOwner && (
+                    <TeamOwnerSettings
+                      key={`owner-settings-girls-${team.id}`}
+                      teamId={team.id}
+                      slug="girls"
+                      variant="inline"
+                      initialTeam={{
+                        name: team.name,
+                        description: team.description,
+                        logoUrl: team.logoUrl,
+                        logoPosition: team.logoPosition,
+                      }}
+                      onUpdated={() => void loadTeams()}
+                    />
+                  )}
                   <TeamRegistrationActions teamId={team.id} teamName={team.name} slug="girls" />
                   {canEditSquadRoles && (
                     <OwnerSquadRoles

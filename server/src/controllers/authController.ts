@@ -49,6 +49,9 @@ const hydrateUserPayload = async (userDoc: any) => {
         playerProfile: userDoc.playerProfile // fallback to custom player data
     };
 
+    (payload as any).isPlatformAdmin =
+        userDoc.role === 'admin' || userDoc.role === 'Admin';
+
     // If there's a pending or approved mapping, resolve names for the UI
     if (payload.mappedPlayerInfo && payload.mappedPlayerInfo.teamId > 0) {
         const team = await Team.findOne({ id: payload.mappedPlayerInfo.teamId });
@@ -62,9 +65,7 @@ const hydrateUserPayload = async (userDoc: any) => {
                 if (player) {
                     (payload.mappedPlayerInfo as any).playerName = `${player.firstName} ${player.lastName}`;
 
-                    // If approved, also hydrate the full player profile data for tournament-active roles
-                    const isMappableRole = ['Player', 'Captain', 'Admin', 'admin'].includes(userDoc.role);
-                    if (isMappableRole && userDoc.mappedPlayerInfo.status === 'approved') {
+                    if (userDoc.mappedPlayerInfo.status === 'approved') {
                         payload.playerProfile = {
                             firstName: player.firstName,
                             lastName: player.lastName,
@@ -85,13 +86,7 @@ const hydrateUserPayload = async (userDoc: any) => {
         (payload as any).tournamentRegistration = { boys, girls };
         (payload as any).activeDivision = boys?.activeDivision ?? girls?.activeDivision ?? null;
 
-        const ownedTeamId = boys?.ownedTeamId ?? girls?.ownedTeamId ?? null;
         const roster = boys?.onRoster ?? girls?.onRoster;
-        if (ownedTeamId) {
-            payload.role = 'Captain';
-        } else if (roster) {
-            payload.role = 'Player';
-        }
 
         if (roster && (!payload.mappedPlayerInfo || payload.mappedPlayerInfo.status !== 'approved')) {
             (payload as any).mappedPlayerInfo = {
@@ -112,7 +107,15 @@ const hydrateUserPayload = async (userDoc: any) => {
                 const player = team.players.find((p) => p.memberId === mapMemberId);
                 if (player) {
                     (payload.mappedPlayerInfo as any).playerName = `${player.firstName} ${player.lastName}`;
-                    if (['Player', 'Captain', 'Admin', 'admin'].includes(payload.role)) {
+                    const approvedMapping =
+                        userDoc.mappedPlayerInfo?.status === 'approved' ||
+                        payload.mappedPlayerInfo?.status === 'approved';
+                    const canHydrateProfile =
+                        userDoc.role === 'admin' ||
+                        userDoc.role === 'Admin' ||
+                        !!roster ||
+                        approvedMapping;
+                    if (canHydrateProfile) {
                         payload.playerProfile = {
                             firstName: player.firstName,
                             lastName: player.lastName,
@@ -125,8 +128,8 @@ const hydrateUserPayload = async (userDoc: any) => {
                 }
             }
         }
-    } catch {
-        /* optional — no active season */
+    } catch (err) {
+        console.warn('hydrateUserPayload: registration summary skipped', err);
     }
 
     return payload;

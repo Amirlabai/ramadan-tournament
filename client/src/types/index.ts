@@ -20,6 +20,7 @@ export interface Player {
 export interface Team {
     id: number;
     name: string;
+    description?: string;
     players: Player[];
     logoUrl?: string;
     logoPosition?: 'left' | 'right' | 'none';

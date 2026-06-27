@@ -31,6 +31,7 @@ function formatTeam(team: any, statsMap: Map<number, any>, pointsTotal?: number)
   return {
     id: team.id,
     name: team.name,
+    description: team.description || '',
     logoUrl: team.logoUrl || '',
     logoPosition: team.logoPosition || 'right',
     ...(pointsTotal !== undefined ? { totalPoints: pointsTotal } : {}),

@@ -16,6 +16,7 @@ client/node_modules
 # Build outputs
 server/dist
 client/dist
+shared/dist
 server/src/**/*.js
 
 # Vector index (workspace-chroma skill)

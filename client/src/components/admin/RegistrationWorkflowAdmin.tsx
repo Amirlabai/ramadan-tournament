@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { adminAPI } from '../../api/client';
+import { isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
+import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import './RegistrationWorkflowAdmin.css';
 
 interface WorkflowUser {
@@ -241,19 +243,22 @@ export default function RegistrationWorkflowAdmin() {
         const stored = identityInputs[user.id];
         const personalId = stored?.personalId ?? '';
         const birthYear = stored?.birthYear ?? (row.assignedBirthYear != null ? String(row.assignedBirthYear) : '');
+        const canAssign = isValidIsraeliId(personalId) && isBirthYearInRange(birthYear);
+        const idFieldInvalid = personalId.length > 0 && !isValidIsraeliId(personalId);
+        const yearFieldInvalid = birthYear.length > 0 && !isBirthYearInRange(birthYear);
 
         return (
             <div className="workflow-assign-row">
                 <input
                     type="text"
-                    className="form-control form-control-sm workflow-invoice-input"
+                    className={`form-control form-control-sm workflow-invoice-input${idFieldInvalid ? ' identity-field--invalid' : personalId.length === 0 ? ' identity-field--pending' : ''}`}
                     placeholder={isCorrection ? 'ת.ז. מתוקנת' : 'תעודת זהות'}
                     value={personalId}
                     onChange={(e) =>
                         setIdentityInputs((prev) => ({
                             ...prev,
                             [user.id]: {
-                                personalId: e.target.value.replace(/\D/g, ''),
+                                personalId: sanitizePersonalIdInput(e.target.value),
                                 birthYear: prev[user.id]?.birthYear ?? birthYear,
                             },
                         }))
@@ -263,10 +268,12 @@ export default function RegistrationWorkflowAdmin() {
                     aria-label={`תעודת זהות עבור ${user.displayName}`}
                     maxLength={9}
                     disabled={assigningId === user.id}
+                    aria-invalid={idFieldInvalid}
                 />
                 <input
-                    type="number"
-                    className="form-control form-control-sm workflow-invoice-input"
+                    type="text"
+                    inputMode="numeric"
+                    className={`form-control form-control-sm workflow-invoice-input${yearFieldInvalid ? ' identity-field--invalid' : birthYear.length === 0 ? ' identity-field--pending' : ''}`}
                     placeholder="שנת לידה"
                     value={birthYear}
                     onChange={(e) =>
@@ -274,26 +281,35 @@ export default function RegistrationWorkflowAdmin() {
                             ...prev,
                             [user.id]: {
                                 personalId: prev[user.id]?.personalId ?? personalId,
-                                birthYear: e.target.value,
+                                birthYear: sanitizeBirthYearInput(e.target.value),
                             },
                         }))
                     }
                     dir="ltr"
-                    min={1940}
-                    max={2015}
+                    maxLength={4}
                     aria-label={`שנת לידה עבור ${user.displayName}`}
                     disabled={assigningId === user.id}
+                    aria-invalid={yearFieldInvalid}
                 />
                 <button
                     type="button"
-                    className={`btn btn-sm text-nowrap workflow-assign-btn ${
+                    className={`btn btn-sm text-nowrap workflow-assign-btn btn-gated ${
                         isCorrection ? 'btn-warning' : 'btn-success'
                     }`}
-                    disabled={assigningId === user.id || !personalId.trim() || !birthYear.trim()}
+                    disabled={assigningId === user.id || !canAssign}
+                    aria-describedby={
+                        !canAssign && assigningId !== user.id ? `workflow-assign-hint-${user.id}` : undefined
+                    }
+                    title={!canAssign && assigningId !== user.id ? 'הזן ת.ז. (9 ספרות) ושנת לידה תקינה' : undefined}
                     onClick={() => void assignToUser(user.id, user.displayName, personalId, birthYear)}
                 >
                     {assigningId === user.id ? 'שומר…' : isCorrection ? 'עדכן' : 'הקצה'}
                 </button>
+                {!canAssign && assigningId !== user.id && (
+                    <p id={`workflow-assign-hint-${user.id}`} className="visually-hidden">
+                        הזן ת.ז. (9 ספרות) ושנת לידה תקינה
+                    </p>
+                )}
             </div>
         );
     };

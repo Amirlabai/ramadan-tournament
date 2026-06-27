@@ -11,6 +11,7 @@ import GirlsSeasonAdmin from '../../components/admin/GirlsSeasonAdmin';
 import PageLoading from '../../components/PageLoading';
 import EmptyState from '../../components/EmptyState';
 import { entityId } from '../../utils/entityId';
+import { canAccessAdminPanel, isPlatformAdmin } from '../../utils/tournamentUser';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -21,6 +22,8 @@ const AdminPanel = () => {
 
     type TabType = 'matches' | 'news' | 'banned-words' | 'comments' | 'roster' | 'users' | 'girls';
     const { user, loading: authLoading, logout } = useAuth();
+
+    const platformAdmin = isPlatformAdmin(user);
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
     const [newsDivision, setNewsDivision] = useState<TournamentSlug>('boys');
@@ -51,25 +54,27 @@ const AdminPanel = () => {
             return;
         }
 
-        const allowed = user.role === 'Admin' || user.role === 'admin' || user.role === 'Captain';
+        const allowed = canAccessAdminPanel(user);
         if (!allowed) {
-            navigate('/');
+            navigate('/profile');
             return;
         }
 
-        const isAdmin = user.role === 'Admin' || user.role === 'admin';
+        const isAdmin = isPlatformAdmin(user);
 
         const fetchData = async () => {
             try {
-                const [matchesRes, teamsRes] = await Promise.all([
-                    matchesAPI.getAll(),
-                    teamsAPI.getAll()
-                ]);
-                const matchesSorted = matchesRes.data.sort((a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime());
-                setMatches(matchesSorted);
-                setTeams(teamsRes.data);
-
                 if (isAdmin) {
+                    const [matchesRes, teamsRes] = await Promise.all([
+                        matchesAPI.getAll(),
+                        teamsAPI.getAll(),
+                    ]);
+                    const matchesSorted = matchesRes.data.sort(
+                        (a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime()
+                    );
+                    setMatches(matchesSorted);
+                    setTeams(teamsRes.data);
+
                     await Promise.all([
                         adminAPI.getBannedWords()
                             .then((res) => setBannedWords(res.data))
@@ -98,7 +103,7 @@ const AdminPanel = () => {
     }, [activeTab]);
 
     useEffect(() => {
-        if (!user || (user.role !== 'Admin' && user.role !== 'admin')) return;
+        if (!user || !isPlatformAdmin(user)) return;
 
         let cancelled = false;
         newsAPI.getAll(newsDivision)
@@ -114,7 +119,7 @@ const AdminPanel = () => {
 
     useEffect(() => {
         if (activeTab !== 'news') return;
-        if (!user || (user.role !== 'Admin' && user.role !== 'admin')) return;
+        if (!user || !isPlatformAdmin(user)) return;
 
         let cancelled = false;
         newsAPI.getAll(newsDivision)
@@ -392,14 +397,14 @@ const AdminPanel = () => {
                 noindex
             />
             <div className="admin-header">
-                <h2>פאנל {user?.role === 'Captain' ? 'קפטן' : 'ניהול'}</h2>
+                <h2>פאנל ניהול</h2>
                 <button type="button" onClick={handleLogout} className="btn btn-danger">
                     התנתק
                 </button>
             </div>
 
             <div className="tabs" role="tablist" aria-label="לשוניות ניהול">
-                {(user?.role === 'Admin' || user?.role === 'admin') && (
+                {platformAdmin && (
                     <>
                         <button
                             type="button"
@@ -448,17 +453,6 @@ const AdminPanel = () => {
                         <button
                             type="button"
                             role="tab"
-                            id="admin-tab-roster"
-                            aria-controls="admin-panel-roster"
-                            aria-selected={activeTab === 'roster'}
-                            className={`tab ${activeTab === 'roster' ? 'active' : ''}`}
-                            onClick={() => setActiveTab('roster')}
-                        >
-                            סגל ורישום
-                        </button>
-                        <button
-                            type="button"
-                            role="tab"
                             id="admin-tab-users"
                             aria-controls="admin-panel-users"
                             aria-selected={activeTab === 'users'}
@@ -480,9 +474,22 @@ const AdminPanel = () => {
                         </button>
                     </>
                 )}
+                {platformAdmin && (
+                    <button
+                        type="button"
+                        role="tab"
+                        id="admin-tab-roster"
+                        aria-controls="admin-panel-roster"
+                        aria-selected={activeTab === 'roster'}
+                        className={`tab ${activeTab === 'roster' ? 'active' : ''}`}
+                        onClick={() => setActiveTab('roster')}
+                    >
+                        סגל ורישום
+                    </button>
+                )}
             </div>
 
-            {activeTab === 'matches' && (
+            {platformAdmin && activeTab === 'matches' && (
                 <div role="tabpanel" id="admin-panel-matches" aria-labelledby="admin-tab-matches" className="tab-content" tabIndex={0}>
                     <div className="admin-filters mb-3">
                         <button
@@ -595,7 +602,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'news' && (
+            {platformAdmin && activeTab === 'news' && (
                 <div role="tabpanel" id="admin-panel-news" aria-labelledby="admin-tab-news" className="tab-content" tabIndex={0}>
                     {!showNewsForm ? (
                         <div className="card">
@@ -654,7 +661,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'banned-words' && (
+            {platformAdmin && activeTab === 'banned-words' && (
                 <div role="tabpanel" id="admin-panel-banned-words" aria-labelledby="admin-tab-banned-words" className="tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול מילים חסומות</h2>
@@ -733,7 +740,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'comments' && (
+            {platformAdmin && activeTab === 'comments' && (
                 <div role="tabpanel" id="admin-panel-comments" aria-labelledby="admin-tab-comments" className="tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול תגובות</h2>
@@ -798,7 +805,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'roster' && (
+            {platformAdmin && activeTab === 'roster' && (
                 <div role="tabpanel" id="admin-panel-roster" aria-labelledby="admin-tab-roster" className="tab-content" tabIndex={0}>
                     <div className="card p-3">
                         <RosterManager />
@@ -806,7 +813,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'users' && (
+            {platformAdmin && activeTab === 'users' && (
                 <div role="tabpanel" id="admin-panel-users" aria-labelledby="admin-tab-users" className="tab-content" tabIndex={0}>
                     <div className="card p-4">
                         <h3 className="h5 mb-3">ניהול הרשאות מנהל</h3>
@@ -906,7 +913,7 @@ const AdminPanel = () => {
                 </div>
             )}
 
-            {activeTab === 'girls' && (
+            {platformAdmin && activeTab === 'girls' && (
                 <div role="tabpanel" id="admin-panel-girls" aria-labelledby="admin-tab-girls" className="tab-content" tabIndex={0}>
                     <GirlsSeasonAdmin />
                 </div>

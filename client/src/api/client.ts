@@ -30,7 +30,11 @@ export const teamsAPI = {
         api.get(`${teamsPath(slug)}/${id}/requests`),
     approveRequest: (id: number, userId: string, status: 'approved' | 'rejected', slug: TournamentSlug = 'boys') =>
         api.post(`${teamsPath(slug)}/${id}/requests`, { userId, status }),
-    updateMetadata: (id: number, data: { name?: string; logoPosition?: 'left' | 'right' | 'none' }, slug: TournamentSlug = 'boys') =>
+    updateMetadata: (id: number, data: {
+        name?: string;
+        description?: string;
+        logoPosition?: 'left' | 'right' | 'none';
+    }, slug: TournamentSlug = 'boys') =>
         api.patch(`${teamsPath(slug)}/${id}/metadata`, data),
     uploadLogo: (id: number, formData: FormData, slug: TournamentSlug = 'boys') =>
         api.post(`${teamsPath(slug)}/${id}/logo`, formData, {
@@ -43,6 +47,8 @@ export const teamsAPI = {
     }, slug: TournamentSlug = 'boys') => api.post(`${teamsPath(slug)}/${teamId}/players`, data),
     deletePlayer: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
         api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}`),
+    deletePlayerPhoto: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
+        api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}/photo`),
     movePlayer: (teamId: number, memberId: number, targetTeamId: number, slug: TournamentSlug = 'boys') =>
         api.patch(`${teamsPath(slug)}/${teamId}/players/${memberId}/move`, { targetTeamId }),
 };

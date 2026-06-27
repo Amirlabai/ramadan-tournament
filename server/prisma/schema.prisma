@@ -168,6 +168,7 @@ model Team {
   id           Int        @id
   seasonId     String     @map("season_id")
   name         String
+  description  String     @default("")
   logoUrl      String?    @map("logo_url")
   logoPosition String?    @default("right") @map("logo_position")
   status       TeamStatus @default(active)

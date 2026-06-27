@@ -2,11 +2,12 @@ import { Link } from 'react-router-dom';
 import { BitDonateLink } from './BitDonateLink';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
+import { canAccessAdminPanel } from '../utils/tournamentUser';
 
 const Footer = () => {
     const { user } = useAuth();
     const { isGirls, isWorldCup, paths } = useTournament();
-    const isAdmin = user?.role === 'Admin' || user?.role === 'admin';
+    const showAdminNav = canAccessAdminPanel(user);
 
     const brandTitle = isWorldCup
         ? 'מונדיאל 2026'
@@ -83,7 +84,7 @@ const Footer = () => {
                             {user ? (
                                 <>
                                     <li><Link to="/profile" className="footer-link">פרופיל אישי</Link></li>
-                                    {isAdmin && <li><Link to="/admin" className="footer-link">פאנל ניהול</Link></li>}
+                                    {showAdminNav && <li><Link to="/admin" className="footer-link">פאנל ניהול</Link></li>}
                                 </>
                             ) : (
                                 <li><Link to="/login" className="footer-link">התחברות</Link></li>

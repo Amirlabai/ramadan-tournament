@@ -51,6 +51,7 @@ import { useSidebarDrawer } from './hooks/useSidebarDrawer'
 import { useSwipeTabNavigation } from './hooks/useSwipeTabNavigation'
 import { getMainNavItems } from './utils/mainNavItems'
 import { useAuth } from './contexts/AuthContext'
+import { canAccessAdminPanel } from './utils/tournamentUser'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { useEffect } from 'react'
@@ -99,7 +100,7 @@ function AppRoutes() {
 function AppShell() {
   const { isGirls, isWorldCup, paths } = useTournament()
   const { user } = useAuth()
-  const isAdmin = user?.role === 'Admin' || user?.role === 'admin'
+  const showAdminNav = canAccessAdminPanel(user)
   const { consent } = useCookieConsent()
   const mainRef = useRef<HTMLElement>(null)
   const {
@@ -112,7 +113,7 @@ function AppShell() {
     onHandlePointerUp,
   } = useSidebarDrawer()
 
-  const navItems = getMainNavItems({ isGirls, isWorldCup, paths, user, isAdmin })
+  const navItems = getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav })
 
   const tournamentTheme = isWorldCup ? 'worldcup' : isGirls ? 'girls' : 'boys'
 

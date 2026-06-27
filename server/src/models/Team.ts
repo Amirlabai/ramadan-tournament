@@ -50,6 +50,8 @@ export interface ITeam {
 
   logoPosition?: string;
 
+  description?: string;
+
   seasonId?: string;
 
   save(): Promise<ITeam>;
@@ -113,6 +115,8 @@ function mapTeam(row: any, players: any[]): ITeam {
     logoUrl: row.logoUrl || '',
 
     logoPosition: row.logoPosition || 'right',
+
+    description: row.description || '',
 
     seasonId: row.seasonId,
 
@@ -195,6 +199,8 @@ function mapTeam(row: any, players: any[]): ITeam {
         data: {
 
           name: team.name,
+
+          description: team.description ?? '',
 
           logoUrl: team.logoUrl,
 

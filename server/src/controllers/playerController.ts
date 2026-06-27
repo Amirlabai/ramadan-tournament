@@ -5,6 +5,7 @@ import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
 import { setPlayerCookie, clearPlayerCookie } from '../utils/authCookie';
 import { personalIdLookupValues } from '../utils/personalIdCrypto';
+import { normalizePersonalId, parseBirthYear } from '../utils/personalIdValidation';
 import { SeasonService } from '../services/SeasonService';
 import { prisma } from '../lib/prisma';
 import fs from 'fs';
@@ -20,12 +21,20 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
-        const birthYearNum = parseInt(birthYear, 10);
+        let normalizedId: string;
+        let birthYearNum: number;
+        try {
+            normalizedId = normalizePersonalId(String(personalId));
+            birthYearNum = parseBirthYear(birthYear);
+        } catch {
+            res.status(401).json({ error: 'Player not found or invalid credentials' });
+            return;
+        }
         const season = await SeasonService.getActiveFootballSeason();
         const playerRow = await prisma.player.findFirst({
             where: {
                 seasonId: season.id,
-                personalIdEnc: { in: personalIdLookupValues(String(personalId)) },
+                personalIdEnc: { in: personalIdLookupValues(normalizedId) },
                 birthYear: birthYearNum,
                 active: true,
             },

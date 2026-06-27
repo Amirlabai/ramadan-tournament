@@ -37,6 +37,11 @@ function forceExitAfterBuild(): Plugin {
 
 export default defineConfig({
   envDir: __dirname,
+  resolve: {
+    alias: {
+      '@ramadan-tournament/shared': path.resolve(__dirname, '../shared'),
+    },
+  },
   server: {
     proxy: {
       '/api': {

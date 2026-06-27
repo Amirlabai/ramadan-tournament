@@ -5,6 +5,7 @@ import { useTournament } from '../contexts/TournamentContext'
 import { getMainNavItems, getNavIndex } from '../utils/mainNavItems'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useDrawerSwipeClose } from '../hooks/useDrawerSwipeClose'
+import { canAccessAdminPanel } from '../utils/tournamentUser'
 import './TournamentSidebar.css'
 
 interface TournamentSidebarProps {
@@ -53,8 +54,8 @@ const TournamentSidebar = ({
 }: TournamentSidebarProps) => {
   const { user } = useAuth()
   const { paths, isGirls, isWorldCup } = useTournament()
-  const isAdmin = user?.role === 'Admin' || user?.role === 'admin'
-  const items = getMainNavItems({ isGirls, isWorldCup, paths, user, isAdmin })
+  const showAdminNav = canAccessAdminPanel(user)
+  const items = getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav })
   const location = useLocation()
   const activeIndex = getNavIndex(location.pathname, items)
   const panelRef = useFocusTrap(isMobile && open, () => onOpenChange(false))

@@ -1,20 +1,24 @@
-﻿import { useState, useRef, useEffect, useCallback } from 'react';
+﻿import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth, type User } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI, statsGirlsAPI, registrationAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
 import CaptainTeamRequests from '../components/admin/CaptainTeamRequests';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
+import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
+import {
+    getTournamentParticipationBadge,
+    isOnRoster,
+    isPlatformAdmin,
+    showLegacyCaptainPanel,
+} from '../utils/tournamentUser';
+import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
 import './Profile.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
-
-/** Matches server `inputValidation.ts` caps. */
-const TEAM_NAME_MAX_LEN = 80;
-const TEAM_DESC_MAX_LEN = 500;
 
 function resolveRegistrationSlug(user: User | null | undefined): 'boys' | 'girls' {
     if (user?.activeDivision === 'girls') return 'girls';
@@ -24,27 +28,23 @@ function resolveRegistrationSlug(user: User | null | undefined): 'boys' | 'girls
     return 'boys';
 }
 
-function managedTeamIdForReg(
-    reg?: {
-        ownedTeamId?: number | null;
-        onRoster?: { teamId: number; isCaptain?: boolean } | null;
-    } | null
+function ownedTeamIdForReg(
+    reg?: { ownedTeamId?: number | null } | null
 ): number | null {
-    if (!reg) return null;
-    return reg.ownedTeamId ?? (reg.onRoster?.isCaptain ? reg.onRoster.teamId : null) ?? null;
+    return reg?.ownedTeamId ?? null;
 }
 
-/** Prefer active division when it has owner/captain duties; otherwise any division with management role. */
-function pickManagedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: number | null } {
+/** PRD team owners only — roster `isCaptain` does not grant branding/join panels. */
+function pickOwnedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: number | null } {
     const active = resolveRegistrationSlug(user);
     const boys = user.tournamentRegistration?.boys;
     const girls = user.tournamentRegistration?.girls;
-    const activeManaged = managedTeamIdForReg(active === 'girls' ? girls : boys);
-    if (activeManaged) return { slug: active, teamId: activeManaged };
-    const boysManaged = managedTeamIdForReg(boys);
-    if (boysManaged) return { slug: 'boys', teamId: boysManaged };
-    const girlsManaged = managedTeamIdForReg(girls);
-    if (girlsManaged) return { slug: 'girls', teamId: girlsManaged };
+    const activeOwned = ownedTeamIdForReg(active === 'girls' ? girls : boys);
+    if (activeOwned) return { slug: active, teamId: activeOwned };
+    const boysOwned = ownedTeamIdForReg(boys);
+    if (boysOwned) return { slug: 'boys', teamId: boysOwned };
+    const girlsOwned = ownedTeamIdForReg(girls);
+    if (girlsOwned) return { slug: 'girls', teamId: girlsOwned };
     return { slug: active, teamId: null };
 }
 
@@ -60,12 +60,12 @@ const Profile = () => {
     // Player profile editing
     const playerProfile = user ? (user as any).playerProfile : null;
     const registrationSlug = user ? resolveRegistrationSlug(user) : 'boys';
-    const managedCtx = user ? pickManagedTeamContext(user) : { slug: 'boys' as const, teamId: null };
-    const managedSlug = managedCtx.slug;
+    const ownedCtx = user ? pickOwnedTeamContext(user) : { slug: 'boys' as const, teamId: null };
+    const ownedSlug = ownedCtx.slug;
+    const ownedTeamId = ownedCtx.teamId;
     const divisionReg = user?.tournamentRegistration?.[registrationSlug];
     const onRoster = divisionReg?.onRoster ?? null;
     const ownsTeam = divisionReg?.ownedTeamId ?? null;
-    const managedTeamId = managedCtx.teamId;
     const canLeaveActiveRoster = !!onRoster && !ownsTeam && !onRoster?.isCaptain;
     const pendingJoin = divisionReg?.pendingJoin ?? null;
     const canEditPlayer = !!(playerProfile || onRoster || pendingJoin);
@@ -74,17 +74,7 @@ const Profile = () => {
     const [playerSaving, setPlayerSaving] = useState(false);
     const [playerMsg, setPlayerMsg] = useState('');
 
-    // Team settings for Captains
-    const [editingTeam, setEditingTeam] = useState(false);
-    const [teamSettingsForm, setTeamSettingsForm] = useState({ name: '', logoPosition: 'right' });
-    const [teamSettingsSaving, setTeamSettingsSaving] = useState(false);
-    const [teamSettingsMsg, setTeamSettingsMsg] = useState('');
-    const [teamLogoLoading, setTeamLogoLoading] = useState(false);
-    const [managedTeam, setManagedTeam] = useState<{
-        name: string;
-        logoUrl?: string;
-        logoPosition?: string;
-    } | null>(null);
+    const [ownedTeamName, setOwnedTeamName] = useState('');
 
     // Stats data
     const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
@@ -120,27 +110,16 @@ const Profile = () => {
         }
     };
 
-    const loadManagedTeam = useCallback(async () => {
-        if (!user || !managedTeamId) {
-            setManagedTeam(null);
+    useEffect(() => {
+        if (!ownedTeamId) {
+            setOwnedTeamName('');
             return;
         }
-        try {
-            const res = await teamsAPI.getById(managedTeamId, managedSlug);
-            const team = res.data as { name: string; logoUrl?: string; logoPosition?: string };
-            setManagedTeam({
-                name: team.name,
-                logoUrl: team.logoUrl || undefined,
-                logoPosition: team.logoPosition || 'right',
-            });
-        } catch {
-            setManagedTeam(null);
-        }
-    }, [user, managedTeamId, managedSlug]);
-
-    useEffect(() => {
-        void loadManagedTeam();
-    }, [loadManagedTeam]);
+        teamsAPI
+            .getById(ownedTeamId, ownedSlug)
+            .then((res) => setOwnedTeamName((res.data as { name: string }).name))
+            .catch(() => setOwnedTeamName(''));
+    }, [ownedTeamId, ownedSlug]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -264,70 +243,6 @@ const Profile = () => {
         }
     };
 
-    const handleSaveTeamMetadata = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!user || !managedTeamId) return;
-        setTeamSettingsSaving(true);
-        setTeamSettingsMsg('');
-        try {
-            await teamsAPI.updateMetadata(managedTeamId, teamSettingsForm as any, managedSlug);
-            await Promise.all([refreshUser(), loadManagedTeam()]);
-            setEditingTeam(false);
-            setTeamSettingsMsg('פרטי הקבוצה עודכנו בהצלחה');
-        } catch (err: any) {
-            setTeamSettingsMsg(err.response?.data?.error || 'שגיאה בעדכון הפרטים');
-        } finally {
-            setTeamSettingsSaving(false);
-        }
-    };
-
-    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file || !user || !managedTeamId) return;
-        setTeamLogoLoading(true);
-        try {
-            const formData = new FormData();
-            formData.append('logo', file);
-            await teamsAPI.uploadLogo(managedTeamId, formData, managedSlug);
-            await Promise.all([refreshUser(), loadManagedTeam()]);
-            alert('הלוגו הועלה בהצלחה');
-        } catch (err: any) {
-            alert(err.response?.data?.error || 'שגיאה בהעלאת הלוגו');
-        } finally {
-            setTeamLogoLoading(false);
-        }
-    };
-
-    const handleDeleteLogo = async () => {
-        if (!user || !managedTeamId || !confirm('האם למחוק את לוגו הקבוצה?')) return;
-        setTeamLogoLoading(true);
-        try {
-            await teamsAPI.deleteLogo(managedTeamId, managedSlug);
-            await Promise.all([refreshUser(), loadManagedTeam()]);
-            alert('הלוגו נמחק בהצלחה');
-        } catch (err: any) {
-            alert(err.response?.data?.error || 'שגיאה במחיקת הלוגו');
-        } finally {
-            setTeamLogoLoading(false);
-        }
-    };
-
-    const startEditTeam = () => {
-        setTeamSettingsForm({
-            name: managedTeam?.name || '',
-            logoPosition: managedTeam?.logoPosition || 'right',
-        });
-        setTeamSettingsMsg('');
-        setEditingTeam(true);
-    };
-
-    const resolveLogoSrc = (logoUrl?: string) =>
-        logoUrl
-            ? logoUrl.startsWith('http')
-                ? logoUrl
-                : `${VITE_API_URL}${logoUrl}`
-            : null;
-
     const avatarSrc = user.avatarUrl
         ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl} `)
         : null;
@@ -350,6 +265,14 @@ const Profile = () => {
     const boysReg = user.tournamentRegistration?.boys;
     const girlsReg = user.tournamentRegistration?.girls;
     const isRegistrationActive = divisionReg?.status === 'active';
+    const platformAdmin = isPlatformAdmin(user);
+    const tr = user.tournamentRegistration;
+    const usesPrdRegistration = !!(
+        tr?.boys?.ownedTeamId ||
+        tr?.girls?.ownedTeamId ||
+        (tr?.boys?.status && tr.boys.status !== 'none') ||
+        (tr?.girls?.status && tr.girls.status !== 'none')
+    );
     const canRequestTeam =
         isRegistrationActive &&
         !divisionReg?.pendingCreation &&
@@ -364,22 +287,14 @@ const Profile = () => {
 
     // We hide the status banner entirely once the user is actually a Player or Captain, 
     // because the 'Editable Player Info' card below is enough proof they are mapped.
-    const tr = user.tournamentRegistration;
-    const usesPrdRegistration =
-        !!(tr?.boys?.ownedTeamId || tr?.girls?.ownedTeamId) ||
-        (tr?.boys?.status && tr.boys.status !== 'none') ||
-        (tr?.girls?.status && tr.girls.status !== 'none');
     const showMappingBanner =
         mappingStatus &&
         !usesPrdRegistration &&
-        user.role !== 'Player' &&
-        user.role !== 'Captain';
-    const showLegacyCaptain = user.role === 'Captain' && !usesPrdRegistration;
-    const managedOwnedTeamId = user.tournamentRegistration?.[managedSlug]?.ownedTeamId;
-    const showOwnerJoinPanel =
-        !!managedTeamId && managedOwnedTeamId === managedTeamId && !!managedTeam;
-    const showTeamSettings = !!managedTeamId && !!managedTeam;
-    const teamLogoSrc = resolveLogoSrc(managedTeam?.logoUrl);
+        !isOnRoster(user);
+    const showLegacyCaptain = showLegacyCaptainPanel(user, usesPrdRegistration);
+    const tournamentBadge = getTournamentParticipationBadge(user);
+    const showOwnerTeamPanel = !!ownedTeamId;
+    const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
 
     return (
         <div className="profile-page">
@@ -424,10 +339,25 @@ const Profile = () => {
                         <div className="flex-grow-1">
                             <h2 className="mb-1">{user.displayName}</h2>
                             {user.email && <div className="text-muted small" dir="ltr">{user.email}</div>}
-                            <span className={`badge bg - ${user.role === 'Admin' || user.role === 'admin' ? 'danger' : user.role === 'Captain' ? 'theme-yellow text-dark' : 'secondary'} mt - 1`}>
-                                {user.role === 'Captain' && <i className="bi bi-star-fill me-1" />}
-                                {roleLabels[user.role] ?? user.role}
-                            </span>
+                            <div className="d-flex flex-wrap gap-1 mt-1">
+                                {platformAdmin && (
+                                    <span className="badge bg-danger">מנהל</span>
+                                )}
+                                {tournamentBadge === 'captain' && (
+                                    <span className="badge bg-theme-yellow text-dark">
+                                        <i className="bi bi-star-fill me-1" aria-hidden="true" />
+                                        קפטן
+                                    </span>
+                                )}
+                                {tournamentBadge === 'player' && (
+                                    <span className="badge bg-secondary">שחקן</span>
+                                )}
+                                {!platformAdmin && !tournamentBadge && (
+                                    <span className="badge bg-secondary">
+                                        {roleLabels[user.role] ?? user.role}
+                                    </span>
+                                )}
+                            </div>
                         </div>
                         <button type="button" className="btn btn-danger btn-sm" onClick={handleLogout}>התנתק</button>
                     </div>
@@ -460,7 +390,7 @@ const Profile = () => {
                 <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
 
                 {/* Claim Player Profile Banner */}
-                {user.role === 'User' && (!mappingStatus || mappingStatus === 'rejected') && (
+                {(!getTournamentParticipationBadge(user) && (!mappingStatus || mappingStatus === 'rejected')) && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
                         <span className="small">עבור לעמוד קבוצות להצטרפות</span>
@@ -644,110 +574,28 @@ const Profile = () => {
                     </div>
                 )}
 
-                {showTeamSettings && (
-                    <div className="card mb-4 p-4">
-                        <div className="d-flex justify-content-between align-items-center mb-3">
-                            <h4 className="mb-0">הגדרות קבוצה — {managedTeam.name}</h4>
-                            {!editingTeam && (
-                                <button type="button" className="btn btn-success btn-sm" onClick={startEditTeam}>
-                                    <i className="bi bi-gear-fill me-1" />ניהול קבוצה
-                                </button>
-                            )}
-                        </div>
-
-                        {editingTeam ? (
-                            <form onSubmit={handleSaveTeamMetadata}>
-                                <div className="row g-3 mb-4">
-                                    <div className="col-md-6">
-                                        <label className="form-label">שם הקבוצה</label>
-                                        <input className="form-control" value={teamSettingsForm.name} maxLength={50}
-                                            onChange={e => setTeamSettingsForm(t => ({ ...t, name: e.target.value }))} required />
-                                    </div>
-                                    <div className="col-md-6">
-                                        <label className="form-label">מיקום לוגו בדף הבית</label>
-                                        <select className="form-select" value={teamSettingsForm.logoPosition}
-                                            onChange={e => setTeamSettingsForm(t => ({ ...t, logoPosition: e.target.value as any }))}>
-                                            <option value="right">ימין (רגיל)</option>
-                                            <option value="left">שמאל</option>
-                                            <option value="none">אל תציג לוגו</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="mb-4">
-                                    <label className="form-label d-block">לוגו הקבוצה</label>
-                                    <div className="d-flex align-items-center gap-3">
-                                        <div className="position-relative">
-                                            {teamLogoSrc ? (
-                                                <>
-                                                    <img src={teamLogoSrc}
-                                                        alt="Team Logo" className="team-logo-preview" style={{ width: 64, height: 64, objectFit: 'contain' }} />
-                                                    <button type="button" className="btn btn-danger btn-sm position-absolute top-0 start-0 p-1" onClick={handleDeleteLogo}
-                                                        title="מחק לוגו" style={{ borderRadius: '50%', transform: 'translate(-30%, -30%)' }}>
-                                                        <i className="bi bi-trash-fill" style={{ fontSize: '10px' }} />
-                                                    </button>
-                                                </>
-                                            ) : (
-                                                <div className="team-logo-placeholder d-flex align-items-center justify-content-center bg-light rounded" style={{ width: 64, height: 64 }}>
-                                                    <i className="bi bi-image text-muted" />
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div>
-                                            <input type="file" id="teamLogoInput" accept="image/*" className="d-none" onChange={handleLogoUpload} />
-                                            <label htmlFor="teamLogoInput" className="btn btn-secondary btn-sm" style={{ cursor: 'pointer' }}>
-                                                {teamLogoLoading ? <span className="spinner-border spinner-border-sm me-1" /> : <i className="bi bi-upload me-1" />}
-                                                {teamLogoSrc ? 'החלף לוגו' : 'העלה לוגו'}
-                                            </label>
-                                            <div className="text-muted small mt-1">מומלץ להעלות קובץ PNG שקוף</div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {teamSettingsMsg && <div className={`alert ${teamSettingsMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamSettingsMsg}</div>}
-
-                                <div className="d-flex gap-2">
-                                    <button type="button" className="btn btn-secondary" onClick={() => setEditingTeam(false)}>ביטול</button>
-                                    <button type="submit" className="btn btn-theme-green ms-auto" disabled={teamSettingsSaving}>
-                                        {teamSettingsSaving ? <span className="spinner-border spinner-border-sm" /> : 'שמור שינויים'}
-                                    </button>
-                                </div>
-                            </form>
-                        ) : (
-                            <div className="row">
-                                <div className="col-md-8">
-                                    <div className="mb-2"><strong>שם הקבוצה:</strong> {managedTeam.name}</div>
-                                    <div><strong>מיקום לוגו:</strong> {
-                                        managedTeam.logoPosition === 'left' ? 'שמאל' :
-                                            managedTeam.logoPosition === 'none' ? 'לא מוצג' : 'ימין'
-                                    }</div>
-                                </div>
-                                <div className="col-md-4 text-center">
-                                    {teamLogoSrc ? (
-                                        <img src={teamLogoSrc}
-                                            alt="Team Logo" className="team-logo-display" style={{ maxWidth: '100%', maxHeight: 80, objectFit: 'contain' }} />
-                                    ) : (
-                                        <div className="text-muted small">טרם הועלה לוגו קבוצה</div>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                        {!editingTeam && teamSettingsMsg && <div className="alert alert-success py-2 mt-3">{teamSettingsMsg}</div>}
-                    </div>
-                )}
-
-                {showOwnerJoinPanel && (
-                    <div className="card mb-4 p-4">
-                        <h4 className="mb-3 d-flex align-items-center">
-                            <i className="bi bi-shield-check me-2" />
-                            ניהול בקשות הצטרפות — {managedTeam.name}
-                        </h4>
-                        <TeamRegistrationActions
-                            teamId={managedTeamId!}
-                            teamName={managedTeam.name}
-                            slug={managedSlug}
+                {showOwnerTeamPanel && ownedTeamId && (
+                    <>
+                        <TeamOwnerSettings
+                            key={`${ownedSlug}-${ownedTeamId}`}
+                            teamId={ownedTeamId}
+                            slug={ownedSlug}
+                            onUpdated={(snapshot) => {
+                                if (snapshot?.name) setOwnedTeamName(snapshot.name);
+                            }}
                         />
-                    </div>
+                        <div className="card mb-4 p-4">
+                            <h4 className="mb-3 d-flex align-items-center">
+                                <i className="bi bi-shield-check me-2" />
+                                ניהול בקשות הצטרפות — {ownerTeamLabel}
+                            </h4>
+                            <TeamRegistrationActions
+                                teamId={ownedTeamId}
+                                teamName={ownerTeamLabel}
+                                slug={ownedSlug}
+                            />
+                        </div>
+                    </>
                 )}
 
                 {showLegacyCaptain && (
@@ -767,7 +615,7 @@ const Profile = () => {
                 )}
 
                 {/* Team Creation Request */}
-                {canRequestTeam && user.role !== 'Captain' && user.role !== 'Admin' && user.role !== 'admin' && user.role !== 'Player' && (
+                {canRequestTeam && (
                     <div className="card mb-4 p-4">
                         <h4 className="mb-3">בקשה לפתיחת קבוצה חדשה</h4>
                         <p className="text-muted small">

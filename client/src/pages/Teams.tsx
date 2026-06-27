@@ -1,7 +1,8 @@
-import { Fragment, useEffect, useState } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
+import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../components/registration/OwnerSquadRoles';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
@@ -25,6 +26,10 @@ const Teams = () => {
     const [voteConfirmPlayer, setVoteConfirmPlayer] = useState<any | null>(null);
     const [loginPromptOpen, setLoginPromptOpen] = useState(false);
     const [dismissPrompt, setDismissPrompt] = useState(false);
+    const ownerSettingsEditingRef = useRef(false);
+    const handleOwnerSettingsEditingChange = useCallback((editing: boolean) => {
+        ownerSettingsEditingRef.current = editing;
+    }, []);
     const { user, loading: authLoading } = useAuth();
     const { slug } = useTournament();
     const location = useLocation();
@@ -118,6 +123,7 @@ const Teams = () => {
         fetchTeams();
 
         const interval = setInterval(() => {
+            if (ownerSettingsEditingRef.current) return;
             const hour = new Date().getHours();
             if (hour >= 20 && hour <= 23) {
                 fetchTeams(true);
@@ -125,7 +131,7 @@ const Teams = () => {
         }, 30000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [slug]);
 
     useEffect(() => {
         fetchMyVote();
@@ -282,6 +288,25 @@ const Teams = () => {
                                     {isExpanded && (
                                         <tr className="team-details-row" id={`team-details-${team.id}`}>
                                             <td colSpan={5} className="bg-light p-3">
+                                                {team.description && !isOwner ? (
+                                                    <p className="text-muted small mb-3">{team.description}</p>
+                                                ) : null}
+                                                {isOwner && (
+                                                    <TeamOwnerSettings
+                                                        key={`owner-settings-${slug}-${team.id}`}
+                                                        teamId={team.id}
+                                                        slug={slug}
+                                                        variant="inline"
+                                                        initialTeam={{
+                                                            name: team.name,
+                                                            description: team.description,
+                                                            logoUrl: team.logoUrl,
+                                                            logoPosition: team.logoPosition,
+                                                        }}
+                                                        onEditingChange={handleOwnerSettingsEditingChange}
+                                                        onUpdated={() => void fetchTeams(true)}
+                                                    />
+                                                )}
                                                 <TeamRegistrationActions
                                                     teamId={team.id}
                                                     teamName={team.name}

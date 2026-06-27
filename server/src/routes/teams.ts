@@ -12,6 +12,7 @@ import {
     deleteTeamLogo,
     addPlayer,
     deletePlayer,
+    deletePlayerPhoto,
     movePlayer,
 } from '../controllers/teamController';
 import {
@@ -43,17 +44,18 @@ router.patch('/:id/squad-roles', authenticate, setSquadRoles);
 router.post('/:id/owner-review-join', authenticate, ownerReviewJoin);
 
 // Legacy captain mapping requests
-router.get('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain']), getTeamRequests);
-router.post('/:id/requests', authenticate, authorize(['Admin', 'admin', 'Captain']), approveTeamRequest);
+router.get('/:id/requests', authenticate, getTeamRequests);
+router.post('/:id/requests', authenticate, approveTeamRequest);
 
-// Captain tools: Metadata & Logo
+// Owner/admin branding: metadata & logo
 router.patch('/:id/metadata', authenticate, updateTeamMetadata);
 router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, deleteTeamLogo);
 
-// Admin tools: Player management
+// Roster management — platform admins only (route + controller)
 router.post('/:id/players', authenticate, authorize(['Admin', 'admin']), addPlayer);
 router.delete('/:id/players/:memberId', authenticate, authorize(['Admin', 'admin']), deletePlayer);
+router.delete('/:id/players/:memberId/photo', authenticate, authorize(['Admin', 'admin']), deletePlayerPhoto);
 router.patch('/:id/players/:memberId/move', authenticate, authorize(['Admin', 'admin']), movePlayer);
 
 export default router;

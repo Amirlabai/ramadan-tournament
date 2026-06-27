@@ -1,19 +1,27 @@
 import { encryptPersonalId } from './personalIdCrypto';
+import {
+  BIRTH_YEAR_MIN,
+  BIRTH_YEAR_MAX,
+  isValidIsraeliId,
+  normalizePersonalId,
+} from '@ramadan-tournament/shared';
 
-export const BIRTH_YEAR_MIN = 1940;
-export const BIRTH_YEAR_MAX = 2015;
-
-export function normalizePersonalId(raw: string): string {
-  const digits = raw.replace(/\D/g, '');
-  if (digits.length < 5 || digits.length > 9) {
-    throw new Error('תעודת זהות חייבת להכיל 5–9 ספרות');
-  }
-  return digits;
-}
+export { isValidIsraeliId, normalizePersonalId };
+export { BIRTH_YEAR_MIN, BIRTH_YEAR_MAX };
 
 export function parseBirthYear(raw: string | number): number {
-  const year = typeof raw === 'number' ? raw : parseInt(String(raw).trim(), 10);
-  if (!Number.isInteger(year) || year < BIRTH_YEAR_MIN || year > BIRTH_YEAR_MAX) {
+  if (typeof raw === 'number') {
+    if (!Number.isInteger(raw) || raw < BIRTH_YEAR_MIN || raw > BIRTH_YEAR_MAX) {
+      throw new Error(`שנת לידה חייבת להיות בין ${BIRTH_YEAR_MIN} ל-${BIRTH_YEAR_MAX}`);
+    }
+    return raw;
+  }
+  const s = String(raw).trim();
+  if (!/^\d{4}$/.test(s)) {
+    throw new Error(`שנת לידה חייבת להיות 4 ספרות בין ${BIRTH_YEAR_MIN} ל-${BIRTH_YEAR_MAX}`);
+  }
+  const year = parseInt(s, 10);
+  if (year < BIRTH_YEAR_MIN || year > BIRTH_YEAR_MAX) {
     throw new Error(`שנת לידה חייבת להיות בין ${BIRTH_YEAR_MIN} ל-${BIRTH_YEAR_MAX}`);
   }
   return year;

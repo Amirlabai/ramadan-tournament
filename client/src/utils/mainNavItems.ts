@@ -12,11 +12,11 @@ interface MainNavContext {
   isWorldCup: boolean
   paths: (typeof tournamentPaths)[TournamentSlug]
   user: User | null
-  isAdmin: boolean
+  showAdminNav: boolean
 }
 
 export function getMainNavItems(ctx: MainNavContext): NavItem[] {
-  const { isGirls, isWorldCup, paths, user, isAdmin } = ctx
+  const { isGirls, isWorldCup, paths, user, showAdminNav } = ctx
   const items: NavItem[] = []
 
   if (isWorldCup) {
@@ -58,7 +58,7 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
     items.push({ to: '/login', label: 'התחברות', className: 'login-link' })
   }
 
-  if (isAdmin) {
+  if (showAdminNav) {
     items.push({ to: '/admin', label: 'ניהול' })
   }
 

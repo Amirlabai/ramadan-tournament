@@ -74,6 +74,16 @@ ramadan-tournament/
 
 ### Development Setup
 
+**Recommended (monorepo, from repo root):**
+
+```bash
+npm install          # workspaces: client, server, shared (shared `prepare` builds dist)
+npm run dev          # build:shared once, then API + Vite together
+```
+
+Use `npm run dev:server` or `npm run dev:client` to run one side; each runs `build:shared` first.  
+Do **not** use bare `npm run dev --workspace=server` — that skips the shared compile (server loads `@ramadan-tournament/shared` from `dist/`).
+
 1. **Clone the repository**
    ```bash
    git clone https://github.com/Amirlabai/ramadan-tournament.git

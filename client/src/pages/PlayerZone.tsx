@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { playerAPI } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../utils/birthYearInput';
+import { isValidIsraeliId, sanitizePersonalIdInput } from '../utils/israeliIdValidation';
 import SEO from '../components/SEO';
 import './PlayerZone.css';
 
@@ -33,6 +35,14 @@ const PlayerZone = () => {
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
+        if (!isValidIsraeliId(personalId)) {
+            setError('מספר תעודת זהות לא תקין');
+            return;
+        }
+        if (!isBirthYearInRange(birthYear)) {
+            setError(`שנת לידה חייבת להיות בין ${BIRTH_YEAR_MIN} ל-${BIRTH_YEAR_MAX}`);
+            return;
+        }
         setLoading(true);
         try {
             const res = await playerAPI.login(personalId, birthYear);
@@ -87,6 +97,10 @@ const PlayerZone = () => {
         }
     };
 
+    const canLogin = isValidIsraeliId(personalId) && isBirthYearInRange(birthYear);
+    const idFieldInvalid = personalId.length > 0 && !isValidIsraeliId(personalId);
+    const yearFieldInvalid = birthYear.length > 0 && !isBirthYearInRange(birthYear);
+
     return (
         <div className="player-zone-container container py-5">
             <SEO
@@ -106,28 +120,52 @@ const PlayerZone = () => {
                                 <label htmlFor="personalId" className="form-label">תעודת זהות</label>
                                 <input
                                     type="text"
-                                    className="form-control"
+                                    inputMode="numeric"
+                                    className={`form-control${idFieldInvalid ? ' identity-field--invalid' : personalId.length === 0 ? ' identity-field--pending' : ''}`}
                                     id="personalId"
                                     value={personalId}
-                                    onChange={(e) => setPersonalId(e.target.value)}
+                                    onChange={(e) => setPersonalId(sanitizePersonalIdInput(e.target.value))}
+                                    maxLength={9}
+                                    dir="ltr"
                                     required
+                                    aria-invalid={idFieldInvalid}
                                 />
                             </div>
                             <div className="mb-3">
                                 <label htmlFor="birthYear" className="form-label">שנת לידה</label>
                                 <input
-                                    type="number"
-                                    className="form-control"
+                                    type="text"
+                                    inputMode="numeric"
+                                    className={`form-control${yearFieldInvalid ? ' identity-field--invalid' : birthYear.length === 0 ? ' identity-field--pending' : ''}`}
                                     id="birthYear"
                                     value={birthYear}
-                                    onChange={(e) => setBirthYear(e.target.value)}
+                                    onChange={(e) => setBirthYear(sanitizeBirthYearInput(e.target.value))}
+                                    maxLength={4}
+                                    placeholder={`${BIRTH_YEAR_MIN}–${BIRTH_YEAR_MAX}`}
+                                    dir="ltr"
                                     required
+                                    aria-invalid={yearFieldInvalid}
                                 />
                             </div>
                             {error && <div className="alert alert-danger">{error}</div>}
-                            <button type="submit" className="btn btn-success w-100" disabled={loading}>
+                            <button
+                                type="submit"
+                                className="btn btn-success btn-gated w-100"
+                                disabled={loading || !canLogin}
+                                aria-describedby={!canLogin && !loading ? 'player-zone-login-hint' : undefined}
+                            >
                                 {loading ? 'מתחבר...' : 'כניסה'}
                             </button>
+                            {!canLogin && !loading && (
+                                <p
+                                    id="player-zone-login-hint"
+                                    className={`identity-validation-hint mt-2 mb-0${personalId.length > 0 || birthYear.length > 0 ? ' identity-validation-hint--blocked' : ''}`}
+                                >
+                                    {personalId.length === 0 && birthYear.length === 0
+                                        ? 'הזן תעודת זהות (9 ספרות) ושנת לידה כדי להמשיך'
+                                        : 'יש להשלים תעודת זהות תקינה ושנת לידה בטווח המותר'}
+                                </p>
+                            )}
                         </form>
                     </div>
                 </div>

@@ -184,8 +184,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
             });
             await newTeam.save();
 
-            // Promote user to Captain and assign to new team
-            user.role = 'Captain';
+            // Captain state lives in mappedPlayerInfo (memberId 0), not platform role
             user.mappedPlayerInfo = { teamId: newTeamId, memberId: 0, status: 'approved' };
             user.pendingTeamRequest.status = 'approved';
         } else {
@@ -243,14 +242,13 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
         const { teamId, status, role } = req.body;
 
         const validStatuses = ['pending', 'approved', 'rejected'];
-        const validRoles = ['User', 'Player', 'Captain', 'Admin', 'admin'];
 
         if (status && !validStatuses.includes(status)) {
             res.status(400).json({ error: 'Invalid status value' });
             return;
         }
-        if (role && !validRoles.includes(role)) {
-            res.status(400).json({ error: 'Invalid role value' });
+        if (role && role !== 'Admin' && role !== 'admin') {
+            res.status(400).json({ error: 'Invalid role value — platform role must be Admin or admin' });
             return;
         }
 
@@ -268,15 +266,15 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
             if (teamId !== undefined) user.mappedPlayerInfo.teamId = Number(teamId);
             if (status) user.mappedPlayerInfo.status = status;
         }
-        if (role) user.role = role;
+        if (role === 'Admin' || role === 'admin') {
+            user.role = role;
+        }
 
         // Apply side effects if the admin changed the mapping status explicitly
         if (status && status !== oldStatus) {
             const currentTeamId = user.mappedPlayerInfo.teamId;
 
             if (status === 'approved') {
-                if (!role) user.role = 'Player'; // auto-promote only if no explicit role provided
-
                 const teamDoc = await Team.findOne({ id: currentTeamId });
                 if (teamDoc) {
                     let activeMemberId = user.mappedPlayerInfo.memberId;
@@ -322,8 +320,6 @@ export const updateUserMapping = async (req: AuthRequest, res: Response): Promis
                         user.mappedPlayerInfo.memberId,
                     );
                 }
-            } else if (status === 'rejected') {
-                if (user.role === 'Player') user.role = 'User';
             }
         }
 

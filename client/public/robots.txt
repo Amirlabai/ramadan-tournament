@@ -1,9 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /login
-Disallow: /admin/login
-Disallow: /admin
-Disallow: /profile
-Disallow: /player-zone
-
-Sitemap: https://kksummer-wc.vercel.app/sitemap.xml
