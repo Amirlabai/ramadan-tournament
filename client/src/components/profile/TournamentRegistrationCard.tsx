@@ -5,7 +5,6 @@ import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationR
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
 import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
-import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import TransferRequestForm from '../registration/TransferRequestForm';
 import './TournamentRegistrationCard.css';
 
