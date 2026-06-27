@@ -2,7 +2,7 @@ import { Division, SeasonRegistrationStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { InvoiceRateLimitService, MAX_INVOICE_ATTEMPTS } from './InvoiceRateLimitService';
 import { SeasonService } from './SeasonService';
-import { INVOICE_ALERT_NOT_MATCHING } from '../utils/invoiceSimilarity';
+import { IDENTITY_ALERT_NOT_MATCHING } from '../utils/identityAlerts';
 import {
   encryptPersonalIdForStorage,
   identitiesMatch,
@@ -11,7 +11,7 @@ import {
   parseBirthYear,
 } from '../utils/personalIdValidation';
 
-const identitySelectFields = {
+export const identitySelectFields = {
   status: true,
   invoiceAlert: true,
   userPersonalIdEnc: true,
@@ -21,34 +21,17 @@ const identitySelectFields = {
   adminBirthYear: true,
 } as const;
 
-async function assertIdentityUniqueInSeason(
-  seasonId: string,
-  personalIdEnc: string,
-  birthYear: number,
-  excludeUserId?: string
-): Promise<void> {
-  const other = await prisma.seasonRegistration.findFirst({
-    where: {
-      seasonId,
-      ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
-      OR: [
-        { adminPersonalIdEnc: personalIdEnc, adminBirthYear: birthYear },
-        { userPersonalIdEnc: personalIdEnc, userBirthYear: birthYear },
-      ],
-    },
-    select: { userId: true },
-  });
-  if (other) {
-    throw new Error('תעודת זהות זו כבר נרשמה למשתמש אחר בעונה זו');
-  }
-}
+export type IdentityRegSnapshot = {
+  status: SeasonRegistrationStatus;
+  invoiceAlert: string | null;
+  userPersonalIdEnc: string | null;
+  userBirthYear: number | null;
+  userPersonalIdMasked: string | null;
+  adminPersonalIdEnc: string | null;
+  adminBirthYear: number | null;
+};
 
-export async function getIdentityMatchState(userId: string, seasonId: string) {
-  const reg = await prisma.seasonRegistration.findUnique({
-    where: { userId_seasonId: { userId, seasonId } },
-    select: identitySelectFields,
-  });
-
+export function computeIdentityMatchState(reg: IdentityRegSnapshot | null) {
   const hasUserSubmission = !!(reg?.userPersonalIdEnc && reg.userBirthYear != null);
   const hasAdminAssignment = !!(reg?.adminPersonalIdEnc && reg.adminBirthYear != null);
   const matched = identitiesMatch(
@@ -84,6 +67,36 @@ export async function getIdentityMatchState(userId: string, seasonId: string) {
     hasAdminAssignment,
     hasUserSubmission,
   };
+}
+
+async function assertIdentityUniqueInSeason(
+  seasonId: string,
+  personalIdEnc: string,
+  birthYear: number,
+  excludeUserId?: string
+): Promise<void> {
+  const other = await prisma.seasonRegistration.findFirst({
+    where: {
+      seasonId,
+      ...(excludeUserId ? { userId: { not: excludeUserId } } : {}),
+      OR: [
+        { adminPersonalIdEnc: personalIdEnc, adminBirthYear: birthYear },
+        { userPersonalIdEnc: personalIdEnc, userBirthYear: birthYear },
+      ],
+    },
+    select: { userId: true },
+  });
+  if (other) {
+    throw new Error('תעודת זהות זו כבר נרשמה למשתמש אחר בעונה זו');
+  }
+}
+
+export async function getIdentityMatchState(userId: string, seasonId: string) {
+  const reg = await prisma.seasonRegistration.findUnique({
+    where: { userId_seasonId: { userId, seasonId } },
+    select: identitySelectFields,
+  });
+  return computeIdentityMatchState(reg);
 }
 
 export async function assertMatchedIdentityForApproval(
@@ -131,7 +144,7 @@ function syncIdentityAlertAfterAdminAssign(
     adminBirthYear
   )
     ? null
-    : INVOICE_ALERT_NOT_MATCHING;
+    : IDENTITY_ALERT_NOT_MATCHING;
 }
 
 export async function tryFinalizeIdentityMatch(
@@ -169,10 +182,10 @@ export async function tryFinalizeIdentityMatch(
         seasonId,
         division,
         status: SeasonRegistrationStatus.invoice_assigned,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
       },
       update: {
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
         status: SeasonRegistrationStatus.invoice_assigned,
       },
     });
@@ -428,18 +441,18 @@ export async function submitUserIdentity(
         userPersonalIdEnc: personalIdEnc,
         userBirthYear: birthYear,
         userPersonalIdMasked: personalIdMasked,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
       },
       update: {
         status: SeasonRegistrationStatus.invoice_assigned,
         userPersonalIdEnc: personalIdEnc,
         userBirthYear: birthYear,
         userPersonalIdMasked: personalIdMasked,
-        invoiceAlert: INVOICE_ALERT_NOT_MATCHING,
+        invoiceAlert: IDENTITY_ALERT_NOT_MATCHING,
         division: season.division,
       },
     });
-    return recordIdentityAttemptFailure(userId, season.id, INVOICE_ALERT_NOT_MATCHING);
+    return recordIdentityAttemptFailure(userId, season.id, IDENTITY_ALERT_NOT_MATCHING);
   }
 
   await prisma.seasonRegistration.upsert({

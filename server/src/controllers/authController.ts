@@ -88,7 +88,7 @@ const hydrateUserPayload = async (userDoc: any) => {
 
         const roster = boys?.onRoster ?? girls?.onRoster;
 
-        if (roster && (!payload.mappedPlayerInfo || payload.mappedPlayerInfo.status !== 'approved')) {
+        if (roster) {
             (payload as any).mappedPlayerInfo = {
                 teamId: roster.teamId,
                 memberId: roster.memberId,
