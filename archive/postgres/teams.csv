@@ -1,1 +1,2 @@
-id,season_id,name,logo_url,logo_position,status,owner_user_id,created_at
+id,season_id,name,logo_url,logo_position,status,owner_user_id,created_at,description
+1,eb19f900-c99f-486f-8930-6b56a74293d6,מקסיקו,"",right,active,c70d4e9a-c225-456a-88d9-cd3ff49fe475,2026-06-27 16:14:08.936,""
