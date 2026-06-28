@@ -206,7 +206,7 @@ export class RegistrationWorkflowService {
     );
     const season = await SeasonService.getActiveSeasonForDivision(division);
     await assertDivisionAccess(userId, division);
-    await this.assertRegistrationActiveForRequest(userId, season.id);
+    await RegistrationWorkflowService.assertRegistrationActiveForRequest(userId, season.id);
     await lockActiveDivision(userId, division);
 
     const pending = await prisma.teamCreationRequest.findFirst({
@@ -363,7 +363,7 @@ export class RegistrationWorkflowService {
   ) {
     const season = await SeasonService.getActiveSeasonForDivision(division);
     await assertDivisionAccess(userId, division);
-    await this.assertRegistrationActiveForRequest(userId, season.id);
+    await RegistrationWorkflowService.assertRegistrationActiveForRequest(userId, season.id);
     await lockActiveDivision(userId, division);
 
     const onRoster = await prisma.player.findFirst({
