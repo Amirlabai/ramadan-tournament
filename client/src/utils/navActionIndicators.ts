@@ -85,18 +85,11 @@ export function computeProfileActionRequired(
     options: {
         legacyCaptainPendingCount: number;
         ownerPendingJoinCount: number;
-        registrationTaskBoys?: boolean;
-        registrationTaskGirls?: boolean;
     }
 ): boolean {
     const ownerFromAuth = user ? getOwnerPendingJoinCount(user) : 0;
     if (Math.max(options.ownerPendingJoinCount, ownerFromAuth) > 0) return true;
     if (options.legacyCaptainPendingCount > 0) return true;
-    if (options.registrationTaskBoys) return true;
-    if (options.registrationTaskGirls) return true;
-    if (hasRegistrationTask(user?.tournamentRegistration?.boys)) return true;
-    if (hasRegistrationTask(user?.tournamentRegistration?.girls)) return true;
-
     return false;
 }
 

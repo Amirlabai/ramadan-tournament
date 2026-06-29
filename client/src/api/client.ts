@@ -26,6 +26,8 @@ export const seasonsAPI = {
 export const teamsAPI = {
     getAll: (slug: TournamentSlug = 'boys') => api.get(teamsPath(slug)),
     getById: (id: number, slug: TournamentSlug = 'boys') => api.get(`${teamsPath(slug)}/${id}`),
+    hasClaimablePlayers: (slug: TournamentSlug = 'boys') =>
+        api.get<{ hasClaimablePlayers: boolean }>(`${teamsPath(slug)}/has-claimable-players`),
     getAvailablePlayers: (teamId: number, slug: TournamentSlug = 'boys') =>
         api.get(`${teamsPath(slug)}/${teamId}/available-players`),
     getRequests: (id: number, slug: TournamentSlug = 'boys') =>

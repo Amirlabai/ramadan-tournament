@@ -4,6 +4,7 @@ import multer from 'multer';
 import {
     getTeams,
     getTeamById,
+    getHasClaimablePlayers,
     getAvailablePlayers,
     getTeamRequests,
     approveTeamRequest,
@@ -32,6 +33,7 @@ const upload = multer({ dest: os.tmpdir() });
 
 router.get('/', getTeams);
 router.get('/available', authenticate, listAvailableTeams);
+router.get('/has-claimable-players', getHasClaimablePlayers);
 router.post('/creation-request', authenticate, submitTeamCreation);
 router.post('/transfer-request', authenticate, submitTransferRequest);
 router.get('/:id', getTeamById);

@@ -1,8 +1,10 @@
-import { Prisma, RequestStatus } from '@prisma/client';
+import { Division, Prisma, RequestStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { IMappedPlayerInfo, IUser, prismaUserToIUser } from '../db/userMapper';
 import { toInputJson } from '../lib/json';
 import { parseRequestedMemberId } from '../utils/requestedMemberId';
+import { SeasonService } from '../services/SeasonService';
+import { CacheService } from '../services/CacheService';
 
 function readMapping(row: { mappedPlayerInfo: unknown }): IMappedPlayerInfo | null {
   return (row.mappedPlayerInfo as IMappedPlayerInfo | null) ?? null;
@@ -101,6 +103,40 @@ export async function findReservedMemberIds(
     findPendingJoinClaimedMemberIds(teamId, seasonId),
   ]);
   return [...new Set([...approved, ...pending])];
+}
+
+/** True when the active season has roster slots a newcomer can still claim. */
+export async function hasClaimableRosterPlayers(division: Division): Promise<boolean> {
+  const cacheKey = CacheService.key('claimable-players', division);
+  return CacheService.getOrSet(cacheKey, 120, async () => {
+    let season;
+    try {
+      season = await SeasonService.getActiveSeasonForDivision(division);
+    } catch {
+      return false;
+    }
+
+    const unlinked = await prisma.player.findMany({
+      where: { seasonId: season.id, active: true, userId: null },
+      select: { memberId: true, teamId: true },
+    });
+    if (unlinked.length === 0) return false;
+
+    const byTeam = new Map<number, number[]>();
+    for (const player of unlinked) {
+      const memberIds = byTeam.get(player.teamId) ?? [];
+      memberIds.push(player.memberId);
+      byTeam.set(player.teamId, memberIds);
+    }
+
+    for (const [teamId, memberIds] of byTeam) {
+      const reserved = new Set(await findReservedMemberIds(teamId, season.id));
+      if (memberIds.some((memberId) => !reserved.has(memberId))) {
+        return true;
+      }
+    }
+    return false;
+  });
 }
 
 export async function rejectOtherPendingMappings(

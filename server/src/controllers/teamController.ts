@@ -15,6 +15,7 @@ import {
     clearPlayerProfile,
     findReservedMemberIds,
     findPendingMappingsForTeam,
+    hasClaimableRosterPlayers,
     moveApprovedMappingTeam,
     rejectOtherPendingMappings,
 } from '../repositories/userMappingRepository';
@@ -142,6 +143,17 @@ export const getTeamById = async (req: Request, res: Response): Promise<void> =>
         res.json(team);
     } catch (error) {
         console.error('Get team error:', error);
+        res.status(500).json({ error: 'Server error' });
+    }
+};
+
+export const getHasClaimablePlayers = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const division = slugToDivision(requestDivision(req));
+        const hasClaimablePlayers = await hasClaimableRosterPlayers(division);
+        res.json({ hasClaimablePlayers });
+    } catch (error) {
+        console.error('Has claimable players error:', error);
         res.status(500).json({ error: 'Server error' });
     }
 };

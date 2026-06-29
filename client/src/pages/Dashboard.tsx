@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
+import { useTournament } from '../contexts/TournamentContext';
+import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
+import { getProfileTournamentBadge } from '../utils/tournamentUser';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
@@ -25,6 +28,8 @@ const Dashboard = () => {
     dataRef.current = data;
 
     const { user } = useAuth();
+    const { slug } = useTournament();
+    const { hasClaimablePlayers } = useHasClaimablePlayers(slug);
     const navigate = useNavigate();
 
     const fetchDashboard = async (isBackground = false) => {
@@ -86,8 +91,13 @@ const Dashboard = () => {
         }).format(date);
     };
 
-    // Show banner if User is logged in, has the 'User' role, and hasn't submitted a mapping request yet (or was rejected)
-    const needsPlayerMapping = user && user.role === 'User' && (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected') && !hideClaimBanner;
+    // Show banner if user needs mapping and claimable roster slots still exist
+    const userNeedsClaim =
+        user &&
+        !getProfileTournamentBadge(user) &&
+        (!user.mappedPlayerInfo || user.mappedPlayerInfo.status === 'rejected') &&
+        !hideClaimBanner;
+    const needsPlayerMapping = userNeedsClaim && hasClaimablePlayers === true;
     const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
 
     const hasPlayoffs = !!(data.playoffMatches && data.playoffMatches.length > 0);

@@ -16,6 +16,7 @@ import {
     isPlatformAdmin,
     showLegacyCaptainPanel,
 } from '../utils/tournamentUser';
+import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
 import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
 import './Profile.css';
 
@@ -52,6 +53,7 @@ function pickOwnedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: num
 const Profile = () => {
     const { user, loading, logout, refreshUser } = useAuth();
     const navigate = useNavigate();
+    const { hasClaimablePlayers } = useHasClaimablePlayers('boys');
 
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [teamName, setTeamName] = useState('');
@@ -308,6 +310,10 @@ const Profile = () => {
         !isOnRoster(user);
     const showLegacyCaptain = showLegacyCaptainPanel(user, usesPrdRegistration);
     const tournamentBadge = getProfileTournamentBadge(user);
+    const showClaimBanner =
+        !tournamentBadge &&
+        (!mappingStatus || mappingStatus === 'rejected') &&
+        hasClaimablePlayers === true;
     const showOwnerTeamPanel = !!ownedTeamId;
     const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
 
@@ -404,7 +410,7 @@ const Profile = () => {
                 <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
 
                 {/* Claim Player Profile Banner */}
-                {(!tournamentBadge && (!mappingStatus || mappingStatus === 'rejected')) && (
+                {showClaimBanner && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
                         <span className="small">עבור לעמוד קבוצות להצטרפות</span>

@@ -8,9 +8,8 @@ import {
     useState,
     type ReactNode,
 } from 'react';
-import { adminAPI, registrationAPI, teamsAPI, usersAPI } from '../api/client';
+import { adminAPI, registrationAPI, teamsAPI } from '../api/client';
 import { useAuth } from './AuthContext';
-import type { TournamentRegistrationSummary } from './AuthContext';
 import {
     countAdminActionsInWorkflowData,
     type WorkflowQueueSnapshot,
@@ -19,7 +18,6 @@ import {
     computeProfileActionRequired,
     getOwnerPendingJoinCount,
     hasAdminActionRequired,
-    hasRegistrationTask,
     resolveLegacyCaptainTeam,
     shouldFetchLegacyCaptainPending,
 } from '../utils/navActionIndicators';
@@ -113,26 +111,11 @@ async function fetchAdminPendingCount(mode: AdminCountMode): Promise<number> {
     }
 }
 
-async function fetchRegistrationTaskFlags() {
-    const [boysRes, girlsRes] = await Promise.all([
-        usersAPI.getRegistration('boys').catch(() => null),
-        usersAPI.getRegistration('girls').catch(() => null),
-    ]);
-    const boys = boysRes?.data as TournamentRegistrationSummary | undefined;
-    const girls = girlsRes?.data as TournamentRegistrationSummary | undefined;
-    return {
-        boys: hasRegistrationTask(boys ?? null),
-        girls: hasRegistrationTask(girls ?? null),
-    };
-}
-
 export function NavActionIndicatorsProvider({ children }: { children: ReactNode }) {
     const { user, loading } = useAuth();
     const [adminPendingCount, setAdminPendingCount] = useState<number | null>(null);
     const [legacyCaptainPendingCount, setLegacyCaptainPendingCount] = useState(0);
     const [ownerPendingJoinCount, setOwnerPendingJoinCount] = useState(0);
-    const [registrationTaskBoys, setRegistrationTaskBoys] = useState(false);
-    const [registrationTaskGirls, setRegistrationTaskGirls] = useState(false);
     const lastFocusRefreshRef = useRef(0);
     const lastAdminCountRef = useRef<number | null>(null);
 
@@ -182,41 +165,9 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
         const fromAuth = getOwnerPendingJoinCount(user);
         try {
             const fetched = await fetchOwnerPendingJoinCount(user);
-            setOwnerPendingJoinCount((prev) =>
-                Math.max(prev, fromAuth, fetched)
-            );
+            setOwnerPendingJoinCount(Math.max(fromAuth, fetched));
         } catch {
             setOwnerPendingJoinCount((prev) => Math.max(prev, fromAuth));
-        }
-    }, [user]);
-
-    const fetchRegistrationTasks = useCallback(async () => {
-        if (!user) {
-            setRegistrationTaskBoys(false);
-            setRegistrationTaskGirls(false);
-            return;
-        }
-        const boysFromAuth = hasRegistrationTask(user.tournamentRegistration?.boys ?? null);
-        const girlsFromAuth = hasRegistrationTask(user.tournamentRegistration?.girls ?? null);
-        const tr = user.tournamentRegistration;
-        const needsBoysApi = !boysFromAuth && (tr === undefined || tr.boys != null);
-        const needsGirlsApi = !girlsFromAuth && (tr === undefined || tr.girls != null);
-        if (!needsBoysApi && !needsGirlsApi) {
-            setRegistrationTaskBoys(boysFromAuth);
-            setRegistrationTaskGirls(girlsFromAuth);
-            return;
-        }
-        try {
-            const flags = await fetchRegistrationTaskFlags();
-            setRegistrationTaskBoys((prev) =>
-                boysFromAuth || (needsBoysApi ? flags.boys : prev)
-            );
-            setRegistrationTaskGirls((prev) =>
-                girlsFromAuth || (needsGirlsApi ? flags.girls : prev)
-            );
-        } catch {
-            setRegistrationTaskBoys(boysFromAuth);
-            setRegistrationTaskGirls(girlsFromAuth);
         }
     }, [user]);
 
@@ -225,7 +176,6 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
             const tasks: Promise<void>[] = [
                 fetchLegacyCaptainCount(),
                 fetchOwnerCount(),
-                fetchRegistrationTasks(),
             ];
             if (canAccessAdminPanel(user)) {
                 if (!options?.light) {
@@ -236,8 +186,20 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
             }
             await Promise.all(tasks);
         },
-        [user, fetchAdminCount, fetchLegacyCaptainCount, fetchOwnerCount, fetchRegistrationTasks]
+        [user, fetchAdminCount, fetchLegacyCaptainCount, fetchOwnerCount]
     );
+
+    useEffect(() => {
+        if (!user) {
+            setOwnerPendingJoinCount(0);
+            return;
+        }
+        setOwnerPendingJoinCount(getOwnerPendingJoinCount(user));
+    }, [
+        user,
+        user?.tournamentRegistration?.boys?.ownerPendingJoinCount,
+        user?.tournamentRegistration?.girls?.ownerPendingJoinCount,
+    ]);
 
     useEffect(() => {
         if (loading) return;
@@ -256,6 +218,7 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
     }, [
         loading,
         user?.id,
+        user?.role,
         user?.tournamentRegistration?.boys?.ownedTeamId,
         user?.tournamentRegistration?.girls?.ownedTeamId,
         user?.tournamentRegistration?.boys?.ownerPendingJoinCount,
@@ -283,23 +246,11 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
 
     const profileActionRequired = useMemo(() => {
         if (!user) return false;
-        const ownerFromAuth = getOwnerPendingJoinCount(user);
-        const boysFromAuth = hasRegistrationTask(user.tournamentRegistration?.boys ?? null);
-        const girlsFromAuth = hasRegistrationTask(user.tournamentRegistration?.girls ?? null);
-        if (ownerFromAuth > 0 || boysFromAuth || girlsFromAuth) return true;
         return computeProfileActionRequired(user, {
             legacyCaptainPendingCount,
             ownerPendingJoinCount,
-            registrationTaskBoys,
-            registrationTaskGirls,
         });
-    }, [
-        user,
-        legacyCaptainPendingCount,
-        ownerPendingJoinCount,
-        registrationTaskBoys,
-        registrationTaskGirls,
-    ]);
+    }, [user, legacyCaptainPendingCount, ownerPendingJoinCount]);
 
     const adminActionRequired = useMemo(() => {
         if (!canAccessAdminPanel(user)) return false;

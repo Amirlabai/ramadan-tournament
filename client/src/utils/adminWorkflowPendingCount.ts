@@ -7,12 +7,22 @@ export interface WorkflowQueueSnapshot {
     transfers?: unknown[];
 }
 
+function identityRowKey(row: unknown, index: number): string {
+    const r = row as { userId?: string; id?: string; registrationId?: string };
+    if (r.userId) {
+        const suffix = r.id ?? r.registrationId ?? '';
+        return suffix ? `${r.userId}:${suffix}` : r.userId;
+    }
+    if (r.id) return r.id;
+    if (r.registrationId) return r.registrationId;
+    return `row:${index}`;
+}
+
 function dedupeIdentityRows(rows: unknown[]): unknown[] {
     const seen = new Set<string>();
     const merged: unknown[] = [];
-    for (const row of rows) {
-        const userId = (row as { userId?: string }).userId;
-        const key = userId ?? JSON.stringify(row);
+    for (const [index, row] of rows.entries()) {
+        const key = identityRowKey(row, index);
         if (seen.has(key)) continue;
         seen.add(key);
         merged.push(row);
