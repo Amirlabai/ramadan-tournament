@@ -2,7 +2,7 @@
 
 Complete route catalog from [`server/src/routes/`](../../server/src/routes/) and mounts in [`server/src/index.ts`](../../server/src/index.ts).
 
-**Auth legend:** `none` | `user` (JWT cookie) | `admin` | `owner` (team captain for own team)
+**Auth legend:** `none` | `user` (JWT cookie) | `admin` | `owner` (team `ownerUserId`) | `owner-or-captain` (squad captain or team owner)
 
 **Common errors:** `401` unauthenticated | `403` forbidden / division lock | `404` not found | `429` rate limit
 
@@ -26,7 +26,7 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | POST | `/login` | none | Email/password login → `rt_session` |
 | POST | `/google` | none | Google OAuth login |
 | POST | `/logout` | user | Clear session cookie |
-| GET | `/me` | user | Current user + `tournamentRegistration` |
+| GET | `/me` | user | Current user + `tournamentRegistration` (per division: `status`, `invoiceAlert`, `ownerPendingJoinCount`, `ownedTeamId`, `onRoster`, pending requests) |
 | POST | `/verify-email` | none | OTP verification |
 | POST | `/resend-verification` | none | Resend OTP |
 
@@ -52,6 +52,7 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
 | GET | `/` | none | All teams (cached) |
+| GET | `/has-claimable-players` | none | `hasClaimablePlayers` — active season has unlinked roster slots not reserved by pending joins |
 | GET | `/available` | user | Teams open for join |
 | POST | `/creation-request` | user | Request new team (requires `active`) |
 | POST | `/transfer-request` | user | Request transfer (rostered) |
@@ -60,8 +61,8 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | GET | `/:id/join-requests-pending` | user | Owner: pending joins |
 | POST | `/:id/join-request` | user | Submit join request |
 | POST | `/:id/roster/add-self` | user | Self-add after approval |
-| PATCH | `/:id/squad-roles` | user | Captain: set squad roles |
-| POST | `/:id/owner-review-join` | owner | Captain approve/reject join |
+| PATCH | `/:id/squad-roles` | owner-or-captain | Set squad roles (owner or roster captain) |
+| POST | `/:id/owner-review-join` | owner | Team owner approve/reject join |
 | GET | `/:id/requests` | user | Legacy captain requests |
 | POST | `/:id/requests` | user | Legacy captain approve |
 | PATCH | `/:id/metadata` | user | Owner/admin: name, description |
@@ -145,6 +146,7 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | GET | `/point-entries` | admin | List point entries |
 | POST | `/point-entries` | admin | Record points |
 | GET | `/workflows` | admin | Registration workflow queues |
+| GET | `/workflows/pending-count` | admin | Lightweight pending action count (`total`, optional `partial` + `skippedSeasonIds`) for nav dots |
 | GET | `/workflows/user-search` | admin | Search users for identity assign |
 | POST | `/users/identity` | admin | Assign admin PID + birth year |
 | PATCH | `/requests/creation/:id` | admin | Review creation request |
@@ -178,7 +180,7 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 
 | Method | Path | Auth | Purpose |
 |--------|------|------|---------|
-| GET | `/active?division=` | none | Active season for division |
+| GET | `/active?division=` | none | Active season for division (girls: points-mode season via `getActiveGirlsSeason`; 404 when none) |
 
 ---
 
@@ -218,6 +220,6 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 
 ## Route count
 
-~100 handlers across 14 route files (excluding mock-only routes in `createTestApp`).
+~103 handlers across 14 route files (excluding mock-only routes in `createTestApp`).
 
 See [`BUSINESS_LOGIC.md`](BUSINESS_LOGIC.md) for registration flows and authorization rules.

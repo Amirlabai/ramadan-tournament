@@ -93,7 +93,8 @@ erDiagram
 | `point_entries` | UUID | **Points seasons only:** `season_id`, `team_id`, `points` (delta), `note`, `recorded_at`, `recorded_by` (admin) |
 | `users` | UUID | auth, `role` (`admin`\|`user`), `registration_status` (`user`\|`player`), team link columns |
 | `invoice_codes` | UUID | **Legacy / historical only** — superseded by encrypted PID on `season_registrations` (Jun 2026) |
-| `season_registrations` | UUID | `user_id`, `season_id`, `division`, `redeemed_at` — UNIQUE(`user_id`, `season_id`); enforce one division per user per `year_month` |
+| `season_registrations` | UUID | `user_id`, `season_id`, `division`, encrypted PID columns, birth years, status — UNIQUE(`user_id`, `season_id`); enforce one division per user per `year_month` |
+| `form_prereg_entries` | UUID | **Jun 2026:** Google Form CSV import per `season_id`; encrypted `personal_id_enc`, `birth_year`, optional `captain_email`; replace-all via `npm run import:prereg` |
 | `teams` | INT | `season_id`, `owner_user_id`, name, logo, `status` |
 | `players` | `member_id` INT global | `team_id`, `user_id` **required**, jersey `number`, `squad_role`, photos, `personal_id` encrypted, `active` |
 | `team_creation_requests` | UUID | |
@@ -393,6 +394,16 @@ sequenceDiagram
 
 Historical note: v0.6–0.9 used alphanumeric invoice codes; see collapsed section in §6.C.
 
+### 16.2 Jun 2026 additions (nav + prereg)
+
+| Feature | Detail |
+|---------|--------|
+| Form prereg | `form_prereg_entries` + `PreregistrationLookupService.evaluate` — full ID+BY match auto-activates; partial/mismatch → email + `invoiceAlert` |
+| Nav indicators | `GET /admin/workflows/pending-count`; `ownerPendingJoinCount` on `/auth/me` registration summary; client red dots on Profile/Admin links |
+| Claim banner | `GET /teams/has-claimable-players` — hide dashboard/profile claim prompts when no claimable slots |
+| Owner vs captain | Team **owner** (`ownerUserId`) approves joins; owner **or** squad captain edits `squad_role` via `PATCH /:id/squad-roles` |
+| Girls off-season | No active girls points season → Profile girls card hidden; `GET /seasons/active?division=girls` returns 404 |
+
 ---
 
 ## 15. Dual tournament UX — separate surfaces + switcher
@@ -592,6 +603,7 @@ All data hooks (`useTeams`, `useStandings`, …) read `seasonId` from context �
 | 0.8 | 2026-05-18 | #10 fix: boys OR girls per person, never both; `active_division` + `season_registrations` |
 | 0.9 | 2026-05-18 | §16 two-layer registration: website login → side → join → admin invoice → user redeem |
 | 0.10 | 2026-06-27 | §16 identity gate (PID + birth year); §16.1 migration note; `awaiting_identity` / `identity_assigned`; `invoice_codes` legacy |
+| 0.11 | 2026-06-29 | §16.2 form prereg, nav indicators, owner/captain split, girls off-season profile |
 
 ---
 

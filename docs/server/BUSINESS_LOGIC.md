@@ -110,7 +110,7 @@ Typical flow: `none` → (`awaiting_identity` \| `identity_assigned`) → `activ
 
 - **One pending request** per user per season (join **or** creation, not both).
 - Join/creation approval requires `active` + matched identity.
-- **Owner review** on join: captain approves first (`owner_approved`), then admin final approve.
+- **Owner review** on join: team **owner** (`ownerUserId`) approves first (`owner_approved`), then admin final approve. Squad captains edit squad roles only (with owner).
 - Transfers: admin approval only (unchanged).
 
 ---
@@ -133,7 +133,7 @@ Cannot assign boys identity to user locked to girls division.
 | Service | Key methods / owns |
 |---------|-------------------|
 | `RegistrationService` | Facade over query/workflow/identity |
-| `RegistrationQueryService` | `getRegistrationSummary`, team list, admin user search |
+| `RegistrationQueryService` | `getRegistrationSummary` (incl. `ownerPendingJoinCount`), team list, admin user search |
 | `RegistrationWorkflowService` | Join/creation/transfer requests, squad roles, admin queues, `assertFootballLineup` |
 | `RegistrationIdentityService` | `submitUserIdentity`, `assignAdminIdentity`, `tryFinalizeIdentityMatch`, `assertMatchedIdentityForApproval` |
 | `IdentityRateLimitService` | 3 failed attempts/day per user+season; Redis `rt:identity:attempts:{userId}:{seasonId}` |
@@ -222,4 +222,4 @@ See [`context.md`](../../context.md) threat-model paragraph under Current Focus.
 
 - Full route catalog: [`API_REFERENCE.md`](API_REFERENCE.md)
 - PRD §16: [`docs/product/PRD-database-schema.md`](../product/PRD-database-schema.md)
-- Tests: root `npm run test` (33 tests; mock API via `createTestApp`)
+- Tests: root `npm run test` (66 tests: 11 shared + 55 server; mock API via `createTestApp`)

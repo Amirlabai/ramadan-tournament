@@ -8,13 +8,8 @@ exgemini.md
 .cursor/
 .vscode/
 
-# graphify (regenerate locally; cache is machine-specific)
-graphify-out/cache/
-graphify-out/.graphify_python
-graphify-out/.graphify_root
-graphify-out/.graphify_detect.json
-graphify-out/.graphify_uncached.txt
-graphify-out/.graphify_labels.json
+# graphify (regenerate locally; output is machine-specific)
+graphify-out/
 
 # Dependencies
 node_modules/

@@ -86,7 +86,7 @@
 | AUD-01 | Audit #1 | Admin news create/update/delete target correct season | `newsController.ts`, `NewsDataService.ts`, `client.ts` `newsAPI`, `AdminPanel.tsx` | Met | Code review |
 | AUD-02 | Audit #2 | Captain/roster writes use girls season on `-girls` API | `Team.ts` division param, `teamController.ts`, `teamsAPI` | Met | Manual pending |
 | AUD-03 | Audit #3 | Archive queries include `division` | `server/src/routes/archive.ts`, `archiveAPI` | Met | Manual pending |
-| AUD-04 | Audit | `status.md` reflects Phase 1.5 in progress | `status.md`, `context.md` | Met | Code review |
+| AUD-04 | Audit | `status.md` reflects Phase 1.5 + Phase 2 progress | `status.md`, `context.md` | Met (Jun 2026 doc sync) | Code review |
 
 ### 3.4 Phase 2 — §16 (superseded)
 

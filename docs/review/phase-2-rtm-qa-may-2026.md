@@ -1,8 +1,8 @@
 # Requirements Traceability Matrix & QA Report — Phase 2
 
-## Addendum — Jun 2026 identity migration
+## Addendum — Jun 2026 (identity migration + doc sync 2026-06-29)
 
-**Canonical docs:** [`docs/server/BUSINESS_LOGIC.md`](../server/BUSINESS_LOGIC.md), [`docs/client/ARCHITECTURE.md`](../client/ARCHITECTURE.md)
+**Canonical docs:** [`docs/server/BUSINESS_LOGIC.md`](../server/BUSINESS_LOGIC.md), [`docs/client/ARCHITECTURE.md`](../client/ARCHITECTURE.md), [`docs/server/API_REFERENCE.md`](../server/API_REFERENCE.md)
 
 | Change | Detail |
 |--------|--------|
@@ -11,11 +11,15 @@
 | Admin API | `POST /api/admin/users/identity` (`assignAdminIdentity`) |
 | Rate limit | `IdentityRateLimitService` — 3/day (Redis `rt:identity:attempts:*`) |
 | Status enums | `awaiting_identity`, `identity_assigned` (retired `awaiting_invoice`, `invoice_assigned`) |
-| **Retired** | `POST /redeem-invoice`, `POST /admin/users/invoice`, `POST /map-player`, `InvoiceRateLimitService` |
+| **Retired** | `POST /redeem-invoice`, `POST /admin/users/invoice`, `POST /map-player`, `GET /admin/user-mappings`, `InvoiceRateLimitService` |
 | Service split | `RegistrationService` → `RegistrationQueryService`, `RegistrationWorkflowService`, `RegistrationIdentityService` |
-| Tests | `npm run test` — 33 tests (shared + server Vitest, mock API via `createTestApp`) |
+| Form prereg | `form_prereg_entries` + `npm run import:prereg`; `PreregistrationLookupService` |
+| Nav / claim UX | `GET /admin/workflows/pending-count`, `ownerPendingJoinCount` on `/auth/me`, `GET /teams/has-claimable-players` |
+| Owner UI (Jun 2026) | `TeamRegistrationActions` on Profile + Teams + GirlsTeams; `OwnerSquadRoles`; `TransferRequestForm` on Profile card; `TournamentRoleStar` owner/captain badges |
+| Tests | `npm run test` — **66 tests** (11 shared + 55 server Vitest; mock API via `createTestApp`) |
+| **Readiness (Jun 2026)** | ~**85%** PRD alignment in code; PO manual QA (P2-T*) and prod migration deploy still pending |
 
-Rows below (May 2026 report) still reference invoice paths for historical traceability; treat **Retired** items as superseded by the table above.
+**Supersedes May 2026 verdicts below** for: identity (not invoice), owner join UI, girls join, squad-role UI, transfer UI, encrypted PID, legacy route removal. Rows in §3–§6 that still say “invoice” or “redeem” are **historical traceability only**.
 
 ---
 
@@ -30,18 +34,22 @@ Rows below (May 2026 report) still reference invoice paths for historical tracea
 
 ## 1. Executive summary
 
+> **Jun 2026:** See addendum above for current verdicts. This table is the **May 2026 snapshot** (partially superseded).
+
 | Area | Verdict |
 |------|---------|
 | **Phase 2 — §16 two-layer registration** | **Partial–Strong** — core APIs and primary UI delivered; several PRD polish items remain |
-| **Invoice (assign / redeem / lockout)** | **Met** (code review); manual QA pending |
+| **Invoice (assign / redeem / lockout)** | **Superseded** — replaced by identity gate (Jun 2026 addendum) |
 | **Team workflows (create / join / transfer)** | **Met** (server); **Partial** (client — boys join only; owner UI API-only) |
 | **`active_division` exclusivity** | **Met** on new workflow paths |
 | **Legacy retirement (Captain / claim slot)** | **Partial** — `map-player` deprecated; old admin mapping UI and roles still present |
 | **Phase 1.5 (unchanged this sprint)** | See [phase-1.5-rtm-qa-may-2026.md](phase-1.5-rtm-qa-may-2026.md) |
 
-**Bottom line:** Phase 2 **backend and admin queue UI** are in place and traceable. **End-to-end product** is testable for: admin assigns code → user redeems on Profile → join on boys/girls Teams → **owner approves on team card** → admin adds to roster after `active`. Remaining gaps: owner squad-role UI on Teams, full `mappedPlayerInfo` retirement, automated tests, PO manual QA (P2-T*), production deploy verification.
+**Bottom line (May 2026):** Phase 2 **backend and admin queue UI** are in place and traceable. **End-to-end product** is testable for: admin assigns code → user redeems on Profile → join on boys/girls Teams → **owner approves on team card** → admin adds to roster after `active`. Remaining gaps: owner squad-role UI on Teams, full `mappedPlayerInfo` retirement, automated tests, PO manual QA (P2-T*), production deploy verification.
 
-**Suggested overall Phase 2 readiness:** ~**80%** PRD alignment (owner UI, girls join/vote, 5+GK added May 2026; PO QA still pending).
+**Jun 2026 update:** Identity gate live; owner join + squad-role + transfer UI on Profile/Teams/GirlsTeams; girls join wired; 66 automated tests; legacy invoice/map-player routes removed. Remaining: `mappedPlayerInfo` retirement, PO manual QA, prod migration deploy (`form_prereg_entries` et al.).
+
+**Suggested overall Phase 2 readiness:** ~**85%** PRD alignment (Jun 2026; was ~80% May 2026).
 
 ---
 
@@ -157,22 +165,28 @@ Rows below (May 2026 report) still reference invoice paths for historical tracea
 
 ## 4. API traceability index
 
+> **Jun 2026:** Retired routes struck through. New routes in **bold**.
+
 | Method | Path | Controller / service | PRD |
 |--------|------|----------------------|-----|
 | GET | `/api/users/registration` | `registrationController.getRegistrationStatus` | §16 |
-| POST | `/api/users/redeem-invoice` | `registrationController.redeemInvoice` | §16 |
-| POST | `/api/users/map-player` | `userController` → **410** | Deprecated |
+| POST | `/api/users/verify-identity` | `RegistrationIdentityService.submitUserIdentity` | §16 |
+| ~~POST~~ | ~~`/api/users/redeem-invoice`~~ | **Retired** | §16 |
+| ~~POST~~ | ~~`/api/users/map-player`~~ | **Removed (PR5)** | Deprecated |
 | POST | `/api/users/request-team` | Proxies `RegistrationService.submitTeamCreation` (boys) | §16 |
 | GET | `/api/teams/available` | `listAvailableTeams` | Plan |
+| **GET** | **`/api/teams/has-claimable-players`** | `getHasClaimablePlayers` | Jun 2026 |
 | POST | `/api/teams/creation-request` | `submitTeamCreation` | §16 |
 | POST | `/api/teams/transfer-request` | `submitTransferRequest` | §6.E |
 | POST | `/api/teams/:id/join-request` | `submitJoinRequest` | §6.E |
 | GET | `/api/teams/:id/join-requests-pending` | `listOwnerJoinRequests` | §6.E |
-| POST | `/api/teams/:id/owner-review-join` | `ownerReviewJoin` | §6.E |
-| PATCH | `/api/teams/:id/squad-roles` | `setSquadRoles` | §6.D |
+| POST | `/api/teams/:id/owner-review-join` | `ownerReviewJoin` (team owner) | §6.E |
+| PATCH | `/api/teams/:id/squad-roles` | `setSquadRoles` (owner or captain) | §6.D |
 | POST | `/api/teams/:id/roster/add-self` | `addSelfToRoster` | Plan |
 | GET | `/api/admin/workflows` | `adminWorkflowController.listWorkflowQueues` | §16 Admin |
-| POST | `/api/admin/users/invoice` | `assignUserInvoice` | §16 |
+| **GET** | **`/api/admin/workflows/pending-count`** | `getWorkflowPendingCount` | Jun 2026 |
+| POST | `/api/admin/users/identity` | `assignAdminIdentity` | §16 |
+| ~~POST~~ | ~~`/api/admin/users/invoice`~~ | **Retired** | §16 |
 | PATCH | `/api/admin/requests/creation/:id` | `reviewCreationRequest` | §16 |
 | PATCH | `/api/admin/requests/join/:id` | `reviewJoinRequest` | §16 |
 | PATCH | `/api/admin/requests/transfer/:id` | `reviewTransferRequest` | §16 |
@@ -183,56 +197,79 @@ Mirror under `/api/teams-girls` via `setGirlsDivision` middleware (same router).
 
 ## 5. Client traceability index
 
+> **Jun 2026 update** — rows marked *(May)* were superseded.
+
 | UI | Component / page | API used | Status |
 |----|------------------|----------|--------|
-| Profile — invoice + status | `TournamentRegistrationCard.tsx` (boys + girls) | `usersAPI.getRegistration`, `redeemInvoice` | Met |
+| Profile — identity + status | `TournamentRegistrationCard.tsx` (boys + girls; girls hidden off-season) | `usersAPI.getRegistration`, `verifyIdentity` | Met |
+| Profile — transfer | `TournamentRegistrationCard.tsx` | `registrationAPI.submitTransfer` | Met (Jun 2026) |
 | Profile — join hint | `Profile.tsx` | — | Partial |
-| Teams — join button | `Teams.tsx` (boys only) | `registrationAPI.submitJoin` | Partial |
-| Admin — workflows | `RegistrationWorkflowAdmin.tsx` in `RosterManager` | `adminAPI.getWorkflowQueues`, assign/review | Met |
-| Owner — pending joins | — | API in `client.ts` only | Not Met (UI) |
-| Owner — squad roles | — | API in `client.ts` only | Not Met (UI) |
-| Girls — join/create | `GirlsTeams.tsx` | No `registrationAPI` usage found | Not Met |
+| Teams — join + owner review | `Teams.tsx`, `TeamRegistrationActions` | `registrationAPI.submitJoin`, `ownerReviewJoin` | Met (Jun 2026) |
+| Teams — squad roles | `OwnerSquadRoles` on `Teams.tsx` / `GirlsTeams.tsx` | `registrationAPI.setSquadRoles` | Met (Jun 2026) |
+| Admin — workflows | `RegistrationWorkflowAdmin.tsx` in `RosterManager` | `adminAPI.getWorkflowQueues`, assign/review, `getWorkflowPendingCount` | Met |
+| Girls — join/create | `GirlsTeams.tsx` | `registrationAPI` | Met (Jun 2026) |
+| Nav action dots | `NavActionIndicatorsContext`, sidebar/footer | `pending-count`, `/auth/me`, legacy captain requests | Met (Jun 2026) |
+| Owner — pending joins *(May)* | — | API in `client.ts` only | ~~Not Met~~ → Met |
+| Owner — squad roles *(May)* | — | API in `client.ts` only | ~~Not Met~~ → Met |
+| Girls — join/create *(May)* | `GirlsTeams.tsx` | No `registrationAPI` usage found | ~~Not Met~~ → Met |
 
 ---
 
 ## 6. QA test summary
 
-### 6.1 Automated checks (2026-05-18 session)
+### 6.1 Automated checks
 
 | Check | Result | Notes |
 |-------|--------|-------|
 | `server`: `npx tsc --noEmit` | **Pass** | After Phase 2 implementation |
 | `client`: `npm run build` | **Pass** | Vite production build |
-| Unit / integration tests | **Not available** | No test suite for registration |
+| Root `npm run test` | **Pass (Jun 2026)** | 66 tests — shared (11) + server (55); mock API via `createTestApp` |
 | Playwright / E2E | **Not available** | |
 
-### 6.2 Recommended manual test plan — Phase 2
+### 6.2 Recommended manual test plan — Phase 2 (identity gate, Jun 2026)
 
 | # | Scenario | Steps | Expected | Priority |
 |---|----------|-------|----------|----------|
-| P2-T1 | Admin assign invoice | Admin → סגל ורישום → workflows → assign UUID | Plain code returned once; DB `invoice_codes` + registration `invoice_assigned` | P0 |
-| P2-T2 | User redeem | Profile → enter code (boys card) | `active`; wrong code decrements attempts | P0 |
-| P2-T3 | Invoice lockout | 5 wrong codes | Blocked until next Jerusalem day (Redis) | P1 |
+| P2-T1 | Admin assign identity | Admin → סגל ורישום → assign PID + birth year | Registration `identity_assigned` or `active` if user already matched | P0 |
+| P2-T2 | User verify identity | Profile → enter PID + birth year (boys card) | `active` when matches admin; wrong values → `invoiceAlert` / rate limit | P0 |
+| P2-T3 | Identity lockout | 3 wrong attempts | Blocked until next Jerusalem day (Redis) | P1 |
 | P2-T4 | Create team | Profile or `POST /teams/creation-request` → admin approve | Team + owner on roster | P0 |
-| P2-T5 | Join flow | Teams → בקש להצטרף → owner API approve → admin approve | Player row only if registration `active` | P0 |
+| P2-T5 | Join flow | Teams → בקש להצטרף → **owner** approve → admin approve | Player row only if registration `active` | P0 |
 | P2-T6 | Multi-join invalidate | Two pending joins (different teams) | First invalidated when second submitted | P1 |
 | P2-T7 | Division lock | Join on boys then attempt girls create | Error on girls | P0 |
-| P2-T8 | Transfer | API or future UI → admin approve | `players.team_id` updated | P1 |
-| P2-T9 | Legacy map-player | `POST /users/map-player` | 410 + Hebrew message | P2 |
+| P2-T8 | Transfer | Profile `TransferRequestForm` → admin approve | `players.team_id` updated | P1 |
+| P2-T9 | Legacy map-player | `POST /users/map-player` | **404** (route removed) | P2 |
 | P2-T10 | Girls API parity | Repeat P2-T4/T5 on `/teams-girls` | Same rules, girls season | P1 |
-| P2-T11 | Deploy | Render `/api/admin/workflows` with auth | 200 after deploy | P0 |
+| P2-T11 | Deploy | Render `/api/admin/workflows` with auth | 200 after deploy + migrations | P0 |
+| P2-T12 | Form prereg match | Import CSV → user submits matching PID+BY | Auto `active` without admin assign | P1 |
+| P2-T13 | Girls off-season | No active girls season | Profile girls card hidden; `/seasons/active?division=girls` → 404 | P2 |
+
+<details>
+<summary>Historical manual plan — invoice gate (May 2026, retired)</summary>
+
+| # | Scenario | Steps | Expected | Priority |
+|---|----------|-------|----------|----------|
+| P2-T1 | Admin assign invoice | Admin → assign UUID | Plain code returned once | P0 |
+| P2-T2 | User redeem | Profile → enter code | `active` | P0 |
+| P2-T3 | Invoice lockout | 5 wrong codes | Blocked until next day | P1 |
+
+</details>
 
 ### 6.3 Defects / risks
 
+> **Jun 2026:** Resolved items struck through.
+
 | ID | Severity | Description | Mitigation |
 |----|----------|-------------|------------|
-| P2-R01 | High | Owner cannot approve joins from UI | Add owner panel on expanded team card |
-| P2-R02 | Medium | Girls pages lack join/create buttons | Wire `GirlsTeams` + Profile girls creation path |
-| P2-R03 | Medium | Admin assign invoice requires raw user UUID | Add user picker / email lookup in admin UI |
-| P2-R04 | Medium | Dual admin paths (legacy mappings + workflows) | Remove or hide legacy tabs when workflows stable |
-| P2-R05 | Low | No 5+GK lineup cap on role assignment | Add validation in `setSquadRoles` |
-| P2-R06 | Low | `leave-team` still legacy JSON mapping | Reimplement against Prisma roster |
-| P2-R07 | High (prod) | Invoice lockout weak without `REDIS_URL` | Require Redis in production (`env.ts`) |
+| ~~P2-R01~~ | ~~High~~ | ~~Owner cannot approve joins from UI~~ | **Resolved** — `TeamRegistrationActions` on Profile/Teams/GirlsTeams |
+| ~~P2-R02~~ | ~~Medium~~ | ~~Girls pages lack join/create buttons~~ | **Resolved** — `GirlsTeams` + registration API |
+| ~~P2-R03~~ | ~~Medium~~ | ~~Admin assign invoice requires raw user UUID~~ | **Resolved** — identity assign + user search in admin UI |
+| ~~P2-R04~~ | ~~Medium~~ | ~~Dual admin paths (legacy mappings + workflows)~~ | **Resolved** — PR5 removed legacy routes; `LEGACY_ROSTER_WORKFLOWS=false` |
+| ~~P2-R05~~ | ~~Low~~ | ~~No 5+GK lineup cap on role assignment~~ | **Resolved** — `assertFootballLineup` in `setSquadRoles` |
+| ~~P2-R06~~ | ~~Low~~ | ~~`leave-team` still legacy JSON mapping~~ | **Resolved** — Prisma roster (Jun 2026) |
+| P2-R07 | High (prod) | Identity lockout weak without `REDIS_URL` | Require Redis in production (`env.ts`) |
+| P2-R08 | Medium | `mappedPlayerInfo` still hydrated for legacy captains | Retire when all captains use owner workflow |
+| P2-R09 | Medium | Prod may lag repo migrations (`form_prereg_entries`, enum rename) | Run `prisma migrate deploy` + `import:prereg` on Render |
 
 ---
 

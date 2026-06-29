@@ -12,7 +12,7 @@
 - **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`). For a **clean tournament start** (no teams/players/matches), use `npm run db:fresh` instead of `db:seed`.
 - **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for peripheral tasks under `scripts/` — photo sync, Postgres CSV backup, and external alarm fetch — driven by `.github/workflows/`. See `scripts/README.md`. Treat `archive/postgres/` as sensitive (PII in user/player exports); do not publish or share publicly without redaction.
 - **Python:** `scripts/requirements.txt` + local `.venv/` at repo root (gitignored). First time: `python -m venv .venv` then `.\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt`. Run with `.\.venv\Scripts\python.exe scripts/<name>.py`. Legacy `invoice_codes` CSV exports omit `code_hash` and `code_normalized`; identity is stored encrypted on `season_registrations` (not exported in plaintext).
-- **Tests:** Vitest in `shared/` and `server/`. Root `npm run test` builds shared then runs both workspaces (33 tests). Server integration tests use `createTestApp()` (mock JSON API, no Postgres). CI: `.github/workflows/test.yml`.
+- **Tests:** Vitest in `shared/` and `server/`. Root `npm run test` builds shared then runs both workspaces (**66 tests**: 11 shared + 55 server). Server integration tests use `createTestApp()` (mock JSON API, no Postgres). CI: `.github/workflows/test.yml`.
 
 ## Environment variables (who needs what)
 
@@ -110,6 +110,8 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
+- **June 2026 — Girls profile card:** When no active girls season exists, `TournamentRegistrationCard` hides (404 / Hebrew no-season message) instead of showing a load error; `GET /api/seasons/active?division=girls` uses `getActiveGirlsSeason()` (points season), aligned with registration.
+- **June 2026 — Nav action indicators:** Red dots on Profile/Admin links via `GET /admin/workflows/pending-count`, `ownerPendingJoinCount` on `/auth/me`, and `GET /teams/has-claimable-players` for conditional claim banners.
 - **June 2026 — Captain scope:** Team **owners** (`ownedTeamId`) approve join requests and edit branding via `TeamOwnerSettings`. Squad **captains** (`isCaptain`) edit lineup roles via `OwnerSquadRoles`. Profile + Teams use `TournamentRoleStar` (gold / gold+blue-outline / blue). Roster add/delete and admin panel remain platform-admin only.
 - **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
 - **June 2026 — PR5 server cleanup:** Removed legacy route aliases (`/redeem-invoice`, `/map-player`, `/admin/users/invoice`, `/admin/user-mappings`). Canonical identity + workflow APIs only. Service ownership table in [`server/README.md`](server/README.md).
