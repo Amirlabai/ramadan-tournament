@@ -257,7 +257,7 @@ export default function RegistrationWorkflowAdmin() {
             <div className="workflow-assign-row">
                 <input
                     type="text"
-                    className={`form-control form-control-sm workflow-invoice-input${idFieldInvalid ? ' identity-field--invalid' : personalId.length === 0 ? ' identity-field--pending' : ''}`}
+                    className={`form-control form-control-sm workflow-identity-input workflow-identity-input--pid${idFieldInvalid ? ' identity-field--invalid' : personalId.length === 0 ? ' identity-field--pending' : ''}`}
                     placeholder={isCorrection ? 'ת.ז. מתוקנת' : 'תעודת זהות'}
                     value={personalId}
                     onChange={(e) =>
@@ -279,7 +279,7 @@ export default function RegistrationWorkflowAdmin() {
                 <input
                     type="text"
                     inputMode="numeric"
-                    className={`form-control form-control-sm workflow-invoice-input${yearFieldInvalid ? ' identity-field--invalid' : birthYear.length === 0 ? ' identity-field--pending' : ''}`}
+                    className={`form-control form-control-sm workflow-identity-input workflow-identity-input--year${yearFieldInvalid ? ' identity-field--invalid' : birthYear.length === 0 ? ' identity-field--pending' : ''}`}
                     placeholder="שנת לידה"
                     value={birthYear}
                     onChange={(e) =>
@@ -376,7 +376,7 @@ export default function RegistrationWorkflowAdmin() {
 
     return (
         <div className="registration-workflow-admin" lang="he">
-            <div className="d-flex flex-wrap align-items-end gap-3 mb-3">
+            <div className="d-flex flex-wrap align-items-end gap-3 mb-3 workflow-toolbar">
                 <div>
                     <label htmlFor="workflow-season" className="form-label mb-1">
                         עונה
@@ -395,7 +395,7 @@ export default function RegistrationWorkflowAdmin() {
                         ))}
                     </select>
                 </div>
-                <button type="button" className="btn btn-outline-secondary btn-sm" onClick={() => void load()}>
+                <button type="button" className="btn btn-secondary workflow-refresh-btn" onClick={() => void load()}>
                     רענן
                 </button>
             </div>

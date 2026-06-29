@@ -1,3 +1,4 @@
+export { STANDINGS_PLAYOFF_ZONE_SIZE } from './standingsConstants';
 export {
   BIRTH_YEAR_MIN,
   BIRTH_YEAR_MAX,

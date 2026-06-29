@@ -5,7 +5,7 @@
 .accessibility-page h3 {
   font-size: 1.25rem;
   margin-bottom: 0.75rem;
-  color: var(--primary-green, #2A6B11);
+  color: var(--primary-green);
 }
 
 .accessibility-report-form {

@@ -27,24 +27,37 @@
 .season-btn:hover {
     border-color: var(--primary-green);
     color: var(--primary-green);
-    background: rgba(42, 107, 17, 0.05);
+    background: var(--color-primary-a05);
 }
 
 .season-btn.active {
-    background: rgba(42, 107, 17, 0.1);
+    background: var(--color-primary-a10);
     border-color: var(--primary-green);
     color: var(--primary-green);
     font-weight: 700;
 }
 
 /* --- Hero Award Cards --- */
+.stat-box--gold {
+    background: linear-gradient(135deg, #ffd700 0%, #ffae4b 100%);
+}
+
+.stat-box--mvp {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
+}
+
+.archive-summary-card {
+    background: var(--color-primary-a05);
+    border-right: 4px solid var(--primary-green);
+}
+
 .stat-box {
     transition: transform var(--transition-speed, 0.3s), box-shadow var(--transition-speed, 0.3s);
 }
 
 .stat-box:hover {
     transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(42, 107, 17, 0.2);
+    box-shadow: var(--shadow-primary-md);
 }
 
 .emoji-icon {
@@ -56,10 +69,6 @@
     font-style: italic;
     color: var(--text-light, #666);
 }
-
-/* --- Playoff Match Cards --- */
-/* Reuses .match-card, .match-teams-score, .team-side, .team-score from Schedule.css */
-/* Nothing extra needed — Schedule styles apply globally */
 
 /* --- Animate --- */
 .animate-fade-in {

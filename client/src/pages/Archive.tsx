@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { STANDINGS_PLAYOFF_ZONE_SIZE } from '@ramadan-tournament/shared';
 import { archiveAPI } from '../api/client';
 import SEO from '../components/SEO';
-import './Archive.tsx.css';
+import './Archive.css';
 
 interface SeasonMetadata {
   id: string;
@@ -94,7 +95,7 @@ const Archive: React.FC = () => {
             <div className="season-exhibit">
               <div className="hero-stats row mb-4 text-center">
                 <div className="col-md-4 mb-3">
-                  <div className="stat-box card h-100 shadow-sm border-0 dashboard-card top-scorer" style={{ background: 'linear-gradient(135deg, #ffd700 0%, #ffae4bff 150%)' }}>
+                  <div className="stat-box stat-box--gold card h-100 shadow-sm border-0 dashboard-card top-scorer">
                     <div className="premium-scorer-wrapper">
                       <div className="emoji-icon mb-2">🏆</div>
                       <div className="scorer-name">האלופה</div>
@@ -104,7 +105,7 @@ const Archive: React.FC = () => {
                 </div>
                 {selectedSeason.mvp && (
                   <div className="col-md-4 mb-3">
-                    <div className="stat-box card h-100 shadow-sm border-0 dashboard-card top-scorer" style={{ background: 'linear-gradient(135deg, var(--primary-green) 0%, #1a4d0a 100%)' }}>
+                    <div className="stat-box stat-box--mvp card h-100 shadow-sm border-0 dashboard-card top-scorer">
                       <div className="premium-scorer-wrapper">
                         <div className="emoji-icon mb-2">⭐</div>
                         <div className="scorer-name text-white">השחקן המצטיין</div>
@@ -115,7 +116,7 @@ const Archive: React.FC = () => {
                   </div>
                 )}
                 <div className="col-md-4 mb-3">
-                  <div className="stat-box card h-100 shadow-sm border-0 dashboard-card top-scorer" style={{ background: 'linear-gradient(135deg, #ffd700 0%, #ffae4bff 150%)' }}>
+                  <div className="stat-box stat-box--gold card h-100 shadow-sm border-0 dashboard-card top-scorer">
                     <div className="premium-scorer-wrapper">
                       <div className="emoji-icon mb-2">⚽</div>
                       <div className="scorer-name">מלך השערים</div>
@@ -127,7 +128,7 @@ const Archive: React.FC = () => {
               </div>
 
               {selectedSeason.summary && (
-                <div className="card shadow-sm border-0 p-4 mb-5 text-center" style={{ background: 'rgba(42, 107, 17, 0.05)', borderRight: '4px solid var(--primary-green)' }}>
+                <div className="card shadow-sm border-0 p-4 mb-5 text-center archive-summary-card">
                   <p className="lead mb-0 italic-text">"{selectedSeason.summary}"</p>
                 </div>
               )}
@@ -197,7 +198,7 @@ const Archive: React.FC = () => {
                         </thead>
                         <tbody>
                           {selectedSeason.standings.map((team: any, index: number) => (
-                            <tr key={team.teamId} className={index < 4 ? 'qualified' : ''}>
+                            <tr key={team.teamId} className={index < STANDINGS_PLAYOFF_ZONE_SIZE ? 'qualified' : ''}>
                               <td className="position">{index + 1}</td>
                               <td className="team-name text-end fw-bold">{team.teamName || team.name}</td>
                               <td>{team.played}</td>

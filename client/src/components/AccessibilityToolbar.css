@@ -53,7 +53,7 @@
   line-height: 1.2;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .a11y-toolbar {
     bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
   }

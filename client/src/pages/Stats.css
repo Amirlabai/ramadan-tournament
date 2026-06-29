@@ -16,16 +16,25 @@
     font-size: 1.25rem;
 }
 
+.stats-standings-caption {
+    caption-side: top;
+    text-align: right;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    margin-bottom: 0.75rem;
+    padding: 0;
+}
+
 .table-responsive {
     overflow-x: auto;
 }
 
-table {
+.stats-page table {
     width: 100%;
     border-collapse: collapse;
 }
 
-th {
+.stats-page th {
     background: var(--bg);
     padding: 0.75rem;
     text-align: center;
@@ -35,21 +44,22 @@ th {
     border-bottom: 2px solid var(--border);
 }
 
-td {
+.stats-page td {
     padding: 0.75rem;
     text-align: center;
     border-bottom: 1px solid var(--border);
 }
 
-tr:hover {
+.stats-page tr:hover {
     background: var(--bg);
 }
 
-tr.qualified {
-    background: linear-gradient(to left, transparent, #dbeafe);
+.stats-page tr.qualified {
+    background: linear-gradient(to left, transparent, var(--color-playoff-zone-bg));
+    border-right: 3px solid var(--color-playoff-zone-accent);
 }
 
-.position {
+.stats-page .position {
     font-weight: bold;
     color: var(--primary);
 }
@@ -59,20 +69,20 @@ tr.qualified {
     font-weight: 600;
 }
 
-.points {
+.stats-page .points {
     font-weight: bold;
     font-size: 1.1rem;
     color: var(--primary);
 }
 
-.positive {
+.stats-page .positive {
     background-color: var(--primary);
     color: var(--bg);
     border-radius: 15%;
     transform: scale(0.8);
 }
 
-.negative {
+.stats-page .negative {
     background-color: var(--danger);
     color: var(--bg);
     border-radius: 15%;
@@ -151,8 +161,8 @@ tr.qualified {
         grid-template-columns: 1fr;
     }
 
-    th,
-    td {
+    .stats-page th,
+    .stats-page td {
         font-size: 0.6rem;
         padding: 0.5rem 0.25rem;
     }
@@ -163,16 +173,16 @@ tr.qualified {
         text-align: center;
     }
 
-    .points {
+    .stats-page .points {
         font-size: 0.75rem;
     }
 
-    .position {
+    .stats-page .position {
         font-size: 0.75rem;
     }
 
-    .positive,
-    .negative {
+    .stats-page .positive,
+    .stats-page .negative {
         font-size: 0.75rem;
     }
 }

@@ -23,7 +23,7 @@
 .tournament-switcher-btn:hover,
 .tournament-switcher-btn:focus-visible {
   background: var(--primary-green, var(--color-primary-dark));
-  color: #fff;
+  color: var(--white);
   outline: 2px solid var(--accent-gold, #ffc107);
   outline-offset: 2px;
 }
@@ -37,7 +37,7 @@
   margin: 0;
   padding: 0.25rem;
   list-style: none;
-  background: #fff;
+  background: var(--white);
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 0.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);

@@ -8,7 +8,7 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     padding: 0.75rem;
-    background: #fff;
+    background: var(--white);
     font-size: 0.85rem;
 }
 
@@ -43,7 +43,7 @@
 
 .registration-workflow-admin .workflow-user-card__row {
     display: grid;
-    grid-template-columns: minmax(5.5rem, 7rem) 1fr;
+    grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr);
     gap: 0.5rem;
     align-items: start;
 }
@@ -62,21 +62,39 @@
 
 .registration-workflow-admin .workflow-assign-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.4rem;
     align-items: center;
     width: 100%;
 }
 
-.registration-workflow-admin .workflow-invoice-input {
-    flex: 1;
-    min-width: 0;
+.registration-workflow-admin .workflow-identity-input {
     font-size: 0.8rem;
+}
+
+.registration-workflow-admin .workflow-identity-input--pid {
+    width: 9rem;
+    max-width: 100%;
+}
+
+.registration-workflow-admin .workflow-identity-input--year {
+    width: 4.5rem;
 }
 
 .registration-workflow-admin .workflow-assign-btn {
     font-size: 0.75rem;
     padding: 0.25rem 0.55rem;
-    flex-shrink: 0;
+}
+
+.registration-workflow-admin .workflow-refresh-btn {
+    width: fit-content;
+    padding: 0.5rem 0.85rem;
+    font-weight: 600;
+}
+
+.registration-workflow-admin .workflow-toolbar > div {
+    flex: 1 1 12rem;
+    min-width: 0;
 }
 
 .registration-workflow-admin .workflow-monospace {
@@ -84,19 +102,46 @@
     word-break: break-all;
 }
 
-.registration-workflow-admin .workflow-table {
-    table-layout: fixed;
-    width: 100%;
-    font-size: 0.78rem;
-}
+@media (max-width: 768px) {
+    .registration-workflow-admin .workflow-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
 
-.registration-workflow-admin .workflow-table th {
-    font-size: 0.72rem;
-    white-space: nowrap;
-    padding: 0.35rem 0.4rem;
-}
+    .registration-workflow-admin .workflow-toolbar > div {
+        flex: none;
+        width: 100%;
+    }
 
-.registration-workflow-admin .workflow-table td {
-    padding: 0.35rem 0.4rem;
-    vertical-align: middle;
+    .registration-workflow-admin .workflow-refresh-btn {
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .registration-workflow-admin .workflow-user-card__header {
+        flex-direction: column;
+    }
+
+    .registration-workflow-admin .workflow-user-card__status {
+        align-self: flex-start;
+    }
+
+    .registration-workflow-admin .workflow-user-card__row {
+        grid-template-columns: 1fr;
+    }
+
+    .registration-workflow-admin .workflow-assign-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .registration-workflow-admin .workflow-identity-input--pid,
+    .registration-workflow-admin .workflow-identity-input--year {
+        width: 100%;
+    }
+
+    .registration-workflow-admin .workflow-assign-btn {
+        width: 100%;
+        min-height: 44px;
+    }
 }

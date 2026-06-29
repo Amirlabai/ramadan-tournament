@@ -4,7 +4,7 @@
 }
 
 .profile-header-card {
-    background: linear-gradient(135deg, rgba(26, 35, 24, 0.6) 0%, rgba(42, 107, 17, 0.15) 100%);
+    background: linear-gradient(135deg, rgba(26, 35, 24, 0.6) 0%, var(--color-primary-a15) 100%);
     border: 1px solid rgba(255, 255, 0, 0.1);
 }
 
@@ -16,7 +16,7 @@
     border-radius: 50%;
     cursor: pointer;
     flex-shrink: 0;
-    border: 3px solid var(--primary-green, #2e7d32);
+    border: 3px solid var(--primary-green);
     overflow: hidden;
 }
 
@@ -43,7 +43,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--white);
     font-size: 1.4rem;
     opacity: 0;
     transition: opacity 0.2s ease;
@@ -53,23 +53,11 @@
     opacity: 1;
 }
 
-.custom-claim-banner {
-    background: linear-gradient(135deg, rgba(255, 255, 0, 0.05) 0%, rgba(42, 107, 17, 0.05) 100%);
-    border: 1px solid rgba(42, 107, 17, 0.2);
-    border-right: 4px solid var(--primary-green);
-    border-radius: 12px;
-    color: var(--text);
-    padding: 1.25rem;
-}
 
 .premium-captain-card {
     border-radius: 16px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(42, 107, 17, 0.1) !important;
-}
-
-.bg-theme-green {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%) !important;
+    border: 1px solid var(--color-primary-a10);
 }
 
 .bg-theme-yellow {
@@ -79,12 +67,4 @@
 .badge.bg-theme-yellow {
     box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
     border: 1px solid rgba(0, 0, 0, 0.1);
-}
-
-@media (max-width: 576px) {
-    .custom-claim-banner {
-        flex-direction: column;
-        align-items: stretch !important;
-        gap: 1rem;
-    }
 }

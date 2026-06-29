@@ -5,8 +5,26 @@
 
 .photo-preview-container {
     position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: var(--bg);
+    border: 3px solid var(--primary-green);
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: transform 0.2s;
+}
+
+.photo-preview-pending {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.3);
+    color: var(--white);
+    font-weight: bold;
+    text-shadow: 0 1px 2px black;
 }
 
 .photo-preview-container:hover {

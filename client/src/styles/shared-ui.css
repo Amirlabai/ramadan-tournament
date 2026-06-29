@@ -1,0 +1,64 @@
+/* Shared UI patterns — claim banner, dashboard card headers */
+
+.custom-claim-banner {
+    background: linear-gradient(135deg, rgba(255, 255, 0, 0.05) 0%, var(--color-primary-a05) 100%);
+    border: 1px solid var(--color-primary-a20);
+    border-right: 4px solid var(--primary-green);
+    border-radius: 12px;
+    color: var(--text);
+    padding: 1.25rem;
+}
+
+.custom-claim-banner--dashboard {
+    background: linear-gradient(135deg, rgba(46, 125, 50, 0.1) 0%, rgba(26, 35, 24, 0.3) 100%);
+    border: none;
+    border-right: 4px solid var(--primary-green);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.custom-claim-banner--mvp-vote {
+    background: linear-gradient(135deg, var(--secondary-yellow) 0%, #ffe285 100%);
+    color: var(--text);
+    border: none;
+}
+
+.dashboard-card-title,
+.next-matches-card h2,
+.next-matches-card h3,
+.top-scorer h2,
+.top-scorer h3,
+.mvp-race-card h2,
+.mvp-race-card h3,
+.recent-matches h2,
+.recent-matches h3 {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
+    color: var(--white) !important;
+    margin: 0;
+    padding: 0.875rem 1rem;
+    text-align: center;
+    font-size: 1.15rem;
+    font-weight: 700;
+    line-height: 1.3;
+}
+
+@media (max-width: 768px) {
+    .custom-claim-banner,
+    .custom-claim-banner--dashboard {
+        flex-direction: column;
+        align-items: stretch !important;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .dashboard-card-title,
+    .next-matches-card h2,
+    .next-matches-card h3,
+    .top-scorer h2,
+    .top-scorer h3,
+    .recent-matches h2,
+    .recent-matches h3 {
+        padding: 0.65rem 0.75rem;
+        font-size: 1rem;
+    }
+}

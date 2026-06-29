@@ -53,8 +53,8 @@
 
 .match-form .form-control:focus,
 .match-form .form-select:focus {
-    border-color: var(--primary-green, #2A6B11);
-    box-shadow: 0 0 0 0.2rem rgba(42, 107, 17, 0.25);
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 0.2rem var(--color-primary-a25);
 }
 
 .match-form .form-text {

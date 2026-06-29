@@ -185,25 +185,12 @@ const PlayerZone = () => {
                         <p className="text-muted mb-4">{player.teamName}</p>
 
                         <div className="mb-4">
-                            <div className="photo-preview-container mx-auto mb-3" style={{ width: '150px', height: '150px', borderRadius: '50%', overflow: 'hidden', backgroundColor: '#f0f0f0', border: '3px solid #198754' }}>
+                            <div className="photo-preview-container mx-auto mb-3">
                                 {preview ? (
                                     <>
-                                        <img src={preview} alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: player.pending_head_photo ? 0.7 : 1 }} />
+                                        <img src={preview} alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`} style={{ opacity: player.pending_head_photo ? 0.7 : 1 }} />
                                         {player.pending_head_photo && (
-                                            <div style={{
-                                                position: 'absolute',
-                                                top: 0,
-                                                left: 0,
-                                                right: 0,
-                                                bottom: 0,
-                                                display: 'flex',
-                                                alignItems: 'center',
-                                                justifyContent: 'center',
-                                                backgroundColor: 'rgba(0,0,0,0.3)',
-                                                color: 'white',
-                                                fontWeight: 'bold',
-                                                textShadow: '0 1px 2px black'
-                                            }}>
+                                            <div className="photo-preview-pending">
                                                 ממתין לאישור
                                             </div>
                                         )}

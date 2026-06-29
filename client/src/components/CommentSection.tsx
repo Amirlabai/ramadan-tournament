@@ -165,12 +165,12 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
 
             <div className="comments-list" aria-live="polite">
                 {loading ? (
-                    <div className="loading" role="status">
+                    <div className="comment-section__loading" role="status">
                         <span className="visually-hidden">טוען תגובות...</span>
                         טוען תגובות...
                     </div>
                 ) : comments.length === 0 ? (
-                    <div className="no-comments">אין עדיין תגובות. היה הראשון להגיב!</div>
+                    <div className="comment-section__empty">אין עדיין תגובות. היה הראשון להגיב!</div>
                 ) : (
                     comments.map((comment) => (
                         <div key={comment.id} className="comment-item">

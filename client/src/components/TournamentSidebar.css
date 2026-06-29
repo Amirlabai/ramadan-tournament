@@ -126,7 +126,7 @@
 }
 
 /* Mobile drawer — physical right edge (RTL start); inline-end is left in RTL */
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .app-body {
     grid-template-columns: 1fr;
     min-height: 0;

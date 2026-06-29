@@ -54,7 +54,7 @@ h2 {
   right: 0;
   left: auto;
   background: #000;
-  color: #fff;
+  color: var(--white);
   padding: 8px 16px;
   z-index: 9999;
   text-decoration: none;
@@ -247,7 +247,7 @@ h2 {
   line-height: 1.35;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 768px) {
   .tournament-footer .footer-link {
     display: inline-flex;
     align-items: center;
@@ -279,7 +279,7 @@ h2 {
 
 .buy-coffee-link:hover,
 .buy-coffee-link:focus-visible {
-  color: #fff;
+  color: var(--white);
   text-decoration-color: var(--secondary-yellow);
 }
 
@@ -403,12 +403,12 @@ h2 {
 
 .tournament-tabs .nav-link:hover {
   color: var(--primary-green);
-  background-color: rgba(42, 107, 17, 0.05);
+  background-color: var(--color-primary-a05);
 }
 
 .tournament-tabs .nav-link.active {
   color: var(--primary-green);
-  background-color: rgba(42, 107, 17, 0.1);
+  background-color: var(--color-primary-a10);
   border-bottom: 3px solid var(--primary-green);
   font-weight: 700;
 }
@@ -427,7 +427,7 @@ h2 {
 
 .tournament-tabs .nav-link.login-link.active {
   color: var(--primary-green) !important;
-  background-color: rgba(42, 107, 17, 0.1) !important;
+  background-color: var(--color-primary-a10) !important;
   border-bottom-color: var(--primary-green) !important;
 }
 
@@ -463,7 +463,7 @@ h2 {
 
 .team-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 8px 16px rgba(42, 107, 17, 0.3);
+  box-shadow: 0 8px 16px var(--color-primary-a30);
 }
 
 .team-card .card-header {
@@ -489,7 +489,7 @@ h2 {
 }
 
 .team-member:hover {
-  background-color: rgba(42, 107, 17, 0.05);
+  background-color: var(--color-primary-a05);
 }
 
 /* Player Cards */
@@ -507,7 +507,7 @@ h2 {
 
 .player-card:hover {
   border-color: var(--primary-green);
-  box-shadow: 0 8px 16px rgba(42, 107, 17, 0.2);
+  box-shadow: 0 8px 16px var(--color-primary-a20);
   transform: scale(1.05);
 }
 
@@ -581,16 +581,16 @@ h2 {
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-  background-color: rgba(42, 107, 17, 0.05);
+  background-color: var(--color-primary-a05);
 }
 
 .table tbody tr:hover {
-  background-color: rgba(42, 107, 17, 0.1);
+  background-color: var(--color-primary-a10);
 }
 
 /* Player Table Rows */
 .player-row:hover {
-  background-color: rgba(42, 107, 17, 0.1) !important;
+  background-color: var(--color-primary-a10) !important;
 }
 
 .player-row {
@@ -610,7 +610,7 @@ h2 {
 
 /* Team Table Rows */
 .team-row:hover {
-  background-color: rgba(42, 107, 17, 0.1) !important;
+  background-color: var(--color-primary-a10) !important;
 }
 
 .team-row {
@@ -638,15 +638,22 @@ h2 {
 
 .roster-player-card:hover {
   border-color: var(--primary-green);
-  box-shadow: 0 4px 8px rgba(42, 107, 17, 0.2);
+  box-shadow: 0 4px 8px var(--color-primary-a20);
   transform: translateY(-2px);
 }
 
 .roster-player-card.top-scorer-highlight {
   border-color: var(--primary-green) !important;
   border-width: 3px;
-  background-color: rgba(42, 107, 17, 0.03);
-  box-shadow: 0 4px 12px rgba(42, 107, 17, 0.15);
+  background-color: var(--color-primary-a03);
+  box-shadow: 0 4px 12px var(--color-primary-a15);
+}
+
+.roster-player-card.selected {
+  border: 2px solid #ffd700 !important;
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3) !important;
+  transform: scale(1.02);
+  z-index: 2;
 }
 
 .roster-player-card .badge {
@@ -756,7 +763,11 @@ h2 {
 /* Theme Utilities */
 .bg-theme-green {
   background-color: var(--primary-green) !important;
-  color: white !important;
+  color: var(--white) !important;
+}
+
+.bg-theme-green-gradient {
+  background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%) !important;
 }
 
 .text-theme-green {

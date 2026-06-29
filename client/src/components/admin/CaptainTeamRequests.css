@@ -22,7 +22,7 @@
 .requests-subtitle {
     color: var(--primary-green);
     font-weight: 700;
-    border-bottom: 2px solid rgba(42, 107, 17, 0.1);
+    border-bottom: 2px solid var(--color-primary-a10);
     padding-bottom: 0.75rem;
 }
 
@@ -43,7 +43,7 @@
 .btn-theme-green:hover {
     background-color: #1e5a0c !important;
     transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(42, 107, 17, 0.2);
+    box-shadow: var(--shadow-primary-sm);
 }
 
 /* Reusing global table styles if available, or defining them here */

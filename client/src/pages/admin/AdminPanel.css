@@ -3,14 +3,14 @@
     margin: 0 auto;
 }
 
-.admin-header {
+.admin-panel__header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin: 1rem 0;
 }
 
-.tabs {
+.admin-panel__tabs {
     display: flex;
     gap: 1rem;
     margin-bottom: 1rem;
@@ -20,7 +20,7 @@
 }
 
 
-.tab {
+.admin-panel__tab {
     padding: 0.75rem 1rem;
     background: none;
     border: none;
@@ -32,74 +32,29 @@
     margin-bottom: -2px;
 }
 
-.tab:hover {
+.admin-panel__tab:hover {
     color: var(--text);
 }
 
-.tab.active {
+.admin-panel__tab.active {
     color: var(--text);
     border-bottom-color: var(--text);
 }
 
-/* ---- Filter bar (Consistent with Schedule) ---- */
-.admin-filters {
-    display: flex;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
+/* Filter bar styles live in styles/filter-bar.css */
 
-.admin-filters .filter-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.35rem 1rem;
-    border-radius: 20px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text-light);
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s;
-}
-
-.admin-filters .filter-btn:hover {
-    border-color: var(--primary);
-    color: var(--primary);
-}
-
-.admin-filters .filter-btn.active {
-    background: var(--primary);
-    color: #fff;
-    border-color: var(--primary);
-}
-
-.admin-filters .filter-count {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 10px;
-    padding: 0 0.45rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
-}
-
-.admin-filters .filter-btn:not(.active) .filter-count {
-    background: var(--bg);
-    color: var(--text-light);
-}
-
-.tab-content h2 {
+.admin-panel__tab-content h2 {
     color: var(--primary);
     margin-bottom: 1rem;
 }
 
-.items-list {
+.admin-panel__items-list {
     display: flex;
     flex-direction: column;
     gap: 1rem;
 }
 
-.item {
+.admin-panel__item {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -109,23 +64,23 @@
     gap: 1rem;
 }
 
-.item-info {
+.admin-panel__item-info {
     flex: 1;
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
 }
 
-.item-info strong {
+.admin-panel__item-info strong {
     font-size: 1.1rem;
 }
 
-.item-info span {
+.admin-panel__item-info span {
     color: var(--text-light);
     font-size: 0.875rem;
 }
 
-.priority {
+.admin-panel__priority {
     display: inline-block;
     padding: 0.25rem 0.75rem;
     border-radius: 12px;
@@ -133,70 +88,74 @@
     font-size: 0.75rem;
 }
 
-.priority.high {
+.admin-panel__priority.high {
     background: #fee2e2;
     color: #991b1b;
 }
 
-.priority.normal {
+.admin-panel__priority.normal {
     background: #dbeafe;
     color: #1e40af;
 }
 
-@media (max-width: 768px) {
-    .tab-content h2 {
-        margin-bottom: 0.5rem;
-    }
+.admin-panel__lang-badge {
+    display: inline-block;
+    color: var(--white);
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.75rem;
+}
 
-    .admin-panel {
-        padding: 0 1rem;
-    }
+.admin-panel__lang-badge--en {
+    background: #3b82f6;
+}
 
-    .admin-header {
-        gap: 1rem;
-        align-items: flex-start;
-    }
+.admin-panel__lang-badge--he {
+    background: #10b981;
+}
 
-    .tabs {
-        gap: 0.5rem;
-        margin-bottom: 1.5rem;
-    }
+.admin-panel__lang-badge--other {
+    background: #6b7280;
+}
 
-    .tab {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.8rem;
-        flex-grow: 1;
-        /* Make tabs fill available space */
-        text-align: center;
-    }
+.admin-panel__item-info--comment {
+    flex-direction: column;
+    align-items: flex-start;
+}
 
-    .item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 1rem;
-    }
+.admin-panel__comment-meta-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 0.5rem;
+    width: 100%;
+}
 
-    .item-info {
-        width: 100%;
-    }
+.admin-panel__comment-date {
+    color: var(--text-light);
+    font-size: 0.85rem;
+}
 
-    .item-actions {
-        width: 100%;
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-    }
+.admin-panel__comment-match {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 0.5rem;
+}
 
-    .item .btn {
-        flex: 1;
-        margin: 0 !important;
-        /* Override ms-2 */
-    }
+.admin-panel__comment-body {
+    margin-top: 0.5rem;
+}
 
-    /* Adjust form layouts for mobile if they are not already using bootstrap grid correctly */
-    .card {
-        padding: 0.5rem !important;
-    }
+.admin-user-search-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-width: 28rem;
+}
+
+.admin-user-search-group .btn {
+    align-self: flex-start;
+    width: fit-content;
+    padding: 0.5rem 1rem;
 }
 
 /* ── Matches Table ──────────────────────────────────────────────────────────── */
@@ -213,8 +172,8 @@
 }
 
 .matches-table thead th {
-    background: var(--primary, #2A6B11);
-    color: #fff;
+    background: var(--primary);
+    color: var(--white);
     padding: 0.6rem 0.75rem;
     white-space: nowrap;
     position: sticky;
@@ -228,11 +187,11 @@
 }
 
 .matches-table tbody tr.row-even {
-    background-color: rgba(42, 107, 17, 0.05);
+    background-color: var(--color-primary-a05);
 }
 
 .matches-table tbody tr.match-table-row:hover {
-    background-color: rgba(255, 255, 0, 0.1) !important;
+    background-color: var(--color-primary-a05);
 }
 
 .matches-table tbody tr.match-table-row td,
@@ -243,7 +202,7 @@
 }
 
 .matches-table tbody tr.editing-row td {
-    background: rgba(42, 107, 17, 0.12) !important;
+    background: var(--color-primary-a12) !important;
 }
 
 /* Score cell */
@@ -285,17 +244,17 @@
 
 .phase-badge.phase-group {
     background: #1e40af;
-    color: #fff;
+    color: var(--white);
 }
 
 .phase-badge.phase-knockout {
     background: #991b1b;
-    color: #fff;
+    color: var(--white);
 }
 
 /* Goals sub-row */
 .goals-edit-row td {
-    background: rgba(42, 107, 17, 0.12) !important;
+    background: var(--color-primary-a12) !important;
 }
 
 .goals-editor {
@@ -323,8 +282,8 @@
     display: inline-flex;
     align-items: center;
     gap: 0.25rem;
-    background: rgba(42, 107, 17, 0.45);
-    border: 1px solid #2A6B11;
+    background: var(--color-primary-a45);
+    border: 1px solid var(--color-primary);
     border-radius: 999px;
     padding: 0.15rem 0.6rem;
     font-size: 0.78rem;
@@ -345,14 +304,71 @@
     max-width: 200px;
 }
 
-/* ── Mobile: stack table rows as cards ─────────────────────────────────────── */
+/* ── Mobile ─────────────────────────────────────────────────────────────────── */
 
 @media (max-width: 768px) {
+    .admin-panel__tab-content h2 {
+        margin-bottom: 0.5rem;
+    }
 
-    /* Widen panel padding back to full width on phone */
     .admin-panel {
         padding: 0 0.5rem;
     }
+
+    .admin-panel__header {
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .admin-panel__tabs {
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .admin-panel__tab {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        flex-grow: 1;
+        text-align: center;
+        min-height: 44px;
+    }
+
+    .admin-panel__item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .admin-panel__item-info {
+        width: 100%;
+    }
+
+    .admin-panel__item-actions {
+        width: 100%;
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .admin-panel__item .btn {
+        flex: 1;
+        margin: 0 !important;
+    }
+
+    .admin-panel .card {
+        padding: 0.5rem !important;
+    }
+
+    .admin-user-search-group {
+        max-width: none;
+    }
+
+    .admin-user-search-group .btn {
+        align-self: stretch;
+        width: 100%;
+    }
+
+    /* Stack table rows as cards */
 
     /* Hide table header — labels come from data-label instead */
     .matches-table thead {
@@ -378,11 +394,11 @@
     }
 
     .matches-table tr.row-even {
-        background: rgba(42, 107, 17, 0.05);
+        background: var(--color-primary-a05);
     }
 
     .matches-table tr.editing-row {
-        background: rgba(42, 107, 17, 0.12);
+        background: var(--color-primary-a12);
         box-shadow: 0 0 0 2px var(--primary-green);
     }
 
@@ -457,7 +473,8 @@
         grid-template-columns: 1fr 1fr 1fr;
     }
 
-    /* Full width for Date, Location, Phase, Goals, Actions */
+    /* Full width for Date, Location, Phase, Goals, Actions.
+       Column order contract — must match MatchTableRow: date, location, phase, team1, score, team2, goals, actions */
     .matches-table tr.match-table-row td:nth-child(1),
     .matches-table tr.match-table-row td:nth-child(2),
     .matches-table tr.match-table-row td:nth-child(3),
@@ -483,7 +500,7 @@
     .matches-table tr.editing-row td:nth-child(4),
     .matches-table tr.editing-row td:nth-child(5),
     .matches-table tr.editing-row td:nth-child(6) {
-        border-bottom: 1px solid rgba(42, 107, 17, 0.2);
+        border-bottom: 1px solid var(--color-primary-a20);
     }
 
     /* Goals cell — allow text to wrap */
@@ -495,7 +512,7 @@
     /* Goals sub-row */
     .matches-table tr.goals-edit-row {
         background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(42, 107, 17, 0.4);
+        border: 1px solid var(--color-primary-a40);
         border-radius: 0 0 8px 8px;
         margin-top: -0.75rem;
         margin-bottom: 0.75rem;

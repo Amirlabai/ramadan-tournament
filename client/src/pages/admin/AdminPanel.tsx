@@ -396,14 +396,14 @@ const AdminPanel = () => {
                 pathname="/admin"
                 noindex
             />
-            <div className="admin-header">
+            <div className="admin-panel__header">
                 <h2>פאנל ניהול</h2>
                 <button type="button" onClick={handleLogout} className="btn btn-danger">
                     התנתק
                 </button>
             </div>
 
-            <div className="tabs" role="tablist" aria-label="לשוניות ניהול">
+            <div className="admin-panel__tabs" role="tablist" aria-label="לשוניות ניהול">
                 {platformAdmin && (
                     <>
                         <button
@@ -412,7 +412,7 @@ const AdminPanel = () => {
                             id="admin-tab-matches"
                             aria-controls="admin-panel-matches"
                             aria-selected={activeTab === 'matches'}
-                            className={`tab ${activeTab === 'matches' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'matches' ? 'active' : ''}`}
                             onClick={() => setActiveTab('matches')}
                         >
                             ניהול משחקים ({matches.length})
@@ -423,7 +423,7 @@ const AdminPanel = () => {
                             id="admin-tab-news"
                             aria-controls="admin-panel-news"
                             aria-selected={activeTab === 'news'}
-                            className={`tab ${activeTab === 'news' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'news' ? 'active' : ''}`}
                             onClick={() => setActiveTab('news')}
                         >
                             ניהול חדשות ({news.length})
@@ -434,7 +434,7 @@ const AdminPanel = () => {
                             id="admin-tab-banned-words"
                             aria-controls="admin-panel-banned-words"
                             aria-selected={activeTab === 'banned-words'}
-                            className={`tab ${activeTab === 'banned-words' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'banned-words' ? 'active' : ''}`}
                             onClick={() => setActiveTab('banned-words')}
                         >
                             מילים חסומות ({bannedWords.length})
@@ -445,7 +445,7 @@ const AdminPanel = () => {
                             id="admin-tab-comments"
                             aria-controls="admin-panel-comments"
                             aria-selected={activeTab === 'comments'}
-                            className={`tab ${activeTab === 'comments' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'comments' ? 'active' : ''}`}
                             onClick={() => setActiveTab('comments')}
                         >
                             ניהול תגובות ({comments.length})
@@ -456,7 +456,7 @@ const AdminPanel = () => {
                             id="admin-tab-users"
                             aria-controls="admin-panel-users"
                             aria-selected={activeTab === 'users'}
-                            className={`tab ${activeTab === 'users' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'users' ? 'active' : ''}`}
                             onClick={() => setActiveTab('users')}
                         >
                             משתמשים
@@ -467,7 +467,7 @@ const AdminPanel = () => {
                             id="admin-tab-girls"
                             aria-controls="admin-panel-girls"
                             aria-selected={activeTab === 'girls'}
-                            className={`tab ${activeTab === 'girls' ? 'active' : ''}`}
+                            className={`admin-panel__tab ${activeTab === 'girls' ? 'active' : ''}`}
                             onClick={() => setActiveTab('girls')}
                         >
                             טורניר בנות (נקודות)
@@ -481,7 +481,7 @@ const AdminPanel = () => {
                         id="admin-tab-roster"
                         aria-controls="admin-panel-roster"
                         aria-selected={activeTab === 'roster'}
-                        className={`tab ${activeTab === 'roster' ? 'active' : ''}`}
+                        className={`admin-panel__tab ${activeTab === 'roster' ? 'active' : ''}`}
                         onClick={() => setActiveTab('roster')}
                     >
                         סגל ורישום
@@ -490,7 +490,7 @@ const AdminPanel = () => {
             </div>
 
             {platformAdmin && activeTab === 'matches' && (
-                <div role="tabpanel" id="admin-panel-matches" aria-labelledby="admin-tab-matches" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-matches" aria-labelledby="admin-tab-matches" className="admin-panel__tab-content" tabIndex={0}>
                     <div className="admin-filters mb-3">
                         <button
                             type="button"
@@ -603,7 +603,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'news' && (
-                <div role="tabpanel" id="admin-panel-news" aria-labelledby="admin-tab-news" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-news" aria-labelledby="admin-tab-news" className="admin-panel__tab-content" tabIndex={0}>
                     {!showNewsForm ? (
                         <div className="card">
                             <div className="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
@@ -633,17 +633,17 @@ const AdminPanel = () => {
                                     </button>
                                 </div>
                             </div>
-                            <div className="items-list">
+                            <div className="admin-panel__items-list">
                                 {news.map(item => (
-                                    <div key={item.id} className="item">
-                                        <div className="item-info">
+                                    <div key={item.id} className="admin-panel__item">
+                                        <div className="admin-panel__item-info">
                                             <strong>{item.title}</strong>
                                             <span>{item.message}</span>
-                                            <span className={`priority ${item.priority}`}>
+                                            <span className={`admin-panel__priority ${item.priority}`}>
                                                 {item.priority === 'high' ? 'עדיפות גבוהה' : 'רגיל'}
                                             </span>
                                         </div>
-                                        <div className="item-actions">
+                                        <div className="admin-panel__item-actions">
                                             <button onClick={() => startEditNews(item)} className="btn btn-warning ms-2">ערוך</button>
                                             <button onClick={() => deleteNews(item.id)} className="btn btn-danger">מחק</button>
                                         </div>
@@ -662,7 +662,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'banned-words' && (
-                <div role="tabpanel" id="admin-panel-banned-words" aria-labelledby="admin-tab-banned-words" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-banned-words" aria-labelledby="admin-tab-banned-words" className="admin-panel__tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול מילים חסומות</h2>
 
@@ -700,29 +700,25 @@ const AdminPanel = () => {
                                 </div>
                             </div>
 
-                            <div className="items-list">
+                            <div className="admin-panel__items-list">
                                 {bannedWords.length === 0 ? (
                                     <div className="text-center text-muted p-4">אין מילים חסומות</div>
                                 ) : (
                                     bannedWords.map((word) => {
                                         const wordId = entityId(word);
                                         return (
-                                        <div key={wordId} className="item">
-                                            <div className="item-info">
+                                        <div key={wordId} className="admin-panel__item">
+                                            <div className="admin-panel__item-info">
                                                 <strong>{word.word}</strong>
-                                                <span className="badge" style={{
-                                                    background: word.language === 'en' ? '#3b82f6' :
-                                                        word.language === 'he' ? '#10b981' : '#6b7280',
-                                                    color: 'white',
-                                                    padding: '0.25rem 0.75rem',
-                                                    borderRadius: '12px',
-                                                    fontSize: '0.75rem'
-                                                }}>
+                                                <span className={`admin-panel__lang-badge admin-panel__lang-badge--${
+                                                    word.language === 'en' ? 'en' :
+                                                    word.language === 'he' ? 'he' : 'other'
+                                                }`}>
                                                     {word.language === 'en' ? 'English' :
                                                         word.language === 'he' ? 'עברית' : 'אחר'}
                                                 </span>
                                             </div>
-                                            <div className="item-actions">
+                                            <div className="admin-panel__item-actions">
                                                 <button
                                                     onClick={() => handleRemoveBannedWord(wordId)}
                                                     className="btn btn-danger"
@@ -741,7 +737,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'comments' && (
-                <div role="tabpanel" id="admin-panel-comments" aria-labelledby="admin-tab-comments" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-comments" aria-labelledby="admin-tab-comments" className="admin-panel__tab-content" tabIndex={0}>
                     <div className="card">
                         <h2>ניהול תגובות</h2>
 
@@ -758,7 +754,7 @@ const AdminPanel = () => {
                                 />
                             </div>
 
-                            <div className="items-list">
+                            <div className="admin-panel__items-list">
                                 {comments.length === 0 ? (
                                     <div className="text-center text-muted p-4">אין תגובות</div>
                                 ) : (
@@ -772,22 +768,22 @@ const AdminPanel = () => {
                                             const match = matches.find(m => m.id === comment.matchId);
                                             const commentId = entityId(comment);
                                             return (
-                                                <div key={commentId} className="item">
-                                                    <div className="item-info" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                                                        <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem', width: '100%' }}>
+                                                <div key={commentId} className="admin-panel__item">
+                                                    <div className="admin-panel__admin-panel__item-info--comment">
+                                                        <div className="admin-panel__comment-meta-row">
                                                             <strong>{comment.author}</strong>
-                                                            <span style={{ color: '#666', fontSize: '0.85rem' }}>
+                                                            <span className="admin-panel__comment-date">
                                                                 {new Date(comment.createdAt).toLocaleString('he-IL')}
                                                             </span>
                                                         </div>
                                                         {match && (
-                                                            <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '0.5rem' }}>
+                                                            <div className="admin-panel__comment-match">
                                                                 משחק: {getTeamName(match.team1Id)} vs {getTeamName(match.team2Id)}
                                                             </div>
                                                         )}
-                                                        <div style={{ marginTop: '0.5rem' }}>{comment.content}</div>
+                                                        <div className="admin-panel__comment-body">{comment.content}</div>
                                                     </div>
-                                                    <div className="item-actions">
+                                                    <div className="admin-panel__item-actions">
                                                         <button
                                                             onClick={() => handleDeleteComment(commentId)}
                                                             className="btn btn-danger"
@@ -806,7 +802,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'roster' && (
-                <div role="tabpanel" id="admin-panel-roster" aria-labelledby="admin-tab-roster" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-roster" aria-labelledby="admin-tab-roster" className="admin-panel__tab-content" tabIndex={0}>
                     <div className="card p-3">
                         <RosterManager />
                     </div>
@@ -814,7 +810,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'users' && (
-                <div role="tabpanel" id="admin-panel-users" aria-labelledby="admin-tab-users" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-users" aria-labelledby="admin-tab-users" className="admin-panel__tab-content" tabIndex={0}>
                     <div className="card p-4">
                         <h3 className="h5 mb-3">ניהול הרשאות מנהל</h3>
                         <p className="text-muted small mb-3">
@@ -824,7 +820,7 @@ const AdminPanel = () => {
                             <label htmlFor="admin-user-search" className="form-label">
                                 חיפוש משתמש
                             </label>
-                            <div className="input-group">
+                            <div className="admin-user-search-group">
                                 <input
                                     id="admin-user-search"
                                     type="search"
@@ -914,7 +910,7 @@ const AdminPanel = () => {
             )}
 
             {platformAdmin && activeTab === 'girls' && (
-                <div role="tabpanel" id="admin-panel-girls" aria-labelledby="admin-tab-girls" className="tab-content" tabIndex={0}>
+                <div role="tabpanel" id="admin-panel-girls" aria-labelledby="admin-tab-girls" className="admin-panel__tab-content" tabIndex={0}>
                     <GirlsSeasonAdmin />
                 </div>
             )}

@@ -1,0 +1,76 @@
+/* Shared pill filter bar — used by Schedule, WorldCup Schedule, Admin */
+
+.schedule-filters,
+.admin-filters {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.admin-filters {
+    margin-bottom: 1rem;
+}
+
+.schedule-filters .filter-btn,
+.admin-filters .filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    min-height: 44px;
+    padding: 0.35rem 1rem;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.schedule-filters .filter-btn:hover,
+.admin-filters .filter-btn:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+.schedule-filters .filter-btn.active,
+.admin-filters .filter-btn.active {
+    background: var(--primary);
+    color: var(--white);
+    border-color: var(--primary);
+}
+
+.schedule-filters .filter-btn.upcoming.active,
+.admin-filters .filter-btn.upcoming.active {
+    background: #92400e;
+    border-color: #92400e;
+}
+
+.schedule-filters .filter-btn.live.active,
+.admin-filters .filter-btn.live.active {
+    background: #065f46;
+    border-color: #065f46;
+}
+
+.schedule-filters .filter-btn.finished.active,
+.admin-filters .filter-btn.finished.active {
+    background: #1e40af;
+    border-color: #1e40af;
+}
+
+.schedule-filters .filter-count,
+.admin-filters .filter-count {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    padding: 0 0.45rem;
+    font-size: 0.75rem;
+    line-height: 1.4;
+}
+
+.schedule-filters .filter-btn:not(.active) .filter-count,
+.admin-filters .filter-btn:not(.active) .filter-count {
+    background: var(--bg);
+    color: var(--text-light);
+}

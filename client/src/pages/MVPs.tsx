@@ -97,7 +97,7 @@ const MVPs = () => {
                 <h2 className="mb-4 fw-bold text-success border-bottom pb-2">מצטייני הטורניר</h2>
 
                 {(voteLoaded && (!user || hasVoted === false)) && (
-                    <div className="alert custom-claim-banner d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert" style={{ background: 'linear-gradient(135deg, var(--secondary-yellow) 0%, #ffe285ff 100%)', color: '#000000ff', border: 'none' }}>
+                    <div className="alert custom-claim-banner custom-claim-banner--mvp-vote d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert">
                         <div className="mb-2 mb-sm-0 pe-sm-4">
                             <strong>{user ? 'טרם בחרת שחקן מצטיין!' : 'מי ה-MVP שלך?'} </strong>
                             <span className="ms-2">

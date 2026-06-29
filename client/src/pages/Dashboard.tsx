@@ -123,7 +123,7 @@ const Dashboard = () => {
             <div className="container py-4">
 
                 {needsPlayerMapping && (
-                    <div className="alert custom-claim-banner alert-dismissible d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert">
+                    <div className="alert custom-claim-banner custom-claim-banner--dashboard alert-dismissible d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert">
                         <div className="mb-2 mb-sm-0 pe-sm-4">
                             <strong>שחקן בטורניר? </strong>
                             <span className="ms-2">שייך את המשתמש שלך לפרופיל השחקן כדי לצפות בסטטיסטיקות אישיות.</span>

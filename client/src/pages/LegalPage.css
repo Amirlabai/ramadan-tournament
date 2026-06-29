@@ -23,7 +23,7 @@ body:has(.legal-page-shell) {
 
 .legal-page-header {
   background: var(--color-primary, #509238);
-  color: #fff;
+  color: var(--white);
   padding: 1rem 0;
 }
 
@@ -37,17 +37,17 @@ body:has(.legal-page-shell) {
 .legal-page-brand {
   font-weight: 700;
   font-size: 1.125rem;
-  color: #fff;
+  color: var(--white);
   text-decoration: none;
 }
 
 .legal-page-brand:hover {
-  color: #fff;
+  color: var(--white);
   text-decoration: underline;
 }
 
 .legal-page-home-link {
-  color: #fff;
+  color: var(--white);
   text-decoration: underline;
   min-height: 44px;
   display: inline-flex;
@@ -118,7 +118,7 @@ body:has(.legal-page-shell) {
   right: 1rem;
   z-index: 10001;
   background: #000;
-  color: #fff;
+  color: var(--white);
   padding: 0.5rem 1rem;
   border-radius: 4px;
 }

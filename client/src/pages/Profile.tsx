@@ -615,7 +615,7 @@ const Profile = () => {
                 {showLegacyCaptain && (
                     <div className="captain-management-zone">
                         <div className="card mb-4 premium-captain-card border-none overflow-hidden">
-                            <div className="card-header bg-theme-green text-white p-3 border-none">
+                            <div className="card-header bg-theme-green-gradient text-white p-3 border-none">
                                 <h4 className="mb-0 d-flex align-items-center">
                                     <i className="bi bi-shield-check me-2" />
                                     ניהול בקשות שחקנים לקבוצה שלך

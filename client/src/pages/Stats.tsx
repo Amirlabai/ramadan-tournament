@@ -6,6 +6,7 @@ import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
 import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
+import { STANDINGS_PLAYOFF_ZONE_SIZE } from '@ramadan-tournament/shared';
 import './Stats.css';
 
 const Stats = () => {
@@ -79,7 +80,9 @@ const Stats = () => {
                     <h2>טבלת ליגה</h2>
                     <div className="table-responsive">
                         <table>
-                            <caption className="visually-hidden">טבלת דירוג קבוצות הליגה</caption>
+                            <caption className="stats-standings-caption">
+                                טבלת דירוג קבוצות הליגה. {STANDINGS_PLAYOFF_ZONE_SIZE} המקומות הראשונים מסומנים ברקע כחול — אזור הפלייאוף.
+                            </caption>
                             <thead>
                                 <tr>
                                     <th scope="col">דירוג</th>
@@ -94,7 +97,7 @@ const Stats = () => {
                             </thead>
                             <tbody>
                                 {standings.map((team, index) => (
-                                    <tr key={team.teamId} className={index < 4 ? 'qualified' : ''}>
+                                    <tr key={team.teamId} className={index < STANDINGS_PLAYOFF_ZONE_SIZE ? 'qualified' : ''}>
                                         <td className="position">{index + 1}</td>
                                         <td className="team-name">
                                             <button

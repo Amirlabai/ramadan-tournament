@@ -79,24 +79,6 @@
     margin-top: 1.5rem;
 }
 
-.dashboard-card-title,
-.next-matches-card h2,
-.next-matches-card h3,
-.top-scorer h2,
-.top-scorer h3,
-.mvp-race-card h2,
-.mvp-race-card h3,
-.recent-matches h2,
-.recent-matches h3 {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
-    color: #ffffff !important;
-    margin: 0;
-    padding: 0.875rem 1rem;
-    text-align: center;
-    font-size: 1.15rem;
-    font-weight: 700;
-    line-height: 1.3;
-}
 
 .next-matches-card:hover,
 .recent-matches:hover,
@@ -484,27 +466,7 @@
     vertical-align: text-top;
 }
 
-/* Custom Player Claim Banner */
-.custom-claim-banner {
-    background: linear-gradient(135deg, rgba(46, 125, 50, 0.1) 0%, rgba(26, 35, 24, 0.3) 100%);
-    border-right: 4px solid var(--primary-green, #2e7d32);
-    border-radius: 8px;
-    color: var(--text, #fff);
-}
-
 @media (max-width: 768px) {
-
-    .dashboard-card-title,
-    .next-matches-card h2,
-    .next-matches-card h3,
-    .top-scorer h2,
-    .top-scorer h3,
-    .recent-matches h2,
-    .recent-matches h3 {
-        padding: 0.65rem 0.75rem;
-        font-size: 1rem;
-    }
-
     .dashboard-grid {
         grid-template-columns: 1fr;
     }
@@ -556,16 +518,6 @@
     }
 }
 
-@media (max-width: 576px) {
-    .custom-claim-banner {
-        flex-direction: column;
-        align-items: stretch !important;
-        text-align: center;
-        gap: 1rem;
-    }
-}
-
-/* MVP Race Leaderboard */
 .mvp-race-card {
     background: var(--white);
 }
@@ -580,7 +532,7 @@
 }
 
 .mvp-row:hover {
-    background-color: rgba(42, 107, 17, 0.05);
+    background-color: var(--color-primary-a05);
 }
 
 .mvp-rank {
