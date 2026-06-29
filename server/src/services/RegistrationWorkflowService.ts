@@ -7,6 +7,7 @@ import {
   TeamStatus,
 } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { config } from '../config/env';
 import { toInputJson } from '../lib/json';
 import { SeasonService } from './SeasonService';
 import { sanitizeTeamCreationFields } from '../utils/inputValidation';
@@ -1075,7 +1076,7 @@ export class RegistrationWorkflowService {
   }
 
   static async countPendingAdminActionsForSeason(seasonId: string): Promise<number> {
-    const data = await this.listPendingWorkflows(seasonId);
+    const data = await RegistrationWorkflowService.listPendingWorkflows(seasonId);
     const adminJoins = data.joins.filter((j) => j.status === RequestStatus.owner_approved).length;
     return (
       data.awaitingIdentity.length +
@@ -1093,29 +1094,61 @@ export class RegistrationWorkflowService {
   static async countPendingAdminActions(): Promise<{
     total: number;
     bySeason: Record<string, number>;
+    partial?: boolean;
+    skippedSeasonIds?: string[];
   }> {
     const seasons = await prisma.season.findMany({
       where: { isActive: true },
       select: { id: true },
     });
     const bySeason: Record<string, number> = {};
-    let total = 0;
+    const skippedSeasonIds: string[] = [];
+    let seasonTotal = 0;
     for (const season of seasons) {
       try {
-        const count = await this.countPendingAdminActionsForSeason(season.id);
+        const count = await RegistrationWorkflowService.countPendingAdminActionsForSeason(season.id);
         if (count > 0) {
           bySeason[season.id] = count;
         }
-        total += count;
+        seasonTotal += count;
       } catch (err) {
-        console.warn('countPendingAdminActions: season skipped', season.id, err);
+        skippedSeasonIds.push(season.id);
+        const message = err instanceof Error ? err.message : String(err);
+        console.warn(
+          'countPendingAdminActions: season skipped',
+          season.id,
+          message
+        );
       }
     }
+    let legacy = 0;
+    let legacyFailed = false;
     try {
-      total += await this.countLegacyTeamRequests();
+      legacy = await RegistrationWorkflowService.countLegacyTeamRequests();
     } catch (err) {
-      console.warn('countPendingAdminActions: legacy team requests skipped', err);
+      legacyFailed = true;
+      const message = err instanceof Error ? err.message : String(err);
+      console.warn('countPendingAdminActions: legacy team requests skipped', message);
     }
-    return { total, bySeason };
+    const total = seasonTotal + legacy;
+    const partial = skippedSeasonIds.length > 0 || legacyFailed;
+    if (config.nodeEnv !== 'production') {
+      console.log('[workflow] pending-count', {
+        total,
+        bySeason,
+        legacy,
+        activeSeasons: seasons.length,
+        partial,
+        skippedSeasonIds,
+      });
+    }
+    return {
+      total,
+      bySeason,
+      ...(partial && {
+        partial: true,
+        ...(skippedSeasonIds.length > 0 && { skippedSeasonIds }),
+      }),
+    };
   }
 }

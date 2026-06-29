@@ -6,16 +6,19 @@ export const PLAYER_COOKIE = 'rt_player';
 
 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
 
-function cookieOptions(maxAge = SEVEN_DAYS_MS): CookieOptions {
+function baseCookieOptions(): CookieOptions {
   const isProd = config.nodeEnv === 'production';
   // ponytail: sameSite=none requires requireApiOrigin on mutating routes — CSRF depends on it
   return {
     httpOnly: true,
     secure: isProd,
     sameSite: isProd ? 'none' : 'lax',
-    maxAge,
     path: '/',
   };
+}
+
+function cookieOptions(maxAge = SEVEN_DAYS_MS): CookieOptions {
+  return { ...baseCookieOptions(), maxAge };
 }
 
 export function setAuthCookie(res: Response, token: string): void {
@@ -23,7 +26,7 @@ export function setAuthCookie(res: Response, token: string): void {
 }
 
 export function clearAuthCookie(res: Response): void {
-  res.clearCookie(SESSION_COOKIE, cookieOptions());
+  res.clearCookie(SESSION_COOKIE, baseCookieOptions());
 }
 
 export function setPlayerCookie(res: Response, token: string): void {
@@ -31,7 +34,7 @@ export function setPlayerCookie(res: Response, token: string): void {
 }
 
 export function clearPlayerCookie(res: Response): void {
-  res.clearCookie(PLAYER_COOKIE, cookieOptions(24 * 60 * 60 * 1000));
+  res.clearCookie(PLAYER_COOKIE, baseCookieOptions());
 }
 
 /** Dev/Postman only — omit token from JSON in production. */

@@ -29,6 +29,8 @@ const PROFILE_POLL_MS = 60_000;
 interface RefreshIndicatorsOptions {
     /** Skip admin pending-count fetch (e.g. post-mutation on workflow page). */
     light?: boolean;
+    /** When fetching admin count, cross-check queues if endpoint returns 0. Default true on full refresh. */
+    adminReconcile?: boolean;
 }
 
 interface NavActionIndicatorsContextValue {
@@ -88,14 +90,12 @@ async function fetchAdminPendingCountFromQueues(): Promise<number> {
     return workflowTotal + legacyCount;
 }
 
-/** Endpoint-only; trust `0`. Use after mutations and on window focus. */
-type AdminCountMode = 'quick' | 'reconcile';
-
-async function fetchAdminPendingCount(mode: AdminCountMode): Promise<number> {
+async function fetchAdminPendingCount(reconcile: boolean): Promise<number> {
     try {
         const res = await adminAPI.getWorkflowPendingCount();
-        const fromEndpoint = (res.data as { total?: number }).total ?? 0;
-        if (fromEndpoint > 0 || mode === 'quick') return fromEndpoint;
+        const data = res.data as { total?: number; partial?: boolean };
+        const fromEndpoint = data.total ?? 0;
+        if (!reconcile || (fromEndpoint > 0 && !data.partial)) return fromEndpoint;
         try {
             const fromQueues = await fetchAdminPendingCountFromQueues();
             return Math.max(fromEndpoint, fromQueues);
@@ -119,14 +119,14 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
     const lastFocusRefreshRef = useRef(0);
     const lastAdminCountRef = useRef<number | null>(null);
 
-    const fetchAdminCount = useCallback(async (mode: AdminCountMode = 'reconcile') => {
+    const fetchAdminCount = useCallback(async (reconcile = false) => {
         if (!canAccessAdminPanel(user)) {
             setAdminPendingCount(null);
             lastAdminCountRef.current = null;
             return;
         }
         try {
-            const count = await fetchAdminPendingCount(mode);
+            const count = await fetchAdminPendingCount(reconcile);
             lastAdminCountRef.current = count;
             setAdminPendingCount(count);
         } catch {
@@ -179,7 +179,7 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
             ];
             if (canAccessAdminPanel(user)) {
                 if (!options?.light) {
-                    tasks.push(fetchAdminCount('reconcile'));
+                    tasks.push(fetchAdminCount(options?.adminReconcile ?? true));
                 }
             } else {
                 setAdminPendingCount(null);
@@ -208,10 +208,8 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
             const now = Date.now();
             if (now - lastFocusRefreshRef.current < FOCUS_DEBOUNCE_MS) return;
             lastFocusRefreshRef.current = now;
-            void refreshIndicators({ light: true });
-            if (canAccessAdminPanel(user)) {
-                void fetchAdminCount('quick');
-            }
+            // Single refresh: profile counts + endpoint-only admin (no queue fanout on focus).
+            void refreshIndicators({ adminReconcile: false });
         };
         window.addEventListener('focus', onFocus);
         return () => window.removeEventListener('focus', onFocus);
@@ -262,7 +260,7 @@ export function NavActionIndicatorsProvider({ children }: { children: ReactNode 
             profileActionRequired,
             adminActionRequired,
             refreshIndicators,
-            refreshAdminCount: () => fetchAdminCount('quick'),
+            refreshAdminCount: () => fetchAdminCount(false),
         }),
         [profileActionRequired, adminActionRequired, refreshIndicators, fetchAdminCount]
     );

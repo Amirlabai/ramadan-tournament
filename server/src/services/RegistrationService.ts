@@ -46,7 +46,10 @@ export class RegistrationService {
   static addOwnerToRoster = RegistrationWorkflowService.addOwnerToRoster;
   static listPendingJoinsForOwner = RegistrationWorkflowService.listPendingJoinsForOwner;
   static listPendingWorkflows = RegistrationWorkflowService.listPendingWorkflows;
-  static countPendingAdminActions = RegistrationWorkflowService.countPendingAdminActions;
+  // Explicit delegate — countPendingAdminActions calls other statics on RegistrationWorkflowService.
+  static countPendingAdminActions() {
+    return RegistrationWorkflowService.countPendingAdminActions();
+  }
 
   static async assignAdminIdentity(
     adminId: string,
