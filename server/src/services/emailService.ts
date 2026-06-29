@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer';
+import { adminUrl, profileUrl, tournamentBranding } from '../config/tournamentBranding';
 import { config } from '../config/env';
 
 const getTransporter = () =>
@@ -10,7 +11,22 @@ const getTransporter = () =>
         },
     });
 
-const isConfigured = () => !!(config.email.user && config.email.pass && config.email.admin);
+const isSmtpConfigured = () => !!(config.email.user && config.email.pass);
+
+const isConfigured = () => isSmtpConfigured() && !!config.email.admin;
+
+function emailFooterHtml(): string {
+    return `<p style="font-size: 12px; color: #888; text-align: center;">${tournamentBranding.displayNameHe}</p>`;
+}
+
+function emailWrapperHtml(body: string): string {
+    return `
+        <div dir="rtl" style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
+            ${body}
+            <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
+            ${emailFooterHtml()}
+        </div>`;
+}
 
 // ─── Photo upload (existing flow) ────────────────────────────────────────────
 
@@ -27,7 +43,7 @@ export const sendPhotoUploadNotification = async (playerName: string, teamName: 
                     <p><strong>שחקן:</strong> ${playerName}</p>
                     <p><strong>קבוצה:</strong> ${teamName}</p>
                     <hr />
-                    <a href="https://ramadan-tournament-client.vercel.app/admin"
+                    <a href="${adminUrl()}"
                        style="background:#2A6B11;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">
                        לפאנל הניהול
                     </a>
@@ -61,7 +77,7 @@ export const sendTeamRequestNotification = async (
                     ${description ? `<p><strong>תיאור:</strong> ${description}</p>` : ''}
                     <hr />
                     <p>כדי לאשר או לדחות את הבקשה, כנס לפאנל הניהול:</p>
-                    <a href="https://ramadan-tournament-client.vercel.app/admin"
+                    <a href="${adminUrl()}"
                        style="background:#2A6B11;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">
                        לפאנל הניהול
                     </a>
@@ -88,20 +104,19 @@ export const sendPlayerMappingNotification = async (
             from: config.email.user,
             to: captainEmail,
             subject: `שחקן מבקש להצטרף לקבוצתך: ${teamName}`,
-            html: `
-                <div dir="rtl" style="font-family: sans-serif;">
-                    <h2>שלום ${captainName},</h2>
-                    <p>משתמש חדש מבקש לשייך את עצמו לשחקן בקבוצה שלך.</p>
-                    <p><strong>משתמש:</strong> ${requesterName}</p>
-                    <p><strong>שחקן מבוקש:</strong> ${playerName}</p>
-                    <p><strong>קבוצה:</strong> ${teamName}</p>
-                    <hr />
-                    <p>כדי לאשר או לדחות את הבקשה, כנס לפרופיל שלך:</p>
-                    <a href="https://ramadan-tournament-client.vercel.app/profile"
-                       style="background:#2A6B11;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">
-                       לפרופיל שלי
-                    </a>
-                </div>`,
+            html: emailWrapperHtml(`
+                <h2 style="color: #2A6B11;">שלום ${captainName},</h2>
+                <p>משתמש חדש מבקש לשייך את עצמו לשחקן בקבוצה שלך ב${tournamentBranding.displayNameHe}.</p>
+                <p><strong>משתמש:</strong> ${requesterName}</p>
+                <p><strong>שחקן מבוקש:</strong> ${playerName}</p>
+                <p><strong>קבוצה:</strong> ${teamName}</p>
+                <hr />
+                <p>כדי לאשר או לדחות את הבקשה, כנס לפרופיל שלך:</p>
+                <a href="${profileUrl()}"
+                   style="background:#2A6B11;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;display:inline-block;">
+                   לפרופיל שלי
+                </a>
+            `),
         });
         console.log(`[email] Player mapping notification sent to captain ${captainEmail}`);
     } catch (err) {
@@ -116,7 +131,7 @@ export const sendVerificationEmail = async (
     token: string,
     displayName: string
 ): Promise<void> => {
-    if (!isConfigured()) {
+    if (!isSmtpConfigured()) {
         console.warn('[email] SMTP not configured. Logged code:', token);
         return;
     }
@@ -124,23 +139,122 @@ export const sendVerificationEmail = async (
         await getTransporter().sendMail({
             from: config.email.user,
             to: email,
-            subject: `קוד אימות לטורניר נצ'מאז: ${token}`,
-            html: `
-                <div dir="rtl" style="font-family: sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-                    <h2 style="color: #2A6B11; text-align: center;">ברוך הבא לטורניר נצ'מאז!</h2>
-                    <p>שלום ${displayName},</p>
-                    <p>תודה שנרשמת למערכת. כדי להשלים את ההרשמה ולאמת את כתובת האימייל שלך, אנא הזן את הקוד הבא באתר:</p>
-                    <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
-                        ${token}
-                    </div>
-                    <p>הקוד בתוקף ל-24 השעות הקרובות.</p>
-                    <p>אם לא נרשמת לאתר, אנא התעלם מאימייל זה.</p>
-                    <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;" />
-                    <p style="font-size: 12px; color: #888; text-align: center;">טורניר נצ'מאז - רמדאן 2026</p>
-                </div>`,
+            subject: `קוד אימות — ${tournamentBranding.displayNameHe}`,
+            html: emailWrapperHtml(`
+                <h2 style="color: #2A6B11; text-align: center;">ברוך הבא ל${tournamentBranding.displayNameHe}!</h2>
+                <p>שלום ${displayName},</p>
+                <p>תודה שנרשמת למערכת. כדי להשלים את ההרשמה ולאמת את כתובת האימייל שלך, אנא הזן את הקוד הבא באתר:</p>
+                <div style="background: #f4f4f4; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #333; border-radius: 5px; margin: 20px 0;">
+                    ${token}
+                </div>
+                <p>הקוד בתוקף ל-24 השעות הקרובות.</p>
+                <p>אם לא נרשמת לאתר, אנא התעלם מאימייל זה.</p>
+            `),
         });
         console.log(`[email] Verification email sent to ${email}`);
     } catch (err) {
         console.error('[email] Failed to send verification email:', err);
     }
 };
+
+// ─── Administration-side identity gap (form CSV incomplete) ─────────────────
+
+export type PreregIdentityAlert =
+  | { type: 'admin_missing'; field: 'personal_id' | 'birth_year' }
+  | { type: 'field_mismatch'; field: 'personal_id' | 'birth_year' };
+
+const MISMATCH_LABELS: Record<'personal_id' | 'birth_year', string> = {
+  personal_id: 'מספר תעודת זהות',
+  birth_year: 'שנת לידה',
+};
+
+export const sendPreregIdentityAlertEmail = async (
+  to: string,
+  displayName: string,
+  alert: PreregIdentityAlert
+): Promise<void> => {
+  if (!isSmtpConfigured() || !to?.trim()) return;
+
+  const fieldLabel = MISMATCH_LABELS[alert.field];
+  let subject: string;
+  let body: string;
+
+  if (alert.type === 'admin_missing') {
+    subject = `השלמת רישום — חסר ${fieldLabel} בצד הניהול`;
+    body = `
+      <h2 style="color: #2A6B11;">שלום ${displayName},</h2>
+      <p>ברישום <strong>${tournamentBranding.displayNameHe}</strong> בצד הניהול חסר/ה ${fieldLabel} בטופס ההרשמה.</p>
+      <p>אנא <strong>השיבו למייל זה</strong> עם ${fieldLabel} כדי שנוכל להשלים את הרישום.</p>
+      <p>תודה.</p>
+    `;
+  } else {
+    subject = `השלמת רישום — ${fieldLabel} לא תואם לטופס`;
+    body = `
+      <h2 style="color: #2A6B11;">שלום ${displayName},</h2>
+      <p>ברישום <strong>${tournamentBranding.displayNameHe}</strong> אחד הפרטים ששלחת תואם לטופס ההרשמה ואחד לא.</p>
+      <p>אנא <strong>השיבו למייל זה</strong> עם ${fieldLabel} הנכון/ה כדי שנוכל להשלים את הרישום.</p>
+      <p>תודה.</p>
+    `;
+  }
+
+  try {
+    await getTransporter().sendMail({
+      from: config.email.user,
+      to,
+      replyTo: config.email.admin || config.email.user,
+      subject,
+      html: emailWrapperHtml(body),
+    });
+    console.log(`[email] Prereg identity alert sent to ${to}`);
+  } catch (err) {
+    console.error('[email] Failed to send prereg identity alert:', err);
+  }
+};
+
+/** @deprecated use sendPreregIdentityAlertEmail */
+export const sendAdminGapIdentityEmail = async (
+    to: string,
+    displayName: string,
+    adminMissing: ('personal_id' | 'birth_year')[]
+): Promise<void> => {
+  if (adminMissing.length === 0) return;
+  const field = adminMissing.length === 2 ? 'personal_id' : adminMissing[0]!;
+  await sendPreregIdentityAlertEmail(to, displayName, { type: 'admin_missing', field });
+};
+
+/** @internal test helper — build verification HTML without sending */
+export function buildVerificationEmailHtmlForTest(
+    token: string,
+    displayName: string
+): string {
+    return emailWrapperHtml(`
+        <h2>ברוך הבא ל${tournamentBranding.displayNameHe}!</h2>
+        <p>שלום ${displayName},</p>
+        <div>${token}</div>
+    `);
+}
+
+/** @internal test helper */
+export function buildPreregAlertHtmlForTest(
+  displayName: string,
+  alert: PreregIdentityAlert
+): string {
+  const fieldLabel = MISMATCH_LABELS[alert.field];
+  const intro =
+    alert.type === 'admin_missing'
+      ? `חסר ${fieldLabel} בצד הניהול`
+      : `${fieldLabel} לא תואם`;
+  return emailWrapperHtml(`
+        <p>שלום ${displayName},</p>
+        <p>${intro}</p>
+    `);
+}
+
+/** @internal test helper */
+export function buildAdminGapEmailHtmlForTest(
+  displayName: string,
+  adminMissing: ('personal_id' | 'birth_year')[]
+): string {
+  const field = adminMissing[0] ?? 'birth_year';
+  return buildPreregAlertHtmlForTest(displayName, { type: 'admin_missing', field });
+}

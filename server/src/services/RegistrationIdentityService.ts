@@ -1,8 +1,10 @@
 import { Division, SeasonRegistrationStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { sendPreregIdentityAlertEmail } from './emailService';
 import { IdentityRateLimitService, MAX_IDENTITY_ATTEMPTS } from './IdentityRateLimitService';
+import { PreregistrationLookupService } from './PreregistrationLookupService';
 import { SeasonService } from './SeasonService';
-import { IDENTITY_ALERT_NOT_MATCHING } from '../utils/identityAlerts';
+import { IDENTITY_ALERT_NOT_MATCHING, preregIdentityProfileAlert } from '../utils/identityAlerts';
 import {
   encryptPersonalIdForStorage,
   identitiesMatch,
@@ -396,6 +398,91 @@ export async function submitUserIdentity(
   const now = new Date();
 
   if (!correctingMismatch && !hasAdminAssignment) {
+    let preregEval: Awaited<ReturnType<typeof PreregistrationLookupService.evaluate>> = {
+      kind: 'no_match',
+    };
+
+    try {
+      preregEval = await PreregistrationLookupService.evaluate(season.id, normalized, birthYear);
+    } catch (err) {
+      console.warn('[prereg] lookup failed, skipping', err);
+    }
+
+    if (preregEval.kind === 'full_match') {
+      await prisma.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+        create: {
+          userId,
+          seasonId: season.id,
+          division: season.division,
+          status: SeasonRegistrationStatus.active,
+          userPersonalIdEnc: personalIdEnc,
+          userBirthYear: birthYear,
+          userPersonalIdMasked: personalIdMasked,
+          adminPersonalIdEnc: personalIdEnc,
+          adminBirthYear: birthYear,
+          redeemedAt: now,
+          invoiceAlert: null,
+        },
+        update: {
+          status: SeasonRegistrationStatus.active,
+          userPersonalIdEnc: personalIdEnc,
+          userBirthYear: birthYear,
+          userPersonalIdMasked: personalIdMasked,
+          adminPersonalIdEnc: personalIdEnc,
+          adminBirthYear: birthYear,
+          redeemedAt: now,
+          invoiceAlert: null,
+          division: season.division,
+        },
+      });
+      await deps.lockActiveDivision(userId, division);
+      await IdentityRateLimitService.clearAttempts(userId, season.id);
+      return;
+    }
+
+    if (
+      preregEval.kind === 'admin_missing' ||
+      preregEval.kind === 'field_mismatch'
+    ) {
+      const preregAlert = preregIdentityProfileAlert(preregEval.kind, preregEval.field);
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true, displayName: true },
+      });
+      if (user?.email) {
+        const alert =
+          preregEval.kind === 'admin_missing'
+            ? ({ type: 'admin_missing' as const, field: preregEval.field })
+            : ({ type: 'field_mismatch' as const, field: preregEval.field });
+        void sendPreregIdentityAlertEmail(user.email, user.displayName, alert);
+      }
+
+      await prisma.seasonRegistration.upsert({
+        where: { userId_seasonId: { userId, seasonId: season.id } },
+        create: {
+          userId,
+          seasonId: season.id,
+          division: season.division,
+          status: SeasonRegistrationStatus.awaiting_identity,
+          userPersonalIdEnc: personalIdEnc,
+          userBirthYear: birthYear,
+          userPersonalIdMasked: personalIdMasked,
+          invoiceAlert: preregAlert,
+        },
+        update: {
+          status: SeasonRegistrationStatus.awaiting_identity,
+          userPersonalIdEnc: personalIdEnc,
+          userBirthYear: birthYear,
+          userPersonalIdMasked: personalIdMasked,
+          invoiceAlert: preregAlert,
+          division: season.division,
+        },
+      });
+      await IdentityRateLimitService.clearAttempts(userId, season.id);
+      return;
+    }
+
     await prisma.seasonRegistration.upsert({
       where: { userId_seasonId: { userId, seasonId: season.id } },
       create: {

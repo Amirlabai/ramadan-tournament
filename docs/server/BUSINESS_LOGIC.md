@@ -63,6 +63,22 @@ sequenceDiagram
 
 **Legacy:** `invoice_codes` table retained for historical rows; new registrations do not write to it. Column `invoiceAlert` stores Hebrew mismatch text (name unchanged).
 
+### Form preregistration (Google Form CSV — Jun 2026)
+
+Offline team-registration CSV is parsed and imported into `form_prereg_entries` (per `season_id`):
+
+| Step | Command |
+|------|---------|
+| Migrate | `npm run db:migrate` in `server/` |
+| Import | `npm run import:prereg` — replace-all for active boys season (or `--season-id`) |
+| Debug JSON | `npm run parse:prereg` — optional local inspection in `data/preregistration/` (gitignored) |
+
+Requires `DATABASE_URL` and `PERSONAL_ID_KEY` on import host (same key as API). Personal IDs stored encrypted (`personal_id_enc`); birth years plain `Int`. Captain team email optional (`captain_email` only).
+
+**Runtime:** `PreregistrationLookupService.evaluate(seasonId, personalId, birthYear)` — activation only on **both** fields matching a complete form row. Partial form data or single-field mismatch → Hebrew alert email to the **logged-in user's** account email (not CSV email).
+
+Prereg lookup is wrapped in try/catch; failures never block registration.
+
 ---
 
 ## Status machine

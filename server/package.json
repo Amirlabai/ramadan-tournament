@@ -16,6 +16,8 @@
         "db:fresh": "tsx prisma/seed-empty.ts",
         "db:studio": "prisma studio",
         "fixtures:generate": "tsx src/scripts/generate-group-fixtures.ts",
+        "parse:prereg": "tsx src/scripts/parse-adiga-form-csv.ts",
+        "import:prereg": "tsx src/scripts/import-adiga-form-prereg.ts",
         "db:sync-banned-words": "tsx src/scripts/syncBannedWords.ts",
         "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts",
         "test": "vitest run",

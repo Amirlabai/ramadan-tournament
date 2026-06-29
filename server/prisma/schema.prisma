@@ -62,6 +62,17 @@ enum NewsPriority {
   high
 }
 
+enum FormPreregAdminMissing {
+  personal_id
+  birth_year
+}
+
+enum FormPreregRole {
+  captain
+  goalkeeper
+  player
+}
+
 model Season {
   id          String      @id @default(uuid())
   yearMonth   String      @map("year_month")
@@ -83,6 +94,7 @@ model Season {
   teamCreationRequests TeamCreationRequest[]
   teamJoinRequests     TeamJoinRequest[]
   teamTransferRequests TeamTransferRequest[]
+  formPreregEntries    FormPreregEntry[]
 
   @@unique([yearMonth, division])
   @@map("seasons")
@@ -420,4 +432,23 @@ model BannedWord {
   language String @default("he")
 
   @@map("banned_words")
+}
+
+model FormPreregEntry {
+  id            String                   @id @default(uuid())
+  seasonId      String                   @map("season_id")
+  name          String
+  captainEmail  String?                  @map("captain_email")
+  personalIdEnc String?                  @map("personal_id_enc")
+  birthYear     Int?                     @map("birth_year")
+  adminMissing  FormPreregAdminMissing?  @map("admin_missing")
+  teamName      String                   @map("team_name")
+  role          FormPreregRole
+  importedAt    DateTime                 @default(now()) @map("imported_at")
+
+  season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+
+  @@index([seasonId, personalIdEnc])
+  @@index([seasonId, birthYear])
+  @@map("form_prereg_entries")
 }

@@ -31,6 +31,9 @@ server/src/**/*.js
 # Vector index (workspace-chroma skill)
 .chroma/
 
+# Preregistration JSON (PII — generate locally / on deploy via npm run parse:prereg)
+data/preregistration/*.json
+
 # Environment (secrets only — *.env.example stays tracked)
 .env
 server/.env
