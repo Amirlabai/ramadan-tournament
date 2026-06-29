@@ -49,6 +49,7 @@ import AccessibilityToolbar from './components/AccessibilityToolbar'
 import { useCookieConsent } from './hooks/useCookieConsent'
 import { useSidebarDrawer } from './hooks/useSidebarDrawer'
 import { useSwipeOpenDrawer } from './hooks/useSwipeOpenDrawer'
+import { NavActionIndicatorsProvider } from './contexts/NavActionIndicatorsContext'
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { useEffect } from 'react'
@@ -124,7 +125,7 @@ function AppShell() {
   }, [isWorldCup, isGirls])
 
   return (
-    <>
+    <NavActionIndicatorsProvider>
       <TournamentPreferenceRedirect />
       <div className="app" dir="rtl" data-tournament={tournamentTheme}>
         <a href="#main-content" className="skip-link">
@@ -185,7 +186,7 @@ function AppShell() {
         <ScrollToTop />
         {consent === 'accepted' && <Analytics />}
       </div>
-    </>
+    </NavActionIndicatorsProvider>
   )
 }
 

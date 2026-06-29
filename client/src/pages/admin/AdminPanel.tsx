@@ -12,6 +12,8 @@ import PageLoading from '../../components/PageLoading';
 import EmptyState from '../../components/EmptyState';
 import { entityId } from '../../utils/entityId';
 import { canAccessAdminPanel, isPlatformAdmin } from '../../utils/tournamentUser';
+import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
+import NavActionDot, { withPendingActionLabel } from '../../components/NavActionDot';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -24,6 +26,7 @@ const AdminPanel = () => {
     const { user, loading: authLoading, logout } = useAuth();
 
     const platformAdmin = isPlatformAdmin(user);
+    const { adminActionRequired } = useNavActionIndicators();
 
     const [activeTab, setActiveTab] = useState<TabType>('matches');
     const [newsDivision, setNewsDivision] = useState<TournamentSlug>('boys');
@@ -481,10 +484,16 @@ const AdminPanel = () => {
                         id="admin-tab-roster"
                         aria-controls="admin-panel-roster"
                         aria-selected={activeTab === 'roster'}
-                        className={`admin-panel__tab ${activeTab === 'roster' ? 'active' : ''}`}
+                        className={`admin-panel__tab${adminActionRequired && activeTab !== 'roster' ? ' admin-panel__tab--with-dot' : ''} ${activeTab === 'roster' ? 'active' : ''}`}
                         onClick={() => setActiveTab('roster')}
+                        aria-label={
+                            adminActionRequired && activeTab !== 'roster'
+                                ? withPendingActionLabel('סגל ורישום', true)
+                                : undefined
+                        }
                     >
                         סגל ורישום
+                        {adminActionRequired && activeTab !== 'roster' && <NavActionDot />}
                     </button>
                 )}
             </div>

@@ -36,6 +36,9 @@ export interface TournamentRegistrationSummary {
     pendingTransfer?: { id: string; fromTeamId: number; toTeamId: number; status: string } | null;
     onRoster?: { teamId: number; memberId: number; isCaptain?: boolean } | null;
     ownedTeamId?: number | null;
+    ownerPendingJoinCount?: number;
+    invoiceAlert?: string | null;
+    awaitingAdminIdentity?: boolean;
 }
 
 export interface User {

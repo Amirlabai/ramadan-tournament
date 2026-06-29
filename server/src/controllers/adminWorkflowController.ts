@@ -47,6 +47,16 @@ export const listWorkflowQueues = async (req: AuthRequest, res: Response): Promi
   }
 };
 
+export const getWorkflowPendingCount = async (_req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const data = await RegistrationService.countPendingAdminActions();
+    res.json(data);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'שגיאה בשרת';
+    res.status(400).json({ error: message });
+  }
+};
+
 export const assignUserIdentity = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { userId, seasonId, personalId, birthYear } = req.body as {

@@ -26,6 +26,7 @@ import {
   lockActiveDivision,
 } from './registrationHelpers';
 import { RegistrationQueryService } from './RegistrationQueryService';
+import { findPendingTeamCreationRequests } from '../repositories/userMappingRepository';
 
 export interface JoinRequestOptions {
   memberId?: number;
@@ -906,7 +907,7 @@ export class RegistrationWorkflowService {
       ? await prisma.season.findUniqueOrThrow({ where: { id: seasonId } })
       : await SeasonService.getActiveSeason(Division.boys);
 
-    const [creations, joins, transfers, awaitingInvoice] = await Promise.all([
+    const [creations, joins, transfers] = await Promise.all([
       prisma.teamCreationRequest.findMany({
         where: { seasonId: season.id, status: RequestStatus.pending },
         include: {
@@ -932,25 +933,7 @@ export class RegistrationWorkflowService {
         },
         orderBy: { createdAt: 'asc' },
       }),
-      prisma.seasonRegistration.findMany({
-        where: {
-          seasonId: season.id,
-          status: {
-            in: [
-              SeasonRegistrationStatus.awaiting_identity,
-              SeasonRegistrationStatus.join_pending,
-              SeasonRegistrationStatus.identity_assigned,
-              SeasonRegistrationStatus.active,
-            ],
-          },
-        },
-        include: {
-          user: { select: { id: true, displayName: true, email: true, activeDivision: true } },
-        },
-      }),
     ]);
-
-    const joinByUserId = new Map(joins.map((j) => [j.userId, j]));
 
     const workflowUserIds = [
       ...new Set([
@@ -959,6 +942,48 @@ export class RegistrationWorkflowService {
         ...transfers.map((t) => t.userId),
       ]),
     ];
+
+    const noneStatusFilters: Array<{
+      userPersonalIdEnc?: { not: null };
+      userPersonalIdMasked?: { not: null };
+      invoiceAlert?: { not: null };
+      userId?: { in: string[] };
+    }> = [
+      { userPersonalIdEnc: { not: null } },
+      { userPersonalIdMasked: { not: null } },
+      { invoiceAlert: { not: null } },
+    ];
+    if (workflowUserIds.length > 0) {
+      noneStatusFilters.push({ userId: { in: workflowUserIds } });
+    }
+
+    const awaitingInvoice = await prisma.seasonRegistration.findMany({
+      where: {
+        seasonId: season.id,
+        OR: [
+          {
+            status: {
+              in: [
+                SeasonRegistrationStatus.awaiting_identity,
+                SeasonRegistrationStatus.join_pending,
+                SeasonRegistrationStatus.identity_assigned,
+                SeasonRegistrationStatus.active,
+              ],
+            },
+          },
+          {
+            status: SeasonRegistrationStatus.none,
+            OR: noneStatusFilters,
+          },
+        ],
+      },
+      include: {
+        user: { select: { id: true, displayName: true, email: true, activeDivision: true } },
+      },
+    });
+
+    const joinByUserId = new Map(joins.map((j) => [j.userId, j]));
+
     const workflowRegs =
       workflowUserIds.length > 0
         ? await prisma.seasonRegistration.findMany({
@@ -1007,11 +1032,14 @@ export class RegistrationWorkflowService {
       registrationStatus: regStatusByUser.get(t.userId) ?? SeasonRegistrationStatus.none,
     }));
 
+    const creationsByUserId = new Set(creations.map((c) => c.userId));
+
     const awaitingIdentityEnriched = awaitingInvoice
       .map((reg) => {
         const join = joinByUserId.get(reg.userId);
         const matchState = identityStateByUser.get(reg.userId) ?? computeIdentityMatchState(null);
         return {
+          userId: reg.userId,
           user: reg.user,
           status: reg.status,
           invoiceAlert: reg.invoiceAlert,
@@ -1024,9 +1052,18 @@ export class RegistrationWorkflowService {
           identityMatched: matchState.identityMatched,
         };
       })
-      .filter((row) =>
-        needsIdentityWorkflowAction(row.status, row.invoiceAlert, row.identityMatched)
-      );
+      .filter((row) => {
+        if (row.status === SeasonRegistrationStatus.none) {
+          return (
+            row.identityMatched === false &&
+            (!!row.submittedIdentityMasked ||
+              !!row.invoiceAlert ||
+              joinByUserId.has(row.userId) ||
+              creationsByUserId.has(row.userId))
+          );
+        }
+        return needsIdentityWorkflowAction(row.status, row.invoiceAlert, row.identityMatched);
+      });
 
     return {
       season,
@@ -1035,5 +1072,50 @@ export class RegistrationWorkflowService {
       transfers: transfersEnriched,
       awaitingIdentity: awaitingIdentityEnriched,
     };
+  }
+
+  static async countPendingAdminActionsForSeason(seasonId: string): Promise<number> {
+    const data = await this.listPendingWorkflows(seasonId);
+    const adminJoins = data.joins.filter((j) => j.status === RequestStatus.owner_approved).length;
+    return (
+      data.awaitingIdentity.length +
+      data.creations.length +
+      adminJoins +
+      data.transfers.length
+    );
+  }
+
+  static async countLegacyTeamRequests(): Promise<number> {
+    const users = await findPendingTeamCreationRequests();
+    return users.length;
+  }
+
+  static async countPendingAdminActions(): Promise<{
+    total: number;
+    bySeason: Record<string, number>;
+  }> {
+    const seasons = await prisma.season.findMany({
+      where: { isActive: true },
+      select: { id: true },
+    });
+    const bySeason: Record<string, number> = {};
+    let total = 0;
+    for (const season of seasons) {
+      try {
+        const count = await this.countPendingAdminActionsForSeason(season.id);
+        if (count > 0) {
+          bySeason[season.id] = count;
+        }
+        total += count;
+      } catch (err) {
+        console.warn('countPendingAdminActions: season skipped', season.id, err);
+      }
+    }
+    try {
+      total += await this.countLegacyTeamRequests();
+    } catch (err) {
+      console.warn('countPendingAdminActions: legacy team requests skipped', err);
+    }
+    return { total, bySeason };
   }
 }

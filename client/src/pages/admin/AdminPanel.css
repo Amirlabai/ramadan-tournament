@@ -41,6 +41,12 @@
     border-bottom-color: var(--text);
 }
 
+.admin-panel__tab--with-dot {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* Filter bar styles live in styles/filter-bar.css */
 
 .admin-panel__tab-content h2 {

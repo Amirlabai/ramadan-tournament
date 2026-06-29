@@ -21,6 +21,7 @@ export interface RegistrationSummary {
   pendingTransfer: { id: string; fromTeamId: number; toTeamId: number; status: RequestStatus } | null;
   onRoster: { teamId: number; memberId: number; isCaptain: boolean } | null;
   ownedTeamId: number | null;
+  ownerPendingJoinCount: number;
 }
 
 export class RegistrationQueryService {
@@ -61,6 +62,16 @@ export class RegistrationQueryService {
       getIdentityMatchState(userId, season.id),
     ]);
 
+    const ownerPendingJoinCount = ownedTeam
+      ? await prisma.teamJoinRequest.count({
+          where: {
+            seasonId: season.id,
+            teamId: ownedTeam.id,
+            status: RequestStatus.pending,
+          },
+        })
+      : 0;
+
     return {
       seasonId: season.id,
       division,
@@ -89,6 +100,7 @@ export class RegistrationQueryService {
         ? { teamId: player.teamId, memberId: player.memberId, isCaptain: player.isCaptain }
         : null,
       ownedTeamId: ownedTeam?.id ?? null,
+      ownerPendingJoinCount,
     };
   }
 

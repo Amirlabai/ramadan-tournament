@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { registrationAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
+import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 
 type PendingJoin = {
     id: string;
@@ -17,6 +18,7 @@ interface Props {
 
 export default function TeamRegistrationActions({ teamId, teamName, slug }: Props) {
     const { user, refreshUser } = useAuth();
+    const { refreshIndicators } = useNavActionIndicators();
     const [joinMsg, setJoinMsg] = useState('');
     const [ownerMsg, setOwnerMsg] = useState('');
     const [pending, setPending] = useState<PendingJoin[]>([]);
@@ -90,6 +92,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
             setOwnerMsg(approve ? 'הבקשה אושרה וממתינה לאישור מנהל.' : 'הבקשה נדחה.');
             await loadPending();
             await refreshUser();
+            await refreshIndicators();
         } catch (err: unknown) {
             const ax = err as { response?: { data?: { error?: string } } };
             setOwnerMsg(ax.response?.data?.error || 'שגיאה בעדכון הבקשה');

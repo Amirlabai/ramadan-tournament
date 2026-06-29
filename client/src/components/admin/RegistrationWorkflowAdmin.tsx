@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { getRegistrationStatusLabel } from '@ramadan-tournament/shared';
 import { adminAPI } from '../../api/client';
+import { mergedIdentityQueue } from '../../utils/adminWorkflowPendingCount';
+import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import { isBirthYearInRange, sanitizeBirthYearInput } from '../../utils/birthYearInput';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import './RegistrationWorkflowAdmin.css';
@@ -89,6 +91,7 @@ const pendingApprovalHint = (): string => 'ממתין להתאמת זהות ור
 type IdentityInput = { personalId: string; birthYear: string };
 
 export default function RegistrationWorkflowAdmin() {
+    const { refreshIndicators, refreshAdminCount } = useNavActionIndicators();
     const [seasons, setSeasons] = useState<SeasonOption[]>([]);
     const [seasonId, setSeasonId] = useState('');
     const [data, setData] = useState<WorkflowData | null>(null);
@@ -116,7 +119,7 @@ export default function RegistrationWorkflowAdmin() {
         void loadSeasons();
     }, []);
 
-    const load = useCallback(async () => {
+    const load = useCallback(async (opts?: { refreshNav?: boolean }) => {
         if (!seasonId) {
             setLoading(false);
             return;
@@ -128,7 +131,7 @@ export default function RegistrationWorkflowAdmin() {
             const raw = res.data as WorkflowData & { awaitingInvoice?: AwaitingIdentityRow[] };
             setData({
                 ...raw,
-                awaitingIdentity: raw.awaitingIdentity ?? raw.awaitingInvoice ?? [],
+                awaitingIdentity: mergedIdentityQueue(raw) as AwaitingIdentityRow[],
             });
         } catch (e: unknown) {
             setData(null);
@@ -143,8 +146,12 @@ export default function RegistrationWorkflowAdmin() {
             }
         } finally {
             setLoading(false);
+            if (opts?.refreshNav) {
+                await refreshIndicators({ light: true });
+                await refreshAdminCount();
+            }
         }
-    }, [seasonId]);
+    }, [seasonId, refreshIndicators, refreshAdminCount]);
 
     useEffect(() => {
         void load();
@@ -197,7 +204,7 @@ export default function RegistrationWorkflowAdmin() {
                 delete next[userId];
                 return next;
             });
-            await load();
+            await load({ refreshNav: true });
         } catch (e: unknown) {
             const ax = e as {
                 response?: { data?: { error?: string } };
@@ -526,7 +533,7 @@ export default function RegistrationWorkflowAdmin() {
                                                             setMsg('');
                                                             try {
                                                                 await adminAPI.reviewCreationRequest(c.id, true);
-                                                                await load();
+                                                                await load({ refreshNav: true });
                                                             } catch (e: unknown) {
                                                                 const ax = e as {
                                                                     response?: { data?: { error?: string } };
@@ -548,7 +555,7 @@ export default function RegistrationWorkflowAdmin() {
                                                             setMsg('');
                                                             try {
                                                                 await adminAPI.reviewCreationRequest(c.id, false);
-                                                                await load();
+                                                                await load({ refreshNav: true });
                                                             } catch (e: unknown) {
                                                                 const ax = e as {
                                                                     response?: { data?: { error?: string } };
@@ -633,7 +640,7 @@ export default function RegistrationWorkflowAdmin() {
                                                                 setMsg('');
                                                                 try {
                                                                     await adminAPI.reviewJoinRequest(j.id, true);
-                                                                    await load();
+                                                                    await load({ refreshNav: true });
                                                                 } catch (e: unknown) {
                                                                     const ax = e as {
                                                                         response?: { data?: { error?: string } };
@@ -655,7 +662,7 @@ export default function RegistrationWorkflowAdmin() {
                                                                 setMsg('');
                                                                 try {
                                                                     await adminAPI.reviewJoinRequest(j.id, false);
-                                                                    await load();
+                                                                    await load({ refreshNav: true });
                                                                 } catch (e: unknown) {
                                                                     const ax = e as {
                                                                         response?: { data?: { error?: string } };
@@ -700,7 +707,7 @@ export default function RegistrationWorkflowAdmin() {
                                                 setMsg('');
                                                 try {
                                                     await adminAPI.reviewTransferRequest(t.id, true);
-                                                    await load();
+                                                    await load({ refreshNav: true });
                                                 } catch (e: unknown) {
                                                     const ax = e as { response?: { data?: { error?: string } } };
                                                     setMsg(ax.response?.data?.error || 'לא ניתן לאשר את ההעברה');
@@ -716,7 +723,7 @@ export default function RegistrationWorkflowAdmin() {
                                                 setMsg('');
                                                 try {
                                                     await adminAPI.reviewTransferRequest(t.id, false);
-                                                    await load();
+                                                    await load({ refreshNav: true });
                                                 } catch (e: unknown) {
                                                     const ax = e as { response?: { data?: { error?: string } } };
                                                     setMsg(ax.response?.data?.error || 'לא ניתן לדחות את ההעברה');

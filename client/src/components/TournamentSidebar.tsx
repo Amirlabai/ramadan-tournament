@@ -1,11 +1,13 @@
 import type { MouseEvent, TouchEvent } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useTournament } from '../contexts/TournamentContext'
-import { getMainNavItems, getNavIndex } from '../utils/mainNavItems'
+import { getMainNavItems, getNavIndex, applyNavActionDots } from '../utils/mainNavItems'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useDrawerSwipeClose } from '../hooks/useDrawerSwipeClose'
 import { canAccessAdminPanel } from '../utils/tournamentUser'
+import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext'
+import { NavActionLink } from './NavActionDot'
 import './TournamentSidebar.css'
 
 interface TournamentSidebarProps {
@@ -16,31 +18,6 @@ interface TournamentSidebarProps {
   onHandlePointerDown: (clientX: number) => void
   onHandlePointerMove: (clientX: number) => void
   onHandlePointerUp: () => void
-}
-
-const SidebarLink = ({
-  to,
-  label,
-  className = '',
-  onNavigate,
-}: {
-  to: string
-  label: string
-  className?: string
-  onNavigate?: () => void
-}) => {
-  const location = useLocation()
-  const active = location.pathname === to || location.pathname === to.replace(/\/$/, '')
-  return (
-    <Link
-      to={to}
-      className={`tournament-sidebar-link ${active ? 'active' : ''} ${className}`.trim()}
-      aria-current={active ? 'page' : undefined}
-      onClick={onNavigate}
-    >
-      {label}
-    </Link>
-  )
 }
 
 const TournamentSidebar = ({
@@ -54,13 +31,19 @@ const TournamentSidebar = ({
 }: TournamentSidebarProps) => {
   const { user } = useAuth()
   const { paths, isGirls, isWorldCup } = useTournament()
+  const { profileActionRequired, adminActionRequired } = useNavActionIndicators()
   const showAdminNav = canAccessAdminPanel(user)
-  const items = getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav })
+  const items = applyNavActionDots(
+    getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav }),
+    { profile: profileActionRequired, admin: adminActionRequired }
+  )
   const location = useLocation()
   const activeIndex = getNavIndex(location.pathname, items)
   const panelRef = useFocusTrap(isMobile && open, () => onOpenChange(false))
   const close = () => onOpenChange(false)
   const drawerSwipe = useDrawerSwipeClose(close, isMobile && open)
+  const isNavPathActive = (to: string) =>
+    location.pathname === to || location.pathname === to.replace(/\/$/, '')
 
   const legalLinks = [
     { to: '/about', label: 'אודות' },
@@ -74,22 +57,27 @@ const TournamentSidebar = ({
       <ul className="tournament-sidebar-list" role="list">
         {items.map((item) => (
           <li key={item.to} className="tournament-sidebar-item">
-            <SidebarLink
+            <NavActionLink
               to={item.to}
               label={item.label}
-              className={item.className}
-              onNavigate={isMobile ? close : undefined}
+              className="tournament-sidebar-link"
+              extraClassName={item.className}
+              active={isNavPathActive(item.to)}
+              showActionDot={item.showActionDot}
+              onClick={isMobile ? close : undefined}
             />
           </li>
         ))}
       </ul>
       <div className="tournament-sidebar-legal" aria-label="קישורים משפטיים">
         {legalLinks.map((link) => (
-          <SidebarLink
+          <NavActionLink
             key={link.to}
             to={link.to}
             label={link.label}
-            onNavigate={isMobile ? close : undefined}
+            className="tournament-sidebar-link"
+            active={isNavPathActive(link.to)}
+            onClick={isMobile ? close : undefined}
           />
         ))}
       </div>

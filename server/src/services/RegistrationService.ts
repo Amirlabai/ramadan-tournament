@@ -46,6 +46,7 @@ export class RegistrationService {
   static addOwnerToRoster = RegistrationWorkflowService.addOwnerToRoster;
   static listPendingJoinsForOwner = RegistrationWorkflowService.listPendingJoinsForOwner;
   static listPendingWorkflows = RegistrationWorkflowService.listPendingWorkflows;
+  static countPendingAdminActions = RegistrationWorkflowService.countPendingAdminActions;
 
   static async assignAdminIdentity(
     adminId: string,

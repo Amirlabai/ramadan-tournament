@@ -14,6 +14,7 @@ import {
 } from '../controllers/adminSeasonController';
 import {
   listWorkflowQueues,
+  getWorkflowPendingCount,
   searchIdentityUsers,
   assignUserIdentity,
   reviewCreationRequest,
@@ -71,6 +72,7 @@ router.get('/point-entries', authenticate, authorize(['Admin', 'admin']), listPo
 router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), createPointEntry);
 
 // Phase 2 — registration workflows
+router.get('/workflows/pending-count', authenticate, authorize(['Admin', 'admin']), getWorkflowPendingCount);
 router.get('/workflows', authenticate, authorize(['Admin', 'admin']), listWorkflowQueues);
 router.get(
   '/workflows/user-search',

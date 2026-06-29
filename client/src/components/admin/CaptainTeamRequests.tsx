@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { teamsAPI } from '../../api/client';
-import { useAuth, type User } from '../../contexts/AuthContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
+import { resolveLegacyCaptainTeam } from '../../utils/navActionIndicators';
 import './CaptainTeamRequests.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
@@ -17,38 +19,9 @@ interface PendingUser {
     };
 }
 
-function resolveLegacyCaptainTeam(user: User | null | undefined): {
-    teamId: number;
-    teamName: string;
-} | null {
-    if (!user) return null;
-
-    const boys = user.tournamentRegistration?.boys;
-    const girls = user.tournamentRegistration?.girls;
-    if (boys?.ownedTeamId) {
-        return { teamId: boys.ownedTeamId, teamName: `קבוצה #${boys.ownedTeamId}` };
-    }
-    if (boys?.onRoster?.isCaptain) {
-        return { teamId: boys.onRoster.teamId, teamName: `קבוצה #${boys.onRoster.teamId}` };
-    }
-    if (girls?.ownedTeamId) {
-        return { teamId: girls.ownedTeamId, teamName: `קבוצה #${girls.ownedTeamId}` };
-    }
-    if (girls?.onRoster?.isCaptain) {
-        return { teamId: girls.onRoster.teamId, teamName: `קבוצה #${girls.onRoster.teamId}` };
-    }
-
-    const mapped = user.mappedPlayerInfo;
-    if (mapped?.teamId) {
-        const teamName =
-            (mapped as { teamName?: string }).teamName || `קבוצה #${mapped.teamId}`;
-        return { teamId: mapped.teamId, teamName };
-    }
-    return null;
-}
-
 const CaptainTeamRequests = () => {
     const { user } = useAuth();
+    const { refreshIndicators } = useNavActionIndicators();
     const [requests, setRequests] = useState<PendingUser[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
@@ -56,6 +29,7 @@ const CaptainTeamRequests = () => {
 
     const captainTeam = useMemo(() => resolveLegacyCaptainTeam(user), [user]);
     const captainTeamId = captainTeam?.teamId;
+    const captainTeamSlug = captainTeam?.slug ?? 'boys';
     const captainTeamName = captainTeam?.teamName ?? '';
 
     useEffect(() => {
@@ -66,7 +40,7 @@ const CaptainTeamRequests = () => {
             }
 
             try {
-                const response = await teamsAPI.getRequests(captainTeamId);
+                const response = await teamsAPI.getRequests(captainTeamId, captainTeamSlug);
                 setRequests(response.data);
             } catch {
                 setError('שגיאה בטעינת בקשות ממתינות');
@@ -76,15 +50,16 @@ const CaptainTeamRequests = () => {
         };
 
         void fetchRequests();
-    }, [captainTeamId]);
+    }, [captainTeamId, captainTeamSlug]);
 
     const handleAction = async (userId: string, action: 'approved' | 'rejected') => {
         if (!captainTeamId) return;
 
         setActionLoading(userId);
         try {
-            await teamsAPI.approveRequest(captainTeamId, userId, action);
+            await teamsAPI.approveRequest(captainTeamId, userId, action, captainTeamSlug);
             setRequests((prev) => prev.filter((req) => req.id !== userId));
+            await refreshIndicators();
         } catch (err: unknown) {
             const ax = err as { response?: { data?: { error?: string } } };
             alert(ax.response?.data?.error || 'שגיאה בביצוע הפעולה');

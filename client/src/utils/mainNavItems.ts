@@ -1,10 +1,14 @@
 import type { User } from '../contexts/AuthContext'
 import { tournamentPaths, type TournamentSlug } from './tournamentPaths'
 
+export type NavActionIndicator = 'profile' | 'admin'
+
 export interface NavItem {
   to: string
   label: string
   className?: string
+  showActionDot?: boolean
+  actionIndicator?: NavActionIndicator
 }
 
 interface MainNavContext {
@@ -53,16 +57,32 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
       to: '/profile',
       label: user.displayName || 'פרופיל',
       className: 'login-link',
+      actionIndicator: 'profile',
     })
   } else {
     items.push({ to: '/login', label: 'התחברות', className: 'login-link' })
   }
 
   if (showAdminNav) {
-    items.push({ to: '/admin', label: 'ניהול' })
+    items.push({ to: '/admin', label: 'ניהול', actionIndicator: 'admin' })
   }
 
   return items
+}
+
+export function applyNavActionDots(
+  items: NavItem[],
+  flags: { profile: boolean; admin: boolean }
+): NavItem[] {
+  return items.map((item) => {
+    if (item.actionIndicator === 'profile') {
+      return { ...item, showActionDot: flags.profile }
+    }
+    if (item.actionIndicator === 'admin') {
+      return { ...item, showActionDot: flags.admin }
+    }
+    return item
+  })
 }
 
 export function getNavIndex(pathname: string, items: NavItem[]): number {

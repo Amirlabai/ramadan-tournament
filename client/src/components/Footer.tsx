@@ -3,10 +3,13 @@ import { BitDonateLink } from './BitDonateLink';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { canAccessAdminPanel } from '../utils/tournamentUser';
+import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext';
+import { NavActionLink } from './NavActionDot';
 
 const Footer = () => {
     const { user } = useAuth();
     const { isGirls, isWorldCup, paths } = useTournament();
+    const { profileActionRequired, adminActionRequired } = useNavActionIndicators();
     const showAdminNav = canAccessAdminPanel(user);
 
     const brandTitle = isWorldCup
@@ -83,8 +86,22 @@ const Footer = () => {
                         <ul className="footer-list">
                             {user ? (
                                 <>
-                                    <li><Link to="/profile" className="footer-link">פרופיל אישי</Link></li>
-                                    {showAdminNav && <li><Link to="/admin" className="footer-link">פאנל ניהול</Link></li>}
+                                    <li>
+                                        <NavActionLink
+                                            to="/profile"
+                                            label="פרופיל אישי"
+                                            showActionDot={profileActionRequired}
+                                        />
+                                    </li>
+                                    {showAdminNav && (
+                                        <li>
+                                            <NavActionLink
+                                                to="/admin"
+                                                label="פאנל ניהול"
+                                                showActionDot={adminActionRequired}
+                                            />
+                                        </li>
+                                    )}
                                 </>
                             ) : (
                                 <li><Link to="/login" className="footer-link">התחברות</Link></li>

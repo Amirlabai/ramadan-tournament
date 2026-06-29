@@ -183,6 +183,7 @@ export const adminAPI = {
     getGirlsStandings: () => api.get('/stats-girls/standings'),
     getWorkflowQueues: (seasonId?: string) =>
         api.get('/admin/workflows', { params: seasonId ? { seasonId } : {} }),
+    getWorkflowPendingCount: () => api.get('/admin/workflows/pending-count'),
     searchIdentityUsers: (seasonId: string, q: string) =>
         api.get('/admin/workflows/user-search', { params: { seasonId, q } }),
     assignIdentity: (userId: string, seasonId: string, personalId: string, birthYear: string) =>
