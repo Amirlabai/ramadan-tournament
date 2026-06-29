@@ -25,6 +25,15 @@ interface Props {
     title: string;
 }
 
+const GIRLS_SEASON_UNAVAILABLE = 'אין עונה פעילה לטורניר בנות';
+
+function isGirlsSeasonUnavailableError(e: unknown): boolean {
+    const ax = e as { response?: { status?: number; data?: { error?: string } } };
+    if (ax.response?.status === 404) return true;
+    const msg = ax.response?.data?.error ?? '';
+    return msg.includes(GIRLS_SEASON_UNAVAILABLE) || /no active season/i.test(msg);
+}
+
 export default function TournamentRegistrationCard({ slug, title }: Props) {
     const { user, refreshUser } = useAuth();
     const [reg, setReg] = useState<RegistrationSummary | null>(null);
@@ -33,6 +42,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const [msg, setMsg] = useState('');
     const [err, setErr] = useState('');
     const [loadErr, setLoadErr] = useState('');
+    const [hidden, setHidden] = useState(false);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const { cancelRegistrationRequest, cancelling } = useCancelRegistrationRequest(slug);
@@ -41,13 +51,18 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         if (!user) return null;
         setLoading(true);
         setLoadErr('');
+        setHidden(false);
         try {
             const res = await usersAPI.getRegistration(slug);
             const data = res.data as RegistrationSummary;
             setReg(data);
             return data;
-        } catch {
+        } catch (e: unknown) {
             setReg(null);
+            if (slug === 'girls' && isGirlsSeasonUnavailableError(e)) {
+                setHidden(true);
+                return null;
+            }
             setLoadErr('לא ניתן לטעון את סטטוס הרישום. נסה לרענן את העמוד.');
             return null;
         } finally {
@@ -98,6 +113,8 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
             ? 'card mb-4 p-4 registration-card registration-card--girls'
             : 'card mb-4 p-4 registration-card';
     const submitBtnClass = slug === 'girls' ? 'btn btn-tournament-primary' : 'btn btn-success';
+
+    if (hidden) return null;
 
     if (loading) {
         return (
