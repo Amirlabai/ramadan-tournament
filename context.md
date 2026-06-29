@@ -110,7 +110,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
-- **June 2026 — Captain scope:** PRD captains approve join requests on Profile/Teams; edit team name, description, logo via `TeamOwnerSettings`. Roster add/delete and admin panel remain platform-admin only.
+- **June 2026 — Captain scope:** Team **owners** (`ownedTeamId`) approve join requests and edit branding via `TeamOwnerSettings`. Squad **captains** (`isCaptain`) edit lineup roles via `OwnerSquadRoles`. Profile + Teams use `TournamentRoleStar` (gold / gold+blue-outline / blue). Roster add/delete and admin panel remain platform-admin only.
 - **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
 - **June 2026 — PR5 server cleanup:** Removed legacy route aliases (`/redeem-invoice`, `/map-player`, `/admin/users/invoice`, `/admin/user-mappings`). Canonical identity + workflow APIs only. Service ownership table in [`server/README.md`](server/README.md).
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.

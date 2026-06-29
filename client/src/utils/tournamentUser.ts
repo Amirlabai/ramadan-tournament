@@ -86,18 +86,57 @@ export function canAccessAdminPanel(user: User | null | undefined): boolean {
     return isPlatformAdmin(user);
 }
 
-export type TournamentParticipationBadge = 'captain' | 'player' | null;
+export type RoleStarVariant = 'owner-captain' | 'owner-only' | 'captain' | null;
+
+export type ProfileTournamentBadge = RoleStarVariant | 'player' | null;
+
+/** Star variant for a roster row (Teams cards, player modal). */
+export function getRoleStarVariant(isTeamOwner: boolean, isCaptain: boolean): RoleStarVariant {
+    if (isTeamOwner && isCaptain) return 'owner-captain';
+    if (isTeamOwner) return 'owner-only';
+    if (isCaptain) return 'captain';
+    return null;
+}
+
+function isSquadCaptainOnOwnedTeam(user: User): boolean {
+    const boys = user.tournamentRegistration?.boys;
+    const girls = user.tournamentRegistration?.girls;
+    if (boys?.ownedTeamId && boys.onRoster?.teamId === boys.ownedTeamId && boys.onRoster.isCaptain) {
+        return true;
+    }
+    if (girls?.ownedTeamId && girls.onRoster?.teamId === girls.ownedTeamId && girls.onRoster.isCaptain) {
+        return true;
+    }
+    return false;
+}
 
 /** Tournament participation label for Profile badge (separate from platform admin). */
-export function getTournamentParticipationBadge(
-    user: User | null | undefined
-): TournamentParticipationBadge {
-    const boys = user?.tournamentRegistration?.boys;
-    const girls = user?.tournamentRegistration?.girls;
-    if (boys?.ownedTeamId || girls?.ownedTeamId) return 'captain';
+export function getProfileTournamentBadge(user: User | null | undefined): ProfileTournamentBadge {
+    if (!user) return null;
+
+    const boys = user.tournamentRegistration?.boys;
+    const girls = user.tournamentRegistration?.girls;
+    if (boys?.ownedTeamId || girls?.ownedTeamId) {
+        return isSquadCaptainOnOwnedTeam(user) ? 'owner-captain' : 'owner-only';
+    }
+
+    if (boys?.onRoster?.isCaptain || girls?.onRoster?.isCaptain) return 'captain';
     if (boys?.onRoster || girls?.onRoster) return 'player';
 
     if (isLegacyMappedCaptain(user)) return 'captain';
     if (isLegacyMappedPlayer(user)) return 'player';
+    return null;
+}
+
+/** @deprecated Use getProfileTournamentBadge */
+export type TournamentParticipationBadge = 'captain' | 'player' | null;
+
+/** @deprecated Use getProfileTournamentBadge */
+export function getTournamentParticipationBadge(
+    user: User | null | undefined
+): TournamentParticipationBadge {
+    const badge = getProfileTournamentBadge(user);
+    if (badge === 'owner-captain' || badge === 'owner-only' || badge === 'captain') return 'captain';
+    if (badge === 'player') return 'player';
     return null;
 }

@@ -5,7 +5,7 @@ import { StatsService } from './StatsService';
 import { Division } from '@prisma/client';
 import { PointsStatsService } from './PointsStatsService';
 
-function formatPlayer(player: any, statsMap: Map<number, any>) {
+function formatPlayer(player: any, statsMap: Map<number, any>, ownerUserId: string | null) {
   const playerStats = statsMap.get(player.memberId);
   const hasPersonalId = !!player.personalIdEnc;
   return {
@@ -16,6 +16,7 @@ function formatPlayer(player: any, statsMap: Map<number, any>) {
     number: player.number,
     position: player.position,
     isCaptain: player.isCaptain,
+    isTeamOwner: !!ownerUserId && player.userId === ownerUserId,
     squadRole: player.squadRole ?? null,
     lineup: player.squadRole ? 'starting' : 'bench',
     head_photo: player.headPhoto || '',
@@ -37,7 +38,7 @@ function formatTeam(team: any, statsMap: Map<number, any>, pointsTotal?: number)
     ...(pointsTotal !== undefined ? { totalPoints: pointsTotal } : {}),
     players: team.players
       .filter((p: any) => p.active)
-      .map((p: any) => formatPlayer(p, statsMap)),
+      .map((p: any) => formatPlayer(p, statsMap, team.ownerUserId ?? null)),
   };
 }
 
@@ -45,7 +46,7 @@ export class TeamDataService {
   static async getTeamsDocument(division: Division = Division.boys) {
     const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
     if (!season) return [];
-    const cacheKey = CacheService.key('doc', division, 'teams', 'all', season.id);
+    const cacheKey = CacheService.key('doc', division, 'teams-v2', 'all', season.id);
 
     return CacheService.getOrSet(cacheKey, 120, async () => {
       const [teams, stats, pointsStandings] = await Promise.all([

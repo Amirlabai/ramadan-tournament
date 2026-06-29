@@ -1,0 +1,53 @@
+.tournament-role-star {
+    line-height: 1;
+}
+
+.tournament-role-star--captain {
+    color: var(--accent-yellow, #ffc107);
+}
+
+.tournament-role-star--owner-captain {
+    color: var(--accent-yellow, #ffc107);
+    -webkit-text-stroke: 4px #000000;
+    paint-order: stroke fill;
+    text-shadow:
+        1px 0 0 #000000,
+        -1px 0 0 #000000,
+        0 1px 0 #000000,
+        0 -1px 0 #000000;
+}
+
+.tournament-role-star--owner-only {
+    color: #000000;
+}
+
+.tournament-role-star--sm {
+    font-size: 0.875rem;
+}
+
+.tournament-role-star--md {
+    font-size: 1rem;
+}
+
+.tournament-role-star--lg {
+    font-size: 1.25rem;
+}
+
+.badge.tournament-role-badge--owner-only {
+    background: #f0f8fc !important;
+    border: 1px solid #000000;
+    color: #1a4a5c;
+    box-shadow: none;
+}
+
+.badge.tournament-role-badge--owner-captain {
+    background: var(--accent-yellow, #ffc107) !important;
+    color: #212529;
+    box-shadow: 0 0 10px rgba(255, 255, 0, 0.3);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.badge.tournament-role-badge--captain {
+    background: var(--accent-yellow, #ffc107) !important;
+    color: #212529;
+}

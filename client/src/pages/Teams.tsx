@@ -11,7 +11,9 @@ import SEO from '../components/SEO';
 import AccessibleModal from '../components/AccessibleModal';
 import PageLoading from '../components/PageLoading';
 import EmptyState from '../components/EmptyState';
+import TournamentRoleStar from '../components/TournamentRoleStar';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { getRoleStarVariant } from '../utils/tournamentUser';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -193,6 +195,10 @@ const Teams = () => {
     if (loading) return <PageLoading label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
+    const selectedPlayerRoleStar = selectedPlayer
+        ? getRoleStarVariant(!!selectedPlayer.isTeamOwner, selectedPlayer.isCaptain)
+        : null;
+
     return (
         <div className="container py-4">
             <SEO
@@ -334,6 +340,10 @@ const Teams = () => {
 
                                                         return players.map(player => {
                                                             const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
+                                                            const roleStarVariant = getRoleStarVariant(
+                                                                !!player.isTeamOwner,
+                                                                player.isCaptain
+                                                            );
 
                                                             return (
                                                                 <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
@@ -352,13 +362,21 @@ const Teams = () => {
                                                                         >
                                                                             <i className={`fs-5 ${myVote?.playerMemberId === player.memberId ? 'text-warning fa-solid fa-star' : 'text-secondary fa-regular fa-star'}`} aria-hidden="true"></i>
                                                                         </button>
+                                                                        {roleStarVariant ? (
+                                                                            <span
+                                                                                className="position-absolute top-0 end-0 m-2 mt-4"
+                                                                                style={{ zIndex: 5 }}
+                                                                                aria-hidden="true"
+                                                                            >
+                                                                                <TournamentRoleStar variant={roleStarVariant} size="sm" decorative />
+                                                                            </span>
+                                                                        ) : null}
                                                                         <button
                                                                             type="button"
                                                                             className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0 pt-4"
                                                                             onClick={() => setSelectedPlayer(player)}
                                                                             aria-label={`פרטי שחקן ${player.firstName} ${player.lastName}`}
                                                                         >
-                                                                        {player.isCaptain && <span className="badge text-dark position-absolute top-0 end-0 m-2 mt-4">⭐</span>}
                                                                         {isTopScorer && (
                                                                             <span className="badge text-dark position-absolute top-0 end-0 m-2" aria-label="מלך השערים של הקבוצה">⚽</span>
                                                                         )}
@@ -424,7 +442,9 @@ const Teams = () => {
                                 <div className="d-flex justify-content-center gap-2 mb-3">
                                     <span className="badge bg-success fs-6">{selectedPlayer.number}</span>
                                     <span className="badge bg-secondary fs-6">{selectedPlayer.position}</span>
-                                    {selectedPlayer.isCaptain && <span className="badge bg-warning text-dark fs-6">קפטן</span>}
+                                    {selectedPlayerRoleStar ? (
+                                        <TournamentRoleStar variant={selectedPlayerRoleStar} showLabel size="lg" />
+                                    ) : null}
                                 </div>
                                 <div className="d-flex justify-content-center gap-4 mb-3 py-2 bg-light rounded">
                                     <div className="text-center">

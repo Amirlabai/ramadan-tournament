@@ -9,8 +9,9 @@ import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
+import TournamentRoleStar from '../components/TournamentRoleStar';
 import {
-    getTournamentParticipationBadge,
+    getProfileTournamentBadge,
     isOnRoster,
     isPlatformAdmin,
     showLegacyCaptainPanel,
@@ -306,7 +307,7 @@ const Profile = () => {
         !usesPrdRegistration &&
         !isOnRoster(user);
     const showLegacyCaptain = showLegacyCaptainPanel(user, usesPrdRegistration);
-    const tournamentBadge = getTournamentParticipationBadge(user);
+    const tournamentBadge = getProfileTournamentBadge(user);
     const showOwnerTeamPanel = !!ownedTeamId;
     const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
 
@@ -357,11 +358,10 @@ const Profile = () => {
                                 {platformAdmin && (
                                     <span className="badge bg-danger">מנהל</span>
                                 )}
-                                {tournamentBadge === 'captain' && (
-                                    <span className="badge bg-theme-yellow text-dark">
-                                        <i className="bi bi-star-fill me-1" aria-hidden="true" />
-                                        קפטן
-                                    </span>
+                                {(tournamentBadge === 'captain' ||
+                                    tournamentBadge === 'owner-captain' ||
+                                    tournamentBadge === 'owner-only') && (
+                                    <TournamentRoleStar variant={tournamentBadge} showLabel />
                                 )}
                                 {tournamentBadge === 'player' && (
                                     <span className="badge bg-secondary">שחקן</span>
@@ -404,7 +404,7 @@ const Profile = () => {
                 <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
 
                 {/* Claim Player Profile Banner */}
-                {(!getTournamentParticipationBadge(user) && (!mappingStatus || mappingStatus === 'rejected')) && (
+                {(!tournamentBadge && (!mappingStatus || mappingStatus === 'rejected')) && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
                         <span className="small">עבור לעמוד קבוצות להצטרפות</span>
