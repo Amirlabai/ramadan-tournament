@@ -1,3 +1,4 @@
 member_id,team_id,season_id,user_id,first_name,last_name,nickname,number,position,squad_role,is_captain,head_photo,pending_head_photo,bio,birth_year,active,created_at
 1,1,eb19f900-c99f-486f-8930-6b56a74293d6,c70d4e9a-c225-456a-88d9-cd3ff49fe475,Ari,Thawho,Ari Thawho,10,חלוץ,captain,t,"","",שחקן מספר 1,,t,2026-06-27 16:14:08.938
-2,2,eb19f900-c99f-486f-8930-6b56a74293d6,6fd358f1-2fa5-44c6-8d00-627c67e7499d,אדם,בזדוג,אדם בזדוג,1,"",captain,t,,,"",,t,2026-06-28 18:10:32.636
+2,2,eb19f900-c99f-486f-8930-6b56a74293d6,6fd358f1-2fa5-44c6-8d00-627c67e7499d,אדם,בזדוג,אדם בזדוג,1,"",captain,t,"","","",,t,2026-06-28 18:10:32.636
+3,2,eb19f900-c99f-486f-8930-6b56a74293d6,2e6b91ab-a507-415f-9203-52b935e4adbe,Sinal Boshnak,"",Sinal Boshnak,99,"",,f,,,"",,t,2026-06-29 18:59:39.873
