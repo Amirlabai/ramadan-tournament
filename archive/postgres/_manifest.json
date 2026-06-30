@@ -1,12 +1,13 @@
 {
-  "exported_at": "2026-06-29T09:38:33+03:00",
+  "exported_at": "2026-06-30T09:04:41+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "users.csv",
     "season_registrations.csv",
     "teams.csv",
     "players.csv",
-    "team_creation_requests.csv"
+    "team_creation_requests.csv",
+    "team_join_requests.csv"
   ],
   "tables": {
     "seasons": {
@@ -14,7 +15,7 @@
       "file": "seasons.csv"
     },
     "users": {
-      "rows": 18,
+      "rows": 27,
       "file": "users.csv"
     },
     "season_registrations": {
@@ -30,7 +31,7 @@
       "file": "teams.csv"
     },
     "players": {
-      "rows": 2,
+      "rows": 3,
       "file": "players.csv"
     },
     "matches": {
@@ -70,11 +71,11 @@
       "file": "point_entries.csv"
     },
     "team_creation_requests": {
-      "rows": 3,
+      "rows": 2,
       "file": "team_creation_requests.csv"
     },
     "team_join_requests": {
-      "rows": 1,
+      "rows": 4,
       "file": "team_join_requests.csv"
     },
     "team_transfer_requests": {
