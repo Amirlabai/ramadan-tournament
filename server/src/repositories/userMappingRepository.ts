@@ -168,14 +168,24 @@ export async function clearPlayerProfile(userId: string): Promise<void> {
   });
 }
 
-export async function clearMappingsForDeletedPlayer(teamId: number, memberId: number): Promise<void> {
-  const rows = await prisma.user.findMany();
+export async function clearMappingsForDeletedPlayer(
+  teamId: number,
+  memberId: number,
+  tx: Prisma.TransactionClient = prisma
+): Promise<void> {
+  const rows = await tx.user.findMany({
+    where: { mappedPlayerInfo: { not: Prisma.DbNull } },
+  });
   for (const row of rows) {
     const mapping = readMapping(row);
     if (!mapping || mapping.teamId !== teamId || mapping.memberId !== memberId) continue;
-    await prisma.user.update({
+    await tx.user.update({
       where: { id: row.id },
-      data: { role: 'user', mappedPlayerInfo: Prisma.JsonNull },
+      data: {
+        role: 'user',
+        mappedPlayerInfo: Prisma.JsonNull,
+        playerProfile: Prisma.JsonNull,
+      },
     });
   }
 }

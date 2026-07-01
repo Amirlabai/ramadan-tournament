@@ -96,6 +96,8 @@ Edit real dates/times in the client Admin panel → **ניהול משחקים**.
 | `npm run migrate:personal-ids` | Re-encrypt legacy plaintext ת"ז in `*_enc` columns (requires `PERSONAL_ID_KEY`) |
 | `npm run migrate:user-emails` | Canonicalize `users.email` (Gmail dots, `+tag`, `googlemail.com`) |
 
+**Migrations:** production and Render builds run `db:migrate` automatically (`scripts/render-api-build.mjs`). Do not use `prisma db push` for prod — partial indexes (e.g. active-only jersey uniqueness) exist only in migration SQL.
+
 **Personal ID migration:** dry-run first: `npm run migrate:personal-ids -- --dry-run`. Live on Render: `npm run migrate:personal-ids -- --yes`. Then set `PERSONAL_ID_MIGRATION_DONE=1` in production env.
 
 **User email migration:** dry-run first: `npm run migrate:user-emails -- --dry-run`. Live: `npm run migrate:user-emails -- --yes`. Conflicting rows (two users normalizing to the same address) are logged and skipped for manual merge.

@@ -11,7 +11,6 @@ import { SeasonService } from '../services/SeasonService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
 import { sanitizeTeamDescription, sanitizeTeamName } from '../utils/inputValidation';
 import {
-    clearMappingsForDeletedPlayer,
     clearPlayerProfile,
     findReservedMemberIds,
     findPendingMappingsForTeam,
@@ -19,6 +18,8 @@ import {
     moveApprovedMappingTeam,
     rejectOtherPendingMappings,
 } from '../repositories/userMappingRepository';
+import { PlayerService } from '../services/PlayerService';
+import { PlayerServiceError } from '../errors/PlayerServiceError';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
@@ -515,25 +516,14 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
             return;
         }
 
-        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
-        if (!team) {
-            res.status(404).json({ error: 'קבוצה לא נמצאה' });
-            return;
-        }
-
-        const playerIndex = team.players.findIndex(p => p.memberId === memberId);
-        if (playerIndex === -1) {
-            res.status(404).json({ error: 'שחקן לא נמצא בקבוצה' });
-            return;
-        }
-
-        team.players.splice(playerIndex, 1);
-        await TeamRosterService.saveTeam(team);
-
-        await clearMappingsForDeletedPlayer(teamId, memberId);
+        await PlayerService.deactivateRosterMember(memberId, teamId, slugToDivision(division));
 
         res.json({ message: 'שחקן נמחק בהצלחה' });
     } catch (error) {
+        if (error instanceof PlayerServiceError) {
+            res.status(error.status).json({ error: error.message });
+            return;
+        }
         console.error('Delete player error:', error);
         res.status(500).json({ error: 'שגיאה במחיקת שחקן' });
     }

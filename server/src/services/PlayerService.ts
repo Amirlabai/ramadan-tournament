@@ -1,7 +1,10 @@
-import { Division, RequestStatus } from '@prisma/client';
+import { Division, Prisma, RequestStatus } from '@prisma/client';
+import fs from 'fs';
+import path from 'path';
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
-import { CacheService } from './CacheService';
+import { clearMappingsForDeletedPlayer } from '../repositories/userMappingRepository';
+import { invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
 
@@ -18,13 +21,117 @@ function normalizeFullName(firstName: string, lastName: string): string {
   return `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`.replace(/\s+/g, ' ').trim();
 }
 
-async function invalidateTeamDivision(seasonId: string) {
+async function invalidatePlayerSeasonCaches(seasonId: string): Promise<void> {
   const season = await prisma.season.findUnique({
     where: { id: seasonId },
     select: { division: true },
   });
   if (season) {
-    await CacheService.invalidatePattern(`rt:doc:${season.division}:*`);
+    await invalidateDivisionCaches(season.division);
+  }
+}
+
+function deletePlayerPhotoFile(photoPath?: string | null): void {
+  if (!photoPath?.startsWith('/uploads/players/')) return;
+  const fileName = photoPath.split('/').pop();
+  if (!fileName) return;
+  const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
+  try {
+    if (fs.existsSync(fullPath)) {
+      fs.unlinkSync(fullPath);
+    }
+  } catch (err) {
+    console.error('Failed to delete player photo file:', fullPath, err);
+  }
+}
+
+function deletePlayerPhotoFiles(headPhoto?: string | null, pendingHeadPhoto?: string | null): void {
+  deletePlayerPhotoFile(headPhoto);
+  deletePlayerPhotoFile(pendingHeadPhoto);
+}
+
+async function unlinkRosterSlot(
+  tx: Prisma.TransactionClient,
+  input: {
+    memberId: number;
+    seasonId: string;
+    userId?: string | null;
+    clearPhotos?: boolean;
+  }
+): Promise<void> {
+  await tx.player.update({
+    where: { memberId: input.memberId },
+    data: {
+      userId: null,
+      active: false,
+      ...(input.clearPhotos ? { headPhoto: '', pendingHeadPhoto: '' } : {}),
+    },
+  });
+
+  if (!input.userId) return;
+
+  const otherActive = await tx.player.findFirst({
+    where: { userId: input.userId, active: true },
+  });
+  const otherSeasonPending = await tx.teamJoinRequest.findFirst({
+    where: {
+      userId: input.userId,
+      seasonId: { not: input.seasonId },
+      status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+    },
+  });
+
+  await tx.teamJoinRequest.updateMany({
+    where: {
+      userId: input.userId,
+      seasonId: input.seasonId,
+      status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+    },
+    data: { status: RequestStatus.invalidated },
+  });
+
+  await tx.teamTransferRequest.updateMany({
+    where: {
+      userId: input.userId,
+      seasonId: input.seasonId,
+      status: RequestStatus.pending,
+    },
+    data: { status: RequestStatus.invalidated },
+  });
+
+  const userRow = await tx.user.findUnique({
+    where: { id: input.userId },
+    select: { playerProfile: true, mappedPlayerInfo: true },
+  });
+  const mapped = userRow?.mappedPlayerInfo as {
+    memberId?: number;
+    status?: string;
+  } | null;
+
+  const userUpdate: {
+    mappedPlayerInfo?: ReturnType<typeof toInputJson>;
+    playerProfile?: ReturnType<typeof toInputJson>;
+  } = {};
+
+  if (!mapped?.memberId || mapped.memberId === input.memberId) {
+    userUpdate.mappedPlayerInfo = toInputJson(null);
+  }
+
+  if (!otherActive && !otherSeasonPending) {
+    userUpdate.playerProfile = toInputJson(null);
+  } else {
+    const prof = (userRow?.playerProfile as Record<string, unknown> | null) ?? {};
+    if ('requestedMemberId' in prof) {
+      const { requestedMemberId: _removed, ...rest } = prof;
+      userUpdate.playerProfile = toInputJson(Object.keys(rest).length > 0 ? rest : null);
+    }
+  }
+
+  if (Object.keys(userUpdate).length > 0) {
+    await tx.user.update({
+      where: { id: input.userId },
+      data: userUpdate,
+    });
   }
 }
 
@@ -170,7 +277,7 @@ export class PlayerService {
         throw err;
       });
 
-    await invalidateTeamDivision(player.seasonId);
+    await invalidatePlayerSeasonCaches(player.seasonId);
 
     return {
       firstName: updated.firstName,
@@ -210,13 +317,13 @@ export class PlayerService {
       where: { memberId: player.memberId },
       data: { headPhoto: avatarUrl ?? '' },
     });
-    await invalidateTeamDivision(player.seasonId);
+    await invalidatePlayerSeasonCaches(player.seasonId);
   }
 
   static async leaveTeam(userId: string, division: Division = Division.boys): Promise<void> {
     const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
     if (!season) {
-      throw new PlayerServiceError('NOT_ON_ROSTER', 'משתמש לא משויך לקבוצה', 400);
+      throw new PlayerServiceError('SEASON_NOT_ACTIVE', 'אין עונה פעילה', 503);
     }
 
     const player = await prisma.player.findFirst({
@@ -244,78 +351,54 @@ export class PlayerService {
     }
 
     await prisma.$transaction(async (tx) => {
-      await tx.player.update({
-        where: { memberId: player.memberId },
-        data: { userId: null, active: false },
+      await unlinkRosterSlot(tx, {
+        memberId: player.memberId,
+        seasonId: player.seasonId,
+        userId,
       });
-
-      await tx.teamJoinRequest.updateMany({
-        where: {
-          userId,
-          seasonId: player.seasonId,
-          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-        },
-        data: { status: RequestStatus.invalidated },
-      });
-
-      await tx.teamTransferRequest.updateMany({
-        where: {
-          userId,
-          seasonId: player.seasonId,
-          status: RequestStatus.pending,
-        },
-        data: { status: RequestStatus.invalidated },
-      });
-
-      const userRow = await tx.user.findUnique({
-        where: { id: userId },
-        select: { playerProfile: true, mappedPlayerInfo: true },
-      });
-      const mapped = userRow?.mappedPlayerInfo as {
-        memberId?: number;
-        status?: string;
-      } | null;
-
-      const userUpdate: {
-        mappedPlayerInfo?: ReturnType<typeof toInputJson>;
-        playerProfile?: ReturnType<typeof toInputJson>;
-      } = {};
-
-      if (!mapped?.memberId || mapped.memberId === player.memberId) {
-        userUpdate.mappedPlayerInfo = toInputJson(null);
-      }
-
-      const otherActive = await tx.player.findFirst({
-        where: { userId, active: true },
-      });
-      const otherPending = await tx.teamJoinRequest.findFirst({
-        where: {
-          userId,
-          status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-        },
-      });
-
-      if (!otherActive && !otherPending) {
-        userUpdate.playerProfile = toInputJson(null);
-      } else {
-        const prof = (userRow?.playerProfile as Record<string, unknown> | null) ?? {};
-        if ('requestedMemberId' in prof) {
-          const { requestedMemberId: _removed, ...rest } = prof;
-          userUpdate.playerProfile = toInputJson(
-            Object.keys(rest).length > 0 ? rest : null
-          );
-        }
-      }
-
-      if (Object.keys(userUpdate).length > 0) {
-        await tx.user.update({
-          where: { id: userId },
-          data: userUpdate,
-        });
-      }
     });
 
-    await invalidateTeamDivision(player.seasonId);
+    await invalidateDivisionCaches(division);
+  }
+
+  /** Platform admin: remove a roster slot (soft-delete). */
+  static async deactivateRosterMember(
+    memberId: number,
+    teamId: number,
+    division: Division = Division.boys
+  ): Promise<void> {
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) {
+      throw new PlayerServiceError('SEASON_NOT_ACTIVE', 'אין עונה פעילה', 503);
+    }
+
+    const player = await prisma.player.findFirst({
+      where: {
+        memberId,
+        teamId,
+        seasonId: season.id,
+        active: true,
+      },
+    });
+    if (!player) {
+      throw new PlayerServiceError('PLAYER_NOT_FOUND', 'שחקן לא נמצא בקבוצה', 404);
+    }
+
+    const headPhoto = player.headPhoto;
+    const pendingHeadPhoto = player.pendingHeadPhoto;
+
+    await prisma.$transaction(async (tx) => {
+      await unlinkRosterSlot(tx, {
+        memberId: player.memberId,
+        seasonId: player.seasonId,
+        userId: player.userId,
+        clearPhotos: true,
+      });
+      await clearMappingsForDeletedPlayer(teamId, memberId, tx);
+    });
+
+    await invalidateDivisionCaches(division);
+    deletePlayerPhotoFiles(headPhoto, pendingHeadPhoto);
   }
 
   static async updatePendingProfile(userId: string, raw: PlayerProfileUpdateInput) {

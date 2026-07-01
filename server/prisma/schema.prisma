@@ -224,7 +224,8 @@ model Player {
   user  User? @relation(fields: [userId], references: [id], onDelete: SetNull)
   goals Goal[]
 
-  @@unique([seasonId, teamId, number])
+  // Jersey number unique per team while active — partial index in migration players_jersey_active_unique
+  @@index([seasonId, teamId, number])
   @@map("players")
 }
 
