@@ -1,3 +1,7 @@
+.registration-card {
+  scroll-margin-top: 100px;
+}
+
 .registration-card--girls {
   --tournament-primary: #9b4d72;
   --tournament-primary-dark: #6b3a52;

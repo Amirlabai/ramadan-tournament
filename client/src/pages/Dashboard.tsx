@@ -4,7 +4,7 @@ import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
-import { getProfileTournamentBadge } from '../utils/tournamentUser';
+import { getProfileTournamentBadge, needsIdentitySubmission } from '../utils/tournamentUser';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
@@ -110,6 +110,17 @@ const Dashboard = () => {
         setHideClaimBanner(true);
     };
 
+    const handleClaimClick = () => {
+        if (
+            (slug === 'boys' || slug === 'girls') &&
+            needsIdentitySubmission(user, slug)
+        ) {
+            navigate('/profile', { state: { focusIdentity: slug } });
+            return;
+        }
+        setShowClaimModal(true);
+    };
+
     const renderTeamNameWithLogo = (teamName: string, logoUrl?: string, logoPosition?: string) => {
         const logo = resolveAssetUrl(logoUrl);
         const position = logoPosition || 'right';
@@ -138,7 +149,7 @@ const Dashboard = () => {
                             <strong>שחקן בטורניר? </strong>
                             <span className="ms-2">שייך את המשתמש שלך לפרופיל השחקן כדי לצפות בסטטיסטיקות אישיות.</span>
                         </div>
-                        <button className="btn btn-warning btn-sm fw-bold px-4 rounded-pill" onClick={() => setShowClaimModal(true)}>
+                        <button className="btn btn-warning btn-sm fw-bold px-4 rounded-pill" onClick={handleClaimClick}>
                             לשיוך השחקן
                         </button>
                         <button 

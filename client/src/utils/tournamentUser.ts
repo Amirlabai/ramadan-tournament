@@ -1,4 +1,5 @@
 import type { TournamentRegistrationSummary, User } from '../contexts/AuthContext';
+import { registrationStatusNeedsIdentitySubmission } from '@ramadan-tournament/shared/registrationStatus';
 
 export type RegistrationDivisionSlug = 'boys' | 'girls';
 
@@ -42,6 +43,15 @@ export function getDivisionReg(
     slug: RegistrationDivisionSlug
 ): TournamentRegistrationSummary | null | undefined {
     return user?.tournamentRegistration?.[slug];
+}
+
+/** True when the user has not yet submitted personal ID + birth year for this division. */
+export function needsIdentitySubmission(
+    user: User | null | undefined,
+    slug: RegistrationDivisionSlug
+): boolean {
+    const reg = getDivisionReg(user, slug);
+    return registrationStatusNeedsIdentitySubmission(reg?.status);
 }
 
 export function isOnRoster(user: User | null | undefined, slug?: RegistrationDivisionSlug): boolean {

@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import AccessibleModal from './AccessibleModal';
 import { teamsAPI, registrationAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
+import { needsIdentitySubmission } from '../utils/tournamentUser';
 import type { Team } from '../types';
 import './PlayerClaimModal.css';
 
@@ -23,8 +25,22 @@ interface AvailablePlayer {
 const POSITIONS = ['שוער', 'בלם', 'מגן', 'קשר', 'חלוץ'];
 
 const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
-    const { refreshUser } = useAuth();
+    const { user, refreshUser } = useAuth();
     const { slug } = useTournament();
+    const navigate = useNavigate();
+
+    const shouldRedirectToProfile =
+        !!user &&
+        (slug === 'boys' || slug === 'girls') &&
+        needsIdentitySubmission(user, slug);
+
+    const redirectToProfileForIdentity = (): boolean => {
+        if (!user || (slug !== 'boys' && slug !== 'girls')) return false;
+        if (!needsIdentitySubmission(user, slug)) return false;
+        navigate('/profile', { state: { focusIdentity: slug } });
+        onClose();
+        return true;
+    };
 
     const [step, setStep] = useState<'team' | 'player' | 'custom'>('team');
     const [teams, setTeams] = useState<Team[]>([]);
@@ -40,10 +56,17 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     const [success, setSuccess] = useState(false);
 
     useEffect(() => {
+        if (!shouldRedirectToProfile) return;
+        navigate('/profile', { state: { focusIdentity: slug } });
+        onClose();
+    }, [shouldRedirectToProfile, slug, navigate, onClose]);
+
+    useEffect(() => {
+        if (shouldRedirectToProfile) return;
         teamsAPI.getAll(slug)
             .then(r => setTeams(r.data))
             .catch(() => setError('שגיאה בטעינת קבוצות'));
-    }, [slug]);
+    }, [slug, shouldRedirectToProfile]);
 
     const handleTeamNext = async () => {
         if (!selectedTeamId) { setError('יש לבחור קבוצה'); return; }
@@ -61,6 +84,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
     };
 
     const handleSubmitClaim = async () => {
+        if (redirectToProfileForIdentity()) return;
         if (!selectedMemberId) {
             setError('יש לבחור שחקן מהרשימה');
             return;
@@ -81,6 +105,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
 
     const handleSubmitCustom = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (redirectToProfileForIdentity()) return;
         setError('');
         if (!customProfile.firstName.trim() || !customProfile.nickname.trim() || !customProfile.number) {
             setError('שם פרטי, כינוי ומספר חולצה הם שדות חובה');
@@ -103,6 +128,8 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
             setLoading(false);
         }
     };
+
+    if (shouldRedirectToProfile) return null;
 
     const selectedTeamName = teams.find(t => t.id === Number(selectedTeamId))?.name;
     const modalTitleId = 'claim-modal-title';
@@ -178,7 +205,14 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                         })}
                                     </div>
                                     <div className="border-top pt-3 mb-2">
-                                        <button className="btn btn-secondary btn-sm" onClick={() => { setSelectedMemberId(null); setStep('custom'); }}>
+                                        <button
+                                            type="button"
+                                            className="btn btn-secondary btn-sm"
+                                            onClick={() => {
+                                                setSelectedMemberId(null);
+                                                setStep('custom');
+                                            }}
+                                        >
                                             <i className="bi bi-plus-circle me-1" />אני לא ברשימה — צור פרופיל חדש
                                         </button>
                                     </div>

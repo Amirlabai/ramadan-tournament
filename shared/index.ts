@@ -13,4 +13,5 @@ export {
 export {
   SEASON_REGISTRATION_STATUS_LABELS,
   getRegistrationStatusLabel,
+  registrationStatusNeedsIdentitySubmission,
 } from './registrationStatus';

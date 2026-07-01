@@ -118,7 +118,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
     if (loading) {
         return (
-            <div className={`${cardClass} text-center`}>
+            <div id={`registration-card-${slug}`} className={`${cardClass} text-center`}>
                 <span
                     className={`spinner-border spinner-border-sm ${slug === 'girls' ? 'text-tournament-primary' : 'text-success'}`}
                     aria-hidden="true"
@@ -131,7 +131,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) {
         if (loadErr) {
             return (
-                <div className={cardClass} role="alert">
+                <div id={`registration-card-${slug}`} className={cardClass} role="alert">
                     <p className="text-danger mb-0">{loadErr}</p>
                 </div>
             );
@@ -146,7 +146,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const yearFieldInvalid = birthYear.length > 0 && !isBirthYearInRange(birthYear);
 
     return (
-        <div className={cardClass} lang="he" aria-live="polite">
+        <div id={`registration-card-${slug}`} className={cardClass} lang="he" aria-live="polite">
             <h3 className="h5 mb-3">{title}</h3>
             <p className="mb-2">
                 <span className="text-muted">סטטוס: </span>

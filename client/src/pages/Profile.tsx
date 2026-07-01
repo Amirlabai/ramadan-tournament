@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth, type User } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI, statsGirlsAPI, registrationAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
@@ -14,6 +14,7 @@ import {
     getProfileTournamentBadge,
     isOnRoster,
     isPlatformAdmin,
+    needsIdentitySubmission,
     showLegacyCaptainPanel,
 } from '../utils/tournamentUser';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
@@ -53,7 +54,11 @@ function pickOwnedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: num
 const Profile = () => {
     const { user, loading, logout, refreshUser } = useAuth();
     const navigate = useNavigate();
-    const { hasClaimablePlayers } = useHasClaimablePlayers('boys');
+    const location = useLocation();
+    const navFocusIdentity = (location.state as { focusIdentity?: 'boys' | 'girls' } | null)?.focusIdentity;
+    const registrationSlug = user ? resolveRegistrationSlug(user) : 'boys';
+    const claimCheckSlug = navFocusIdentity ?? registrationSlug;
+    const { hasClaimablePlayers } = useHasClaimablePlayers(claimCheckSlug);
 
     const [avatarLoading, setAvatarLoading] = useState(false);
     const [teamName, setTeamName] = useState('');
@@ -62,7 +67,6 @@ const Profile = () => {
 
     // Player profile editing
     const playerProfile = user?.playerProfile ?? null;
-    const registrationSlug = user ? resolveRegistrationSlug(user) : 'boys';
     const ownedCtx = user ? pickOwnedTeamContext(user) : { slug: 'boys' as const, teamId: null };
     const ownedSlug = ownedCtx.slug;
     const ownedTeamId = ownedCtx.teamId;
@@ -83,6 +87,7 @@ const Profile = () => {
     const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
     const [playerGoals, setPlayerGoals] = useState<number | null>(null);
     const [rosterTeamName, setRosterTeamName] = useState<string | null>(null);
+    const [identityFocusHint, setIdentityFocusHint] = useState<string | null>(null);
 
     const startEditPlayer = () => {
         setPlayerForm({
@@ -132,6 +137,59 @@ const Profile = () => {
             navigate('/login');
         }
     }, [user, loading, navigate]);
+
+    useEffect(() => {
+        const focusSlug = (location.state as { focusIdentity?: 'boys' | 'girls' } | null)?.focusIdentity;
+        if (!focusSlug || loading || !user) return;
+
+        let cancelled = false;
+        const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const scrollBehavior: ScrollBehavior = reducedMotion ? 'auto' : 'smooth';
+
+        const clearFocusState = () => {
+            navigate('.', { replace: true, state: {} });
+        };
+
+        const tryFocusIdentity = (attempt = 0) => {
+            if (cancelled) return;
+
+            const card = document.getElementById(`registration-card-${focusSlug}`);
+            const input = document.getElementById(`personal-id-${focusSlug}`) as HTMLInputElement | null;
+            const cardLoading = card?.querySelector('.spinner-border');
+
+            if (input && card && !cardLoading) {
+                card.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                input.focus({ preventScroll: true });
+                setIdentityFocusHint(null);
+                clearFocusState();
+                return;
+            }
+
+            if (card && !cardLoading && !input) {
+                setIdentityFocusHint(
+                    'לא נמצא טופס זהות לעונה זו. וודא שבחרת את הטורניר הנכון או שהרישום כבר פעיל.'
+                );
+                clearFocusState();
+                return;
+            }
+
+            if (attempt < 20) {
+                window.setTimeout(() => tryFocusIdentity(attempt + 1), 100);
+                return;
+            }
+
+            setIdentityFocusHint(
+                'לא ניתן לגלול לטופס הזהות. השלם את פרטי תעודת הזהות ושנת הלידה בכרטיס הרישום למעלה.'
+            );
+            clearFocusState();
+        };
+
+        tryFocusIdentity();
+
+        return () => {
+            cancelled = true;
+        };
+    }, [location.state, loading, user, navigate]);
 
     useEffect(() => {
         const fetchStats = async () => {
@@ -314,6 +372,9 @@ const Profile = () => {
         !tournamentBadge &&
         (!mappingStatus || mappingStatus === 'rejected') &&
         hasClaimablePlayers === true;
+    const focusIdentity = navFocusIdentity;
+    const identityGateSlug = focusIdentity ?? registrationSlug;
+    const claimNeedsIdentity = needsIdentitySubmission(user, identityGateSlug);
     const showOwnerTeamPanel = !!ownedTeamId;
     const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
 
@@ -406,6 +467,12 @@ const Profile = () => {
                     </div>
                 )}
 
+                {identityFocusHint && (
+                    <div className="alert alert-info py-2 small mb-3" role="status">
+                        {identityFocusHint}
+                    </div>
+                )}
+
                 <TournamentRegistrationCard slug="boys" title="רישום טורניר כדורגל" />
                 <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
 
@@ -413,7 +480,11 @@ const Profile = () => {
                 {showClaimBanner && (
                     <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
                         <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
-                        <span className="small">עבור לעמוד קבוצות להצטרפות</span>
+                        <span className="small">
+                            {claimNeedsIdentity
+                                ? 'השלם תעודת זהות ושנת לידה בכרטיס הרישום למעלה לפני שיוך לשחקן.'
+                                : 'עבור לעמוד קבוצות להצטרפות'}
+                        </span>
                     </div>
                 )}
 

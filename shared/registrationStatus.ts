@@ -11,3 +11,12 @@ export const SEASON_REGISTRATION_STATUS_LABELS: Record<string, string> = {
 export function getRegistrationStatusLabel(status: string): string {
   return SEASON_REGISTRATION_STATUS_LABELS[status] ?? status;
 }
+
+/** True when the user has not yet submitted personal ID + birth year for a season.
+ *  `null` / `undefined` are treated like `none` (no division summary on `/auth/me` yet).
+ *  `archived` and `join_pending` are false — identity was already submitted or a join is in flight. */
+export function registrationStatusNeedsIdentitySubmission(
+  status: string | null | undefined
+): boolean {
+  return status == null || status === 'none';
+}
