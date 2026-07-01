@@ -29,6 +29,10 @@ server/src/**/*.js
 # Preregistration JSON (PII — generate locally / on deploy via npm run parse:prereg)
 data/preregistration/*.json
 
+# Agent inbox — CSV/review files may contain PII
+.incoming/*.csv
+.incoming/parsed-teams-review.md
+
 # Environment (secrets only — *.env.example stays tracked)
 .env
 server/.env

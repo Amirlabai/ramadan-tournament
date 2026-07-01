@@ -1,12 +1,16 @@
 import { prisma } from '../lib/prisma';
 import { prismaUserToIUser, IUser, UserRole, IMappedPlayerInfo, IPendingTeamRequest, IPlayerProfile } from '../db/userMapper';
 import { toInputJson } from '../lib/json';
+import { normalizeEmail } from '../utils/normalizeEmail';
 
 export type { IUser, UserRole, IMappedPlayerInfo, IPendingTeamRequest, IPlayerProfile };
 
 function buildWhere(query: Record<string, unknown>) {
   const where: Record<string, unknown> = {};
-  if (query.email) where.email = String(query.email).toLowerCase();
+  if (query.email) {
+    const normalized = normalizeEmail(String(query.email));
+    if (normalized) where.email = normalized;
+  }
   if (query.username) where.username = query.username;
   if (query.googleId) where.googleId = query.googleId;
   if (query.verificationToken) where.verificationToken = query.verificationToken;
@@ -46,7 +50,7 @@ export class User {
     const role = this.role === 'admin' || this.role === 'Admin' ? 'admin' : 'user';
     const data = {
       username: this.username,
-      email: this.email?.toLowerCase(),
+      email: this.email ? normalizeEmail(this.email) ?? undefined : undefined,
       password: this.password,
       googleId: this.googleId,
       displayName: this.displayName || 'User',
@@ -105,6 +109,9 @@ export class User {
 
   static findOne(query: Record<string, unknown>) {
     const run = async (includePassword: boolean) => {
+      if (query.email && !normalizeEmail(String(query.email))) {
+        return null;
+      }
       const where = buildWhere(query);
       let row;
       if (where.verificationTokenExpires && typeof where.verificationTokenExpires === 'object') {
@@ -179,6 +186,16 @@ export class User {
       then: (resolve: (v: IUser[]) => void, reject?: (e: unknown) => void) => run().then(resolve, reject),
     };
     return chain;
+  }
+
+  static async deleteById(id: string): Promise<boolean> {
+    try {
+      await prisma.user.delete({ where: { id } });
+      return true;
+    } catch (err) {
+      console.error(`User.deleteById failed for ${id}:`, err);
+      return false;
+    }
   }
 
   static async deleteMany(_filter: Record<string, unknown> = {}) {

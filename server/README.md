@@ -93,6 +93,12 @@ Edit real dates/times in the client Admin panel → **ניהול משחקים**.
 | `npm run db:migrate` | Apply Prisma migrations (`prisma migrate deploy`) |
 | `npm run db:studio` | Prisma Studio |
 | `npm run db:seed` | Full demo seed from `data/*.json` |
+| `npm run migrate:personal-ids` | Re-encrypt legacy plaintext ת"ז in `*_enc` columns (requires `PERSONAL_ID_KEY`) |
+| `npm run migrate:user-emails` | Canonicalize `users.email` (Gmail dots, `+tag`, `googlemail.com`) |
+
+**Personal ID migration:** dry-run first: `npm run migrate:personal-ids -- --dry-run`. Live on Render: `npm run migrate:personal-ids -- --yes`. Then set `PERSONAL_ID_MIGRATION_DONE=1` in production env.
+
+**User email migration:** dry-run first: `npm run migrate:user-emails -- --dry-run`. Live: `npm run migrate:user-emails -- --yes`. Conflicting rows (two users normalizing to the same address) are logged and skipped for manual merge.
 
 **Production:** do not run `db:seed` or `db:fresh` unless you intend to wipe data.
 

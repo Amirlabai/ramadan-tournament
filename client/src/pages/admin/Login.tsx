@@ -67,6 +67,9 @@ const Login = () => {
             if (data?.needsVerification) {
                 setIsVerifying(true);
                 setError('חשבונך טרם אומת. הזן את הקוד שנשלח אליך.');
+            } else if (data?.useGoogle) {
+                setIsLoginView(true);
+                setError(data.error || 'האימייל הזה מקושר להתחברות עם Google. השתמש בכפתור Google למעלה.');
             } else {
                 setError(data?.error || 'שגיאה בהתחברות. נסה שוב.');
             }

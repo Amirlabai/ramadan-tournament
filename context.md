@@ -22,6 +22,7 @@
 | `REDIS_URL` | Yes (internal) | No | |
 | `JWT_SECRET`, `ADMIN_*` | Yes | No | |
 | `PERSONAL_ID_KEY` | Yes (prod) | No | 32-byte base64; AES-256-GCM for `personal_id_enc` |
+| `PERSONAL_ID_MIGRATION_DONE` | Yes (after migrate) | No | Set `=1` after `npm run migrate:personal-ids` so lookups use v1 ciphertext only |
 | `CORS_ORIGINS` | Yes (optional) | No | Comma-separated; defaults include Vercel + localhost |
 | `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
@@ -86,7 +87,7 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 
 ## Current Focus
 - **Phase 2 (Jun 2026):** Tournament registration via `RegistrationService` + `RegistrationIdentityService` — `season_registrations` (encrypted personal ID + birth year on user/admin columns), `team_*_requests`, `active_division`, owner join review. **Form preregistration (Jun 2026):** Google Form CSV → `form_prereg_entries` via `npm run import:prereg` (replace-all per season); optional `parse:prereg` for local debug JSON (gitignored). `PreregistrationLookupService.evaluate(seasonId, …)` auto-activates on double ID+year match; partial/mismatch → Hebrew alert to logged-in user. User-facing emails use `TOURNAMENT_DISPLAY_NAME_HE` (default גביע העולם אדיגה 2026).
-- **Registration identity (threat model):** User and admin personal IDs are stored as AES-256-GCM ciphertext (`userPersonalIdEnc`, `adminPersonalIdEnc`) with birth years in plain `Int` columns. Admin workflow APIs return **masked** user ID (last 4 digits) and birth year only; full admin PID is never returned in JSON. User-facing APIs (`/users/*`, `/auth/me`) never return full personal ID. Failed identity submissions use existing Redis rate limit (3/day). Column `invoiceAlert` stores Hebrew mismatch text (name unchanged). After `db:fresh`, admins re-enter identity from offline records.
+- **Registration identity (threat model):** User and admin personal IDs are stored as AES-256-GCM ciphertext (`userPersonalIdEnc`, `adminPersonalIdEnc`) with birth years in plain `Int` columns. Legacy plaintext rows (written before `PERSONAL_ID_KEY` was set) are migrated via `npm run migrate:personal-ids`; then set `PERSONAL_ID_MIGRATION_DONE=1` on Render. Admin workflow APIs return **masked** user ID (last 4 digits) and birth year only; full admin PID is never returned in JSON.
 - **Phase 1.5:** Girls read/write scaffold; division-scoped news/teams/archive.
 - **Legacy (shrinking):** `mappedPlayerInfo` still hydrated in `/auth/me` for display; admin user-mapping routes removed (PR5); use `RegistrationWorkflowAdmin`. Roster hydration merges Prisma `players` into `/auth/me`.
 - **Deploy:** Push API + client for Phase 2; run `prisma migrate deploy` on Render; ensure `REDIS_URL` and `PERSONAL_ID_KEY` on Render for identity lockout and encryption.
@@ -116,6 +117,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 - **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
 - **June 2026 — PR5 server cleanup:** Removed legacy route aliases (`/redeem-invoice`, `/map-player`, `/admin/users/invoice`, `/admin/user-mappings`). Canonical identity + workflow APIs only. Service ownership table in [`server/README.md`](server/README.md).
 - **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
+- **July 2026 — Auth account linking:** Shared `normalizeEmail` (Gmail dots, `+tag`, `googlemail.com` → `gmail.com`); Google login links only to **verified** email accounts (unverified squats removed); requires `email_verified` from Google; backfill via `npm run migrate:user-emails`.
 - **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md).
 - **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
 - **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.

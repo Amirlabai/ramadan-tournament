@@ -35,6 +35,44 @@ export function isEncryptedPersonalId(value: string): boolean {
   return value.startsWith('v1:');
 }
 
+/** Legacy rows stored digits in *_enc columns before PERSONAL_ID_KEY was set. */
+export function isLegacyPlaintextPersonalId(value: string): boolean {
+  const trimmed = value.trim();
+  if (!trimmed || isEncryptedPersonalId(trimmed)) return false;
+  return /^\d{5,9}$/.test(trimmed);
+}
+
+export type ReEncryptStoredPersonalIdResult =
+  | { action: 'skip'; value: null }
+  | { action: 'unchanged'; value: string }
+  | { action: 'migrate'; value: string };
+
+/** Re-encrypt a stored column value; skips null, v1:, and non-ID shapes. */
+export function reEncryptStoredPersonalId(
+  value: string | null | undefined
+): ReEncryptStoredPersonalIdResult {
+  if (!value?.trim()) return { action: 'skip', value: null };
+  const trimmed = value.trim();
+  if (isEncryptedPersonalId(trimmed)) return { action: 'unchanged', value: trimmed };
+  if (!isLegacyPlaintextPersonalId(trimmed)) return { action: 'skip', value: null };
+  if (!config.personalIdKey) {
+    throw new Error('PERSONAL_ID_KEY is required to migrate legacy plaintext personal IDs');
+  }
+  return { action: 'migrate', value: encryptPersonalId(trimmed) };
+}
+
+/** Normalize a DB-stored personal ID for cache / lookup keys (legacy plaintext → v1 when key set). */
+export function storedPersonalIdLookupKey(stored: string): string {
+  const trimmed = stored.trim();
+  if (!trimmed) return trimmed;
+  if (isEncryptedPersonalId(trimmed)) return trimmed;
+  if (isLegacyPlaintextPersonalId(trimmed)) {
+    if (!config.personalIdKey) return trimmed;
+    return encryptPersonalId(trimmed);
+  }
+  return trimmed;
+}
+
 function migrationDone(): boolean {
   return (
     process.env.PERSONAL_ID_MIGRATION_DONE === '1' ||

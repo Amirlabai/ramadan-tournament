@@ -12,6 +12,7 @@ import { Division } from '@prisma/client';
 import { RegistrationService } from '../services/RegistrationService';
 import { setAuthCookie, authJsonBody, clearAuthCookie } from '../utils/authCookie';
 import { AuthRateLimitService } from '../services/AuthRateLimitService';
+import { normalizeEmail } from '../utils/normalizeEmail';
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
@@ -19,21 +20,6 @@ const generateToken = (user: IUser) => {
         config.jwtSecret,
         { expiresIn: '7d' }
     );
-};
-
-/**
- * Normalizes an email address by:
- * 1. Converting to lowercase
- * 2. Trimming whitespace
- * 3. Removing subaddressing (e.g. user+test@gmail.com -> user@gmail.com)
- */
-const normalizeEmail = (email: string): string => {
-    const parts = email.toLowerCase().trim().split('@');
-    if (parts.length !== 2) return email.toLowerCase().trim();
-    
-    const [local, domain] = parts;
-    const cleanLocal = local.split('+')[0];
-    return `${cleanLocal}@${domain}`;
 };
 
 // Helper: Hydrate player profile from the Team database if user is an approved player
@@ -166,9 +152,20 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
         // Check if user exists (using normalized email)
         const normalizedEmail = normalizeEmail(email);
+        if (!normalizedEmail) {
+            res.status(400).json({ error: 'Invalid email format' });
+            return;
+        }
         const existingUser = await User.findOne({ email: normalizedEmail });
         if (existingUser) {
-            res.status(400).json({ error: 'Email is already registered' });
+            if (existingUser.googleId) {
+                res.status(400).json({
+                    error: 'האימייל מקושר להתחברות עם Google. השתמש בכפתור Google.',
+                    useGoogle: true,
+                });
+            } else {
+                res.status(400).json({ error: 'Email is already registered' });
+            }
             return;
         }
 
@@ -230,6 +227,10 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         // Find user by either email or legacy username, explicitly querying the password field
         const normalizedEmail = email ? normalizeEmail(email as string) : null;
+        if (email && !normalizedEmail) {
+            res.status(400).json({ error: 'Invalid email format' });
+            return;
+        }
         const query = normalizedEmail ? { email: normalizedEmail } : { username };
         const user = await User.findOne(query).select('+password');
 
@@ -292,14 +293,40 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
+        if (payload.email_verified !== true) {
+            res.status(400).json({ error: 'Google email is not verified' });
+            return;
+        }
+
         const normalizedEmail = normalizeEmail(payload.email);
+        if (!normalizedEmail) {
+            res.status(400).json({ error: 'Invalid email from Google token' });
+            return;
+        }
         const googleId = payload.sub;
 
         // Search by googleId first (the most reliable key), then fall back to email
         let user = await User.findOne({ googleId });
 
         if (!user) {
-            user = await User.findOne({ email: normalizedEmail });
+            const byEmail = await User.findOne({ email: normalizedEmail });
+            if (byEmail) {
+                if (byEmail.googleId && byEmail.googleId !== googleId) {
+                    // Verified email/password account owns this address — do not re-link another Google identity
+                    res.status(409).json({ error: 'This email is linked to a different Google account' });
+                    return;
+                }
+                if (!byEmail.isVerified) {
+                    // Unverified email signup cannot claim mailbox ownership — Google token does
+                    const deleted = await User.deleteById(byEmail.id!);
+                    if (!deleted) {
+                        res.status(409).json({ error: 'Could not replace unverified registration for this email' });
+                        return;
+                    }
+                } else {
+                    user = byEmail;
+                }
+            }
         }
 
         if (!user) {
@@ -310,13 +337,15 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                 displayName: payload.name || normalizedEmail.split('@')[0],
                 avatarUrl: payload.picture,
                 googlePictureUrl: payload.picture,
-                role: 'User'
+                role: 'User',
+                isVerified: true,
             });
             user = await newUser.save();
         } else {
             // Existing user — ensure googleId is linked and Google picture URL is current
             let changed = false;
             if (!user.googleId) { user.googleId = googleId; changed = true; }
+            if (!user.isVerified && user.googleId) { user.isVerified = true; changed = true; }
             // Always refresh the Google picture URL (it can change)
             if (payload.picture && user.googlePictureUrl !== payload.picture) {
                 user.googlePictureUrl = payload.picture;
@@ -365,6 +394,10 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
         }
 
         const normalizedEmail = normalizeEmail(email);
+        if (!normalizedEmail) {
+            res.status(400).json({ error: 'Invalid email format' });
+            return;
+        }
 
         const user = await User.findOne({
             email: normalizedEmail,
@@ -410,7 +443,13 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
             return;
         }
 
-        const user = await User.findOne({ email: normalizeEmail(email) });
+        const normalizedEmail = normalizeEmail(email);
+        if (!normalizedEmail) {
+            res.status(400).json({ error: 'Invalid email format' });
+            return;
+        }
+
+        const user = await User.findOne({ email: normalizedEmail });
 
         if (!user) {
             res.status(404).json({ error: 'User not found' });

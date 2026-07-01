@@ -7,6 +7,7 @@ import {
   validateFormIdentity,
   validatePersonalIdOnly,
 } from './parseFormIdentityField';
+import { normalizeEmail } from './normalizeEmail';
 
 export type FormPreregRole = 'captain' | 'goalkeeper' | 'player';
 
@@ -43,17 +44,13 @@ export type FormPreregParseResult = {
   report: FormPreregReportRow[];
 };
 
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
+function entryEmail(role: FormPreregRole, teamEmail: string): string | undefined {
+  if (role !== 'captain' || !teamEmail.trim()) return undefined;
+  return normalizeEmail(teamEmail) ?? undefined;
 }
 
 function fullKey(personalId: string, birthYear: number): string {
   return `${personalId}:${birthYear}`;
-}
-
-function entryEmail(role: FormPreregRole, teamEmail: string): string | undefined {
-  if (role !== 'captain' || !teamEmail.trim()) return undefined;
-  return normalizeEmail(teamEmail);
 }
 
 function processPerson(

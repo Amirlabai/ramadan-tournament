@@ -1,6 +1,6 @@
 import { FormPreregAdminMissing } from '@prisma/client';
 import { prisma } from '../lib/prisma';
-import { encryptPersonalId } from '../utils/personalIdCrypto';
+import { encryptPersonalId, storedPersonalIdLookupKey } from '../utils/personalIdCrypto';
 import { validateFormIdentity, validatePersonalIdOnly } from '../utils/parseFormIdentityField';
 
 export type PreregRole = 'captain' | 'goalkeeper' | 'player';
@@ -133,24 +133,26 @@ class PreregistrationLookupServiceImpl {
         const email = row.captainEmail ?? undefined;
 
         if (!row.adminMissing && row.personalIdEnc && row.birthYear != null) {
+          const idKey = storedPersonalIdLookupKey(row.personalIdEnc);
           const entry: PreregEntry = {
             name: row.name,
             ...(email ? { email } : {}),
-            personalId: row.personalIdEnc,
+            personalId: idKey,
             birthYear: row.birthYear,
             teamName: row.teamName,
             role,
           };
-          cache.fullMap.set(`${row.personalIdEnc}:${row.birthYear}`, entry);
-          cache.fullByPersonalId.set(row.personalIdEnc, entry);
+          cache.fullMap.set(`${idKey}:${row.birthYear}`, entry);
+          cache.fullByPersonalId.set(idKey, entry);
           continue;
         }
 
         if (row.adminMissing === FormPreregAdminMissing.birth_year && row.personalIdEnc) {
-          cache.partialById.set(row.personalIdEnc, {
+          const idKey = storedPersonalIdLookupKey(row.personalIdEnc);
+          cache.partialById.set(idKey, {
             name: row.name,
             ...(email ? { email } : {}),
-            personalId: row.personalIdEnc,
+            personalId: idKey,
             adminMissing: 'birth_year',
             teamName: row.teamName,
             role,
