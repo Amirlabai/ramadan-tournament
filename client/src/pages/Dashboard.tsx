@@ -13,6 +13,7 @@ import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { trackEvent } from '../utils/analytics';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -106,11 +107,13 @@ const Dashboard = () => {
     const hasDashboardContent = hasPlayoffs || hasNextMatches || hasRecentMatches;
 
     const handleDismissClaimBanner = () => {
+        trackEvent('claim_banner_dismiss', { category: 'interaction' });
         localStorage.setItem('hideClaimBanner', 'true');
         setHideClaimBanner(true);
     };
 
     const handleClaimClick = () => {
+        trackEvent('claim_banner_click', { category: 'interaction', properties: { division: slug } });
         if (
             (slug === 'boys' || slug === 'girls') &&
             needsIdentitySubmission(user, slug)

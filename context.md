@@ -31,6 +31,7 @@
 | `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
 | `WORLD_CUP_ONLY` | Yes (optional) | No | Ignored when `DATABASE_URL` is set (Jun 2026 dual-mode fix) |
 | `VITE_WORLD_CUP_ENABLED`, `VITE_DUAL_TOURNAMENT` | No | Yes (optional) | `VITE_DUAL_TOURNAMENT=true` in [`client/.env.production`](client/.env.production) forces boys+girls+WC switcher even if Vercel still has stale `VITE_WORLD_CUP_ONLY` |
+| `ANALYTICS_RETENTION_DAYS` | Yes (optional) | No | Default 90; prunes `analytics_events` on ingest |
 
 Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.example`](server/.env.example)); [`client/.env`](client/.env) for `VITE_*` (copy from [`client/.env.example`](client/.env.example)). **Do not use a repo-root `.env`** — the server loads only `server/.env`. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
 
@@ -42,7 +43,7 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 - **Legal routes** (`/about`, `/privacy`, `/terms`, `/accessibility`): standalone `LegalPageLayout` (no tournament chrome); prerendered at build.
 - **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). Mobile: off-canvas drawer + edge drag handle; swipe left on `#main-content` opens the mobile drawer.
 - **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx) (`pathname` + `useLocation` fallback; `noindex` on `/login`, `/admin`, `/profile`, `/player-zone`). Prebuild regenerates `public/sitemap.xml`, `public/robots.txt`, and `public/og-image.png`. Prerender bakes canonical/OG head for all sitemap paths and `noindex` for auth routes (`dist/schedule/index.html`, etc.).
-- **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept.
+- **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept (Vercel Analytics + first-party `analytics_events` via `POST /api/analytics/events`).
 
 ## Client production build (Vercel)
 

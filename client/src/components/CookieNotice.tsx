@@ -28,7 +28,7 @@ const CookieNotice = () => {
           עוגיות ופרטיות
         </h2>
         <p className="cookie-notice-text">
-          האתר משתמש בעוגיות חיוניות לתפעול, ובעוגיות אנליטיקה (Vercel Analytics) רק
+          האתר משתמש בעוגיות חיוניות לתפעול, ובעוגיות אנליטיקה (Vercel Analytics ורישום אירועי שימוש בשרת) רק
           לאחר אישורכם. לפרטים ראו{' '}
           <Link to="/privacy#cookies">מדיניות הפרטיות</Link>.
         </p>

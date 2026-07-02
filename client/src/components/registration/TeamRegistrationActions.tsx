@@ -4,6 +4,7 @@ import { registrationAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
+import { trackEvent } from '../../utils/analytics';
 
 type PendingJoin = {
     id: string;
@@ -64,6 +65,10 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
             return;
         }
         setJoinMsg('');
+        trackEvent('join_request_click', {
+            category: 'registration',
+            properties: { division: slug, teamId },
+        });
         try {
             await registrationAPI.submitJoin(teamId, slug);
             setJoinMsg('בקשת ההצטרפות נשלחה וממתינה לאישור.');

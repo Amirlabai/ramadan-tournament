@@ -11,6 +11,19 @@ import { prisma } from '../lib/prisma';
 import fs from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
+import { AnalyticsService } from '../services/AnalyticsService';
+
+const logPlayerZoneEvent = (
+  eventName: string,
+  properties?: Record<string, unknown>
+) => {
+  AnalyticsService.log({
+    eventName,
+    category: 'player_zone',
+    source: 'server',
+    properties,
+  });
+};
 
 export const authenticate = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -18,6 +31,7 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
 
         if (!personalId || !birthYear) {
             res.status(400).json({ error: 'Personal ID and Birth Year are required' });
+            logPlayerZoneEvent('player_zone_login_failed', { reason: 'missing_fields' });
             return;
         }
 
@@ -28,6 +42,7 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
             birthYearNum = parseBirthYear(birthYear);
         } catch {
             res.status(401).json({ error: 'Player not found or invalid credentials' });
+            logPlayerZoneEvent('player_zone_login_failed', { reason: 'invalid_credentials' });
             return;
         }
         const season = await SeasonService.getActiveFootballSeason();
@@ -42,12 +57,14 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
 
         if (!playerRow) {
             res.status(401).json({ error: 'Player not found or invalid credentials' });
+            logPlayerZoneEvent('player_zone_login_failed', { reason: 'not_found' });
             return;
         }
 
         const team = await TeamRosterService.findTeamWithPlayersById(playerRow.teamId);
         if (!team) {
             res.status(401).json({ error: 'Player not found or invalid credentials' });
+            logPlayerZoneEvent('player_zone_login_failed', { reason: 'team_not_found' });
             return;
         }
 
@@ -55,6 +72,7 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
 
         if (!player) {
             res.status(401).json({ error: 'Player data inconsistency' });
+            logPlayerZoneEvent('player_zone_login_failed', { reason: 'data_inconsistency' });
             return;
         }
 
@@ -83,6 +101,7 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
         if (config.nodeEnv !== 'production') {
             body.token = token;
         }
+        logPlayerZoneEvent('player_zone_login_success', { teamId: team.id });
         res.json(body);
 
     } catch (error) {
@@ -140,6 +159,7 @@ export const playerLogout = async (_req: Request, res: Response): Promise<void> 
 export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.file) {
         res.status(400).json({ error: 'No file uploaded' });
+        logPlayerZoneEvent('photo_upload_failed', { reason: 'no_file' });
         return;
     }
 
@@ -155,6 +175,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         const teamId = req.teamId;
         if (!memberId || !teamId) {
             res.status(401).json({ error: 'Authentication required' });
+            logPlayerZoneEvent('photo_upload_failed', { reason: 'unauthenticated' });
             return;
         }
 
@@ -162,6 +183,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
 
         if (!team) {
             res.status(404).json({ error: 'Player not found' });
+            logPlayerZoneEvent('photo_upload_failed', { reason: 'player_not_found' });
             fs.unlinkSync(req.file.path);
             return;
         }
@@ -169,6 +191,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         const playerIndex = team.players.findIndex((p) => p.memberId === memberId);
         if (playerIndex === -1) {
             res.status(404).json({ error: 'Player not found in team' });
+            logPlayerZoneEvent('photo_upload_failed', { reason: 'player_not_in_team' });
             fs.unlinkSync(req.file.path);
             return;
         }
@@ -208,6 +231,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         // Send notification to admin (non-blocking)
         sendAdminNotification(`${player.firstName} ${player.lastName}`, team.name);
 
+        logPlayerZoneEvent('photo_upload_success', { teamId });
         res.json({
             message: 'Photo uploaded successfully and is pending approval',
             url: publicUrl
@@ -215,6 +239,7 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
 
     } catch (error: any) {
         console.error('Photo upload error:', error);
+        logPlayerZoneEvent('photo_upload_failed', { reason: 'server_error' });
         res.status(500).json({
             error: 'Server error',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined

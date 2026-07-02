@@ -137,6 +137,22 @@ TABLE_EXPORTS: list[tuple[str, str]] = [
         "SELECT * FROM team_transfer_requests ORDER BY created_at",
     ),
     ("banned_words", "SELECT * FROM banned_words ORDER BY language, word"),
+    (
+        "analytics_events",
+        """
+        SELECT
+            id,
+            created_at,
+            event_name,
+            category,
+            source,
+            session_id,
+            path,
+            properties
+        FROM analytics_events
+        ORDER BY created_at
+        """,
+    ),
 ]
 
 
@@ -202,6 +218,7 @@ def backup_postgres() -> None:
             "users.csv still includes mapped_player_info and player_profile (PII)",
             "invoice_codes.csv omits code_hash and code_normalized (no plaintext payment codes)",
             "players.csv omits personal_id_enc (national ID ciphertext)",
+            "analytics_events.csv contains behavioral events (session_id, path, properties JSON) — pseudonymous, no account linkage or PII by design",
             "personal_id_enc is encrypted; restore requires PERSONAL_ID_KEY",
             "archive/postgres/ is sensitive — do not publish or share publicly",
         ],

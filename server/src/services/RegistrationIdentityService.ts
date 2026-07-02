@@ -13,6 +13,18 @@ import {
   parseBirthYear,
 } from '../utils/personalIdValidation';
 
+export type IdentityAnalyticsCode = 'rate_limited' | 'mismatch' | 'validation';
+
+export class IdentitySubmissionError extends Error {
+  readonly analyticsCode: IdentityAnalyticsCode;
+
+  constructor(message: string, analyticsCode: IdentityAnalyticsCode) {
+    super(message);
+    this.name = 'IdentitySubmissionError';
+    this.analyticsCode = analyticsCode;
+  }
+}
+
 export const identitySelectFields = {
   status: true,
   invoiceAlert: true,
@@ -240,14 +252,21 @@ export function hasAdminIdentityOnReg(reg: {
 async function recordIdentityAttemptFailure(
   userId: string,
   seasonId: string,
-  reason: string
+  reason: string,
+  analyticsCode: IdentityAnalyticsCode = 'validation'
 ): Promise<never> {
   const attempts = await IdentityRateLimitService.recordFailedAttempt(userId, seasonId);
   if (attempts >= MAX_IDENTITY_ATTEMPTS) {
-    throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
+    throw new IdentitySubmissionError(
+      'נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.',
+      'rate_limited'
+    );
   }
   const remaining = MAX_IDENTITY_ATTEMPTS - attempts;
-  throw new Error(`${reason} נותרו ${remaining} ניסיונים היום.`);
+  throw new IdentitySubmissionError(
+    `${reason} נותרו ${remaining} ניסיונים היום.`,
+    analyticsCode
+  );
 }
 
 export async function assignAdminIdentity(
@@ -343,7 +362,10 @@ export async function submitUserIdentity(
   await deps.assertDivisionAccess(userId, division);
 
   if (await IdentityRateLimitService.isLocked(userId, season.id)) {
-    throw new Error('נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.');
+    throw new IdentitySubmissionError(
+      'נחסמת עד מחר בשל ניסיונות רבים. נסה שוב מחר.',
+      'rate_limited'
+    );
   }
 
   let normalized: string;
@@ -539,7 +561,7 @@ export async function submitUserIdentity(
         division: season.division,
       },
     });
-    return recordIdentityAttemptFailure(userId, season.id, IDENTITY_ALERT_NOT_MATCHING);
+    return recordIdentityAttemptFailure(userId, season.id, IDENTITY_ALERT_NOT_MATCHING, 'mismatch');
   }
 
   await prisma.seasonRegistration.upsert({

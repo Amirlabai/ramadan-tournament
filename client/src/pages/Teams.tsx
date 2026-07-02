@@ -14,6 +14,7 @@ import EmptyState from '../components/EmptyState';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getRoleStarVariant } from '../utils/tournamentUser';
+import { trackEvent } from '../utils/analytics';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -142,7 +143,14 @@ const Teams = () => {
     const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
 
     const toggleTeam = (teamId: number) => {
-        setExpandedTeam(expandedTeam === teamId ? null : teamId);
+        const nextExpanded = expandedTeam === teamId ? null : teamId;
+        if (nextExpanded !== null) {
+            trackEvent('team_expand', {
+                category: 'browse',
+                properties: { teamId, division: slug, expanded: true },
+            });
+        }
+        setExpandedTeam(nextExpanded);
     };
 
     const handleTeamRowClick = (e: React.MouseEvent, teamId: number) => {
@@ -177,6 +185,10 @@ const Teams = () => {
 
         try {
             setIsVoting(true);
+            trackEvent('vote_submit', {
+                category: 'interaction',
+                properties: { division: slug, teamId: player.teamId },
+            });
             const response = await votesAPI.cast(player.memberId, 'mvp');
             if (response.data.voted) {
                 setMyVote({ playerMemberId: player.memberId });

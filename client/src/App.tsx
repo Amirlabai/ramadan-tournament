@@ -53,6 +53,7 @@ import { NavActionIndicatorsProvider } from './contexts/NavActionIndicatorsConte
 import './App.css'
 import { Analytics } from '@vercel/analytics/react'
 import { useEffect } from 'react'
+import { useAnalyticsTracking } from './hooks/usePageTracking'
 
 function AppRoutes() {
   const location = useLocation()
@@ -98,6 +99,7 @@ function AppRoutes() {
 function AppShell() {
   const { isGirls, isWorldCup } = useTournament()
   const { consent } = useCookieConsent()
+  useAnalyticsTracking(consent)
   const mainRef = useRef<HTMLElement>(null)
   const {
     open: drawerOpen,

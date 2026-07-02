@@ -238,6 +238,10 @@ export function registerMockRoutes(app: Express): void {
     });
   });
 
+  app.post('/api/analytics/events', (_req, res) => {
+    res.status(204).end();
+  });
+
   app.use('/api', (req, res) => {
     if (req.method === 'GET') {
       res.status(404).json({ error: 'Not available in mock dev mode', path: req.originalUrl });

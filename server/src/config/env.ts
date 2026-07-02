@@ -37,6 +37,10 @@ export const config = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
+  analyticsRetentionDays: Math.max(
+    0,
+    parseInt(process.env.ANALYTICS_RETENTION_DAYS || '90', 10) || 0
+  ),
   email: {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',

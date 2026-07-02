@@ -6,6 +6,7 @@ import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearIn
 import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import TransferRequestForm from '../registration/TransferRequestForm';
+import { trackEvent } from '../../utils/analytics';
 import './TournamentRegistrationCard.css';
 
 interface RegistrationSummary {
@@ -74,8 +75,22 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
         void load();
     }, [load]);
 
+    useEffect(() => {
+        if (!reg) return;
+        const showForm = !!reg.invoiceAlert || reg.status !== 'active';
+        if (!showForm) return;
+        trackEvent('identity_form_open', {
+            category: 'registration',
+            properties: { division: slug, status: reg.status },
+        });
+    }, [reg, slug]);
+
     const handleSubmitIdentity = async (e: React.FormEvent) => {
         e.preventDefault();
+        trackEvent('identity_submit_click', {
+            category: 'registration',
+            properties: { division: slug },
+        });
         setSubmitting(true);
         setMsg('');
         setErr('');

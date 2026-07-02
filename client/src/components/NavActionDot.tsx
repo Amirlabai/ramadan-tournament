@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { trackEvent } from '../utils/analytics';
 import './NavActionDot.css';
 
 export default function NavActionDot() {
@@ -25,6 +26,7 @@ interface NavActionLinkProps {
     active?: boolean;
     extraClassName?: string;
     onClick?: () => void;
+    trackNav?: boolean;
 }
 
 export function NavActionLink({
@@ -35,14 +37,25 @@ export function NavActionLink({
     active = false,
     extraClassName = '',
     onClick,
+    trackNav = false,
 }: NavActionLinkProps) {
+    const handleClick = () => {
+        if (trackNav) {
+            trackEvent('nav_click', {
+                category: 'browse',
+                properties: { navTo: to },
+            });
+        }
+        onClick?.();
+    };
+
     return (
         <Link
             to={to}
             className={navLinkWithDotClass(className, showActionDot, [active && 'active', extraClassName].filter(Boolean).join(' '))}
             aria-current={active ? 'page' : undefined}
             aria-label={navLinkActionAriaLabel(label, showActionDot)}
-            onClick={onClick}
+            onClick={handleClick}
         >
             {label}
             {showActionDot && <NavActionDot />}

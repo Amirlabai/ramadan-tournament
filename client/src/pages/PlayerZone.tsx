@@ -5,6 +5,7 @@ import { resolveAssetUrl } from '../utils/assetUrl';
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../utils/birthYearInput';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../utils/israeliIdValidation';
 import SEO from '../components/SEO';
+import { trackEvent } from '../utils/analytics';
 import './PlayerZone.css';
 
 interface Player {
@@ -49,6 +50,7 @@ const PlayerZone = () => {
             return;
         }
         setLoading(true);
+        trackEvent('player_zone_login_submit', { category: 'player_zone' });
         try {
             const res = await playerAPI.login(personalId, birthYear);
             setPlayer(res.data.player);
@@ -72,6 +74,7 @@ const PlayerZone = () => {
         if (!selectedFile) return;
 
         setFile(selectedFile);
+        trackEvent('photo_upload_start', { category: 'player_zone' });
         if (previewObjectUrlRef.current) {
             URL.revokeObjectURL(previewObjectUrlRef.current);
         }

@@ -6,6 +6,40 @@ import { RegistrationService } from '../services/RegistrationService';
 import type { JoinRequestOptions } from '../services/RegistrationService';
 import { parsePositiveTeamId } from '../utils/inputValidation';
 import { isUuid } from '../utils/sanitizeSearchQuery';
+import { AnalyticsService } from '../services/AnalyticsService';
+import { IdentitySubmissionError } from '../services/RegistrationIdentityService';
+
+const logRegistrationEvent = (
+  eventName: string,
+  properties?: Record<string, unknown>
+) => {
+  AnalyticsService.log({
+    eventName,
+    category: 'registration',
+    source: 'server',
+    properties,
+  });
+};
+
+function logIdentityOutcome(division: Division, error: unknown): void {
+  if (error instanceof IdentitySubmissionError) {
+    if (error.analyticsCode === 'rate_limited') {
+      logRegistrationEvent('identity_rate_limited', { division });
+      return;
+    }
+    if (error.analyticsCode === 'mismatch') {
+      logRegistrationEvent('identity_mismatch', { division });
+      return;
+    }
+    if (error.analyticsCode === 'validation') {
+      logRegistrationEvent('identity_validation_failed', { division });
+    }
+    return;
+  }
+  if (error instanceof Error) {
+    logRegistrationEvent('identity_submit_failed', { division, reason: 'rejected' });
+  }
+}
 
 function divisionFromQuery(req: TournamentRequest): Division {
   const q = req.query.division as string | undefined;
@@ -49,8 +83,14 @@ export const verifyIdentity = async (req: AuthRequest, res: Response): Promise<v
       division
     );
     const summary = await RegistrationService.getSummary(req.userId!, division);
+    if (summary.invoiceAlert) {
+      logRegistrationEvent('identity_mismatch', { division });
+    } else {
+      logRegistrationEvent('identity_submitted', { division, status: summary.status });
+    }
     res.json({ message: 'פרטי הזהות נשמרו בהצלחה', registration: summary });
   } catch (error) {
+    logIdentityOutcome(divisionFromQuery(req as TournamentRequest), error);
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
     res.status(400).json({ error: message });
   }
@@ -80,6 +120,7 @@ export const submitTeamCreation = async (req: AuthRequest, res: Response): Promi
       String(teamName ?? ''),
       String(description ?? '')
     );
+    logRegistrationEvent('team_creation_submitted', { division });
     res.json({ message: 'בקשת הקמת קבוצה נשלחה', request });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';
@@ -103,6 +144,7 @@ export const submitJoinRequest = async (req: AuthRequest, res: Response): Promis
       memberId: Number.isInteger(memberId) && memberId! > 0 ? memberId : undefined,
       playerProfile: body.playerProfile,
     });
+    logRegistrationEvent('join_request_submitted', { division, teamId });
     res.json({ message: 'בקשת הצטרפות נשלחה', request });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';

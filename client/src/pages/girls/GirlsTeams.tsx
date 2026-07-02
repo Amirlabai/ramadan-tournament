@@ -7,6 +7,7 @@ import SEO from '../../components/SEO';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTournament } from '../../contexts/TournamentContext';
 import type { Team } from '../../types';
+import { trackEvent } from '../../utils/analytics';
 
 type GirlsTeam = Team & { totalPoints?: number };
 
@@ -158,7 +159,16 @@ const GirlsTeams = () => {
                   type="button"
                   className="team-header flex-grow-1 border-0 bg-transparent text-end p-3 d-flex justify-content-between align-items-center"
                   aria-expanded={expandedTeam === team.id}
-                  onClick={() => setExpandedTeam(expandedTeam === team.id ? null : team.id)}
+                  onClick={() => {
+                    const nextExpanded = expandedTeam === team.id ? null : team.id;
+                    if (nextExpanded !== null) {
+                      trackEvent('team_expand', {
+                        category: 'browse',
+                        properties: { teamId: team.id, division: 'girls', expanded: true },
+                      });
+                    }
+                    setExpandedTeam(nextExpanded);
+                  }}
                 >
                   <span className="fw-bold">{team.name}</span>
                   <span className="badge tournament-badge">{team.totalPoints ?? 0} נקודות</span>

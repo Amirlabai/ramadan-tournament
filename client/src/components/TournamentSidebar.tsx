@@ -64,6 +64,7 @@ const TournamentSidebar = ({
               extraClassName={item.className}
               active={isNavPathActive(item.to)}
               showActionDot={item.showActionDot}
+              trackNav
               onClick={isMobile ? close : undefined}
             />
           </li>

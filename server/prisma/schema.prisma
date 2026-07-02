@@ -453,3 +453,32 @@ model FormPreregEntry {
   @@index([seasonId, birthYear])
   @@map("form_prereg_entries")
 }
+
+enum AnalyticsEventSource {
+  client
+  server
+}
+
+enum AnalyticsEventCategory {
+  auth
+  registration
+  browse
+  player_zone
+  interaction
+}
+
+model AnalyticsEvent {
+  id         String                 @id @default(uuid())
+  createdAt  DateTime               @default(now()) @map("created_at")
+  eventName  String                 @map("event_name")
+  category   AnalyticsEventCategory
+  source     AnalyticsEventSource
+  sessionId  String?                @map("session_id")
+  path       String?
+  properties Json?
+
+  @@index([createdAt])
+  @@index([eventName, createdAt])
+  @@index([sessionId, createdAt])
+  @@map("analytics_events")
+}

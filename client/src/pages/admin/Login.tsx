@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
+import { trackEvent } from '../../utils/analytics';
 import './Login.css';
 
 function safeInternalPath(path: unknown): string {
@@ -29,6 +30,7 @@ const Login = () => {
     const { login } = useAuth();
 
     const from = safeInternalPath(location.state?.from?.pathname);
+    const authSurface = location.pathname.startsWith('/admin') ? 'admin' : 'public';
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -38,6 +40,7 @@ const Login = () => {
 
         try {
             if (isLoginView) {
+                trackEvent('login_submit', { category: 'auth', properties: { method: 'password', surface: authSurface } });
                 const isEmail = identifier.includes('@');
                 const credentials = isEmail
                     ? { email: identifier, password }
@@ -47,6 +50,7 @@ const Login = () => {
                 login(response.data.user);
                 navigate(from, { replace: true });
             } else {
+                trackEvent('register_submit', { category: 'auth', properties: { method: 'password', surface: authSurface } });
                 // Register
                 const payload = {
                     email: identifier,
@@ -112,6 +116,7 @@ const Login = () => {
     const handleGoogleSuccess = async (credentialResponse: any) => {
         setError('');
         setLoading(true);
+        trackEvent('google_login_click', { category: 'auth', properties: { method: 'google', surface: authSurface } });
         try {
             const response = await authAPI.googleLogin(credentialResponse.credential);
             login(response.data.user);

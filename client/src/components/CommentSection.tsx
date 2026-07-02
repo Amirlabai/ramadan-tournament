@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { commentsAPI } from '../api/client';
+import { trackEvent } from '../utils/analytics';
 import './CommentSection.css';
 
 interface Comment {
@@ -73,6 +74,11 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
 
         setSubmitting(true);
         setError('');
+
+        trackEvent('comment_submit', {
+            category: 'interaction',
+            properties: { matchId },
+        });
 
         try {
             const response = await commentsAPI.create({

@@ -10,6 +10,7 @@ import {
     logout,
 } from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
+import { optionalSessionAuth } from '../middleware/optionalSessionAuth';
 
 const router = Router();
 
@@ -56,7 +57,7 @@ const logoutLimiter = rateLimit({
 router.post('/register', registerLimiter, register);
 router.post('/login', loginLimiter, login);
 router.post('/google', loginLimiter, googleLogin);
-router.post('/logout', logoutLimiter, logout);
+router.post('/logout', logoutLimiter, optionalSessionAuth, logout);
 router.get('/me', authenticate, getMe);
 router.post('/verify-email', verifyLimiter, verifyEmail);
 router.post('/resend-verification', resendLimiter, resendVerification);

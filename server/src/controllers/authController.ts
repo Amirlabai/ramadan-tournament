@@ -13,6 +13,42 @@ import { RegistrationService } from '../services/RegistrationService';
 import { setAuthCookie, authJsonBody, clearAuthCookie } from '../utils/authCookie';
 import { AuthRateLimitService } from '../services/AuthRateLimitService';
 import { normalizeEmail } from '../utils/normalizeEmail';
+import { AnalyticsService } from '../services/AnalyticsService';
+
+function authContextFromRequest(req: Request): {
+  path?: string;
+  surface: 'admin' | 'public';
+} {
+  const referer =
+    req?.headers && typeof req.headers.referer === 'string' ? req.headers.referer : '';
+  try {
+    if (referer) {
+      const pathname = new URL(referer).pathname;
+      return {
+        path: pathname,
+        surface: pathname.startsWith('/admin') ? 'admin' : 'public',
+      };
+    }
+  } catch {
+    // ignore malformed referer
+  }
+  return { surface: 'public' };
+}
+
+const logAuthEvent = (
+  eventName: string,
+  req: Request,
+  properties?: Record<string, unknown>
+) => {
+  const { path, surface } = authContextFromRequest(req);
+  AnalyticsService.log({
+    eventName,
+    category: 'auth',
+    source: 'server',
+    path,
+    properties: properties ? { ...properties, surface } : { surface },
+  });
+};
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
@@ -128,18 +164,21 @@ export const register = async (req: Request, res: Response): Promise<void> => {
 
         if (!email || !password || !displayName) {
             res.status(400).json({ error: 'Email, password, and display name are required' });
+            logAuthEvent('register_failed', req, { reason: 'missing_fields' });
             return;
         }
 
         // Type safety
         if (typeof email !== 'string' || typeof password !== 'string' || typeof displayName !== 'string') {
             res.status(400).json({ error: 'Invalid input types' });
+            logAuthEvent('register_failed', req, { reason: 'invalid_types' });
             return;
         }
 
         // Length limits
         if (email.length > 254 || password.length < 6 || password.length > 128 || displayName.trim().length < 2 || displayName.length > 50) {
             res.status(400).json({ error: 'Invalid input lengths. Display name: 2-50 chars, password: 6-128 chars.' });
+            logAuthEvent('register_failed', req, { reason: 'invalid_lengths' });
             return;
         }
 
@@ -147,6 +186,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             res.status(400).json({ error: 'Invalid email format' });
+            logAuthEvent('register_failed', req, { reason: 'invalid_email' });
             return;
         }
 
@@ -154,6 +194,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         const normalizedEmail = normalizeEmail(email);
         if (!normalizedEmail) {
             res.status(400).json({ error: 'Invalid email format' });
+            logAuthEvent('register_failed', req, { reason: 'invalid_email' });
             return;
         }
         const existingUser = await User.findOne({ email: normalizedEmail });
@@ -163,8 +204,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
                     error: 'האימייל מקושר להתחברות עם Google. השתמש בכפתור Google.',
                     useGoogle: true,
                 });
+                logAuthEvent('register_failed', req, { reason: 'use_google' });
             } else {
                 res.status(400).json({ error: 'Email is already registered' });
+                logAuthEvent('register_failed', req, { reason: 'email_taken' });
             }
             return;
         }
@@ -193,6 +236,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
         // Send verification email
         await sendVerificationEmail(user.email!, verificationCode, user.displayName);
 
+        logAuthEvent('register_success', req);
+
         res.status(201).json({
             message: 'Registration successful. Please check your email for the verification code.',
             needsVerification: true,
@@ -210,18 +255,21 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         if ((!email && !username) || !password) {
             res.status(400).json({ error: 'Email/Username and password are required' });
+            logAuthEvent('login_failed', req, { reason: 'missing_fields' });
             return;
         }
 
         // Type safety — prevent object injection attacks
         if ((email && typeof email !== 'string') || (username && typeof username !== 'string') || typeof password !== 'string') {
             res.status(400).json({ error: 'Invalid input types' });
+            logAuthEvent('login_failed', req, { reason: 'invalid_types' });
             return;
         }
 
         // Length limits
         if (password.length > 128) {
             res.status(400).json({ error: 'Invalid credentials' });
+            logAuthEvent('login_failed', req, { reason: 'invalid_credentials' });
             return;
         }
 
@@ -229,6 +277,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const normalizedEmail = email ? normalizeEmail(email as string) : null;
         if (email && !normalizedEmail) {
             res.status(400).json({ error: 'Invalid email format' });
+            logAuthEvent('login_failed', req, { reason: 'invalid_email' });
             return;
         }
         const query = normalizedEmail ? { email: normalizedEmail } : { username };
@@ -236,11 +285,13 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
         if (!user || (!user.password && !user.googleId)) {
             res.status(401).json({ error: 'Invalid credentials' });
+            logAuthEvent('login_failed', req, { reason: 'invalid_credentials' });
             return;
         }
 
         if (!user.password) {
             res.status(401).json({ error: 'Please login with Google for this account' });
+            logAuthEvent('login_failed', req, { reason: 'use_google' });
             return;
         }
 
@@ -248,6 +299,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         const isValidPassword = await bcrypt.compare(password, user.password);
         if (!isValidPassword) {
             res.status(401).json({ error: 'Invalid credentials' });
+            logAuthEvent('login_failed', req, { reason: 'invalid_credentials' });
             return;
         }
 
@@ -258,12 +310,14 @@ export const login = async (req: Request, res: Response): Promise<void> => {
                 needsVerification: true,
                 email: user.email
             });
+            logAuthEvent('login_failed', req, { reason: 'unverified' });
             return;
         }
 
         const token = generateToken(user);
 
         setAuthCookie(res, token);
+        logAuthEvent('login_success', req, { method: 'password' });
         res.json(authJsonBody(await hydrateUserPayload(user), token));
     } catch (error) {
         console.error('Login error:', error);
@@ -361,6 +415,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
         const jwtToken = generateToken(user);
         setAuthCookie(res, jwtToken);
+        logAuthEvent('google_login_success', req);
         res.json(authJsonBody(await hydrateUserPayload(user), jwtToken));
     } catch (error) {
         console.error('Google login error:', error);
@@ -409,9 +464,11 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
             const allowed = await AuthRateLimitService.recordFailedVerifyEmail(normalizedEmail);
             if (!allowed) {
                 res.status(429).json({ error: 'Too many verification attempts. Try again later.' });
+                logAuthEvent('verify_failed', req, { reason: 'rate_limit' });
                 return;
             }
             res.status(400).json({ error: 'Invalid or expired verification code' });
+            logAuthEvent('verify_failed', req, { reason: 'invalid_code' });
             return;
         }
 
@@ -422,6 +479,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
 
         const token = generateToken(user);
         setAuthCookie(res, token);
+        logAuthEvent('verify_success', req);
         res.json(authJsonBody(await hydrateUserPayload(user), token));
     } catch (error) {
         console.error('Email verification error:', error);
@@ -429,7 +487,8 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
     }
 };
 
-export const logout = async (_req: Request, res: Response): Promise<void> => {
+export const logout = async (req: AuthRequest, res: Response): Promise<void> => {
+    logAuthEvent('logout', req);
     clearAuthCookie(res);
     res.json({ message: 'Logged out' });
 };
