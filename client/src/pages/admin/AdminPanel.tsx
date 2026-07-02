@@ -14,6 +14,7 @@ import { entityId } from '../../utils/entityId';
 import { canAccessAdminPanel, isPlatformAdmin } from '../../utils/tournamentUser';
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import NavActionDot, { withPendingActionLabel } from '../../components/NavActionDot';
+import { assertPlayerOnTeam, syncScoresFromGoals } from '../../utils/matchGoals';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
@@ -168,21 +169,65 @@ const AdminPanel = () => {
     const handleSaveMatch = async (id: number, data: any) => {
         try {
             if (id === -1) {
-                // New match
                 const res = await matchesAPI.create(data);
                 setMatches(prev => [...prev, res.data].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()));
                 setAddingNewMatch(false);
             } else {
-                await matchesAPI.update(id, data);
+                const res = await matchesAPI.update(id, data);
                 setMatches(prev =>
-                    prev.map(m => m.id === id ? { ...m, ...data } : m)
+                    prev.map(m => m.id === id ? res.data : m)
                         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                 );
             }
         } catch (err) {
             alert('שגיאה בשמירת משחק');
             console.error(err);
-            throw err; // re-throw so MatchTableRow can keep edit mode
+            throw err;
+        }
+    };
+
+    const handleAddGoal = async (matchId: number, memberId: number, teamId: number) => {
+        assertPlayerOnTeam(memberId, teamId, teams);
+
+        const match = matches.find(m => m.id === matchId);
+        if (!match) throw new Error('משחק לא נמצא');
+
+        const goals = [...(match.goals ?? []), { memberId, minute: 0 }];
+        const { score1, score2 } = syncScoresFromGoals(goals, match.team1Id, match.team2Id, teams);
+
+        const payload = {
+            team1Id: match.team1Id,
+            team2Id: match.team2Id,
+            score1,
+            score2,
+            date: match.date,
+            location: match.location,
+            phase: match.phase,
+            goals,
+        };
+
+        try {
+            const res = await matchesAPI.update(matchId, payload);
+            setMatches(prev =>
+                prev.map(m => (m.id === matchId ? res.data : m))
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            );
+        } catch (err: unknown) {
+            try {
+                const freshRes = await matchesAPI.getAll();
+                setMatches(
+                    freshRes.data.sort(
+                        (a: Match, b: Match) => new Date(a.date).getTime() - new Date(b.date).getTime()
+                    )
+                );
+            } catch {
+                /* keep prior list on refetch failure */
+            }
+            const axiosErr = err as { response?: { data?: { error?: string } } };
+            const msg = axiosErr.response?.data?.error
+                || (err instanceof Error ? err.message : '')
+                || 'שגיאה בהוספת השער';
+            throw new Error(msg);
         }
     };
 
@@ -602,6 +647,7 @@ const AdminPanel = () => {
                                                 teams={teams}
                                                 onSave={handleSaveMatch}
                                                 onDelete={deleteMatch}
+                                                onAddGoal={handleAddGoal}
                                             />
                                         ))}
                                 </tbody>

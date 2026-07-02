@@ -80,49 +80,53 @@ function mapMatch(row: any): IMatch {
 
       const season = await SeasonService.getActiveFootballSeason();
 
-      await prisma.goal.deleteMany({ where: { seasonId: season.id, matchId: match.id } });
+      await prisma.$transaction(async (tx) => {
 
-      if (match.goals.length) {
+        await tx.goal.deleteMany({ where: { seasonId: season.id, matchId: match.id } });
 
-        await prisma.goal.createMany({
+        if (match.goals.length) {
 
-          data: match.goals.map((g) => ({
+          await tx.goal.createMany({
 
-            seasonId: season.id,
+            data: match.goals.map((g) => ({
 
-            matchId: match.id,
+              seasonId: season.id,
 
-            memberId: g.memberId,
+              matchId: match.id,
 
-            minute: g.minute,
+              memberId: g.memberId,
 
-          })),
+              minute: g.minute,
+
+            })),
+
+          });
+
+        }
+
+        await tx.match.update({
+
+          where: { seasonId_id: { seasonId: season.id, id: match.id } },
+
+          data: {
+
+            date: match.date,
+
+            location: match.location,
+
+            phase: match.phase,
+
+            team1Id: match.team1Id,
+
+            team2Id: match.team2Id,
+
+            score1: match.score1,
+
+            score2: match.score2,
+
+          },
 
         });
-
-      }
-
-      await prisma.match.update({
-
-        where: { seasonId_id: { seasonId: season.id, id: match.id } },
-
-        data: {
-
-          date: match.date,
-
-          location: match.location,
-
-          phase: match.phase,
-
-          team1Id: match.team1Id,
-
-          team2Id: match.team2Id,
-
-          score1: match.score1,
-
-          score2: match.score2,
-
-        },
 
       });
 
@@ -442,69 +446,43 @@ export class Match {
 
   ): Promise<IMatch | null> {
 
-    const season = await SeasonService.getActiveFootballSeason();
+    const existing = await Match.findOne({ id: filter.id });
 
-    try {
-
-      const row = await prisma.match.upsert({
-
-        where: { seasonId_id: { seasonId: season.id, id: filter.id } },
-
-        create: {
-
-          id: filter.id,
-
-          seasonId: season.id,
-
-          date: body.date || new Date(),
-
-          location: body.location || '',
-
-          phase: (body.phase as any) || 'group',
-
-          team1Id: body.team1Id ?? 0,
-
-          team2Id: body.team2Id ?? 0,
-
-          score1: body.score1 ?? null,
-
-          score2: body.score2 ?? null,
-
-        },
-
-        update: {
-
-          date: body.date,
-
-          location: body.location,
-
-          phase: body.phase as any,
-
-          team1Id: body.team1Id,
-
-          team2Id: body.team2Id,
-
-          score1: body.score1,
-
-          score2: body.score2,
-
-        },
-
-        include: { goals: true },
-
-      });
-
-      await CacheService.invalidatePattern('rt:doc:boys:*');
-
-      return mapMatch(row);
-
-    } catch {
+    if (!existing) {
 
       if (!opts?.upsert) return null;
 
-      return null;
+      const created = new Match({
+
+        ...body,
+
+        id: filter.id,
+
+        goals: body.goals ?? [],
+
+      });
+
+      return created.save();
 
     }
+
+    if (body.date !== undefined) existing.date = body.date instanceof Date ? body.date : new Date(body.date);
+
+    if (body.location !== undefined) existing.location = body.location;
+
+    if (body.phase !== undefined) existing.phase = body.phase;
+
+    if (body.team1Id !== undefined) existing.team1Id = body.team1Id;
+
+    if (body.team2Id !== undefined) existing.team2Id = body.team2Id;
+
+    if (body.score1 !== undefined) existing.score1 = body.score1;
+
+    if (body.score2 !== undefined) existing.score2 = body.score2;
+
+    if (body.goals !== undefined) existing.goals = body.goals;
+
+    return existing.save();
 
   }
 

@@ -238,7 +238,11 @@
 
 /* Actions cell */
 .matches-table .actions-cell {
-    width: 110px;
+    min-width: 140px;
+}
+
+.matches-table .actions-cell .btn {
+    margin-bottom: 0.25rem;
 }
 
 /* Phase badge */
@@ -310,9 +314,9 @@
     max-width: 200px;
 }
 
-/* ── Mobile ─────────────────────────────────────────────────────────────────── */
+/* Admin compact layout — sidebar consumes width below 1220px */
 
-@media (max-width: 768px) {
+@media (max-width: 1219.98px) {
     .admin-panel__tab-content h2 {
         margin-bottom: 0.5rem;
     }
@@ -540,9 +544,23 @@
         width: 100%;
     }
 
-    /* Actions cell — center the buttons */
+    /* Actions cell — stack buttons full width on mobile */
     .matches-table .actions-cell {
-        justify-content: center;
+        justify-content: stretch;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
         width: auto;
+    }
+
+    .matches-table .actions-cell::before {
+        align-self: center;
+        margin-bottom: 0.25rem;
+    }
+
+    .matches-table .actions-cell .btn {
+        width: 100%;
+        min-height: 44px;
+        margin: 0 !important;
     }
 }

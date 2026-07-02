@@ -1,0 +1,169 @@
+.add-goal-modal {
+    z-index: 1060;
+}
+
+.add-goal-modal .modal-dialog {
+    max-width: 480px;
+}
+
+.add-goal-modal-content {
+    background-color: var(--light-gray, #F5F5F5);
+    border: none;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    color: var(--dark-gray, #333);
+    display: flex;
+    flex-direction: column;
+    max-height: 100%;
+}
+
+.add-goal-modal .modal-header {
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
+    color: white;
+    border-bottom: none;
+    border-radius: 12px 12px 0 0;
+    flex-shrink: 0;
+}
+
+.add-goal-modal .modal-title {
+    color: white !important;
+}
+
+.add-goal-modal .btn-close {
+    filter: invert(1) brightness(200%);
+    opacity: 0.8;
+    margin: -0.5rem auto -0.5rem -0.5rem;
+}
+
+.add-goal-modal-body {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 1rem 1.25rem 1.25rem;
+}
+
+.add-goal-match-summary {
+    text-align: center;
+    font-size: 0.95rem;
+}
+
+.add-goal-team-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.add-goal-team-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 1rem;
+    border: 2px solid var(--medium-gray, #ccc);
+    border-radius: 10px;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.add-goal-team-card:hover,
+.add-goal-team-card:focus-visible {
+    border-color: var(--primary-green);
+    background-color: var(--color-primary-a10);
+}
+
+.add-goal-team-name {
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.add-goal-team-side {
+    font-size: 0.8rem;
+    margin-top: 0.25rem;
+}
+
+.add-goal-player-grid {
+    max-height: 50vh;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.add-goal-player-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 56px;
+    padding: 0.75rem;
+    border: 2px solid var(--medium-gray, #ccc);
+    border-radius: 10px;
+    background: white;
+    position: relative;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+}
+
+.add-goal-player-card:hover,
+.add-goal-player-card:focus-visible {
+    border-color: var(--primary-green);
+    background-color: var(--color-primary-a10);
+}
+
+.add-goal-player-card.selected {
+    border-color: var(--primary-green);
+    background-color: var(--color-primary-a10);
+}
+
+.add-goal-player-check {
+    position: absolute;
+    top: 0.35rem;
+    inset-inline-end: 0.5rem;
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.add-goal-footer {
+    flex-shrink: 0;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.add-goal-btn {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .add-goal-team-card,
+    .add-goal-player-card {
+        transition: none;
+    }
+}
+
+@media (max-width: 1219.98px) {
+    .add-goal-modal .modal-dialog {
+        margin: 0;
+        max-width: 100%;
+        height: 100%;
+    }
+
+    .add-goal-modal-content {
+        border-radius: 0;
+        min-height: 100vh;
+        min-height: 100dvh;
+    }
+
+    .add-goal-modal .modal-header {
+        border-radius: 0;
+    }
+
+    .add-goal-footer {
+        margin-top: auto;
+    }
+
+    .add-goal-footer .add-goal-btn {
+        flex: 1;
+    }
+}

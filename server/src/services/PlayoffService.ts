@@ -61,18 +61,31 @@ export class PlayoffService {
 
         for (const slot of slots) {
             const matchDate = createDate(slot.time.h, slot.time.m);
+            const team1Id = teamsByRank[slot.rank1];
+            const team2Id = teamsByRank[slot.rank2];
+
+            const existing = await Match.findOne({ id: slot.customId });
+            const teamsChanged = !!existing
+                && (existing.team1Id !== team1Id || existing.team2Id !== team2Id);
+
+            const updateBody: Record<string, unknown> = {
+                id: slot.customId,
+                date: matchDate,
+                location: slot.location,
+                phase: slot.phase,
+                team1Id,
+                team2Id,
+            };
+
+            if (teamsChanged) {
+                updateBody.goals = [];
+                updateBody.score1 = 0;
+                updateBody.score2 = 0;
+            }
 
             await Match.findOneAndUpdate(
                 { id: slot.customId },
-                {
-                    id: slot.customId,
-                    date: matchDate,
-                    location: slot.location,
-                    phase: slot.phase,
-                    team1Id: teamsByRank[slot.rank1],
-                    team2Id: teamsByRank[slot.rank2],
-                    // We don't overwrite scores if they exist
-                },
+                updateBody,
                 { upsert: true, new: true }
             );
         }

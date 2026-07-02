@@ -120,6 +120,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location` (default **מתנס**), `--match-days`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
+- **July 2026 — Admin add goal wizard:** Read-only match rows expose `הוסף שער` → `AddGoalWizardModal` (team pick → scorer pick, mobile fullscreen). Scores auto-increment for the scoring team. `PUT /api/matches/:id` now persists `goals` via `Match.findOneAndUpdate` → `save()`. Inline edit/delete unchanged.
 - **June 2026 — Girls profile card:** When no active girls season exists, `TournamentRegistrationCard` hides (404 / Hebrew no-season message) instead of showing a load error; `GET /api/seasons/active?division=girls` uses `getActiveGirlsSeason()` (points season), aligned with registration.
 - **June 2026 — Nav action indicators:** Red dots on Profile/Admin links via `GET /admin/workflows/pending-count`, `ownerPendingJoinCount` on `/auth/me`, and `GET /teams/has-claimable-players` for conditional claim banners.
 - **June 2026 — Captain scope:** Team **owners** (`ownedTeamId`) approve join requests and edit branding via `TeamOwnerSettings`. Squad **captains** (`isCaptain`) edit lineup roles via `OwnerSquadRoles`. Profile + Teams use `TournamentRoleStar` (gold / gold+blue-outline / blue). Roster add/delete and admin panel remain platform-admin only.

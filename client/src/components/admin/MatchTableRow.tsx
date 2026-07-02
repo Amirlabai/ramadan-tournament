@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Match, Team, Goal } from '../../types';
+import AddGoalWizardModal from './AddGoalWizardModal';
+import { applyGoalsAndScores } from '../../utils/matchGoals';
 
 interface MatchTableRowProps {
     match: Match;
@@ -7,6 +9,7 @@ interface MatchTableRowProps {
     teams: Team[];
     onSave: (id: number, data: any) => Promise<void>;
     onDelete: (id: number) => void;
+    onAddGoal?: (matchId: number, memberId: number, teamId: number) => Promise<void>;
     startInEditMode?: boolean;
 }
 
@@ -45,8 +48,9 @@ const jerusalemStringToISO = (s: string): string => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode = false }: MatchTableRowProps) => {
+const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, startInEditMode = false }: MatchTableRowProps) => {
     const [isEditing, setIsEditing] = useState(startInEditMode);
+    const [showAddGoalWizard, setShowAddGoalWizard] = useState(false);
     const [saving, setSaving] = useState(false);
     const [draft, setDraft] = useState({
         team1Id: match.team1Id.toString(),
@@ -93,13 +97,18 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
     const handleSave = async () => {
         setSaving(true);
         try {
+            const team1Id = parseInt(draft.team1Id);
+            const team2Id = parseInt(draft.team2Id);
+            const synced = applyGoalsAndScores(draft, draft.goals, teams);
             const payload = {
-                ...draft,
-                team1Id: parseInt(draft.team1Id),
-                team2Id: parseInt(draft.team2Id),
-                score1: draft.score1 === '' ? undefined : parseInt(draft.score1),
-                score2: draft.score2 === '' ? undefined : parseInt(draft.score2),
+                team1Id,
+                team2Id,
+                score1: parseInt(synced.score1),
+                score2: parseInt(synced.score2),
                 date: jerusalemStringToISO(draft.date),
+                location: draft.location,
+                phase: draft.phase,
+                goals: synced.goals,
             };
             await onSave(match.id, payload);
             setIsEditing(false);
@@ -109,11 +118,18 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
 
     const set = (key: string, val: any) => setDraft(d => ({ ...d, [key]: val }));
 
+    const setTeam = (key: 'team1Id' | 'team2Id', val: string) => {
+        setDraft(d => {
+            const next = { ...d, [key]: val };
+            return applyGoalsAndScores(next, next.goals, teams);
+        });
+    };
+
     const addGoal = (memberId: number) => {
-        setDraft(d => ({ ...d, goals: [...d.goals, { memberId, minute: 0 }] }));
+        setDraft(d => applyGoalsAndScores(d, [...d.goals, { memberId, minute: 0 }], teams));
     };
     const removeGoal = (idx: number) => {
-        setDraft(d => ({ ...d, goals: d.goals.filter((_, i) => i !== idx) }));
+        setDraft(d => applyGoalsAndScores(d, d.goals.filter((_, i) => i !== idx), teams));
     };
 
     // Players of the two selected teams
@@ -143,30 +159,51 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
             : '—';
 
         return (
-            <tr className={`match-table-row ${rowClass}`}>
-                <td data-label="תאריך ושעה" className="text-nowrap">{formatDate(match.date)}</td>
-                <td data-label="מיקום">{match.location}</td>
-                <td data-label="שלב">
-                    <div className="d-flex flex-column gap-1">
-                        <span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span>
-                        {match.phase === 'knockout' && (
-                            <span className="badge bg-warning text-dark" style={{ fontSize: '0.65rem' }}>פלייאוף</span>
+            <>
+                <tr className={`match-table-row ${rowClass}`}>
+                    <td data-label="תאריך ושעה" className="text-nowrap">{formatDate(match.date)}</td>
+                    <td data-label="מיקום">{match.location}</td>
+                    <td data-label="שלב">
+                        <div className="d-flex flex-column gap-1">
+                            <span className={`badge phase-badge phase-${match.phase}`}>{phaseLabel(match.phase)}</span>
+                            {match.phase === 'knockout' && (
+                                <span className="badge bg-warning text-dark" style={{ fontSize: '0.65rem' }}>פלייאוף</span>
+                            )}
+                        </div>
+                    </td>
+                    <td data-label="קבוצה 1" className="team-cell">{getTeamName(match.team1Id)}</td>
+                    <td data-label="תוצאה" className="score-cell text-center">
+                        <span className="score-display">
+                            {match.score1 ?? '—'} : {match.score2 ?? '—'}
+                        </span>
+                    </td>
+                    <td data-label="קבוצה 2" className="team-cell">{getTeamName(match.team2Id)}</td>
+                    <td data-label="כובשים" className="goals-cell">{goalSummary}</td>
+                    <td data-label="פעולות" className="actions-cell text-nowrap">
+                        {onAddGoal && match.id !== -1 && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-theme-green ms-1 match-action-add-goal"
+                                onClick={() => setShowAddGoalWizard(true)}
+                            >
+                                הוסף שער
+                            </button>
                         )}
-                    </div>
-                </td>
-                <td data-label="קבוצה 1" className="team-cell">{getTeamName(match.team1Id)}</td>
-                <td data-label="תוצאה" className="score-cell text-center">
-                    <span className="score-display">
-                        {match.score1 ?? '—'} : {match.score2 ?? '—'}
-                    </span>
-                </td>
-                <td data-label="קבוצה 2" className="team-cell">{getTeamName(match.team2Id)}</td>
-                <td data-label="כובשים" className="goals-cell">{goalSummary}</td>
-                <td data-label="פעולות" className="actions-cell text-nowrap">
-                    <button className="btn btn-sm btn-warning ms-1" onClick={() => setIsEditing(true)}>ערוך</button>
-                    <button className="btn btn-sm btn-danger ms-1" onClick={() => onDelete(match.id)}>מחק</button>
-                </td>
-            </tr>
+                        <button type="button" className="btn btn-sm btn-warning ms-1" onClick={() => setIsEditing(true)}>ערוך</button>
+                        <button type="button" className="btn btn-sm btn-danger ms-1" onClick={() => onDelete(match.id)}>מחק</button>
+                    </td>
+                </tr>
+                {showAddGoalWizard && onAddGoal && (
+                    <AddGoalWizardModal
+                        match={match}
+                        teams={teams}
+                        onClose={() => setShowAddGoalWizard(false)}
+                        onSubmit={async (memberId, teamId) => {
+                            await onAddGoal(match.id, memberId, teamId);
+                        }}
+                    />
+                )}
+            </>
         );
     }
 
@@ -201,23 +238,21 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, startInEditMode 
                 </td>
                 {/* Team 1 */}
                 <td data-label="קבוצה 1" className="team-cell">
-                    <select className="form-select form-select-sm" value={draft.team1Id} onChange={e => set('team1Id', e.target.value)}>
+                    <select className="form-select form-select-sm" value={draft.team1Id} onChange={e => setTeam('team1Id', e.target.value)}>
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </td>
-                {/* Score */}
+                {/* Score — derived from scorers */}
                 <td data-label="תוצאה" className="score-cell">
                     <div className="d-flex align-items-center gap-1 justify-content-center">
-                        <input type="number" min="0" className="form-control form-control-sm score-input text-center"
-                            value={draft.score1} onChange={e => set('score1', e.target.value)} />
-                        <span>:</span>
-                        <input type="number" min="0" className="form-control form-control-sm score-input text-center"
-                            value={draft.score2} onChange={e => set('score2', e.target.value)} />
+                        <span className="score-display" title="מחושב מכובשים">
+                            {draft.score1 || '0'} : {draft.score2 || '0'}
+                        </span>
                     </div>
                 </td>
                 {/* Team 2 */}
                 <td data-label="קבוצה 2" className="team-cell">
-                    <select className="form-select form-select-sm" value={draft.team2Id} onChange={e => set('team2Id', e.target.value)}>
+                    <select className="form-select form-select-sm" value={draft.team2Id} onChange={e => setTeam('team2Id', e.target.value)}>
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </td>
