@@ -21,8 +21,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate Prisma schema
+        env:
+          DATABASE_URL: postgresql://ci@localhost:5432/ci
+        run: npm run db:validate --workspace=server
+
       - name: Run unit and integration tests
         run: npm run test
-
-      - name: Validate Prisma schema
-        run: npm exec --workspace=server prisma validate

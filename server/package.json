@@ -12,6 +12,7 @@
         "postinstall": "prisma generate",
         "db:migrate": "prisma migrate deploy",
         "db:push": "prisma db push",
+        "db:validate": "prisma validate",
         "db:seed": "tsx prisma/seed.ts",
         "db:fresh": "tsx prisma/seed-empty.ts",
         "db:studio": "prisma studio",
