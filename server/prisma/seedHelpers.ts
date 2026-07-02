@@ -34,7 +34,7 @@ export async function createBoysSeason(
     data: {
       yearMonth: opts?.yearMonth ?? process.env.SEASON_YEAR_MONTH ?? '2026-06',
       division: Division.boys,
-      displayName: opts?.displayName ?? process.env.SEASON_DISPLAY_NAME ?? 'טורניר קיץ 2026',
+      displayName: opts?.displayName ?? process.env.SEASON_DISPLAY_NAME ?? 'מונדיאל קיץ 2026',
       scoringMode: ScoringMode.football,
       isActive: true,
     },

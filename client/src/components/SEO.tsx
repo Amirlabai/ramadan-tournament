@@ -48,9 +48,9 @@ const SEO = ({
   const canonical = url ?? canonicalUrl(resolvedPathname)
   const ogImage = image ?? `${siteUrl}/og-image.png`
   const fullTitle =
-    resolvedTitle && !resolvedTitle.includes('טורניר')
-      ? `${resolvedTitle} | טורניר קיץ 2026`
-      : resolvedTitle || 'טורניר קיץ 2026'
+    resolvedTitle && !resolvedTitle.includes('טורניר') && !resolvedTitle.includes('מונדיאל')
+      ? `${resolvedTitle} | מונדיאל קיץ 2026`
+      : resolvedTitle || 'מונדיאל קיץ 2026'
 
   const jsonLdBlocks: object[] = [
     organizationJsonLd(),

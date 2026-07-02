@@ -68,7 +68,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'og-image.png'],
       manifest: {
-        name: 'טורניר קיץ 2026',
+        name: 'מונדיאל קיץ 2026',
         short_name: 'טורניר כפר כמא',
         description: 'טורניר כפר כמא — תוצאות, טבלאות וסטטיסטיקות בזמן אמת',
         lang: 'he',

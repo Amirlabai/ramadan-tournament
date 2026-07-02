@@ -15,7 +15,7 @@ const Accessibility = () => {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
-    const subject = encodeURIComponent('דיווח על בעיית נגישות - טורניר קיץ 2026')
+    const subject = encodeURIComponent('דיווח על בעיית נגישות - מונדיאל קיץ 2026')
     const body = encodeURIComponent(`שם: ${name}\nדוא"ל: ${email}\n\n${message}`)
     window.location.href = `mailto:${COORDINATOR_EMAIL}?subject=${subject}&body=${body}`
     setSubmitted(true)

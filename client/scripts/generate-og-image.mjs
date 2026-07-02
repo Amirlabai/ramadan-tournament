@@ -22,7 +22,7 @@ const ogSvg = `
   </defs>
   <rect width="100%" height="100%" fill="url(#bg)"/>
   <rect x="40" y="40" width="${WIDTH - 80}" height="${HEIGHT - 80}" rx="24" fill="none" stroke="${GOLD}" stroke-width="6"/>
-  <text x="50%" y="42%" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="bold">טורניר קיץ 2026</text>
+  <text x="50%" y="42%" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="bold">מונדיאל קיץ 2026</text>
   <text x="50%" y="58%" text-anchor="middle" fill="${GOLD}" font-family="Arial, sans-serif" font-size="40">כפר כמא — מרכז צעירים</text>
 </svg>`
 

@@ -131,7 +131,7 @@ const Login = () => {
         <div className="login-page">
             <SEO
                 title={isVerifying ? 'אימות אימייל' : (isLoginView ? 'התחברות' : 'הרשמה')}
-                description="התחברות ורישום למערכת טורניר קיץ 2026 כפר כמא."
+                description="התחברות ורישום למערכת מונדיאל קיץ 2026 כפר כמא."
                 pathname="/login"
                 noindex
             />

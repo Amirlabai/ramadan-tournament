@@ -20,7 +20,7 @@ Uses `env.mock` and `data/*.json`. Admin: `admin` / `admin123`.
 
 Optional fresh-season overrides:
 - `SEASON_YEAR_MONTH` (default `2026-06`)
-- `SEASON_DISPLAY_NAME` (default `טורניר קיץ 2026`)
+- `SEASON_DISPLAY_NAME` (default `מונדיאל קיץ 2026`)
 
 ### 2. Install and migrate
 

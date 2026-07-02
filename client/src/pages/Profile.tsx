@@ -382,7 +382,7 @@ const Profile = () => {
         <div className="profile-page">
             <SEO
                 title="פרופיל אישי"
-                description="עריכת פרופיל, תמונה ושיוך שחקן — טורניר קיץ 2026."
+                description="עריכת פרופיל, תמונה ושיוך שחקן — מונדיאל קיץ 2026."
                 pathname="/profile"
                 noindex
             />

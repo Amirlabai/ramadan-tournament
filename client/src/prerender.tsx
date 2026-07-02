@@ -33,7 +33,10 @@ type HeadElement = { type: string; props: Record<string, string> }
 
 function buildSeoHead(pathname: string, options?: { noindex?: boolean }) {
   const meta = getRouteSeo(pathname)
-  const title = `${meta.title} | טורניר קיץ 2026`
+  const title =
+    meta.title.includes('טורניר') || meta.title.includes('מונדיאל')
+      ? meta.title
+      : `${meta.title} | מונדיאל קיץ 2026`
   const canonical = canonicalUrl(pathname)
   const siteUrl = getSiteUrl()
   const elements = new Set<HeadElement>([

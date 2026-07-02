@@ -18,7 +18,7 @@ export const routeSeo: Record<string, RouteSeo> = {
   '/': {
     title: 'דף הבית',
     description:
-      'טורניר קיץ 2026 כפר כמא — תוצאות בזמן אמת, טבלאות, סטטיסטיקות וחדשות.',
+      'מונדיאל קיץ 2026 כפר כמא — תוצאות בזמן אמת, טבלאות, סטטיסטיקות וחדשות.',
     keywords: `${BASE_KEYWORDS}, תוצאות, לוח משחקים`,
   },
   '/teams': {
@@ -28,7 +28,7 @@ export const routeSeo: Record<string, RouteSeo> = {
   },
   '/schedule': {
     title: 'משחקים',
-    description: 'לוח משחקים, תוצאות ומיקומים — טורניר קיץ 2026.',
+    description: 'לוח משחקים, תוצאות ומיקומים — מונדיאל קיץ 2026.',
     keywords: `${BASE_KEYWORDS}, לוח משחקים, תוצאות`,
   },
   '/stats': {
@@ -38,7 +38,7 @@ export const routeSeo: Record<string, RouteSeo> = {
   },
   '/mvps': {
     title: 'שחקני העונה',
-    description: 'שחקני העונה (MVPs) — טורניר קיץ 2026.',
+    description: 'שחקני העונה (MVPs) — מונדיאל קיץ 2026.',
     keywords: `${BASE_KEYWORDS}, MVP`,
   },
   '/archive': {
@@ -88,7 +88,7 @@ export const routeSeo: Record<string, RouteSeo> = {
   },
   '/about': {
     title: 'אודות',
-    description: 'אודות טורניר קיץ 2026 כפר כמא — מרכז צעירים.',
+    description: 'אודות מונדיאל קיץ 2026 כפר כמא — מרכז צעירים.',
     keywords: `${BASE_KEYWORDS}, אודות`,
   },
   '/accessibility': {
@@ -99,7 +99,7 @@ export const routeSeo: Record<string, RouteSeo> = {
   },
   '/privacy': {
     title: 'מדיניות פרטיות',
-    description: 'מדיניות פרטיות ועוגיות — טורניר קיץ 2026.',
+    description: 'מדיניות פרטיות ועוגיות — מונדיאל קיץ 2026.',
     keywords: `${BASE_KEYWORDS}, פרטיות, privacy`,
   },
   '/terms': {
@@ -113,7 +113,7 @@ export function getRouteSeo(pathname: string): RouteSeo {
   const normalized = pathname.replace(/\/$/, '') || '/'
   return (
     routeSeo[normalized] ?? {
-      title: 'טורניר קיץ 2026',
+      title: 'מונדיאל קיץ 2026',
       description: 'טורניר כפר כמא — תוצאות, טבלאות וסטטיסטיקות.',
       keywords: BASE_KEYWORDS,
     }
@@ -132,7 +132,7 @@ export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'טורניר קיץ 2026 — כפר כמא',
+    name: 'מונדיאל קיץ 2026 — כפר כמא',
     url,
     email: 'amirlabay+WC@gmail.com',
   }
@@ -143,7 +143,7 @@ export function webSiteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'טורניר קיץ 2026',
+    name: 'מונדיאל קיץ 2026',
     url,
     inLanguage: 'he',
   }
@@ -154,7 +154,7 @@ export function webApplicationJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebApplication',
-    name: 'טורניר קיץ 2026',
+    name: 'מונדיאל קיץ 2026',
     url,
     applicationCategory: 'SportsApplication',
     operatingSystem: 'Any',

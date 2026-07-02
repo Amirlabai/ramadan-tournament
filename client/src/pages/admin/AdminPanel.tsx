@@ -395,7 +395,7 @@ const AdminPanel = () => {
         <div className="admin-panel">
             <SEO
                 title="פאנל ניהול"
-                description="ניהול משחקים, חדשות, שחקנים ותגובות — טורניר קיץ 2026."
+                description="ניהול משחקים, חדשות, שחקנים ותגובות — מונדיאל קיץ 2026."
                 pathname="/admin"
                 noindex
             />

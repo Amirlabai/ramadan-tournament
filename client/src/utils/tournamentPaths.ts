@@ -73,5 +73,5 @@ export function siteHomePath(): string {
 /** Site title for legal chrome / footer when not inside a tournament route. */
 export function siteBrandLabel(): string {
   if (worldCupOnly) return tournamentPaths.worldcup.label;
-  return 'טורניר קיץ 2026';
+  return 'מונדיאל קיץ 2026';
 }
