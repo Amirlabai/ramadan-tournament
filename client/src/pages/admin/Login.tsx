@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import SEO from '../../components/SEO';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
 import { authAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
@@ -263,6 +263,18 @@ const Login = () => {
                                 isLoginView ? 'התחבר' : 'הרשם'
                             )}
                         </button>
+
+                        <p className="small text-muted text-center mb-3">
+                            בהרשמה או התחברות את/ה מסכים/ה ל
+                            <Link to="/terms" className="mx-1">
+                                תנאי שימוש
+                            </Link>
+                            ול
+                            <Link to="/privacy" className="ms-1">
+                                מדיניות פרטיות
+                            </Link>
+                            .
+                        </p>
 
                         <div className="text-center mt-3">
                             <button

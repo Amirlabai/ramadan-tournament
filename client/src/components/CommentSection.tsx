@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { commentsAPI } from '../api/client';
 import { trackEvent } from '../utils/analytics';
 import './CommentSection.css';
@@ -164,6 +165,10 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                         )}
                     </div>
                 )}
+                <p className="small text-muted mb-2">
+                    תגובות ציבוריות — ראו{' '}
+                    <Link to="/terms#user-content">תנאי שימוש</Link>.
+                </p>
                 <button type="submit" disabled={submitting || rateLimitedUntil !== null} className="btn btn-primary">
                     {submitting ? 'שולח...' : rateLimitedUntil ? `נסה שוב בעוד ${countdown}s` : 'שלח תגובה'}
                 </button>

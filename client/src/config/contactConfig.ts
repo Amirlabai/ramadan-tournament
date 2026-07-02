@@ -1,3 +1,6 @@
+export const PRIVACY_CONTACT_EMAIL = 'amirlabay+WC@gmail.com'
+export const SITE_OPERATOR_NAME = 'Amir Labai'
+
 export const DONATE_PAGE_URL = '/donate.html'
 export const PAYBOX_DONATE_URL = 'https://links.payboxapp.com/YQXzMoMq93b'
 export const BIT_DONATE_URL =

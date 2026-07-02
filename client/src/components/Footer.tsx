@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { BitDonateLink } from './BitDonateLink';
+import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { canAccessAdminPanel } from '../utils/tournamentUser';
@@ -113,8 +114,8 @@ const Footer = () => {
                         <h5 className="footer-heading">יצירת קשר</h5>
                         <ul className="footer-list">
                             <li>
-                                <a href="mailto:amirlabay+WC@gmail.com" className="footer-link">
-                                    amirlabay+WC@gmail.com
+                                <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`} className="footer-link">
+                                    {PRIVACY_CONTACT_EMAIL}
                                 </a>
                             </li>
                             <li>
@@ -125,7 +126,7 @@ const Footer = () => {
                 </div>
 
                 <div className="footer-bottom">
-                    <p className="mb-0">Amir Labai</p>
+                    <p className="mb-0">{SITE_OPERATOR_NAME}</p>
                 </div>
             </div>
         </footer>

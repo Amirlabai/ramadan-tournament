@@ -29,8 +29,9 @@ const CookieNotice = () => {
         </h2>
         <p className="cookie-notice-text">
           האתר משתמש בעוגיות חיוניות לתפעול, ובעוגיות אנליטיקה (Vercel Analytics ורישום אירועי שימוש בשרת) רק
-          לאחר אישורכם. לפרטים ראו{' '}
-          <Link to="/privacy#cookies">מדיניות הפרטיות</Link>.
+          לאחר אישורכם. איסוף פרטי זהות לרישום לטורניר אינו תלוי בבאנר זה. לפרטים ראו{' '}
+          <Link to="/privacy#cookies">מדיניות הפרטיות</Link> ו{' '}
+          <Link to="/privacy#identity">פרטי זהות</Link>.
         </p>
         <div className="cookie-notice-actions">
           <button

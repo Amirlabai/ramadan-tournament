@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BitDonateLink } from './BitDonateLink'
+import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig'
 import SEO from './SEO'
 import type { BreadcrumbItem } from '../config/seoConfig'
 import { siteBrandLabel, siteHomePath } from '../utils/tournamentPaths'
@@ -61,8 +62,8 @@ const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
             </Link>
           </nav>
           <p className="mt-2 mb-0">
-            Amir Labai ·{' '}
-            <a href="mailto:amirlabay+WC@gmail.com">amirlabay+WC@gmail.com</a>
+            {SITE_OPERATOR_NAME} ·{' '}
+            <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>
             {' · '}
             <BitDonateLink />
           </p>

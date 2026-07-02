@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { playerAPI } from '../api/client';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../utils/birthYearInput';
@@ -126,7 +126,11 @@ const PlayerZone = () => {
             {!player ? (
                 <div className="card shadow-sm mx-auto" style={{ maxWidth: '400px' }}>
                     <div className="card-body p-4">
-                        <h4 className="card-title text-center mb-4">הזדהות</h4>
+                        <h4 className="card-title text-center mb-2">הזדהות</h4>
+                        <p className="small text-muted text-center mb-4">
+                            כניסה באמצעות תעודת זהות ושנת לידה — ראה{' '}
+                            <Link to="/privacy#identity">מדיניות הפרטיות</Link>.
+                        </p>
                         <form onSubmit={handleLogin}>
                             <div className="mb-3">
                                 <label htmlFor="personalId" className="form-label">תעודת זהות</label>

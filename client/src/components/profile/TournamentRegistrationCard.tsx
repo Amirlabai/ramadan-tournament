@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { usersAPI, type TournamentSlug } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationRequest';
@@ -259,6 +260,11 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                               : reg.status === 'identity_assigned'
                                 ? 'המנהל רשם את פרטיך. הזן בדיוק את אותם פרטים כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
                                 : 'הזן תעודת זהות ושנת לידה. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
+                    </p>
+                    <p className="small text-muted mb-2">
+                        שליחת הפרטים מהווה הסכמה לעיבוד לפי{' '}
+                        <Link to="/privacy#identity">מדיניות הפרטיות</Link>. המידע עשוי להישמר
+                        לטורנירים עתידיים; ניתן לבקש מחיקה בדוא&quot;ל.
                     </p>
                     <div className="row g-2">
                         <div className="col-sm-7">

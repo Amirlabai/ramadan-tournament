@@ -1,3 +1,5 @@
+import { PRIVACY_CONTACT_EMAIL } from './contactConfig'
+
 const DEFAULT_SITE_URL = 'https://ramadan-tournament-client.vercel.app'
 
 export function getSiteUrl(): string {
@@ -99,12 +101,14 @@ export const routeSeo: Record<string, RouteSeo> = {
   },
   '/privacy': {
     title: 'מדיניות פרטיות',
-    description: 'מדיניות פרטיות ועוגיות — מונדיאל קיץ 2026.',
+    description:
+      'מדיניות פרטיות, עוגיות ופרטי זהות לרישום לטורניר — מונדיאל קיץ 2026.',
     keywords: `${BASE_KEYWORDS}, פרטיות, privacy`,
   },
   '/terms': {
     title: 'תנאי שימוש',
-    description: 'תנאי שימוש באתר הטורניר.',
+    description:
+      'תנאי שימוש באתר הטורניר — רישום, תוכן משתמש והצבעות.',
     keywords: `${BASE_KEYWORDS}, תנאים`,
   },
 }
@@ -134,7 +138,7 @@ export function organizationJsonLd() {
     '@type': 'Organization',
     name: 'מונדיאל קיץ 2026 — כפר כמא',
     url,
-    email: 'amirlabay+WC@gmail.com',
+    email: PRIVACY_CONTACT_EMAIL,
   }
 }
 

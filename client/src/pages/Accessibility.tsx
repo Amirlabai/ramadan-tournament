@@ -1,11 +1,10 @@
 import { useState, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { ContactDonateNote } from '../components/BitDonateLink'
+import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig'
 import { siteHomePath } from '../utils/tournamentPaths'
 import './Accessibility.css'
-
-const COORDINATOR_EMAIL = 'amirlabay+WC@gmail.com'
-const COORDINATOR_NAME = 'Amir Labai'
 
 const Accessibility = () => {
   const [submitted, setSubmitted] = useState(false)
@@ -17,7 +16,7 @@ const Accessibility = () => {
     e.preventDefault()
     const subject = encodeURIComponent('דיווח על בעיית נגישות - מונדיאל קיץ 2026')
     const body = encodeURIComponent(`שם: ${name}\nדוא"ל: ${email}\n\n${message}`)
-    window.location.href = `mailto:${COORDINATOR_EMAIL}?subject=${subject}&body=${body}`
+    window.location.href = `mailto:${PRIVACY_CONTACT_EMAIL}?subject=${subject}&body=${body}`
     setSubmitted(true)
   }
 
@@ -37,7 +36,7 @@ const Accessibility = () => {
           המבוסס על הנחיות WCAG 2.1 ברמה AA.
         </p>
         <p>
-          <strong>תאריך ביקורת נגישות אחרונה:</strong> מאי 2026
+          <strong>תאריך ביקורת נגישות אחרונה:</strong> יולי 2026
         </p>
       </section>
 
@@ -79,11 +78,14 @@ const Accessibility = () => {
         <h3>רכז נגישות</h3>
         <ul className="list-unstyled">
           <li>
-            <strong>שם:</strong> {COORDINATOR_NAME}
+            <strong>שם:</strong> {SITE_OPERATOR_NAME}
           </li>
           <li>
             <strong>דוא&quot;ל:</strong>{' '}
-            <a href={`mailto:${COORDINATOR_EMAIL}`}>{COORDINATOR_EMAIL}</a>
+            <a href={`mailto:${PRIVACY_CONTACT_EMAIL}`}>{PRIVACY_CONTACT_EMAIL}</a>
+          </li>
+          <li>
+            <strong>טלפון:</strong> פנייה בדוא&quot;ל בלבד (ראו כתובת למעלה)
           </li>
         </ul>
         <ContactDonateNote />
@@ -148,6 +150,10 @@ const Accessibility = () => {
                 aria-required="true"
               />
             </div>
+            <p className="small text-muted mb-3">
+              השם וכתובת הדוא&quot;ל בטופס זה נשלחים אלינו בדוא&quot;ל לצורך טיפול בפנייה.
+              ראו <Link to="/privacy#contact">מדיניות הפרטיות</Link>.
+            </p>
             <button type="submit" className="btn btn-theme-green">
               שלח דיווח
             </button>

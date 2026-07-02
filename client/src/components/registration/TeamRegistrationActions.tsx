@@ -134,7 +134,8 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                     <Link to="/profile" className="ms-1">
                         פרופיל
                     </Link>
-                    .
+                    . פרטים נשמרים לפי{' '}
+                    <Link to="/privacy#identity">מדיניות הפרטיות</Link>.
                 </p>
             )}
 
@@ -150,7 +151,8 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
-                            לפני אישור המנהל.
+                            לפני אישור המנהל. פרטים נשמרים לפי{' '}
+                            <Link to="/privacy#identity">מדיניות הפרטיות</Link>.
                         </p>
                     )}
                     <button
@@ -184,7 +186,8 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                             <Link to="/profile" className="ms-1">
                                 פרופיל
                             </Link>
-                            לפני אישור המנהל.
+                            לפני אישור המנהל. פרטים נשמרים לפי{' '}
+                            <Link to="/privacy#identity">מדיניות הפרטיות</Link>.
                         </p>
                     )}
                     <button
