@@ -2,9 +2,11 @@ import { Division, MatchPhase, TeamStatus } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { CacheService } from '../services/CacheService';
 import { SeasonService } from '../services/SeasonService';
-import { addDaysToDateString, jerusalemDateTime } from '../utils/jerusalemDate';
+import { addDaysToDateString, getNthAllowedMatchDate, jerusalemDateTime } from '../utils/jerusalemDate';
 import { singleRoundRobinPairs } from '../utils/roundRobin';
 import { assertProductionConfirmed } from '../../prisma/seedHelpers';
+
+const DEFAULT_LOCATION = 'מתנס';
 
 export interface GenerateFixturesOptions {
   startDate: string;
@@ -12,6 +14,7 @@ export interface GenerateFixturesOptions {
   matchesPerDay?: number;
   times?: string[];
   location?: string;
+  matchDays?: number[];
   replace?: boolean;
   dryRun?: boolean;
 }
@@ -37,16 +40,43 @@ Options:
   --division boys|girls     Default: boys
   --matches-per-day N       Default: 2
   --times HH:MM,...         Jerusalem wall-clock slots (default: 18:00,20:00)
-  --location TEXT           Default: מרכז צעירים
+  --location TEXT           Default: מתנס
+  --match-days fri,sat      Only schedule on these weekdays (sun–sat); omit for consecutive days
   --replace                 Delete existing group matches first
   --dry-run                 Print pairings without writing
   --yes                     Required when DATABASE_URL is not localhost
   --help                    Show this message
 
 Examples:
-  npm run fixtures:generate -- --start-date 2026-07-01 --dry-run
+  npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
   npm run fixtures:generate -- --start-date 2026-07-01 --replace --yes
 `);
+}
+
+const WEEKDAY_ALIASES: Record<string, number> = {
+  sun: 0,
+  mon: 1,
+  tue: 2,
+  wed: 3,
+  thu: 4,
+  fri: 5,
+  sat: 6,
+};
+
+function parseMatchDays(raw: string | undefined): number[] | undefined {
+  if (!raw) return undefined;
+  const tokens = raw.split(',').map((t) => t.trim().toLowerCase()).filter(Boolean);
+  if (!tokens.length) {
+    throw new Error('--match-days must include at least one weekday (sun–sat)');
+  }
+  const days = tokens.map((token) => {
+    const day = WEEKDAY_ALIASES[token];
+    if (day === undefined) {
+      throw new Error(`Unknown weekday in --match-days: ${token}`);
+    }
+    return day;
+  });
+  return [...new Set(days)];
 }
 
 function parseArgs(argv: string[]): GenerateFixturesOptions {
@@ -75,7 +105,8 @@ function parseArgs(argv: string[]): GenerateFixturesOptions {
     division,
     matchesPerDay,
     times,
-    location: (get('--location') ?? 'מרכז צעירים').slice(0, 120),
+    location: (get('--location') ?? DEFAULT_LOCATION).slice(0, 120),
+    matchDays: parseMatchDays(get('--match-days')),
     replace: argv.includes('--replace'),
     dryRun: argv.includes('--dry-run'),
   };
@@ -109,7 +140,8 @@ export async function generateGroupFixtures(opts: GenerateFixturesOptions): Prom
   const pairs = singleRoundRobinPairs(teams.map((t) => t.id));
   const matchesPerDay = opts.matchesPerDay ?? 2;
   const times = opts.times ?? ['18:00', '20:00'];
-  const location = opts.location ?? 'מרכז צעירים';
+  const location = opts.location ?? DEFAULT_LOCATION;
+  const matchDays = opts.matchDays;
 
   const maxIdRow = await prisma.match.aggregate({
     _max: { id: true },
@@ -118,7 +150,9 @@ export async function generateGroupFixtures(opts: GenerateFixturesOptions): Prom
 
   const fixtures: GeneratedFixture[] = pairs.map(([team1Id, team2Id], index) => {
     const dayOffset = Math.floor(index / matchesPerDay);
-    const dateStr = addDaysToDateString(opts.startDate, dayOffset);
+    const dateStr = matchDays?.length
+      ? getNthAllowedMatchDate(opts.startDate, dayOffset, matchDays)
+      : addDaysToDateString(opts.startDate, dayOffset);
     const timeStr = times[index % times.length];
     const date = jerusalemDateTime(dateStr, timeStr);
     const id = nextMatchId + index;

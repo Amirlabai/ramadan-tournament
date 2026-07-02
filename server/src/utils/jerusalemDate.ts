@@ -39,3 +39,40 @@ export function addDaysToDateString(dateStr: string, days: number): string {
   const dd = String(dt.getUTCDate()).padStart(2, '0');
   return `${yy}-${mm}-${dd}`;
 }
+
+/** Weekday 0=Sun … 6=Sat for YYYY-MM-DD (UTC calendar math). */
+export function getWeekdayFromDateString(dateStr: string): number {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay();
+}
+
+/**
+ * Return the date string for the dayIndex-th match day on or after startDate,
+ * counting only weekdays in allowedWeekdays (0=Sun … 6=Sat).
+ */
+export function getNthAllowedMatchDate(
+  startDate: string,
+  dayIndex: number,
+  allowedWeekdays: number[]
+): string {
+  if (dayIndex < 0) {
+    throw new Error('dayIndex must be >= 0');
+  }
+  const allowed = [...new Set(allowedWeekdays)].sort((a, b) => a - b);
+  if (!allowed.length || allowed.some((d) => d < 0 || d > 6)) {
+    throw new Error('allowedWeekdays must include at least one value 0–6');
+  }
+
+  let cursor = startDate;
+  let count = 0;
+
+  while (true) {
+    if (allowed.includes(getWeekdayFromDateString(cursor))) {
+      if (count === dayIndex) {
+        return cursor;
+      }
+      count++;
+    }
+    cursor = addDaysToDateString(cursor, 1);
+  }
+}

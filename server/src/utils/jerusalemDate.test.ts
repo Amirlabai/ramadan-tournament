@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { addDaysToDateString, jerusalemDateTime } from './jerusalemDate';
+import {
+  addDaysToDateString,
+  getNthAllowedMatchDate,
+  getWeekdayFromDateString,
+  jerusalemDateTime,
+} from './jerusalemDate';
 
 describe('addDaysToDateString', () => {
   it('adds calendar days', () => {
@@ -9,6 +14,28 @@ describe('addDaysToDateString', () => {
 
   it('subtracts days', () => {
     expect(addDaysToDateString('2026-03-01', -1)).toBe('2026-02-28');
+  });
+});
+
+describe('getWeekdayFromDateString', () => {
+  it('returns UTC weekday for calendar date', () => {
+    expect(getWeekdayFromDateString('2026-07-10')).toBe(5); // Fri
+    expect(getWeekdayFromDateString('2026-07-11')).toBe(6); // Sat
+    expect(getWeekdayFromDateString('2026-07-12')).toBe(0); // Sun
+  });
+});
+
+describe('getNthAllowedMatchDate', () => {
+  const friSat = [5, 6];
+
+  it('returns Fri/Sat sequence from a Friday start', () => {
+    expect(getNthAllowedMatchDate('2026-07-10', 0, friSat)).toBe('2026-07-10');
+    expect(getNthAllowedMatchDate('2026-07-10', 1, friSat)).toBe('2026-07-11');
+    expect(getNthAllowedMatchDate('2026-07-10', 2, friSat)).toBe('2026-07-17');
+  });
+
+  it('skips to next Friday when start is Thursday', () => {
+    expect(getNthAllowedMatchDate('2026-07-09', 0, friSat)).toBe('2026-07-10');
   });
 });
 

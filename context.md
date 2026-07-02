@@ -102,8 +102,14 @@ Operational workflow when resetting for a new season:
 1. **`npm run db:fresh`** (from `server/`) — wipes all data; creates active boys season + env admin only. Remote Postgres requires `--yes`.
 2. **Promote admins** — Admin → **משתמשים**: search by email/name, grant `admin`. Changed user must **re-login** for JWT role to update.
 3. **Teams** — admin or user verifies identity (personal ID + birth year) on Profile → registration workflow (join / team creation + admin approval).
-4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams; placeholder Jerusalem times (default 2 matches/day at 18:00, 20:00). Use `--dry-run` to preview, `--replace` to regenerate.
-5. **Fix schedule** — Admin → ניהול משחקים: edit date/time per match.
+4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams (writes to Postgres `matches` via Prisma). Example Jul 2026 group stage (Fri/Sat, 8 games/day 16:00–19:00, venue **מתנס**):
+
+   ```powershell
+   npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
+   ```
+
+   Use `--replace` to regenerate; `--yes` when `DATABASE_URL` is not localhost. Do **not** use `db:seed` for production schedules.
+5. **Fix schedule** — Admin → ניהול משחקים: edit date/time per match if needed.
 
 Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/src/scripts/generate-group-fixtures.ts`](server/src/scripts/generate-group-fixtures.ts). Demo data still available via `npm run db:seed` (loads `data/*.json`). Full CLI reference: [`server/README.md`](server/README.md#database-scripts).
 
@@ -111,7 +117,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 - `GET /api/admin/users?q=` — search users (min 2 chars)
 - `PATCH /api/admin/users/:id/role` — `{ "role": "admin" | "user" }`
 
-**Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location`, `--replace`, `--dry-run`, `--yes`, `--help`.
+**Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location` (default **מתנס**), `--match-days`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
 - **June 2026 — Girls profile card:** When no active girls season exists, `TournamentRegistrationCard` hides (404 / Hebrew no-season message) instead of showing a load error; `GET /api/seasons/active?division=girls` uses `getActiveGirlsSeason()` (points season), aligned with registration.

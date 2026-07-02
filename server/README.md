@@ -68,8 +68,8 @@ After teams exist and are **active**, generate group-stage fixtures (single roun
 
 ```powershell
 npm run fixtures:generate -- --help
-npm run fixtures:generate -- --start-date 2026-07-01 --dry-run
-npm run fixtures:generate -- --start-date 2026-07-01
+npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
+npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --replace
 npm run fixtures:generate -- --start-date 2026-07-01 --replace --yes
 ```
 
@@ -79,7 +79,8 @@ npm run fixtures:generate -- --start-date 2026-07-01 --replace --yes
 | `--division` | `boys` | `boys` or `girls` |
 | `--matches-per-day` | `2` | Matches per calendar day before advancing |
 | `--times` | `18:00,20:00` | Jerusalem wall-clock times (comma-separated) |
-| `--location` | `מרכז צעירים` | Venue on all generated matches |
+| `--location` | `מתנס` | Venue on all generated matches |
+| `--match-days` | *(off)* | Comma-separated weekdays only (`fri,sat`, `sun`–`sat`); omit for consecutive days |
 | `--replace` | off | Delete existing group matches (+ goals) first |
 | `--dry-run` | off | Print pairings only |
 | `--yes` | — | Required when DB host is not localhost |
