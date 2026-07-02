@@ -3,7 +3,7 @@ import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { SeasonArchive } from '../models/SeasonArchive';
 import { StatsService } from '../services/StatsService';
-import { authenticate, authorize } from '../middleware/auth';
+import { requirePlatformAdmin } from '../middleware/auth';
 
 const router = express.Router();
 
@@ -62,7 +62,7 @@ router.get('/:yearMonth', async (req, res) => {
  * @desc    Freeze current data into a new archive
  * @access  Admin only
  */
-router.post('/create', authenticate, authorize(['Admin', 'admin']), async (req, res) => {
+router.post('/create', requirePlatformAdmin, async (req, res) => {
   try {
     const { yearMonth, displayName, winnerId, mvpId, summary, division: divisionRaw } = req.body;
     const division = parseDivision(divisionRaw);

@@ -1,4 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
+import { respondNotFound } from '../utils/respondNotFound';
 
 export function getAllowedOrigins(): string[] {
   return (process.env.CORS_ORIGINS
@@ -42,7 +43,8 @@ export function requireApiOrigin(allowedOrigins: string[]) {
       }
       const hasCookie = Boolean(req.cookies?.rt_session || req.cookies?.rt_player);
       if (hasCookie) {
-        res.status(403).json({ error: 'Origin required for cookie-authenticated requests' });
+        // Browser cookie clients must send Origin/Referer; Bearer-only clients pass above.
+        respondNotFound(res);
         return;
       }
       next();
@@ -50,12 +52,12 @@ export function requireApiOrigin(allowedOrigins: string[]) {
     }
 
     if (origin && !originAllowed(origin, allowedOrigins)) {
-      res.status(403).json({ error: 'Invalid origin' });
+      respondNotFound(res);
       return;
     }
 
     if (!origin && referer && !refererAllowed(referer, allowedOrigins)) {
-      res.status(403).json({ error: 'Invalid origin' });
+      respondNotFound(res);
       return;
     }
 

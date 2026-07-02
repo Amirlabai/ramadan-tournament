@@ -346,7 +346,7 @@ export class PlayerService {
       throw new PlayerServiceError(
         'TEAM_OWNER',
         'בעל קבוצה לא יכול לעזוב — פנה למנהל',
-        403
+        400
       );
     }
 

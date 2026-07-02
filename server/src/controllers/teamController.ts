@@ -20,6 +20,7 @@ import {
 } from '../repositories/userMappingRepository';
 import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
+import { respondNotFound } from '../utils/respondNotFound';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
@@ -196,7 +197,7 @@ export const getTeamRequests = async (req: AuthRequest, res: Response): Promise<
         const division = requestDivision(req);
 
         if (!(await canReviewLegacyTeamRequests(req.userId!, teamId, division))) {
-            res.status(403).json({ error: 'Permission denied' });
+            respondNotFound(res);
             return;
         }
 
@@ -218,7 +219,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
         const { userId, status } = req.body; // status: 'approved' | 'rejected'
 
         if (!(await canReviewLegacyTeamRequests(req.userId!, teamId, division))) {
-            res.status(403).json({ error: 'Permission denied' });
+            respondNotFound(res);
             return;
         }
 
@@ -318,13 +319,13 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
 
         const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
-            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            respondNotFound(res);
             return;
         }
 
         // PRD team owner or platform admin
         if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
-            res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
+            respondNotFound(res);
             return;
         }
 
@@ -368,12 +369,12 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 
         const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
-            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            respondNotFound(res);
             return;
         }
 
         if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
-            res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
+            respondNotFound(res);
             return;
         }
 
@@ -413,12 +414,12 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 
         const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
         if (!team) {
-            res.status(404).json({ error: 'קבוצה לא נמצאה' });
+            respondNotFound(res);
             return;
         }
 
         if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
-            res.status(403).json({ error: 'אין לך הרשאה לערוך קבוצה זו' });
+            respondNotFound(res);
             return;
         }
 
@@ -445,16 +446,7 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
 export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
-        if (!req.userId) {
-            res.status(401).json({ error: 'Authentication required' });
-            return;
-        }
-
         const division = requestDivision(req);
-        if (!(await isPlatformAdminUser(req.userId))) {
-            res.status(403).json({ error: 'Permission denied' });
-            return;
-        }
 
         const { firstName, lastName, nickname, number, position, isCaptain, birthYear, personalId } = req.body;
 
@@ -504,17 +496,7 @@ export const deletePlayer = async (req: AuthRequest, res: Response): Promise<voi
     try {
         const teamId = parseInt(req.params.id);
         const memberId = parseInt(req.params.memberId);
-
-        if (!req.userId) {
-            res.status(401).json({ error: 'Authentication required' });
-            return;
-        }
-
         const division = requestDivision(req);
-        if (!(await isPlatformAdminUser(req.userId))) {
-            res.status(403).json({ error: 'Permission denied' });
-            return;
-        }
 
         await PlayerService.deactivateRosterMember(memberId, teamId, slugToDivision(division));
 
@@ -534,17 +516,7 @@ export const deletePlayerPhoto = async (req: AuthRequest, res: Response): Promis
     try {
         const teamId = parseInt(req.params.id);
         const memberId = parseInt(req.params.memberId);
-
-        if (!req.userId) {
-            res.status(401).json({ error: 'Authentication required' });
-            return;
-        }
-
         const division = requestDivision(req);
-        if (!(await isPlatformAdminUser(req.userId))) {
-            res.status(403).json({ error: 'Permission denied' });
-            return;
-        }
 
         const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(division));
         if (!team) {

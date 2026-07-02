@@ -26,7 +26,7 @@ import {
     setSquadRoles,
     addSelfToRoster,
 } from '../controllers/registrationController';
-import { authenticate, authorize } from '../middleware/auth';
+import { authenticate, requirePlatformAdmin } from '../middleware/auth';
 
 const router = Router();
 const upload = multer({ dest: os.tmpdir() });
@@ -55,9 +55,9 @@ router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, deleteTeamLogo);
 
 // Roster management — platform admins only (route + controller)
-router.post('/:id/players', authenticate, authorize(['Admin', 'admin']), addPlayer);
-router.delete('/:id/players/:memberId', authenticate, authorize(['Admin', 'admin']), deletePlayer);
-router.delete('/:id/players/:memberId/photo', authenticate, authorize(['Admin', 'admin']), deletePlayerPhoto);
-router.patch('/:id/players/:memberId/move', authenticate, authorize(['Admin', 'admin']), movePlayer);
+router.post('/:id/players', requirePlatformAdmin, addPlayer);
+router.delete('/:id/players/:memberId', requirePlatformAdmin, deletePlayer);
+router.delete('/:id/players/:memberId/photo', requirePlatformAdmin, deletePlayerPhoto);
+router.patch('/:id/players/:memberId/move', requirePlatformAdmin, movePlayer);
 
 export default router;

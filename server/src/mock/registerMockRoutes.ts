@@ -1,7 +1,7 @@
 import { Express, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { config } from '../config/env';
-import { authenticate, authorize, AuthRequest } from '../middleware/auth';
+import { authenticate, requirePlatformAdmin, AuthRequest } from '../middleware/auth';
 import { setAuthCookie, authJsonBody } from '../utils/authCookie';
 import {
   MOCK_SEASON_ID,
@@ -220,16 +220,16 @@ export function registerMockRoutes(app: Express): void {
     res.status(401).json({ error: 'User not found' });
   });
 
-  app.get('/api/admin/banned-words', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
+  app.get('/api/admin/banned-words', requirePlatformAdmin, (_req, res) => {
     res.json(mockBannedWords);
   });
-  app.get('/api/admin/comments', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
+  app.get('/api/admin/comments', requirePlatformAdmin, (_req, res) => {
     res.json([]);
   });
-  app.get('/api/admin/photos/pending', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
+  app.get('/api/admin/photos/pending', requirePlatformAdmin, (_req, res) => {
     res.json([]);
   });
-  app.get('/api/admin/workflows', authenticate, authorize(['Admin', 'admin']), (_req, res) => {
+  app.get('/api/admin/workflows', requirePlatformAdmin, (_req, res) => {
     res.json({
       creationRequests: [],
       joinRequests: [],

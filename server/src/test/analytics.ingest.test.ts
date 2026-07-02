@@ -105,7 +105,7 @@ describe('POST /api/analytics/events', () => {
     });
   });
 
-  it('returns 403 for disallowed origin', async () => {
+  it('returns 404 for disallowed origin', async () => {
     const app = createAnalyticsTestApp();
     const res = await request(app)
       .post('/api/analytics/events')
@@ -115,7 +115,8 @@ describe('POST /api/analytics/events', () => {
         events: [{ eventName: 'page_view', category: 'browse' }],
       });
 
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(404);
+    expect(res.body.error).toBe('Not found');
     expect(logSpy).not.toHaveBeenCalled();
   });
 

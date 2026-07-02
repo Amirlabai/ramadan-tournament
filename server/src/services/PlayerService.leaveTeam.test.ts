@@ -124,7 +124,7 @@ describe('PlayerService.leaveTeam', () => {
 
     await expect(PlayerService.leaveTeam(USER_ID, Division.boys)).rejects.toMatchObject({
       code: 'TEAM_OWNER',
-      status: 403,
+      status: 400,
     } satisfies Partial<PlayerServiceError>);
 
     expect(mockTransaction).not.toHaveBeenCalled();

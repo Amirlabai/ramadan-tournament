@@ -22,7 +22,7 @@ import {
   reviewTransferRequest,
 } from '../controllers/adminWorkflowController';
 import { searchAdminUsers, setAdminUserRole } from '../controllers/adminUserController';
-import { authenticate, authorize } from '../middleware/auth';
+import { requirePlatformAdmin } from '../middleware/auth';
 import os from 'os';
 
 const router = Router();
@@ -36,58 +36,57 @@ const adminSearchLimiter = rateLimit({
   message: { error: 'יותר מדי חיפושים. המתן דקה ונסה שוב.' },
 });
 
-router.post('/import-players', authenticate, authorize(['Admin', 'admin']), upload.single('file'), importPlayers);
+router.post('/import-players', requirePlatformAdmin, upload.single('file'), importPlayers);
 
 // Banned words management
-router.get('/banned-words', authenticate, authorize(['Admin', 'admin']), getBannedWords);
-router.post('/banned-words', authenticate, authorize(['Admin', 'admin']), addBannedWord);
-router.delete('/banned-words/:id', authenticate, authorize(['Admin', 'admin']), removeBannedWord);
+router.get('/banned-words', requirePlatformAdmin, getBannedWords);
+router.post('/banned-words', requirePlatformAdmin, addBannedWord);
+router.delete('/banned-words/:id', requirePlatformAdmin, removeBannedWord);
 
 // Comment management
-router.get('/comments', authenticate, authorize(['Admin', 'admin']), getAllComments);
-router.delete('/comments/:id', authenticate, authorize(['Admin', 'admin']), deleteComment);
+router.get('/comments', requirePlatformAdmin, getAllComments);
+router.delete('/comments/:id', requirePlatformAdmin, deleteComment);
 
 // Photo approval
-router.get('/photos/pending', authenticate, authorize(['Admin', 'admin']), getPendingPhotos);
-router.post('/photos/approve', authenticate, authorize(['Admin', 'admin']), approvePhoto);
-router.post('/photos/reject', authenticate, authorize(['Admin', 'admin']), rejectPhoto);
-router.post('/photos/delete', authenticate, authorize(['Admin', 'admin']), deletePlayerPhoto);
+router.get('/photos/pending', requirePlatformAdmin, getPendingPhotos);
+router.post('/photos/approve', requirePlatformAdmin, approvePhoto);
+router.post('/photos/reject', requirePlatformAdmin, rejectPhoto);
+router.post('/photos/delete', requirePlatformAdmin, deletePlayerPhoto);
 
 // Team creation requests
-router.get('/team-requests', authenticate, authorize(['Admin', 'admin']), getPendingTeamRequests);
-router.post('/team-requests/:userId', authenticate, authorize(['Admin', 'admin']), approveTeamRequest);
+router.get('/team-requests', requirePlatformAdmin, getPendingTeamRequests);
+router.post('/team-requests/:userId', requirePlatformAdmin, approveTeamRequest);
 
 // News automation
-router.post('/trigger-automation', authenticate, authorize(['Admin', 'admin']), triggerAutomation);
+router.post('/trigger-automation', requirePlatformAdmin, triggerAutomation);
 
 // Seasons (girls / points tournament)
-router.get('/seasons', authenticate, authorize(['Admin', 'admin']), listSeasons);
-router.get('/seasons/girls/summary', authenticate, authorize(['Admin', 'admin']), getGirlsAdminSummary);
-router.post('/seasons/girls', authenticate, authorize(['Admin', 'admin']), createGirlsSeason);
-router.post('/seasons/:seasonId/activate', authenticate, authorize(['Admin', 'admin']), activateSeason);
-router.post('/seasons/:seasonId/teams', authenticate, authorize(['Admin', 'admin']), addGirlsTeam);
+router.get('/seasons', requirePlatformAdmin, listSeasons);
+router.get('/seasons/girls/summary', requirePlatformAdmin, getGirlsAdminSummary);
+router.post('/seasons/girls', requirePlatformAdmin, createGirlsSeason);
+router.post('/seasons/:seasonId/activate', requirePlatformAdmin, activateSeason);
+router.post('/seasons/:seasonId/teams', requirePlatformAdmin, addGirlsTeam);
 
 // Point entries (girls standings)
-router.get('/point-entries', authenticate, authorize(['Admin', 'admin']), listPointEntries);
-router.post('/point-entries', authenticate, authorize(['Admin', 'admin']), createPointEntry);
+router.get('/point-entries', requirePlatformAdmin, listPointEntries);
+router.post('/point-entries', requirePlatformAdmin, createPointEntry);
 
 // Phase 2 — registration workflows
-router.get('/workflows/pending-count', authenticate, authorize(['Admin', 'admin']), getWorkflowPendingCount);
-router.get('/workflows', authenticate, authorize(['Admin', 'admin']), listWorkflowQueues);
+router.get('/workflows/pending-count', requirePlatformAdmin, getWorkflowPendingCount);
+router.get('/workflows', requirePlatformAdmin, listWorkflowQueues);
 router.get(
   '/workflows/user-search',
-  authenticate,
-  authorize(['Admin', 'admin']),
+  requirePlatformAdmin,
   adminSearchLimiter,
   searchIdentityUsers
 );
-router.post('/users/identity', authenticate, authorize(['Admin', 'admin']), assignUserIdentity);
-router.patch('/requests/creation/:id', authenticate, authorize(['Admin', 'admin']), reviewCreationRequest);
-router.patch('/requests/join/:id', authenticate, authorize(['Admin', 'admin']), reviewJoinRequest);
-router.patch('/requests/transfer/:id', authenticate, authorize(['Admin', 'admin']), reviewTransferRequest);
+router.post('/users/identity', requirePlatformAdmin, assignUserIdentity);
+router.patch('/requests/creation/:id', requirePlatformAdmin, reviewCreationRequest);
+router.patch('/requests/join/:id', requirePlatformAdmin, reviewJoinRequest);
+router.patch('/requests/transfer/:id', requirePlatformAdmin, reviewTransferRequest);
 
 // User role management
-router.get('/users', authenticate, authorize(['Admin', 'admin']), adminSearchLimiter, searchAdminUsers);
-router.patch('/users/:id/role', authenticate, authorize(['Admin', 'admin']), setAdminUserRole);
+router.get('/users', requirePlatformAdmin, adminSearchLimiter, searchAdminUsers);
+router.patch('/users/:id/role', requirePlatformAdmin, setAdminUserRole);
 
 export default router;

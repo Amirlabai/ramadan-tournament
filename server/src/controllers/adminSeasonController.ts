@@ -100,10 +100,6 @@ export const createPointEntry = async (req: AuthRequest, res: Response): Promise
       res.status(400).json({ error: 'seasonId, teamId, and points are required' });
       return;
     }
-    if (!req.userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-      return;
-    }
 
     const parsedPoints = Number(points);
     if (!Number.isFinite(parsedPoints) || !Number.isInteger(parsedPoints)) {
@@ -116,7 +112,7 @@ export const createPointEntry = async (req: AuthRequest, res: Response): Promise
       Number(teamId),
       parsedPoints,
       note ? String(note) : undefined,
-      req.userId
+      req.userId!
     );
     res.status(201).json(result);
   } catch (error: unknown) {
