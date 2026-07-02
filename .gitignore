@@ -21,6 +21,7 @@ client/node_modules
 server/dist
 client/dist
 shared/dist
+tools/analytics-explorer/dist
 server/src/**/*.js
 
 # Vector index (workspace-chroma skill)

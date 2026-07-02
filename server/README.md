@@ -189,6 +189,34 @@ curl http://localhost:5000/api/health
 curl http://localhost:5000/api/teams
 ```
 
+## Analytics explorer (local dev tool)
+
+Terminal-only process-mining UI for `analytics_events`. **Not deployed** to Vercel or Render — binds `127.0.0.1` only.
+
+**Requires:** `DATABASE_URL` in `server/.env` (real Postgres; `dev:mock` has no analytics table).
+
+```powershell
+# From repo root — HMR UI + API
+npm run analytics:explorer:dev
+
+# Production-style: build UI then serve static + API
+npm run analytics:explorer
+
+# Open browser automatically
+npm run analytics:explorer --workspace=server -- --open
+```
+
+| Env | Default | Purpose |
+|-----|---------|---------|
+| `ANALYTICS_EXPLORER_HOST` | `127.0.0.1` | Bind address |
+| `ANALYTICS_EXPLORER_PORT` | `3847` | API + static UI port |
+
+Vite dev UI proxies `/api` to port 3847; in dev mode open `http://127.0.0.1:3848`.
+
+Views: process map (DFG with session/transition counts + dwell time), variants, event log, session inspector, performance funnels.
+
+Implementation: `src/services/AnalyticsQueryService.ts`, `src/scripts/analytics-explorer-server.ts`, `tools/analytics-explorer/`.
+
 ## Documentation
 
 | Doc | Purpose |

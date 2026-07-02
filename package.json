@@ -6,7 +6,8 @@
     "workspaces": [
         "client",
         "server",
-        "shared"
+        "shared",
+        "tools/analytics-explorer"
     ],
     "scripts": {
         "install:all": "npm install",
@@ -21,7 +22,9 @@
         "start:server": "npm start --workspace=server",
         "start": "npm start --workspace=server",
         "test": "npm run build:shared && npm run test --workspace=@ramadan-tournament/shared && npm run test --workspace=server",
-        "test:server": "npm run build:shared && npm run test --workspace=server"
+        "test:server": "npm run build:shared && npm run test --workspace=server",
+        "analytics:explorer": "npm run build --workspace=analytics-explorer && npm run analytics:explorer --workspace=server",
+        "analytics:explorer:dev": "concurrently \"npm run analytics:explorer:dev --workspace=server\" \"npm run dev --workspace=analytics-explorer\""
     },
     "devDependencies": {
         "concurrently": "^8.2.2"

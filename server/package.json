@@ -24,6 +24,8 @@
         "migrate:user-emails": "tsx src/scripts/migrate-normalize-user-emails.ts",
         "db:sync-banned-words": "tsx src/scripts/syncBannedWords.ts",
         "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts",
+        "analytics:explorer": "tsx src/scripts/analytics-explorer-server.ts",
+        "analytics:explorer:dev": "tsx watch src/scripts/analytics-explorer-server.ts",
         "test": "vitest run",
         "test:watch": "vitest"
     },
