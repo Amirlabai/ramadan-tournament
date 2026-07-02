@@ -1,3 +1,9 @@
 id,season_id,name,logo_url,logo_position,status,owner_user_id,created_at,description
 1,eb19f900-c99f-486f-8930-6b56a74293d6,מקסיקו,"",right,active,c70d4e9a-c225-456a-88d9-cd3ff49fe475,2026-06-27 16:14:08.936,""
 2,eb19f900-c99f-486f-8930-6b56a74293d6,איטליה,"",right,active,6fd358f1-2fa5-44c6-8d00-627c67e7499d,2026-06-28 18:10:32.634,""
+3,eb19f900-c99f-486f-8930-6b56a74293d6,גרמניה,,right,active,,2026-07-01 20:06:10.504,""
+4,eb19f900-c99f-486f-8930-6b56a74293d6,פנמה,,right,active,,2026-07-01 20:06:12.564,""
+5,eb19f900-c99f-486f-8930-6b56a74293d6,הפטישים,,right,active,,2026-07-01 20:06:13.544,""
+6,eb19f900-c99f-486f-8930-6b56a74293d6,מרוקו,,right,active,,2026-07-01 20:06:14.702,""
+7,eb19f900-c99f-486f-8930-6b56a74293d6,F.C RIHANIYA,,right,active,,2026-07-01 20:06:15.623,""
+8,eb19f900-c99f-486f-8930-6b56a74293d6,כף ורדה,,right,active,,2026-07-01 20:06:16.616,""
