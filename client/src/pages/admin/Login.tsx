@@ -5,6 +5,8 @@ import { GoogleLogin } from '@react-oauth/google';
 import { authAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { trackEvent } from '../../utils/analytics';
+import { getAuthDiagnostics } from '../../utils/authDiagnostics';
+import { finalizeLogin } from '../../utils/authSession';
 import './Login.css';
 
 function safeInternalPath(path: unknown): string {
@@ -47,7 +49,12 @@ const Login = () => {
                     : { username: identifier, password };
 
                 const response = await authAPI.login(credentials);
-                login(response.data.user);
+                const result = await finalizeLogin(response, 'password');
+                if (!result.ok) {
+                    setError(result.error);
+                    return;
+                }
+                login(result.user);
                 navigate(from, { replace: true });
             } else {
                 trackEvent('register_submit', { category: 'auth', properties: { method: 'password', surface: authSurface } });
@@ -62,7 +69,12 @@ const Login = () => {
                     setIsVerifying(true);
                     setSuccessMsg('נרשמת בהצלחה! קוד אימות נשלח לאימייל שלך.');
                 } else {
-                    login(response.data.user);
+                    const result = await finalizeLogin(response, 'password');
+                    if (!result.ok) {
+                        setError(result.error);
+                        return;
+                    }
+                    login(result.user);
                     navigate(from, { replace: true });
                 }
             }
@@ -90,7 +102,12 @@ const Login = () => {
 
         try {
             const response = await authAPI.verifyEmail(identifier, verificationCode);
-            login(response.data.user);
+            const result = await finalizeLogin(response, 'password');
+            if (!result.ok) {
+                setError(result.error);
+                return;
+            }
+            login(result.user);
             navigate(from, { replace: true });
         } catch (err: any) {
             setError(err.response?.data?.error || 'קוד אימות שגוי או פג תוקף');
@@ -116,15 +133,41 @@ const Login = () => {
     const handleGoogleSuccess = async (credentialResponse: any) => {
         setError('');
         setLoading(true);
-        trackEvent('google_login_click', { category: 'auth', properties: { method: 'google', surface: authSurface } });
+        trackEvent('google_login_click', {
+            category: 'auth',
+            properties: { method: 'google', surface: authSurface, ...getAuthDiagnostics() },
+        });
         try {
             const response = await authAPI.googleLogin(credentialResponse.credential);
-            login(response.data.user);
+            const result = await finalizeLogin(response, 'google');
+            if (!result.ok) {
+                setError(result.error);
+                return;
+            }
+            login(result.user);
             navigate(from, { replace: true });
         } catch (err: any) {
+            const status = err.response?.status;
+            trackEvent('google_login_failed', {
+                category: 'auth',
+                properties: {
+                    reason: status ? `http_${status}` : 'client_error',
+                    ...getAuthDiagnostics(),
+                },
+            });
             setError(err.response?.data?.error || 'שגיאה בהתחברות עם גוגל');
+        } finally {
             setLoading(false);
         }
+    };
+
+    const handleGoogleError = () => {
+        trackEvent('google_login_failed', {
+            category: 'auth',
+            properties: { reason: 'google_widget_error', ...getAuthDiagnostics() },
+        });
+        setError('התחברות גוגל נכשלה');
+        setLoading(false);
     };
 
     return (
@@ -144,7 +187,7 @@ const Login = () => {
                     <div className="mb-4 d-flex justify-content-center">
                         <GoogleLogin
                             onSuccess={handleGoogleSuccess}
-                            onError={() => setError('התחברות גוגל נכשלה')}
+                            onError={handleGoogleError}
                             theme="filled_black"
                             text={isLoginView ? 'signin_with' : 'signup_with'}
                             shape="pill"

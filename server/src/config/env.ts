@@ -1,4 +1,5 @@
 import { loadServerEnv } from './loadServerEnv';
+import { parseCorsOrigins } from './corsOrigins';
 
 loadServerEnv();
 
@@ -32,15 +33,17 @@ export const config = {
   footballDataCompetition: process.env.FOOTBALL_DATA_COMPETITION || 'WC',
   footballDataSeason: process.env.FOOTBALL_DATA_SEASON || '2026',
   personalIdKey: process.env.PERSONAL_ID_KEY || '',
-  corsOrigins: (process.env.CORS_ORIGINS
-    || 'http://localhost:5173,http://localhost:3000,https://ramadan-tournament-client.vercel.app')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean),
+  corsOrigins: parseCorsOrigins(process.env.CORS_ORIGINS),
   analyticsRetentionDays: Math.max(
     0,
     parseInt(process.env.ANALYTICS_RETENTION_DAYS || '90', 10) || 0
   ),
+  /** `lax` when API is proxied same-origin on Vercel; default `none` for cross-origin prod. */
+  cookieSameSite: (() => {
+    const raw = (process.env.COOKIE_SAME_SITE || '').toLowerCase();
+    if (raw === 'lax' || raw === 'strict' || raw === 'none') return raw;
+    return null as 'lax' | 'strict' | 'none' | null;
+  })(),
   email: {
     user: process.env.SMTP_USER || '',
     pass: process.env.SMTP_PASS || '',

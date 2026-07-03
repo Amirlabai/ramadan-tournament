@@ -1,13 +1,8 @@
 import type { Request, Response, NextFunction } from 'express';
 import { respondNotFound } from '../utils/respondNotFound';
+import { getAllowedOrigins } from '../config/corsOrigins';
 
-export function getAllowedOrigins(): string[] {
-  return (process.env.CORS_ORIGINS
-    || 'http://localhost:5173,http://localhost:3000,https://ramadan-tournament-client.vercel.app')
-    .split(',')
-    .map((s) => s.trim())
-    .filter(Boolean);
-}
+export { getAllowedOrigins } from '../config/corsOrigins';
 
 function originAllowed(origin: string, allowed: string[]): boolean {
   return allowed.includes(origin);

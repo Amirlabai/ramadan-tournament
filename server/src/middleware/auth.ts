@@ -14,11 +14,19 @@ export interface AuthRequest extends Request {
 const PLATFORM_ADMIN_ROLES = ['Admin', 'admin'];
 
 function readToken(req: AuthRequest): string | undefined {
-    return (
-        req.cookies?.[SESSION_COOKIE] ??
-        req.cookies?.[PLAYER_COOKIE] ??
-        req.headers.authorization?.replace('Bearer ', '')
-    );
+    const path = req.originalUrl.split('?')[0];
+    const isPlayerApi = path.startsWith('/api/players');
+
+    if (isPlayerApi) {
+        return (
+            req.cookies?.[PLAYER_COOKIE] ??
+            req.headers.authorization?.replace(/^Bearer\s+/i, '')
+        );
+    }
+
+    const bearer = req.headers.authorization?.replace(/^Bearer\s+/i, '');
+    if (bearer) return bearer;
+    return req.cookies?.[SESSION_COOKIE] ?? req.cookies?.[PLAYER_COOKIE];
 }
 
 function applyDecoded(req: AuthRequest, decoded: {

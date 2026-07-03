@@ -1,16 +1,28 @@
 import axios from 'axios';
 import type { Match, TopScorer } from '../types';
 import type { TournamentSlug } from '../utils/tournamentPaths';
+import { apiBaseUrl } from '../utils/apiBase';
+import { getAuthToken } from '../utils/authToken';
 
 export type { TournamentSlug } from '../utils/tournamentPaths';
 
-if (import.meta.env.PROD && !import.meta.env.VITE_API_URL) {
-    throw new Error('VITE_API_URL is required in production builds');
-}
-
-const API_URL = import.meta.env.DEV ? '' : import.meta.env.VITE_API_URL;
+const API_URL = apiBaseUrl();
 
 const api = axios.create({
+    baseURL: `${API_URL}/api`,
+    withCredentials: true,
+});
+
+api.interceptors.request.use((config) => {
+    const token = getAuthToken();
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+/** Player zone only — no platform Bearer (avoids rt_auth_token masking rt_player). */
+const playerApi = axios.create({
     baseURL: `${API_URL}/api`,
     withCredentials: true,
 });
@@ -207,9 +219,9 @@ export const commentsAPI = {
 };
 
 export const playerAPI = {
-    login: (personalId: string, birthYear: string) => api.post('/players/auth', { personalId, birthYear }),
-    logout: () => api.post('/players/logout'),
-    uploadPhoto: (formData: FormData) => api.post('/players/upload', formData),
+    login: (personalId: string, birthYear: string) => playerApi.post('/players/auth', { personalId, birthYear }),
+    logout: () => playerApi.post('/players/logout'),
+    uploadPhoto: (formData: FormData) => playerApi.post('/players/upload', formData),
 };
 
 const votesBase = (slug: TournamentSlug) => (slug === 'girls' ? '/votes-girls' : '/votes');

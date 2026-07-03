@@ -38,6 +38,8 @@ const ALLOWED_PROPERTY_KEYS = new Set([
   'status',
   'expanded',
   'surface',
+  'platform',
+  'standalone',
 ]);
 
 export const CLIENT_EVENT_ALLOWLIST = new Set([
@@ -49,6 +51,9 @@ export const CLIENT_EVENT_ALLOWLIST = new Set([
   'login_submit',
   'register_submit',
   'google_login_click',
+  'google_login_failed',
+  'auth_session_probe',
+  'auth_session_lost',
   'identity_form_open',
   'identity_submit_click',
   'join_request_click',
@@ -66,6 +71,7 @@ export const SERVER_EVENT_ALLOWLIST = new Set([
   'login_success',
   'login_failed',
   'google_login_success',
+  'google_login_failed',
   'logout',
   'identity_submitted',
   'identity_mismatch',
@@ -88,6 +94,7 @@ const SERVER_STDOUT_EVENTS = new Set([
   'login_success',
   'login_failed',
   'google_login_success',
+  'google_login_failed',
   'logout',
   'identity_submitted',
   'identity_mismatch',

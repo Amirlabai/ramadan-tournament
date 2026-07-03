@@ -1,3 +1,5 @@
+import { apiBaseUrl } from './apiBase';
+
 export type AnalyticsCategory =
   | 'auth'
   | 'registration'
@@ -18,13 +20,20 @@ const BATCH_SIZE = 25;
 /** Beacon drain cap: 10 batches × 25 events = 250 events per pagehide; remainder uses fetch+keepalive. */
 const MAX_BEACON_BATCHES = 10;
 
+/** Auth diagnostics run before cookie consent — needed for iOS login debugging. */
+const CONSENT_EXEMPT_EVENTS = new Set([
+  'google_login_click',
+  'google_login_failed',
+  'auth_session_probe',
+  'auth_session_lost',
+]);
+
 let enabled = false;
 let queue: AnalyticsEventPayload[] = [];
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 function apiBase(): string {
-  if (import.meta.env.DEV) return '';
-  return import.meta.env.VITE_API_URL ?? '';
+  return apiBaseUrl();
 }
 
 export function getSessionId(): string {
@@ -39,10 +48,13 @@ export function getSessionId(): string {
 export function setAnalyticsEnabled(next: boolean): void {
   if (!next) {
     enabled = false;
-    queue = [];
+    queue = queue.filter((e) => CONSENT_EXEMPT_EVENTS.has(e.eventName));
     if (flushTimer) {
       clearTimeout(flushTimer);
       flushTimer = null;
+    }
+    if (queue.length > 0) {
+      scheduleFlush();
     }
     return;
   }
@@ -51,6 +63,11 @@ export function setAnalyticsEnabled(next: boolean): void {
   if (queue.length > 0) {
     scheduleFlush();
   }
+}
+
+function canFlush(): boolean {
+  if (enabled) return true;
+  return queue.some((e) => CONSENT_EXEMPT_EVENTS.has(e.eventName));
 }
 
 function scheduleFlush(): void {
@@ -85,10 +102,24 @@ async function postEvents(events: AnalyticsEventPayload[]): Promise<void> {
   }
 }
 
+function dequeueFlushableBatch(maxSize: number): AnalyticsEventPayload[] {
+  const batch: AnalyticsEventPayload[] = [];
+  while (batch.length < maxSize && queue.length > 0) {
+    const next = queue[0];
+    if (!enabled && !CONSENT_EXEMPT_EVENTS.has(next.eventName)) {
+      break;
+    }
+    batch.push(queue.shift()!);
+  }
+  return batch;
+}
+
 function flushRemainderWithKeepalive(): void {
+  if (!canFlush()) return;
   const url = `${apiBase()}${API_PATH}`;
   while (queue.length > 0) {
-    const batch = queue.splice(0, BATCH_SIZE);
+    const batch = dequeueFlushableBatch(BATCH_SIZE);
+    if (batch.length === 0) break;
     const body = buildBody(batch);
     void fetch(url, {
       method: 'POST',
@@ -96,13 +127,13 @@ function flushRemainderWithKeepalive(): void {
       body,
       keepalive: true,
     }).catch(() => {
-      // best-effort on unload
+      queue.unshift(...batch);
     });
   }
 }
 
 function flushQueueWithBeacon(maxBatches = MAX_BEACON_BATCHES): void {
-  if (!enabled || queue.length === 0) return;
+  if (!canFlush() || queue.length === 0) return;
   const url = `${apiBase()}${API_PATH}`;
 
   let batches = 0;
@@ -128,7 +159,7 @@ function flushQueueWithBeacon(maxBatches = MAX_BEACON_BATCHES): void {
 }
 
 export async function flushAnalytics(): Promise<void> {
-  if (!enabled || queue.length === 0) return;
+  if (!canFlush() || queue.length === 0) return;
   const batch = queue.splice(0, BATCH_SIZE);
   try {
     await postEvents(batch);
@@ -145,12 +176,13 @@ export function trackEvent(
     properties?: Record<string, string | number | boolean>;
   }
 ): void {
-  if (!enabled) return;
+  const exempt = CONSENT_EXEMPT_EVENTS.has(eventName);
+  if (!enabled && !exempt) return;
 
   const payload: AnalyticsEventPayload = {
     eventName,
     category: options.category,
-    path: options.path ?? window.location.pathname,
+    path: options.path ?? (typeof window !== 'undefined' ? window.location.pathname : undefined),
     properties: options.properties,
   };
 

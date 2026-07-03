@@ -14,6 +14,7 @@ import { setAuthCookie, authJsonBody, clearAuthCookie } from '../utils/authCooki
 import { AuthRateLimitService } from '../services/AuthRateLimitService';
 import { normalizeEmail } from '../utils/normalizeEmail';
 import { AnalyticsService } from '../services/AnalyticsService';
+import { platformFromUserAgent } from '../utils/platformFromUserAgent';
 
 function authContextFromRequest(req: Request): {
   path?: string;
@@ -46,7 +47,11 @@ const logAuthEvent = (
     category: 'auth',
     source: 'server',
     path,
-    properties: properties ? { ...properties, surface } : { surface },
+    properties: {
+      platform: platformFromUserAgent(req),
+      ...properties,
+      surface,
+    },
   });
 };
 
@@ -333,6 +338,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
         if (!token) {
             res.status(400).json({ error: 'Google ID token is required' });
+            logAuthEvent('google_login_failed', req, { reason: 'missing_token' });
             return;
         }
 
@@ -344,17 +350,20 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
 
         if (!payload || !payload.email) {
             res.status(400).json({ error: 'Invalid Google token' });
+            logAuthEvent('google_login_failed', req, { reason: 'invalid_token' });
             return;
         }
 
         if (payload.email_verified !== true) {
             res.status(400).json({ error: 'Google email is not verified' });
+            logAuthEvent('google_login_failed', req, { reason: 'email_unverified' });
             return;
         }
 
         const normalizedEmail = normalizeEmail(payload.email);
         if (!normalizedEmail) {
             res.status(400).json({ error: 'Invalid email from Google token' });
+            logAuthEvent('google_login_failed', req, { reason: 'invalid_email' });
             return;
         }
         const googleId = payload.sub;
@@ -368,6 +377,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                 if (byEmail.googleId && byEmail.googleId !== googleId) {
                     // Verified email/password account owns this address — do not re-link another Google identity
                     res.status(409).json({ error: 'This email is linked to a different Google account' });
+                    logAuthEvent('google_login_failed', req, { reason: 'email_linked_other_google' });
                     return;
                 }
                 if (!byEmail.isVerified) {
@@ -375,6 +385,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                     const deleted = await User.deleteById(byEmail.id!);
                     if (!deleted) {
                         res.status(409).json({ error: 'Could not replace unverified registration for this email' });
+                        logAuthEvent('google_login_failed', req, { reason: 'unverified_replace_failed' });
                         return;
                     }
                 } else {
@@ -419,6 +430,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
         res.json(authJsonBody(await hydrateUserPayload(user), jwtToken));
     } catch (error) {
         console.error('Google login error:', error);
+        logAuthEvent('google_login_failed', req, { reason: 'verify_error' });
         res.status(500).json({ error: 'Google Authentication failed' });
     }
 };

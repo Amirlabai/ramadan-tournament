@@ -23,10 +23,12 @@
 | `JWT_SECRET`, `ADMIN_*` | Yes | No | |
 | `PERSONAL_ID_KEY` | Yes (prod) | No | 32-byte base64; AES-256-GCM for `personal_id_enc` |
 | `PERSONAL_ID_MIGRATION_DONE` | Yes (after migrate) | No | Set `=1` after `npm run migrate:personal-ids` so lookups use v1 ciphertext only |
-| `CORS_ORIGINS` | Yes (optional) | No | Comma-separated; defaults include Vercel + localhost |
+| `CORS_ORIGINS` | Yes (optional) | No | Omit to use [`DEFAULT_CORS_ORIGINS`](server/src/config/corsOrigins.ts); if set, must list **every** live origin (replaces defaults) |
 | `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
 | `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
-| `VITE_API_URL` | No | Yes | Base URL of API host, no `/api` suffix required (client adds `/api`) |
+| `VITE_API_URL` | No | Optional | Direct API host when not using same-origin proxy; dev proxy target in [`vite.config.ts`](client/vite.config.ts) |
+| `VITE_API_SAME_ORIGIN` | No | Yes (prod) | `true` — axios uses relative `/api` (Vercel rewrite → Render); set in [`client/.env.production`](client/.env.production) |
+| `COOKIE_SAME_SITE` | Yes (when proxied) | No | Set `lax` on Render when `VITE_API_SAME_ORIGIN` is live so Safari keeps `rt_session` |
 | `VITE_SITE_URL` | No | Yes | Canonical URL for SEO, sitemap, OG (no trailing slash) |
 | `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
 | `WORLD_CUP_ONLY` | Yes (optional) | No | Ignored when `DATABASE_URL` is set (Jun 2026 dual-mode fix) |
@@ -35,6 +37,8 @@
 | `ANALYTICS_EXPLORER_HOST` / `ANALYTICS_EXPLORER_PORT` | No (local only) | No | Analytics explorer dev tool (`npm run analytics:explorer`); default `127.0.0.1:3847` |
 
 Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.example`](server/.env.example)); [`client/.env`](client/.env) for `VITE_*` (copy from [`client/.env.example`](client/.env.example)). **Do not use a repo-root `.env`** — the server loads only `server/.env`. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
+
+**Production auth (Jul 2026):** Vercel [`client/vercel.json`](client/vercel.json) rewrites `/api/*` and `/uploads/*` to Render (`RENDER_API_ORIGIN` in [`client/src/config/deploy.ts`](client/src/config/deploy.ts) — keep in sync with both `vercel.json` files; checked by `server/src/config/deploySync.test.ts`). Client sets `VITE_API_SAME_ORIGIN=true`. **Render deploy:** `COOKIE_SAME_SITE=lax`. For `CORS_ORIGINS`, either omit the env var (uses [`DEFAULT_CORS_ORIGINS`](server/src/config/corsOrigins.ts)) or set the **full** comma-separated list of every live site origin — a partial list replaces defaults and drops other hosts. Bearer token in `sessionStorage` (`rt_auth_token`) is a fallback when cookies fail (Safari / in-app browsers). Auth diagnostics (`auth_session_probe`, `auth_session_lost`, `google_login_failed`) are sent without analytics cookie consent for login troubleshooting; see Privacy § cookies.
 
 **Local dev without Postgres (Render paused):** `npm run dev:mock` from repo root (or `server/`). Sets `MOCK_DEV_DATA=1` via `server/env.mock` and serves read-only API from `data/*.json` (teams, matches, news, computed stats). Admin login: `admin` / `admin123` (see `server/env.mock`). Writes and girls season return 404/503 until Postgres is back.
 

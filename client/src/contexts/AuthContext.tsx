@@ -1,6 +1,9 @@
 import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import axios from 'axios';
 import { authAPI } from '../api/client';
+import { getAuthDiagnostics } from '../utils/authDiagnostics';
+import { clearAuthToken, getAuthToken } from '../utils/authToken';
+import { trackEvent } from '../utils/analytics';
 
 export type UserRole = 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';
 
@@ -92,12 +95,30 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const refreshUser = async () => {
+    const refreshUser = async (retryWithoutBearer = false): Promise<void> => {
+        if (retryWithoutBearer) {
+            clearAuthToken();
+        }
         try {
             const response = await authAPI.getCurrentUser();
             setUser(mapUser(response.data));
         } catch (err) {
             if (axios.isAxiosError(err) && err.response?.status === 401) {
+                if (!retryWithoutBearer && getAuthToken()) {
+                    await refreshUser(true);
+                    return;
+                }
+                trackEvent('auth_session_lost', {
+                    category: 'auth',
+                    properties: getAuthDiagnostics(),
+                });
+                clearAuthToken();
+                setUser(null);
+            } else if (axios.isAxiosError(err) && err.response) {
+                clearAuthToken();
+                setUser(null);
+            } else if (!axios.isAxiosError(err) || !err.response) {
+                clearAuthToken();
                 setUser(null);
             }
         } finally {
@@ -106,7 +127,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     };
 
     useEffect(() => {
-        refreshUser();
+        void refreshUser();
     }, []);
 
     const login = (newUser: User) => {
@@ -119,11 +140,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         } catch {
             /* cookie may already be cleared */
         }
+        clearAuthToken();
         setUser(null);
     };
 
     return (
-        <AuthContext.Provider value={{ user, loading, login, logout, refreshUser }}>
+        <AuthContext.Provider value={{ user, loading, login, logout, refreshUser: () => refreshUser() }}>
             {children}
         </AuthContext.Provider>
     );

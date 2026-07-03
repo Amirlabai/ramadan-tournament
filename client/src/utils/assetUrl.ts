@@ -4,9 +4,22 @@
  * - `/uploads/...` → API server (user uploads)
  * - `http(s)://...` → unchanged
  */
-const API_BASE = (import.meta.env.VITE_API_URL || 'http://localhost:5000')
-  .replace(/\/api\/?$/i, '')
-  .replace(/\/$/, '');
+import { apiBaseUrl } from './apiBase';
+
+function apiAssetBase(): string {
+  const configured = apiBaseUrl()
+    .replace(/\/api\/?$/i, '')
+    .replace(/\/$/, '');
+  if (configured) return configured;
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return (import.meta.env.VITE_API_URL || 'http://localhost:5000')
+    .replace(/\/api\/?$/i, '')
+    .replace(/\/$/, '');
+}
+
+const API_BASE = apiAssetBase();
 
 function clientOrigin(): string {
   if (typeof window !== 'undefined' && window.location?.origin) {
