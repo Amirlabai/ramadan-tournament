@@ -14,6 +14,7 @@ import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { trackEvent } from '../utils/analytics';
+import { shouldPollTournamentData } from '@ramadan-tournament/shared';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -52,15 +53,11 @@ const Dashboard = () => {
 
         const interval = setInterval(() => {
             const current = dataRef.current;
-            const hasMatchToday = current?.nextMatches?.some(match => {
-                const d = new Date(match.date);
-                const now = new Date();
-                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            });
-
-            const now = new Date();
-            const hour = now.getHours();
-            if (hasMatchToday && hour >= 20 && hour <= 23) {
+            const pollMatches = [
+                ...(current?.nextMatches ?? []),
+                ...(current?.recentMatches ?? []),
+            ];
+            if (shouldPollTournamentData(pollMatches)) {
                 fetchDashboard(true);
             }
         }, 30000);

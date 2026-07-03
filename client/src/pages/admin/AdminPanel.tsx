@@ -15,10 +15,13 @@ import { canAccessAdminPanel, isPlatformAdmin } from '../../utils/tournamentUser
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import NavActionDot, { withPendingActionLabel } from '../../components/NavActionDot';
 import { assertPlayerOnTeam, syncScoresFromGoals } from '../../utils/matchGoals';
+import { getMatchDisplayStatus, isSameJerusalemCalendarDay } from '@ramadan-tournament/shared';
+import { useMatchStatusNow } from '../../hooks/useMatchStatusNow';
 import './AdminPanel.css';
 
 const AdminPanel = () => {
     const [matches, setMatches] = useState<Match[]>([]);
+    const statusNow = useMatchStatusNow(matches);
     const [news, setNews] = useState<News[]>([]);
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
@@ -258,31 +261,12 @@ const AdminPanel = () => {
         return team ? team.name : `קבוצה ${teamId}`;
     };
 
-    const getMatchStatus = (match: Match) => {
-        if (match.score1 != null && match.score2 != null) return 'finished';
-        const matchDate = new Date(match.date);
-        const now = new Date();
-
-        // Jerusalem time comparison
-        const isToday = matchDate.getDate() === now.getDate() &&
-            matchDate.getMonth() === now.getMonth() &&
-            matchDate.getFullYear() === now.getFullYear();
-
-        if (isToday) {
-            // Live if it's 20:00 or later (JLM time - simplified for admin)
-            const currentHour = now.getHours();
-            return currentHour >= 20 ? 'live' : 'upcoming';
-        }
-
-        return matchDate < now ? 'finished' : 'upcoming';
-    };
+    const getMatchStatus = (match: Match) => getMatchDisplayStatus(match.date, statusNow);
 
     const filteredAdminMatches = matches.filter((match) => {
         if (matchFilter === 'all') return true;
         if (matchFilter === 'today') {
-            const d = new Date(match.date);
-            const now = new Date();
-            return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            return isSameJerusalemCalendarDay(match.date);
         }
         return getMatchStatus(match) === matchFilter;
     });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
@@ -7,6 +7,8 @@ import PageLoading from '../components/PageLoading';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import './Schedule.css';
 
 const Schedule = () => {
@@ -50,29 +52,21 @@ const Schedule = () => {
         }
     };
 
+    const matchesRef = useRef(matches);
+    matchesRef.current = matches;
+    const now = useMatchStatusNow(matches);
+
     useEffect(() => {
         fetchData();
 
-        // Polling logic: Every 30 seconds
         const interval = setInterval(() => {
-            // Check if any match in the current data is for today
-            const hasMatchToday = matches.some(match => {
-                const d = new Date(match.date);
-                const now = new Date();
-                return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-            });
-
-            // Poll during tournament hours or if match is today
-            const now = new Date();
-            const hour = now.getHours();
-            // Only poll during tournament hours (20:00 - 23:59) AND only if there is a match today
-            if (hasMatchToday && hour >= 20 && hour <= 23) {
+            if (shouldPollTournamentData(matchesRef.current)) {
                 fetchData(true);
             }
         }, 30000);
 
         return () => clearInterval(interval);
-    }, [matches.length]);
+    }, []);
 
     if (loading) return <PageLoading label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
@@ -119,54 +113,7 @@ const Schedule = () => {
         }).format(date);
     };
 
-    const getMatchStatus = (match: Match) => {
-        if (match.score1 != null && match.score2 != null) return 'finished';
-
-        const matchDate = new Date(match.date);
-        const now = new Date();
-
-        // Get "Wall Clock" time for both in Jerusalem
-        const options: Intl.DateTimeFormatOptions = {
-            timeZone: 'Asia/Jerusalem',
-            year: 'numeric',
-            month: 'numeric',
-            day: 'numeric',
-            hour: 'numeric',
-            hour12: false
-        };
-
-        const jlmFormatter = new Intl.DateTimeFormat('en-US', options);
-
-        const matchParts = jlmFormatter.formatToParts(matchDate);
-        const nowParts = jlmFormatter.formatToParts(now);
-
-        const getPart = (parts: Intl.DateTimeFormatPart[], type: string) => parseInt(parts.find(p => p.type === type)?.value || '0');
-
-        const matchY = getPart(matchParts, 'year');
-        const matchM = getPart(matchParts, 'month');
-        const matchD = getPart(matchParts, 'day');
-
-        const nowY = getPart(nowParts, 'year');
-        const nowM = getPart(nowParts, 'month');
-        const nowD = getPart(nowParts, 'day');
-        const nowH = getPart(nowParts, 'hour');
-
-        // Compare dates (YMD)
-        if (matchY < nowY) return 'finished';
-        if (matchY > nowY) return 'upcoming';
-
-        if (matchM < nowM) return 'finished';
-        if (matchM > nowM) return 'upcoming';
-
-        if (matchD < nowD) return 'finished';
-        if (matchD > nowD) return 'upcoming';
-
-        // Same day
-        // Live if it's 20:00 or later (JLM time)
-        if (nowH >= 20) return 'live';
-
-        return 'upcoming';
-    };
+    const getMatchStatus = (match: Match) => getMatchDisplayStatus(match.date, now);
 
     const sortedMatches = [...matches].sort((a, b) =>
         new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -245,7 +192,7 @@ const Schedule = () => {
                                         <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline ms-2" />
                                     )}
                                     {status !== 'upcoming' && (
-                                        <span className="team-score">{match.score1}</span>
+                                        <span className="team-score">{match.score1 ?? '—'}</span>
                                     )}
                                 </div>
 
@@ -260,7 +207,7 @@ const Schedule = () => {
                                         <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline ms-2" />
                                     )}
                                     {status !== 'upcoming' && (
-                                        <span className="team-score">{match.score2}</span>
+                                        <span className="team-score">{match.score2 ?? '—'}</span>
                                     )}
                                 </div>
                             </div>

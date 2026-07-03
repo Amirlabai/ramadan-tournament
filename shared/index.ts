@@ -1,5 +1,23 @@
 export { STANDINGS_PLAYOFF_ZONE_SIZE } from './standingsConstants';
 export {
+  getMatchDisplayStatus,
+  hasMatchOnJerusalemDate,
+  isTournamentPollingWindow,
+  needsMatchStatusClockTick,
+  shouldPollTournamentData,
+  type MatchDisplayStatus,
+} from './matchTiming';
+export {
+  jerusalemDateTime,
+  addDaysToDateString,
+  getWeekdayFromDateString,
+  getJerusalemParts,
+  jerusalemDateKey,
+  isSameJerusalemCalendarDay,
+  getNthAllowedMatchDate,
+  type JerusalemParts,
+} from './jerusalemDate';
+export {
   BIRTH_YEAR_MIN,
   BIRTH_YEAR_MAX,
   isBirthYearInRange,

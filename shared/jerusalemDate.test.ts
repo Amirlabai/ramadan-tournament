@@ -3,6 +3,7 @@ import {
   addDaysToDateString,
   getNthAllowedMatchDate,
   getWeekdayFromDateString,
+  isSameJerusalemCalendarDay,
   jerusalemDateTime,
 } from './jerusalemDate';
 
@@ -57,5 +58,14 @@ describe('jerusalemDateTime', () => {
     expect(get('day')).toBe('15');
     expect(get('hour')).toBe('12');
     expect(get('minute')).toBe('00');
+  });
+});
+
+describe('isSameJerusalemCalendarDay', () => {
+  it('compares Jerusalem calendar days', () => {
+    const iso = jerusalemDateTime('2026-07-10', '17:00').toISOString();
+    const now = jerusalemDateTime('2026-07-10', '12:00');
+    expect(isSameJerusalemCalendarDay(iso, now)).toBe(true);
+    expect(isSameJerusalemCalendarDay(iso, jerusalemDateTime('2026-07-11', '12:00'))).toBe(false);
   });
 });

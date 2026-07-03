@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import type { Standing, TopScorer, Match } from '../types';
@@ -6,7 +6,8 @@ import SEO from '../components/SEO';
 import PageLoading from '../components/PageLoading';
 import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
-import { STANDINGS_PLAYOFF_ZONE_SIZE } from '@ramadan-tournament/shared';
+import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import './Stats.css';
 
 const Stats = () => {
@@ -16,6 +17,7 @@ const Stats = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const pollMatchesRef = useRef<{ date: string }[]>([]);
 
     const fetchStats = async (isBackground = false) => {
         try {
@@ -39,12 +41,17 @@ const Stats = () => {
 
     useEffect(() => {
         fetchStats();
+        void refreshPollMatchesRef(pollMatchesRef);
 
         const interval = setInterval(() => {
-            const hour = new Date().getHours();
-            if (hour >= 20 && hour <= 23) {
-                fetchStats(true);
-            }
+            void (async () => {
+                if (shouldRefreshPollMatches(pollMatchesRef.current)) {
+                    await refreshPollMatchesRef(pollMatchesRef);
+                }
+                if (shouldPollTournamentData(pollMatchesRef.current)) {
+                    fetchStats(true);
+                }
+            })();
         }, 30000);
 
         return () => clearInterval(interval);

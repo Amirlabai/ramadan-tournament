@@ -24,6 +24,11 @@
       "types": "./dist/registrationStatus.d.ts",
       "import": "./registrationStatus.ts",
       "require": "./dist/registrationStatus.js"
+    },
+    "./jerusalemDate": {
+      "types": "./dist/jerusalemDate.d.ts",
+      "import": "./jerusalemDate.ts",
+      "require": "./dist/jerusalemDate.js"
     }
   },
   "description": "Shared validation constants. Client: Vite alias → source .ts. Server: require → dist/ (built by `npm run build:shared`, root `npm run build`, server `build`, and `prepare` on install unless `--ignore-scripts`).",

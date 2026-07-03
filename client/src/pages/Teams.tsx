@@ -15,6 +15,8 @@ import TournamentRoleStar from '../components/TournamentRoleStar';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getRoleStarVariant } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
+import { shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -30,6 +32,7 @@ const Teams = () => {
     const [loginPromptOpen, setLoginPromptOpen] = useState(false);
     const [dismissPrompt, setDismissPrompt] = useState(false);
     const ownerSettingsEditingRef = useRef(false);
+    const pollMatchesRef = useRef<{ date: string }[]>([]);
     const handleOwnerSettingsEditingChange = useCallback((editing: boolean) => {
         ownerSettingsEditingRef.current = editing;
     }, []);
@@ -124,13 +127,18 @@ const Teams = () => {
 
     useEffect(() => {
         fetchTeams();
+        void refreshPollMatchesRef(pollMatchesRef);
 
         const interval = setInterval(() => {
             if (ownerSettingsEditingRef.current) return;
-            const hour = new Date().getHours();
-            if (hour >= 20 && hour <= 23) {
-                fetchTeams(true);
-            }
+            void (async () => {
+                if (shouldRefreshPollMatches(pollMatchesRef.current)) {
+                    await refreshPollMatchesRef(pollMatchesRef);
+                }
+                if (shouldPollTournamentData(pollMatchesRef.current)) {
+                    fetchTeams(true);
+                }
+            })();
         }, 30000);
 
         return () => clearInterval(interval);
