@@ -216,6 +216,8 @@ Vite dev UI proxies `/api` to port 3847; in dev mode open `http://127.0.0.1:3848
 
 Views: process map (DFG with session/transition counts + dwell time), variants, event log, session inspector, performance funnels.
 
+Sessions that touch `/admin` (or `/admin/*`), click nav to admin, or fire auth with `surface: admin` are excluded entirely from all explorer views. Raw events remain in Postgres; filtering is query-time only.
+
 Implementation: `src/services/AnalyticsQueryService.ts`, `src/scripts/analytics-explorer-server.ts`, `tools/analytics-explorer/`.
 
 ## Documentation

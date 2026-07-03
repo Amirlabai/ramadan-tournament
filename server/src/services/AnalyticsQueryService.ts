@@ -155,6 +155,35 @@ function activityId(label: string): string {
   return label;
 }
 
+function isAdminPath(path: string): boolean {
+  return path === '/admin' || path.startsWith('/admin/');
+}
+
+export function isAdminAnalyticsEvent(
+  row: Pick<AnalyticsEventRow, 'eventName' | 'path' | 'properties'>
+): boolean {
+  const path = row.path ?? '';
+  if (isAdminPath(path)) return true;
+
+  const props = row.properties ?? {};
+  const navTo = typeof props.navTo === 'string' ? props.navTo : '';
+  if (navTo && isAdminPath(navTo)) return true;
+
+  if (props.surface === 'admin') return true;
+
+  return false;
+}
+
+export function excludeAdminTaintedSessions(rows: AnalyticsEventRow[]): AnalyticsEventRow[] {
+  const tainted = new Set<string>();
+  for (const row of rows) {
+    if (row.sessionId && isAdminAnalyticsEvent(row)) {
+      tainted.add(row.sessionId);
+    }
+  }
+  return rows.filter((row) => !row.sessionId || !tainted.has(row.sessionId));
+}
+
 export function buildActivityLabel(row: Pick<AnalyticsEventRow, 'eventName' | 'path' | 'properties'>): string {
   const props = row.properties ?? {};
 
@@ -514,12 +543,14 @@ export class AnalyticsQueryService {
       },
     });
 
-    return rows.map((row) => ({
+    const mapped = rows.map((row) => ({
       ...row,
       category: String(row.category),
       source: String(row.source),
       properties: asProperties(row.properties),
     }));
+
+    return excludeAdminTaintedSessions(mapped);
   }
 
   static async fetchTraces(query: DateRangeQuery): Promise<Trace[]> {
@@ -560,47 +591,25 @@ export class AnalyticsQueryService {
     const page = Math.max(1, query.page ?? 1);
     const pageSize = Math.min(200, Math.max(1, query.pageSize ?? 50));
 
-    const where: Prisma.AnalyticsEventWhereInput = {
-      ...buildWhereClause(query),
-    };
+    let candidates = await this.fetchEventRows(query);
 
     if (query.eventName) {
-      where.eventName = { contains: query.eventName, mode: 'insensitive' };
+      const needle = query.eventName.toLowerCase();
+      candidates = candidates.filter((row) => row.eventName.toLowerCase().includes(needle));
     }
 
     if (query.pathPrefix) {
-      where.path = { startsWith: query.pathPrefix };
+      candidates = candidates.filter((row) => (row.path ?? '').startsWith(query.pathPrefix!));
     }
 
     if (query.sessionId) {
-      where.sessionId = query.sessionId;
+      candidates = candidates.filter((row) => row.sessionId === query.sessionId);
     }
 
-    const [total, rows] = await Promise.all([
-      prisma.analyticsEvent.count({ where }),
-      prisma.analyticsEvent.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * pageSize,
-        take: pageSize,
-        select: {
-          id: true,
-          createdAt: true,
-          eventName: true,
-          category: true,
-          source: true,
-          sessionId: true,
-          path: true,
-          properties: true,
-        },
-      }),
-    ]);
-
-    let eventRows = rows.map((row) =>
+    let eventRows = candidates.map((row) =>
       toEventLogRow({
         ...row,
-        category: String(row.category),
-        source: String(row.source),
+        properties: row.properties,
       })
     );
 
@@ -609,7 +618,13 @@ export class AnalyticsQueryService {
       eventRows = eventRows.filter((r) => r.activityLabel.toLowerCase().includes(needle));
     }
 
-    return { rows: eventRows, total, page, pageSize };
+    eventRows.sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+
+    const total = eventRows.length;
+    const start = (page - 1) * pageSize;
+    const rows = eventRows.slice(start, start + pageSize);
+
+    return { rows, total, page, pageSize };
   }
 
   static async getSessionTrace(
@@ -621,37 +636,22 @@ export class AnalyticsQueryService {
     totalSpanMs: number | null;
   } | null> {
     const idleCapMs = query.idleCapMs ?? DEFAULT_IDLE_CAP_MS;
-    const rows = await prisma.analyticsEvent.findMany({
-      where: {
-        ...buildWhereClause(query),
-        sessionId,
-      },
-      orderBy: { createdAt: 'asc' },
-      select: {
-        id: true,
-        createdAt: true,
-        eventName: true,
-        category: true,
-        source: true,
-        sessionId: true,
-        path: true,
-        properties: true,
-      },
-    });
+    const sessionRows = (await this.fetchEventRows(query)).filter(
+      (row) => row.sessionId === sessionId
+    );
 
-    if (rows.length === 0) return null;
+    if (sessionRows.length === 0) return null;
 
-    const steps = rows.map((row, i) => {
+    const steps = sessionRows.map((row, i) => {
       const logRow = toEventLogRow({
         ...row,
-        category: String(row.category),
-        source: String(row.source),
+        properties: row.properties,
       });
       let dwellToNextMs: number | null = null;
       let idleGap = false;
 
-      if (i < rows.length - 1) {
-        const dwell = rows[i + 1].createdAt.getTime() - row.createdAt.getTime();
+      if (i < sessionRows.length - 1) {
+        const dwell = sessionRows[i + 1].createdAt.getTime() - row.createdAt.getTime();
         if (dwell > 0) {
           dwellToNextMs = dwell;
           idleGap = dwell > idleCapMs;
@@ -662,86 +662,55 @@ export class AnalyticsQueryService {
     });
 
     const totalSpanMs =
-      rows.length > 1
-        ? rows[rows.length - 1].createdAt.getTime() - rows[0].createdAt.getTime()
+      sessionRows.length > 1
+        ? sessionRows[sessionRows.length - 1].createdAt.getTime() -
+          sessionRows[0].createdAt.getTime()
         : 0;
 
     return { sessionId, steps, totalSpanMs };
   }
 
   static async buildSummary(query: DateRangeQuery): Promise<SummaryResult> {
-    const where = buildWhereClause(query);
+    const rows = await this.fetchEventRows(query);
 
-    const [totalEvents, sessionGroups, categoryGroups, nameGroups, dayGroups] =
-      await Promise.all([
-        prisma.analyticsEvent.count({ where }),
-        prisma.analyticsEvent.groupBy({
-          by: ['sessionId'],
-          where: { ...where, sessionId: { not: null } },
-        }),
-        prisma.analyticsEvent.groupBy({
-          by: ['category'],
-          where,
-          _count: { _all: true },
-          orderBy: { _count: { category: 'desc' } },
-        }),
-        prisma.analyticsEvent.groupBy({
-          by: ['eventName'],
-          where,
-          _count: { _all: true },
-          orderBy: { _count: { eventName: 'desc' } },
-          take: 20,
-        }),
-        prisma.$queryRaw<{ day: string; count: bigint }[]>`
-          SELECT to_char(created_at, 'YYYY-MM-DD') AS day, COUNT(*)::bigint AS count
-          FROM analytics_events
-          WHERE created_at >= ${query.from} AND created_at <= ${query.to}
-          GROUP BY day
-          ORDER BY day ASC
-        `,
-      ]);
+    const sessionIds = new Set<string>();
+    const categoryCounts = new Map<string, number>();
+    const nameCounts = new Map<string, number>();
+    const dayCounts = new Map<string, number>();
+
+    for (const row of rows) {
+      if (row.sessionId) sessionIds.add(row.sessionId);
+      categoryCounts.set(row.category, (categoryCounts.get(row.category) ?? 0) + 1);
+      nameCounts.set(row.eventName, (nameCounts.get(row.eventName) ?? 0) + 1);
+      const day = row.createdAt.toISOString().slice(0, 10);
+      dayCounts.set(day, (dayCounts.get(day) ?? 0) + 1);
+    }
 
     return {
-      totalEvents,
-      uniqueSessions: sessionGroups.length,
-      eventsByCategory: categoryGroups.map((g) => ({
-        category: String(g.category),
-        count: g._count._all,
-      })),
-      eventsByName: nameGroups.map((g) => ({
-        eventName: g.eventName,
-        count: g._count._all,
-      })),
-      eventsByDay: dayGroups.map((g) => ({
-        day: g.day,
-        count: Number(g.count),
-      })),
+      totalEvents: rows.length,
+      uniqueSessions: sessionIds.size,
+      eventsByCategory: [...categoryCounts.entries()]
+        .map(([category, count]) => ({ category, count }))
+        .sort((a, b) => b.count - a.count),
+      eventsByName: [...nameCounts.entries()]
+        .map(([eventName, count]) => ({ eventName, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 20),
+      eventsByDay: [...dayCounts.entries()]
+        .map(([day, count]) => ({ day, count }))
+        .sort((a, b) => a.day.localeCompare(b.day)),
     };
   }
 
   static async exportCsv(query: DateRangeQuery): Promise<string> {
-    const rows = await prisma.analyticsEvent.findMany({
-      where: buildWhereClause(query),
-      orderBy: { createdAt: 'asc' },
-      select: {
-        id: true,
-        createdAt: true,
-        eventName: true,
-        category: true,
-        source: true,
-        sessionId: true,
-        path: true,
-        properties: true,
-      },
-    });
+    const rows = await this.fetchEventRows(query);
 
     const header =
       'id,created_at,event_name,category,source,session_id,path,activity_label,properties';
     const lines = rows.map((row) => {
       const logRow = toEventLogRow({
         ...row,
-        category: String(row.category),
-        source: String(row.source),
+        properties: row.properties,
       });
       const props = logRow.properties ? JSON.stringify(logRow.properties) : '';
       const escaped = (v: string) => `"${v.replace(/"/g, '""')}"`;

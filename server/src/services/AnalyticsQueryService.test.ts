@@ -6,6 +6,8 @@ import {
   buildTracesFromRows,
   buildVariants,
   DEFAULT_IDLE_CAP_MS,
+  excludeAdminTaintedSessions,
+  isAdminAnalyticsEvent,
   type AnalyticsEventRow,
 } from './AnalyticsQueryService';
 
@@ -44,6 +46,117 @@ describe('buildActivityLabel', () => {
     expect(
       buildActivityLabel({ eventName: 'login_success', path: '/login', properties: null })
     ).toBe('login_success');
+  });
+});
+
+describe('isAdminAnalyticsEvent', () => {
+  it('flags page_view on /admin', () => {
+    expect(isAdminAnalyticsEvent({ eventName: 'page_view', path: '/admin', properties: null })).toBe(
+      true
+    );
+  });
+
+  it('flags page_view on /admin/login', () => {
+    expect(
+      isAdminAnalyticsEvent({ eventName: 'page_view', path: '/admin/login', properties: null })
+    ).toBe(true);
+  });
+
+  it('does not flag public page_view', () => {
+    expect(isAdminAnalyticsEvent({ eventName: 'page_view', path: '/teams', properties: null })).toBe(
+      false
+    );
+  });
+
+  it('flags nav_click to /admin from another path', () => {
+    expect(
+      isAdminAnalyticsEvent({
+        eventName: 'nav_click',
+        path: '/profile',
+        properties: { navTo: '/admin' },
+      })
+    ).toBe(true);
+  });
+
+  it('flags auth with surface admin', () => {
+    expect(
+      isAdminAnalyticsEvent({
+        eventName: 'login_submit',
+        path: '/admin/login',
+        properties: { surface: 'admin' },
+      })
+    ).toBe(true);
+  });
+
+  it('does not flag public auth on /login', () => {
+    expect(
+      isAdminAnalyticsEvent({
+        eventName: 'login_submit',
+        path: '/login',
+        properties: { surface: 'public' },
+      })
+    ).toBe(false);
+  });
+});
+
+describe('excludeAdminTaintedSessions', () => {
+  const base = new Date('2026-07-01T10:00:00Z');
+
+  it('keeps sessions with only public browsing', () => {
+    const rows = [
+      row({ sessionId: 'sess-public1', eventName: 'page_view', path: '/', createdAt: base }),
+      row({
+        sessionId: 'sess-public1',
+        eventName: 'page_view',
+        path: '/teams',
+        createdAt: new Date(base.getTime() + 1000),
+      }),
+      row({ sessionId: 'sess-public2', eventName: 'page_view', path: '/stats', createdAt: base }),
+    ];
+
+    const filtered = excludeAdminTaintedSessions(rows);
+    expect(filtered).toHaveLength(3);
+    expect(buildTracesFromRows(filtered)).toHaveLength(2);
+  });
+
+  it('drops entire session when any admin event appears', () => {
+    const rows = [
+      row({ sessionId: 'sess-admin01', eventName: 'page_view', path: '/', createdAt: base }),
+      row({
+        sessionId: 'sess-admin01',
+        eventName: 'nav_click',
+        path: '/',
+        properties: { navTo: '/admin' },
+        createdAt: new Date(base.getTime() + 1000),
+      }),
+      row({
+        sessionId: 'sess-admin01',
+        eventName: 'page_view',
+        path: '/admin',
+        createdAt: new Date(base.getTime() + 2000),
+      }),
+      row({
+        sessionId: 'sess-admin01',
+        eventName: 'page_view',
+        path: '/teams',
+        createdAt: new Date(base.getTime() + 3000),
+      }),
+    ];
+
+    const filtered = excludeAdminTaintedSessions(rows);
+    expect(filtered).toHaveLength(0);
+    expect(buildTracesFromRows(filtered)).toHaveLength(0);
+  });
+
+  it('does not taint other sessions in the same batch', () => {
+    const rows = [
+      row({ sessionId: 'sess-public1', eventName: 'page_view', path: '/teams', createdAt: base }),
+      row({ sessionId: 'sess-admin01', eventName: 'page_view', path: '/admin', createdAt: base }),
+    ];
+
+    const filtered = excludeAdminTaintedSessions(rows);
+    expect(filtered).toHaveLength(1);
+    expect(filtered[0].sessionId).toBe('sess-public1');
   });
 });
 
