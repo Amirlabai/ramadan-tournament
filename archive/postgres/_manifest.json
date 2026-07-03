@@ -1,12 +1,14 @@
 {
-  "exported_at": "2026-07-02T08:52:17+03:00",
+  "exported_at": "2026-07-03T08:46:07+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "users.csv",
     "season_registrations.csv",
-    "teams.csv",
-    "players.csv",
-    "team_join_requests.csv"
+    "matches.csv",
+    "comments.csv",
+    "votes.csv",
+    "stats_snapshots.csv",
+    "analytics_events.csv"
   ],
   "tables": {
     "seasons": {
@@ -14,11 +16,11 @@
       "file": "seasons.csv"
     },
     "users": {
-      "rows": 32,
+      "rows": 40,
       "file": "users.csv"
     },
     "season_registrations": {
-      "rows": 12,
+      "rows": 13,
       "file": "season_registrations.csv"
     },
     "invoice_codes": {
@@ -34,7 +36,7 @@
       "file": "players.csv"
     },
     "matches": {
-      "rows": 0,
+      "rows": 28,
       "file": "matches.csv"
     },
     "goals": {
@@ -50,15 +52,15 @@
       "file": "news.csv"
     },
     "comments": {
-      "rows": 0,
+      "rows": 1,
       "file": "comments.csv"
     },
     "votes": {
-      "rows": 0,
+      "rows": 3,
       "file": "votes.csv"
     },
     "stats_snapshots": {
-      "rows": 0,
+      "rows": 1,
       "file": "stats_snapshots.csv"
     },
     "season_archives": {
@@ -84,6 +86,10 @@
     "banned_words": {
       "rows": 58,
       "file": "banned_words.csv"
+    },
+    "analytics_events": {
+      "rows": 659,
+      "file": "analytics_events.csv"
     }
   },
   "notes": [
@@ -91,6 +97,7 @@
     "users.csv still includes mapped_player_info and player_profile (PII)",
     "invoice_codes.csv omits code_hash and code_normalized (no plaintext payment codes)",
     "players.csv omits personal_id_enc (national ID ciphertext)",
+    "analytics_events.csv contains behavioral events (session_id, path, properties JSON) — pseudonymous, no account linkage or PII by design",
     "personal_id_enc is encrypted; restore requires PERSONAL_ID_KEY",
     "archive/postgres/ is sensitive — do not publish or share publicly"
   ]
