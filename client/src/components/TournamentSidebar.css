@@ -299,40 +299,64 @@
     position: fixed;
     right: 0;
     left: auto;
-    bottom: 35%;
-    top: auto;
+    top: max(25%, calc(env(safe-area-inset-top, 0px) + 3rem));
+    bottom: auto;
     z-index: 2400;
-    width: 32px;
+    min-width: 44px;
+    width: 44px;
     min-height: 80px;
-    padding: 0.5rem 6px;
-    border: none;
-    border-radius: 14px 0 0 14px;
-    background: var(--color-primary, #509238);
-    color: #fff;
+    padding: 0.65rem 10px;
+    border: 1px solid #9ca3af;
+    border-right: none;
+    border-radius: 12px 0 0 12px;
+    background: #d1d5db;
+    color: #1f2937;
     cursor: pointer;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: 5px;
-    box-shadow: -2px 0 10px rgba(0, 0, 0, 0.2);
-    margin-bottom: env(safe-area-inset-bottom, 0);
-    transform: none;
-    transition: opacity 0.2s ease, transform 0.2s ease;
+    box-shadow:
+      -4px 0 14px rgba(0, 0, 0, 0.28),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    transform: translateY(-50%);
+    transition: opacity 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  [data-tournament='girls'] .tournament-sidebar-handle {
+    border-top: 3px solid var(--color-primary, #c77dff);
+  }
+
+  [data-tournament='boys'] .tournament-sidebar-handle {
+    border-top: 3px solid var(--color-primary, #509238);
+  }
+
+  .tournament-sidebar-handle-bar {
+    display: block;
+    width: 20px;
+    height: 3px;
+    border-radius: 2px;
+    background: #374151;
+  }
+
+  .tournament-sidebar-handle:hover {
+    background: #c4c9d1;
+    box-shadow:
+      -5px 0 18px rgba(0, 0, 0, 0.32),
+      inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  }
+
+  .tournament-sidebar-handle:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 2px;
   }
 
   .tournament-sidebar-handle.is-open {
     opacity: 0;
     pointer-events: none;
-    transform: translateX(8px);
-  }
-
-  .tournament-sidebar-handle-bar {
-    display: block;
-    width: 4px;
-    height: 20px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-50%) translateX(8px);
   }
 
   .tournament-sidebar-backdrop {
@@ -354,14 +378,14 @@
   .tournament-sidebar-link.health-form-link:hover {
     transform: none;
   }
+
+  .tournament-sidebar-handle {
+    transition: none;
+  }
 }
 
 [data-tournament='girls'] .tournament-sidebar-link:hover,
 [data-tournament='girls'] .tournament-sidebar-link.active {
   color: var(--color-primary, #c77dff);
   border-inline-start-color: var(--color-primary, #c77dff);
-}
-
-[data-tournament='girls'] .tournament-sidebar-handle {
-  background: var(--color-primary, #c77dff);
 }

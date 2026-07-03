@@ -698,7 +698,13 @@ h2 {
   }
 
   .tournament-header h1 {
-    font-size: 2rem;
+    font-size: 1.65rem;
+    line-height: 1.2;
+  }
+
+  .tournament-header.py-4 {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
   .tournament-tabs .nav-link {
@@ -745,6 +751,10 @@ h2 {
 }
 
 @media (max-width: 576px) {
+  .tournament-header h1 {
+    font-size: 1.35rem;
+  }
+
   .tournament-tabs .nav-link {
     padding: 0.25rem 0.25rem;
     font-size: 0.7rem;

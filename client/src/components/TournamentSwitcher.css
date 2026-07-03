@@ -68,3 +68,21 @@
   font-weight: 700;
   color: var(--primary-green, var(--color-primary-dark));
 }
+
+@media (max-width: 768px) {
+  .tournament-switcher-wrap {
+    margin-bottom: 0.35rem;
+  }
+
+  .tournament-switcher-btn {
+    gap: 0.2rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8125rem;
+    min-height: 44px;
+    border-width: 1.5px;
+  }
+
+  .tournament-switcher-caret {
+    font-size: 0.7rem;
+  }
+}

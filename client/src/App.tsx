@@ -137,15 +137,7 @@ function AppShell() {
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
               <h1 className="display-4 fw-bold">
-                {isWorldCup ? (
-                  'מונדיאל 2026'
-                ) : (
-                  <>
-                    מונדיאל קיץ
-                    <br />
-                    2026
-                  </>
-                )}
+                {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
               </h1>
               {isGirls && (
                 <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>

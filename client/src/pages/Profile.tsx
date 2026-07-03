@@ -1,5 +1,5 @@
 ﻿import { useState, useRef, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth, type User } from '../contexts/AuthContext';
 import { usersAPI, teamsAPI, statsAPI, statsGirlsAPI, registrationAPI } from '../api/client';
 import type { Standing, TopScorer } from '../types';
@@ -19,9 +19,18 @@ import {
 } from '../utils/tournamentUser';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
 import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
+import { tournamentPaths } from '../utils/tournamentPaths';
 import './Profile.css';
 
 const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
+
+const PROFILE_ROLE_LABELS: Record<string, string> = {
+    Admin: 'מנהל',
+    Captain: 'קפטן',
+    Player: 'שחקן',
+    User: 'משתמש',
+    admin: 'מנהל',
+};
 
 function resolveRegistrationSlug(user: User | null | undefined): 'boys' | 'girls' {
     if (user?.activeDivision === 'girls') return 'girls';
@@ -322,14 +331,6 @@ const Profile = () => {
         ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl}`)
         : null;
 
-    const roleLabels: Record<string, string> = {
-        Admin: 'מנהל',
-        Captain: 'קפטן',
-        Player: 'שחקן',
-        User: 'משתמש',
-        admin: 'מנהל',
-    };
-
     const statusColors: Record<string, string> = {
         pending: 'warning',
         approved: 'success',
@@ -340,7 +341,6 @@ const Profile = () => {
     const boysReg = user.tournamentRegistration?.boys;
     const girlsReg = user.tournamentRegistration?.girls;
     const isRegistrationActive = divisionReg?.status === 'active';
-    const platformAdmin = isPlatformAdmin(user);
     const tr = user.tournamentRegistration;
     const usesPrdRegistration = !!(
         tr?.boys?.ownedTeamId ||
@@ -368,6 +368,7 @@ const Profile = () => {
         !isOnRoster(user);
     const showLegacyCaptain = showLegacyCaptainPanel(user, usesPrdRegistration);
     const tournamentBadge = getProfileTournamentBadge(user);
+    const platformAdmin = isPlatformAdmin(user);
     const showClaimBanner =
         !tournamentBadge &&
         (!mappingStatus || mappingStatus === 'rejected') &&
@@ -377,6 +378,9 @@ const Profile = () => {
     const claimNeedsIdentity = needsIdentitySubmission(user, identityGateSlug);
     const showOwnerTeamPanel = !!ownedTeamId;
     const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
+    const claimTeamsPath = tournamentPaths[claimCheckSlug].teams;
+    const showProfileIdentity =
+        !!user.displayName || !!user.email || !!tournamentBadge || platformAdmin;
 
     return (
         <div className="profile-page">
@@ -388,60 +392,36 @@ const Profile = () => {
             />
             <div className="container py-4" style={{ maxWidth: 760 }}>
 
-                {/* Profile Header Card */}
-                <div className="profile-header-card card mb-4 p-4">
-                    <div className="d-flex align-items-center gap-4 flex-wrap">
-                        <label htmlFor="profile-avatar-upload" className="avatar-wrapper mb-0" title="שנה תמונה">
-                            {avatarLoading ? (
-                                <div className="avatar-placeholder"><span className="spinner-border spinner-border-sm" /></div>
-                            ) : avatarSrc ? (
-                                <img src={avatarSrc} alt={`תמונת פרופיל של ${user.displayName}`} className="avatar-img" />
-                            ) : (
-                                <div className="avatar-placeholder">
-                                    <i className="bi bi-person-fill fs-1" />
-                                </div>
+                <div className="profile-page-header mb-3">
+                    <h1 className="h4 mb-0">פרופיל אישי</h1>
+                    {showProfileIdentity && (
+                        <div className="profile-identity">
+                            {user.displayName && (
+                                <span className="profile-identity__name fw-semibold">{user.displayName}</span>
                             )}
-                            <span className="avatar-overlay" aria-hidden="true"><i className="bi bi-camera-fill" /></span>
-                        </label>
-                        <input id="profile-avatar-upload" type="file" ref={fileInputRef} accept="image/*" className="visually-hidden" onChange={handleAvatarChange} aria-label="העלאת תמונת פרופיל" />
-
-                        {/* Delete uploaded avatar — only shown when user has a local upload */}
-                        {user.avatarUrl?.startsWith('/uploads/') && (
-                            <button
-                                className="btn btn-link text-danger p-0 mt-1"
-                                style={{ fontSize: '0.78rem' }}
-                                onClick={handleDeleteAvatar}
-                                disabled={avatarLoading}
-                                title="מחק תמונה וחזור לתמונת Google"
-                            >
-                                <i className="bi bi-trash me-1" />הסר תמונה
-                            </button>
-                        )}
-
-                        <div className="flex-grow-1">
-                            <h2 className="mb-1">{user.displayName}</h2>
-                            {user.email && <div className="text-muted small" dir="ltr">{user.email}</div>}
-                            <div className="d-flex flex-wrap gap-1 mt-1">
-                                {platformAdmin && (
-                                    <span className="badge bg-danger">מנהל</span>
-                                )}
-                                {(tournamentBadge === 'captain' ||
-                                    tournamentBadge === 'owner-captain' ||
-                                    tournamentBadge === 'owner-only') && (
+                            {platformAdmin && <span className="badge bg-danger ms-1">מנהל</span>}
+                            {(tournamentBadge === 'captain' ||
+                                tournamentBadge === 'owner-captain' ||
+                                tournamentBadge === 'owner-only') && (
+                                <span className="ms-1">
                                     <TournamentRoleStar variant={tournamentBadge} showLabel />
-                                )}
-                                {tournamentBadge === 'player' && (
-                                    <span className="badge bg-secondary">שחקן</span>
-                                )}
-                                {!platformAdmin && !tournamentBadge && (
-                                    <span className="badge bg-secondary">
-                                        {roleLabels[user.role] ?? user.role}
-                                    </span>
-                                )}
-                            </div>
+                                </span>
+                            )}
+                            {tournamentBadge === 'player' && (
+                                <span className="badge bg-secondary ms-1">שחקן</span>
+                            )}
+                            {!platformAdmin && !tournamentBadge && (
+                                <span className="badge bg-secondary ms-1">
+                                    {PROFILE_ROLE_LABELS[user.role] ?? user.role}
+                                </span>
+                            )}
+                            {user.email && (
+                                <span className="profile-identity__email text-muted small ms-2" dir="ltr">
+                                    {user.email}
+                                </span>
+                            )}
                         </div>
-                        <button type="button" className="btn btn-danger btn-sm" onClick={handleLogout}>התנתק</button>
-                    </div>
+                    )}
                 </div>
 
                 {/* Player Mapping Status */}
@@ -473,27 +453,69 @@ const Profile = () => {
                     </div>
                 )}
 
-                <TournamentRegistrationCard slug="boys" title="רישום טורניר כדורגל" />
-                <TournamentRegistrationCard slug="girls" title="רישום טורניר בנות (נקודות)" />
+                <TournamentRegistrationCard
+                    slug="boys"
+                    title="רישום טורניר כדורגל"
+                    hideJoinCta={showClaimBanner}
+                />
+                <TournamentRegistrationCard
+                    slug="girls"
+                    title="רישום טורניר בנות (נקודות)"
+                    hideJoinCta={showClaimBanner}
+                />
 
-                {/* Claim Player Profile Banner */}
                 {showClaimBanner && (
-                    <div className="alert custom-claim-banner d-flex align-items-center justify-content-between mb-4">
-                        <div><strong>שחקן בטורניר?</strong> <span className="ms-2">שייך את פרופיל המשתמש שלך לשחקן.</span></div>
-                        <span className="small">
-                            {claimNeedsIdentity
-                                ? 'השלם תעודת זהות ושנת לידה בכרטיס הרישום למעלה לפני שיוך לשחקן.'
-                                : 'עבור לעמוד קבוצות להצטרפות'}
-                        </span>
+                    <div
+                        className="alert custom-claim-banner custom-claim-banner--profile d-flex flex-column flex-sm-row align-items-stretch align-items-sm-center justify-content-between gap-2 mb-4"
+                        role="status"
+                    >
+                        <p className="mb-0">
+                            <strong>שחקן בטורניר?</strong>{' '}
+                            שייך את המשתמש שלך לשחקן קיים בסגל.
+                        </p>
+                        {claimNeedsIdentity ? (
+                            <span className="small text-muted mb-0">
+                                השלם תעודת זהות ושנת לידה בכרטיס הרישום למעלה.
+                            </span>
+                        ) : (
+                            <Link
+                                to={claimTeamsPath}
+                                className="btn btn-sm btn-warning fw-semibold align-self-stretch align-self-sm-center"
+                            >
+                                שיוך בעמוד קבוצות
+                            </Link>
+                        )}
                     </div>
                 )}
 
-                {/* Editable Player Info (For Players and Captains) */}
-                {/* Editable Player Info (For Players and Captains) */}
+                {canRequestTeam && (
+                    <div className="card mb-4 p-4">
+                        <h2 className="h5 mb-3">בקשה לפתיחת קבוצה חדשה</h2>
+                        <p className="text-muted small mb-0">
+                            הרישום פעיל — מלא שם קבוצה ושלח לאישור מנהל. בקשה אחת בלבד (הצטרפות או הקמה).
+                        </p>
+                        {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
+                        {pendingCreation?.status === 'rejected' && (
+                            <div className="alert alert-danger py-2 mb-3">הבקשה הקודמת שלך נדחתה. תוכל לשלוח בקשה חדשה.</div>
+                        )}
+                        <form onSubmit={handleTeamRequest}>
+                            <div className="mb-3">
+                                <label htmlFor="profile-team-name" className="form-label">שם הקבוצה</label>
+                                <input id="profile-team-name" type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={TEAM_NAME_MAX_LEN} />
+                            </div>
+                            <div className="mb-3">
+                                <label htmlFor="profile-team-desc" className="form-label">תיאור קצר (אופציונלי)</label>
+                                <textarea id="profile-team-desc" className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={TEAM_DESC_MAX_LEN} />
+                            </div>
+                            <button type="submit" className="btn btn-primary">שלח בקשה</button>
+                        </form>
+                    </div>
+                )}
+
                 {canEditPlayer && (
                     <div className="card mb-4 p-4">
                         <div className="d-flex justify-content-between align-items-center mb-3">
-                            <h4 className="mb-0">פרטי שחקן</h4>
+                            <h2 className="h5 mb-0">פרטי שחקן</h2>
                             <div className="d-flex gap-2">
                                 {!editingPlayer && (
                                     <>
@@ -590,10 +612,10 @@ const Profile = () => {
                 {/* Team & Player Stats Card */}
                 {(teamStanding || playerGoals !== null) && (
                     <div className="card mb-4 p-4 profile-stats-card">
-                        <h4 className="mb-4 d-flex align-items-center">
+                        <h2 className="h5 mb-4 d-flex align-items-center">
                             <i className="bi bi-bar-chart-fill me-2 text-primary" />
                             סטטיסטיקות טורניר — {rosterTeamName ?? `קבוצה #${onRoster?.teamId}`}
-                        </h4>
+                        </h2>
 
                         <div className="row g-3 text-center">
                             {/* Individual Goals */}
@@ -676,10 +698,10 @@ const Profile = () => {
                             }}
                         />
                         <div className="card mb-4 p-4">
-                            <h4 className="mb-3 d-flex align-items-center">
+                            <h2 className="h5 mb-3 d-flex align-items-center">
                                 <i className="bi bi-shield-check me-2" />
                                 ניהול בקשות הצטרפות — {ownerTeamLabel}
-                            </h4>
+                            </h2>
                             <TeamRegistrationActions
                                 teamId={ownedTeamId}
                                 teamName={ownerTeamLabel}
@@ -693,10 +715,10 @@ const Profile = () => {
                     <div className="captain-management-zone">
                         <div className="card mb-4 premium-captain-card border-none overflow-hidden">
                             <div className="card-header bg-theme-green-gradient text-white p-3 border-none">
-                                <h4 className="mb-0 d-flex align-items-center">
+                                <h2 className="h5 mb-0 d-flex align-items-center">
                                     <i className="bi bi-shield-check me-2" />
                                     ניהול בקשות שחקנים לקבוצה שלך
-                                </h4>
+                                </h2>
                             </div>
                             <div className="card-body p-4 bg-white">
                                 <CaptainTeamRequests />
@@ -705,31 +727,41 @@ const Profile = () => {
                     </div>
                 )}
 
-                {/* Team Creation Request */}
-                {canRequestTeam && (
-                    <div className="card mb-4 p-4">
-                        <h4 className="mb-3">בקשה לפתיחת קבוצה חדשה</h4>
-                        <p className="text-muted small">
-                            לאחר הזנת תעודת זהות ושנת לידה בכרטיס הרישום למעלה, ניתן לבקש הקמת קבוצה חדשה.
-                            ניתן להחזיק בקשה אחת בלבד — הצטרפות לקבוצה או הקמת קבוצה.
-                        </p>
-                        {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
-                        {pendingCreation?.status === 'rejected' && (
-                            <div className="alert alert-danger py-2 mb-3">הבקשה הקודמת שלך נדחתה. תוכל לשלוח בקשה חדשה.</div>
+                <div className="card mb-4 p-4 profile-avatar-section">
+                    <h2 className="h5 mb-3">תמונת פרופיל</h2>
+                    <div className="d-flex align-items-center gap-3 flex-wrap">
+                        <label htmlFor="profile-avatar-upload" className="avatar-wrapper mb-0" title="שנה תמונה">
+                            {avatarLoading ? (
+                                <div className="avatar-placeholder"><span className="spinner-border spinner-border-sm" /></div>
+                            ) : avatarSrc ? (
+                                <img src={avatarSrc} alt={`תמונת פרופיל של ${user.displayName}`} className="avatar-img" />
+                            ) : (
+                                <div className="avatar-placeholder">
+                                    <i className="bi bi-person-fill fs-1" />
+                                </div>
+                            )}
+                            <span className="avatar-overlay" aria-hidden="true"><i className="bi bi-camera-fill" /></span>
+                        </label>
+                        <input id="profile-avatar-upload" type="file" ref={fileInputRef} accept="image/*" className="visually-hidden" onChange={handleAvatarChange} aria-label="העלאת תמונת פרופיל" />
+                        {user.avatarUrl?.startsWith('/uploads/') && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-outline-danger profile-delete-avatar-btn"
+                                onClick={handleDeleteAvatar}
+                                disabled={avatarLoading}
+                                title="מחק תמונה וחזור לתמונת Google"
+                            >
+                                <i className="bi bi-trash me-1" aria-hidden="true" />הסר תמונה
+                            </button>
                         )}
-                        <form onSubmit={handleTeamRequest}>
-                            <div className="mb-3">
-                                <label htmlFor="profile-team-name" className="form-label">שם הקבוצה</label>
-                                <input id="profile-team-name" type="text" className="form-control" value={teamName} onChange={e => setTeamName(e.target.value)} required maxLength={TEAM_NAME_MAX_LEN} />
-                            </div>
-                            <div className="mb-3">
-                                <label htmlFor="profile-team-desc" className="form-label">תיאור קצר (אופציונלי)</label>
-                                <textarea id="profile-team-desc" className="form-control" rows={3} value={teamDesc} onChange={e => setTeamDesc(e.target.value)} maxLength={TEAM_DESC_MAX_LEN} />
-                            </div>
-                            <button type="submit" className="btn btn-primary">שלח בקשה</button>
-                        </form>
                     </div>
-                )}
+                </div>
+
+                <div className="pt-3 border-top text-center mb-2">
+                    <button type="button" className="btn btn-danger profile-logout-btn" onClick={handleLogout}>
+                        התנתק
+                    </button>
+                </div>
 
             </div>
 

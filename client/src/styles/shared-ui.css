@@ -23,6 +23,15 @@
     border: none;
 }
 
+.custom-claim-banner--profile {
+    padding: 1rem 1.25rem;
+}
+
+.custom-claim-banner--profile .btn-warning {
+    min-height: 44px;
+    white-space: nowrap;
+}
+
 .dashboard-card-title,
 .next-matches-card h2,
 .next-matches-card h3,

@@ -8,6 +8,7 @@ import { SEASON_REGISTRATION_STATUS_LABELS } from '@ramadan-tournament/shared';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliIdValidation';
 import TransferRequestForm from '../registration/TransferRequestForm';
 import { trackEvent } from '../../utils/analytics';
+import { tournamentPaths } from '../../utils/tournamentPaths';
 import './TournamentRegistrationCard.css';
 
 interface RegistrationSummary {
@@ -25,6 +26,8 @@ interface RegistrationSummary {
 interface Props {
     slug: TournamentSlug;
     title: string;
+    /** Hide join/teams CTA when Profile claim banner owns that action */
+    hideJoinCta?: boolean;
 }
 
 const GIRLS_SEASON_UNAVAILABLE = 'אין עונה פעילה לטורניר בנות';
@@ -36,7 +39,7 @@ function isGirlsSeasonUnavailableError(e: unknown): boolean {
     return msg.includes(GIRLS_SEASON_UNAVAILABLE) || /no active season/i.test(msg);
 }
 
-export default function TournamentRegistrationCard({ slug, title }: Props) {
+export default function TournamentRegistrationCard({ slug, title, hideJoinCta = false }: Props) {
     const { user, refreshUser } = useAuth();
     const [reg, setReg] = useState<RegistrationSummary | null>(null);
     const [personalId, setPersonalId] = useState('');
@@ -124,17 +127,18 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
 
     if (!user) return null;
 
-    const cardClass =
+    const cardBase =
         slug === 'girls'
-            ? 'card mb-4 p-4 registration-card registration-card--girls'
-            : 'card mb-4 p-4 registration-card';
+            ? 'card registration-card registration-card--girls'
+            : 'card registration-card';
+    const cardSpaced = `${cardBase} mb-4 p-4`;
     const submitBtnClass = slug === 'girls' ? 'btn btn-tournament-primary' : 'btn btn-success';
 
     if (hidden) return null;
 
     if (loading) {
         return (
-            <div id={`registration-card-${slug}`} className={`${cardClass} text-center`}>
+            <div id={`registration-card-${slug}`} className={`${cardSpaced} text-center`}>
                 <span
                     className={`spinner-border spinner-border-sm ${slug === 'girls' ? 'text-tournament-primary' : 'text-success'}`}
                     aria-hidden="true"
@@ -147,7 +151,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     if (!reg) {
         if (loadErr) {
             return (
-                <div id={`registration-card-${slug}`} className={cardClass} role="alert">
+                <div id={`registration-card-${slug}`} className={cardSpaced} role="alert">
                     <p className="text-danger mb-0">{loadErr}</p>
                 </div>
             );
@@ -160,18 +164,39 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
     const canSubmitIdentity = isValidIsraeliId(personalId) && isBirthYearInRange(birthYear);
     const idFieldInvalid = personalId.length > 0 && !isValidIsraeliId(personalId);
     const yearFieldInvalid = birthYear.length > 0 && !isBirthYearInRange(birthYear);
+    const statusLabel = reg.awaitingAdminIdentity
+        ? SEASON_REGISTRATION_STATUS_LABELS.awaiting_identity
+        : SEASON_REGISTRATION_STATUS_LABELS[reg.status] ?? reg.status;
+    const isCompactLayout =
+        reg.status === 'active' &&
+        !reg.invoiceAlert &&
+        !showIdentityForm &&
+        !hasPendingRequest &&
+        !reg.awaitingAdminIdentity &&
+        !reg.onRoster;
+    const resolvedCardClass = isCompactLayout
+        ? `${cardBase} registration-card--compact`
+        : cardSpaced;
+    const teamsPath = tournamentPaths[slug].teams;
 
     return (
-        <div id={`registration-card-${slug}`} className={cardClass} lang="he" aria-live="polite">
-            <h3 className="h5 mb-3">{title}</h3>
-            <p className="mb-2">
-                <span className="text-muted">סטטוס: </span>
-                <strong>
-                    {reg.awaitingAdminIdentity
-                        ? SEASON_REGISTRATION_STATUS_LABELS.awaiting_identity
-                        : SEASON_REGISTRATION_STATUS_LABELS[reg.status] ?? reg.status}
-                </strong>
-            </p>
+        <div id={`registration-card-${slug}`} className={resolvedCardClass} lang="he" aria-live="polite">
+            {isCompactLayout ? (
+                <div className="registration-card__header registration-card__header--compact">
+                    <h3 className="registration-card__title">{title}</h3>
+                    <span className="badge registration-card__status-badge bg-success">
+                        רישום פעיל
+                    </span>
+                </div>
+            ) : (
+                <>
+                    <h3 className="h5 mb-3">{title}</h3>
+                    <p className="mb-2">
+                        <span className="text-muted">סטטוס: </span>
+                        <strong>{statusLabel}</strong>
+                    </p>
+                </>
+            )}
 
             {reg.awaitingAdminIdentity && (
                 <div className="alert alert-info py-2 small mb-3" role="status">
@@ -186,7 +211,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </div>
             )}
 
-            {reg.status === 'active' && !reg.invoiceAlert && (
+            {reg.status === 'active' && !reg.invoiceAlert && !isCompactLayout && (
                 <div className="alert alert-success py-2 small mb-3" role="status">
                     פרטי הזהות תואמים לרישום המנהל. הרישום פעיל לעונה.
                 </div>
@@ -227,7 +252,7 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                 </p>
             )}
             {reg.onRoster && (
-                <p className={`small mb-2 ${slug === 'girls' ? 'registration-status-success' : 'text-success'}`}>
+                <p className={`small mb-2 ${isCompactLayout ? 'registration-card__roster-line' : ''} ${slug === 'girls' ? 'registration-status-success' : 'text-success'}`}>
                     רשום בסגל (קבוצה #{reg.onRoster.teamId}).
                 </p>
             )}
@@ -244,9 +269,25 @@ export default function TournamentRegistrationCard({ slug, title }: Props) {
                     />
                 )}
 
-            {reg.status === 'active' && !hasPendingRequest && !reg.onRoster && (
-                <p className="small text-muted mb-2">
-                    הרישום פעיל. שלח בקשת הצטרפות מעמוד קבוצות או בקשת הקמת קבוצה מהטופס בפרופיל.
+            {reg.status === 'active' && !hasPendingRequest && !reg.onRoster && !hideJoinCta && (
+                <p className={`small mb-2 ${isCompactLayout ? 'registration-card__cta mb-0' : 'text-muted'}`}>
+                    {isCompactLayout ? (
+                        <>
+                            <Link to={teamsPath} className="registration-card__teams-link">
+                                בקשת הצטרפות — עמוד קבוצות
+                            </Link>
+                            <span className="registration-card__cta-hint text-muted">
+                                {' '}
+                                · או הקמת קבוצה בפרופיל
+                            </span>
+                        </>
+                    ) : (
+                        <>
+                            הרישום פעיל. שלח בקשת הצטרפות מ
+                            <Link to={teamsPath}>עמוד קבוצות</Link>
+                            {' '}או בקשת הקמת קבוצה מהטופס בפרופיל.
+                        </>
+                    )}
                 </p>
             )}
 
