@@ -45,7 +45,7 @@ function buildSeoHead(pathname: string, options?: { noindex?: boolean }) {
     { type: 'meta', props: { property: 'og:url', content: canonical } },
     { type: 'meta', props: { property: 'og:title', content: title } },
     { type: 'meta', props: { property: 'og:description', content: meta.description } },
-    { type: 'meta', props: { property: 'og:image', content: `${siteUrl}/og-image.png` } },
+    { type: 'meta', props: { property: 'og:image', content: `${siteUrl}/og-image.jpg` } },
   ])
   if (options?.noindex) {
     elements.add({ type: 'meta', props: { name: 'robots', content: 'noindex, nofollow' } })

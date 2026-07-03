@@ -46,7 +46,7 @@ const SEO = ({
   const resolvedKeywords = keywords ?? routeMeta.keywords
   const siteUrl = getSiteUrl()
   const canonical = url ?? canonicalUrl(resolvedPathname)
-  const ogImage = image ?? `${siteUrl}/og-image.png`
+  const ogImage = image ?? `${siteUrl}/og-image.jpg`
   const fullTitle =
     resolvedTitle && !resolvedTitle.includes('טורניר') && !resolvedTitle.includes('מונדיאל')
       ? `${resolvedTitle} | מונדיאל קיץ 2026`
