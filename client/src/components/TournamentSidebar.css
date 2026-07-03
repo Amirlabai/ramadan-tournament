@@ -96,6 +96,70 @@
   background: rgba(80, 146, 56, 0.12);
 }
 
+.tournament-sidebar-item:has(.health-form-link) {
+  margin: 0 0.5rem 0.65rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.tournament-sidebar-link.health-form-link {
+  gap: 0.5rem;
+  min-height: 48px;
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border-inline-start: none;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background: linear-gradient(
+    135deg,
+    #8f1d1d 0%,
+    var(--color-danger, #ef4444) 38%,
+    var(--color-warning, #f59e0b) 72%,
+    var(--color-secondary, #ffae00) 100%
+  );
+  color: #fff;
+  font-weight: 700;
+  line-height: 1.25;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 3px 12px rgba(143, 29, 29, 0.38);
+  transition: transform var(--transition-speed, 0.2s), box-shadow var(--transition-speed, 0.2s);
+}
+
+.tournament-sidebar-link.health-form-link::before {
+  content: '\f479';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.tournament-sidebar-link.health-form-link::after {
+  content: '\f35d';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.7rem;
+  margin-inline-start: auto;
+  opacity: 0.9;
+  flex-shrink: 0;
+}
+
+.tournament-sidebar-link.health-form-link:hover {
+  color: #fff;
+  background: linear-gradient(
+    135deg,
+    #b42318 0%,
+    #ef4444 40%,
+    var(--color-warning, #f59e0b) 75%,
+    hsl(45, 100%, 52%) 100%
+  );
+  box-shadow: 0 4px 16px rgba(180, 35, 24, 0.48);
+  transform: translateY(-1px);
+}
+
+.tournament-sidebar-link.health-form-link:focus-visible {
+  outline: 3px solid var(--color-focus, #0066cc);
+  outline-offset: 2px;
+}
+
 .tournament-sidebar-legal {
   margin-top: 1rem;
   padding-top: 0.75rem;
@@ -279,6 +343,16 @@
     border: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tournament-sidebar-link.health-form-link {
+    transition: none;
+  }
+
+  .tournament-sidebar-link.health-form-link:hover {
+    transform: none;
   }
 }
 

@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { playerAPI } from '../api/client';
+import type { Player } from '../types';
+import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { BIRTH_YEAR_MAX, BIRTH_YEAR_MIN, isBirthYearInRange, sanitizeBirthYearInput } from '../utils/birthYearInput';
 import { isValidIsraeliId, sanitizePersonalIdInput } from '../utils/israeliIdValidation';
@@ -8,21 +10,24 @@ import SEO from '../components/SEO';
 import { trackEvent } from '../utils/analytics';
 import './PlayerZone.css';
 
-interface Player {
-    memberId: number;
-    firstName: string;
-    lastName: string;
-    teamId: number;
-    teamName: string;
-    head_photo?: string;
-    pending_head_photo?: string;
-}
+type PlayerZonePlayer = Pick<
+    Player,
+    | 'memberId'
+    | 'firstName'
+    | 'lastName'
+    | 'head_photo'
+    | 'pending_head_photo'
+    | 'position'
+    | 'isCaptain'
+    | 'isTeamOwner'
+    | 'squadRole'
+> & { teamId: number; teamName: string };
 
 const PlayerZone = () => {
     const navigate = useNavigate();
     const [personalId, setPersonalId] = useState('');
     const [birthYear, setBirthYear] = useState('');
-    const [player, setPlayer] = useState<Player | null>(null);
+    const [player, setPlayer] = useState<PlayerZonePlayer | null>(null);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [file, setFile] = useState<File | null>(null);
@@ -60,6 +65,8 @@ const PlayerZone = () => {
                 setSuccessMsg('התמונה שלך ממתינה לאישור מנהל.');
             } else if (res.data.player.head_photo) {
                 setPreview(resolveAssetUrl(res.data.player.head_photo) ?? null);
+            } else {
+                setPreview(null);
             }
         } catch (err: any) {
             console.error(err);
@@ -193,18 +200,15 @@ const PlayerZone = () => {
 
                         <div className="mb-4">
                             <div className="photo-preview-container mx-auto mb-3">
-                                {preview ? (
-                                    <>
-                                        <img src={preview} alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`} style={{ opacity: player.pending_head_photo ? 0.7 : 1 }} />
-                                        {player.pending_head_photo && (
-                                            <div className="photo-preview-pending">
-                                                ממתין לאישור
-                                            </div>
-                                        )}
-                                    </>
-                                ) : (
-                                    <div className="d-flex align-items-center justify-content-center h-100 text-muted">
-                                        <i className="bi bi-person-fill" style={{ fontSize: '4rem' }}></i>
+                                <PlayerHeadImg
+                                    player={player}
+                                    srcOverride={preview}
+                                    alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`}
+                                    style={{ opacity: player.pending_head_photo && preview ? 0.7 : 1 }}
+                                />
+                                {player.pending_head_photo && preview && (
+                                    <div className="photo-preview-pending">
+                                        ממתין לאישור
                                     </div>
                                 )}
                             </div>

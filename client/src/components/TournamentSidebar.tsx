@@ -62,8 +62,9 @@ const TournamentSidebar = ({
               label={item.label}
               className="tournament-sidebar-link"
               extraClassName={item.className}
-              active={isNavPathActive(item.to)}
+              active={!item.external && isNavPathActive(item.to)}
               showActionDot={item.showActionDot}
+              external={item.external}
               trackNav
               onClick={isMobile ? close : undefined}
             />

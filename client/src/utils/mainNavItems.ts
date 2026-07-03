@@ -1,4 +1,5 @@
 import type { User } from '../contexts/AuthContext'
+import { HEALTH_DECLARATION_FORM_URL } from '../config/contactConfig'
 import { tournamentPaths, type TournamentSlug } from './tournamentPaths'
 
 export type NavActionIndicator = 'profile' | 'admin'
@@ -9,6 +10,7 @@ export interface NavItem {
   className?: string
   showActionDot?: boolean
   actionIndicator?: NavActionIndicator
+  external?: boolean
 }
 
 interface MainNavContext {
@@ -43,6 +45,12 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
     }
   } else {
     items.push(
+      {
+        to: HEALTH_DECLARATION_FORM_URL,
+        label: 'הצהרת בריאות לשחקנים',
+        external: true,
+        className: 'health-form-link',
+      },
       { to: 'mvps' in paths ? paths.mvps : '/mvps', label: 'MVPs' },
       { to: paths.home ?? '/', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות' },

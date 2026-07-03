@@ -27,6 +27,7 @@ interface NavActionLinkProps {
     extraClassName?: string;
     onClick?: () => void;
     trackNav?: boolean;
+    external?: boolean;
 }
 
 export function NavActionLink({
@@ -38,23 +39,45 @@ export function NavActionLink({
     extraClassName = '',
     onClick,
     trackNav = false,
+    external = false,
 }: NavActionLinkProps) {
     const handleClick = () => {
         if (trackNav) {
             trackEvent('nav_click', {
                 category: 'browse',
-                properties: { navTo: to },
+                properties: { navTo: to, external },
             });
         }
         onClick?.();
     };
 
+    const linkClass = navLinkWithDotClass(className, showActionDot, [active && 'active', extraClassName].filter(Boolean).join(' '));
+    const ariaLabel = external
+        ? `${withPendingActionLabel(label, showActionDot)} (נפתח בחלון חדש)`
+        : navLinkActionAriaLabel(label, showActionDot);
+
+    if (external) {
+        return (
+            <a
+                href={to}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={linkClass}
+                aria-label={ariaLabel}
+                onClick={handleClick}
+            >
+                {label}
+                {showActionDot && <NavActionDot />}
+            </a>
+        );
+    }
+
     return (
         <Link
             to={to}
-            className={navLinkWithDotClass(className, showActionDot, [active && 'active', extraClassName].filter(Boolean).join(' '))}
+            className={linkClass}
             aria-current={active ? 'page' : undefined}
-            aria-label={navLinkActionAriaLabel(label, showActionDot)}
+            aria-label={ariaLabel}
             onClick={handleClick}
         >
             {label}

@@ -68,6 +68,11 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
             return;
         }
 
+        const teamMeta = await prisma.team.findFirst({
+            where: { id: playerRow.teamId, seasonId: season.id },
+            select: { ownerUserId: true },
+        });
+
         const player = team.players.find((p) => p.memberId === playerRow.memberId);
 
         if (!player) {
@@ -90,12 +95,17 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
         setPlayerCookie(res, token);
         const body: Record<string, unknown> = {
             player: {
-                memberId: player.memberId,
-                firstName: player.firstName,
-                lastName: player.lastName,
+                memberId: playerRow.memberId,
+                firstName: playerRow.firstName,
+                lastName: playerRow.lastName,
                 teamId: team.id,
                 teamName: team.name,
-                head_photo: player.head_photo
+                head_photo: playerRow.headPhoto || '',
+                pending_head_photo: playerRow.pendingHeadPhoto || '',
+                position: playerRow.position,
+                isCaptain: playerRow.isCaptain,
+                squadRole: playerRow.squadRole,
+                isTeamOwner: !!teamMeta?.ownerUserId && playerRow.userId === teamMeta.ownerUserId,
             },
         };
         if (config.nodeEnv !== 'production') {

@@ -6,6 +6,7 @@ import {
     isPlatformAdmin,
     type RegistrationDivisionSlug,
 } from '../../utils/tournamentUser';
+import { PlayerHeadImg } from '../../components/PlayerHeadImg';
 import type { Team } from '../../types';
 import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
 import './RosterManager.css';
@@ -509,17 +510,19 @@ const RosterManager = () => {
                                                 return (
                                                     <div key={player.memberId} className="admin-player-card">
                                                         <div className="player-card-photo">
-                                                            {player.head_photo ? (
-                                                                <>
-                                                                    <img src={player.head_photo.startsWith('http') ? player.head_photo : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${player.head_photo}`} alt="" />
-                                                                    {canManage && (
-                                                                    <button className="delete-photo-btn" onClick={() => deletePlayerPhoto(team.id, player.memberId, slug)}>
-                                                                        <i className="bi bi-trash" />
-                                                                    </button>
-                                                                    )}
-                                                                </>
-                                                            ) : (
-                                                                <i className="bi bi-person-fill" />
+                                                            <PlayerHeadImg
+                                                                player={player}
+                                                                alt={`תמונת ${player.firstName} ${player.lastName}`}
+                                                            />
+                                                            {player.head_photo && canManage && (
+                                                                <button
+                                                                    type="button"
+                                                                    className="delete-photo-btn"
+                                                                    onClick={() => deletePlayerPhoto(team.id, player.memberId, slug)}
+                                                                    aria-label="מחק תמונה"
+                                                                >
+                                                                    <i className="bi bi-trash" />
+                                                                </button>
                                                             )}
                                                         </div>
                                                         <div className="player-card-info">

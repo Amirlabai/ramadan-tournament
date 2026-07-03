@@ -12,6 +12,7 @@ import AccessibleModal from '../components/AccessibleModal';
 import PageLoading from '../components/PageLoading';
 import EmptyState from '../components/EmptyState';
 import TournamentRoleStar from '../components/TournamentRoleStar';
+import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getRoleStarVariant } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
@@ -446,17 +447,11 @@ const Teams = () => {
                             </div>
                             {selectedPlayer && (
                             <div className="modal-body text-center">
-                                <img
-                                    src={resolveAssetUrl(selectedPlayer.head_photo) || '/assets/images/players/heads/default.jpg'}
-                                    alt={`תמונת ${selectedPlayer?.firstName} ${selectedPlayer?.lastName}`}
+                                <PlayerHeadImg
+                                    player={selectedPlayer}
+                                    alt={`תמונת ${selectedPlayer.firstName} ${selectedPlayer.lastName}`}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
-                                    onError={(e) => {
-                                        const target = e.target as HTMLImageElement;
-                                        target.onerror = null;
-                                        // Simple gray placeholder SVG as data URI
-                                        target.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgMTIwIj48cmVjdCB3aWR0aD0iMTIwIiBoZWlnaHQ9IjEyMCIgZmlsbD0iI2NjYyIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBkb21pbmFudC1iYXNlbGluZT0ibWlkZGxlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjUwIiBmaWxsPSIjNjY2Ij4/PC90ZXh0Pjwvc3ZnPg==';
-                                    }}
                                 />
                                 <h4>{selectedPlayer.nickname}</h4>
                                 <div className="d-flex justify-content-center gap-2 mb-3">
