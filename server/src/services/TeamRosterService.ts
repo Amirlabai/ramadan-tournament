@@ -282,7 +282,8 @@ export class TeamRosterService {
   }
 
   static async saveTeam(team: ITeam, options?: SaveTeamOptions): Promise<ITeam> {
-    if (!team.seasonId) {
+    const seasonId = team.seasonId;
+    if (!seasonId) {
       throw new Error('Team seasonId is required to save');
     }
 
@@ -296,7 +297,7 @@ export class TeamRosterService {
           !existing ||
           !existing.active ||
           existing.teamId !== team.id ||
-          existing.seasonId !== team.seasonId;
+          existing.seasonId !== seasonId;
 
         const profile = {
           firstName: pl.firstName,
@@ -317,13 +318,13 @@ export class TeamRosterService {
           create: {
             memberId: pl.memberId,
             teamId: team.id,
-            seasonId: team.seasonId,
+            seasonId,
             active: true,
             ...profile,
           },
           update: {
             teamId: team.id,
-            seasonId: team.seasonId,
+            seasonId,
             ...(shouldReactivate ? { active: true } : {}),
             ...profile,
           },
@@ -331,7 +332,7 @@ export class TeamRosterService {
       }
 
       await tx.team.update({
-        where: { seasonId_id: { seasonId: team.seasonId, id: team.id } },
+        where: { seasonId_id: { seasonId, id: team.id } },
         data: {
           name: team.name,
           description: team.description ?? '',
@@ -342,7 +343,7 @@ export class TeamRosterService {
     });
 
     if (options?.invalidateCache !== false) {
-      await invalidateTeamSeasonCaches(team.seasonId);
+      await invalidateTeamSeasonCaches(seasonId);
     }
 
     return team;
