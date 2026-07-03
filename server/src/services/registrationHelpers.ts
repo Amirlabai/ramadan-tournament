@@ -1,11 +1,21 @@
-import { Division } from '@prisma/client';
+import { Division, Prisma } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { CacheService } from './CacheService';
 import { SeasonService } from './SeasonService';
 
+/** Serialize member_id allocation across concurrent requests (released at tx end). */
+const MEMBER_ID_ALLOC_LOCK = 847_321_005;
+
+export function isPrismaUniqueViolation(error: unknown): boolean {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
+}
+
 export async function getNextMemberId(): Promise<number> {
-  const max = await prisma.player.aggregate({ _max: { memberId: true } });
-  return (max._max.memberId ?? 0) + 1;
+  return prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(${MEMBER_ID_ALLOC_LOCK})`;
+    const max = await tx.player.aggregate({ _max: { memberId: true } });
+    return (max._max.memberId ?? 0) + 1;
+  });
 }
 
 export async function getNextTeamId(seasonId: string): Promise<number> {

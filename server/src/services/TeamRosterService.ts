@@ -1,7 +1,25 @@
 import { Division } from '@prisma/client';
 import { prisma } from '../lib/prisma';
+import { getNextMemberId as getNextGlobalMemberId, invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
 import { encryptPersonalIdIfNeeded, personalIdLookupValues } from '../utils/personalIdCrypto';
+
+async function invalidateTeamSeasonCaches(seasonId: string): Promise<void> {
+  const season = await prisma.season.findUnique({
+    where: { id: seasonId },
+    select: { division: true },
+  });
+  if (!season) {
+    console.warn(`invalidateTeamSeasonCaches: season not found for id ${seasonId}`);
+    return;
+  }
+  await invalidateDivisionCaches(season.division);
+}
+
+export interface SaveTeamOptions {
+  /** Default true. Set false when batching multiple saves (e.g. movePlayer). */
+  invalidateCache?: boolean;
+}
 
 export interface IPlayer {
   memberId: number;
@@ -230,10 +248,8 @@ export class TeamRosterService {
     return (max?.id ?? 0) + 1;
   }
 
-  static async getNextMemberId(division: Division = Division.boys): Promise<number> {
-    const teams = await this.findAllTeamsWithPlayers(division);
-    const allIds = teams.flatMap((t) => t.players.map((p) => p.memberId));
-    return allIds.length > 0 ? Math.max(...allIds) + 1 : 1;
+  static async getNextMemberId(_division?: Division): Promise<number> {
+    return getNextGlobalMemberId();
   }
 
   static async createTeam(
@@ -265,18 +281,24 @@ export class TeamRosterService {
     return team;
   }
 
-  static async saveTeam(team: ITeam): Promise<ITeam> {
+  static async saveTeam(team: ITeam, options?: SaveTeamOptions): Promise<ITeam> {
     if (!team.seasonId) {
       throw new Error('Team seasonId is required to save');
     }
 
-    for (const pl of team.players) {
-      await prisma.player.upsert({
-        where: { memberId: pl.memberId },
-        create: {
-          memberId: pl.memberId,
-          teamId: team.id,
-          seasonId: team.seasonId,
+    await prisma.$transaction(async (tx) => {
+      for (const pl of team.players) {
+        const existing = await tx.player.findUnique({
+          where: { memberId: pl.memberId },
+          select: { teamId: true, seasonId: true, active: true },
+        });
+        const shouldReactivate =
+          !existing ||
+          !existing.active ||
+          existing.teamId !== team.id ||
+          existing.seasonId !== team.seasonId;
+
+        const profile = {
           firstName: pl.firstName,
           lastName: pl.lastName,
           nickname: pl.nickname,
@@ -288,32 +310,40 @@ export class TeamRosterService {
           bio: pl.bio,
           personalIdEnc: encryptPersonalIdIfNeeded(pl.personalId),
           birthYear: pl.birthYear,
-        },
-        update: {
-          firstName: pl.firstName,
-          lastName: pl.lastName,
-          nickname: pl.nickname,
-          number: pl.number,
-          position: pl.position,
-          isCaptain: pl.isCaptain,
-          headPhoto: pl.head_photo,
-          pendingHeadPhoto: pl.pending_head_photo,
-          bio: pl.bio,
-          personalIdEnc: encryptPersonalIdIfNeeded(pl.personalId),
-          birthYear: pl.birthYear,
+        };
+
+        await tx.player.upsert({
+          where: { memberId: pl.memberId },
+          create: {
+            memberId: pl.memberId,
+            teamId: team.id,
+            seasonId: team.seasonId,
+            active: true,
+            ...profile,
+          },
+          update: {
+            teamId: team.id,
+            seasonId: team.seasonId,
+            ...(shouldReactivate ? { active: true } : {}),
+            ...profile,
+          },
+        });
+      }
+
+      await tx.team.update({
+        where: { seasonId_id: { seasonId: team.seasonId, id: team.id } },
+        data: {
+          name: team.name,
+          description: team.description ?? '',
+          logoUrl: team.logoUrl,
+          logoPosition: team.logoPosition,
         },
       });
-    }
-
-    await prisma.team.update({
-      where: { seasonId_id: { seasonId: team.seasonId, id: team.id } },
-      data: {
-        name: team.name,
-        description: team.description ?? '',
-        logoUrl: team.logoUrl,
-        logoPosition: team.logoPosition,
-      },
     });
+
+    if (options?.invalidateCache !== false) {
+      await invalidateTeamSeasonCaches(team.seasonId);
+    }
 
     return team;
   }
@@ -357,5 +387,6 @@ export class TeamRosterService {
         }
       }
     });
+    await invalidateDivisionCaches(division);
   }
 }

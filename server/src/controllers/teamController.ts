@@ -20,6 +20,7 @@ import {
 } from '../repositories/userMappingRepository';
 import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
+import { isPrismaUniqueViolation } from '../services/registrationHelpers';
 import { respondNotFound } from '../utils/respondNotFound';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
@@ -244,9 +245,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
 
                 // If it's a custom player request (memberId is 0), create a new player record
                 if (activeMemberId === 0 && userToUpdate.playerProfile) {
-                    const newMemberId = teamDoc.players.length > 0
-                        ? Math.max(...teamDoc.players.map(p => p.memberId || 0)) + 1
-                        : 1;
+                    const newMemberId = await TeamRosterService.getNextMemberId(slugToDivision(division));
 
                     const newPlayer = {
                         memberId: newMemberId,
@@ -461,18 +460,20 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
-        // Generate a globally-unique memberId by scanning all teams
-        const allTeams = await TeamRosterService.findAllTeamsWithPlayers(slugToDivision(division));
-        const allMemberIds = allTeams.flatMap(t => t.players.map(p => p.memberId));
-        const maxId = allMemberIds.length > 0 ? Math.max(...allMemberIds) : 0;
-        const newMemberId = maxId + 1;
+        const jersey = Number(number);
+        if (team.players.some((p) => p.number === jersey)) {
+            res.status(409).json({ error: 'מספר החולצה כבר בשימוש בקבוצה זו' });
+            return;
+        }
+
+        let newMemberId = await TeamRosterService.getNextMemberId(slugToDivision(division));
 
         const newPlayer: any = {
             memberId: newMemberId,
             firstName: firstName.trim(),
             lastName: (lastName || '').trim(),
             nickname: (nickname || '').trim(),
-            number: Number(number),
+            number: jersey,
             position: (position || '').trim(),
             isCaptain: !!isCaptain,
             head_photo: '',
@@ -482,7 +483,22 @@ export const addPlayer = async (req: AuthRequest, res: Response): Promise<void> 
         };
 
         team.players.push(newPlayer);
-        await TeamRosterService.saveTeam(team);
+
+        for (let attempt = 0; attempt < 5; attempt++) {
+            try {
+                await TeamRosterService.saveTeam(team);
+                break;
+            } catch (error) {
+                if (isPrismaUniqueViolation(error) && attempt < 4) {
+                    team.players.pop();
+                    newMemberId = await TeamRosterService.getNextMemberId(slugToDivision(division));
+                    newPlayer.memberId = newMemberId;
+                    team.players.push(newPlayer);
+                    continue;
+                }
+                throw error;
+            }
+        }
 
         res.json({ message: 'שחקן נוסף בהצלחה', player: newPlayer });
     } catch (error) {
@@ -589,10 +605,8 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
 
         targetTeam.players.push({ ...player });
 
-        await Promise.all([
-            TeamRosterService.saveTeam(sourceTeam),
-            TeamRosterService.saveTeam(targetTeam),
-        ]);
+        await TeamRosterService.saveTeam(sourceTeam, { invalidateCache: false });
+        await TeamRosterService.saveTeam(targetTeam);
 
         await moveApprovedMappingTeam(sourceTeamId, memberId, parseInt(targetTeamId));
 
