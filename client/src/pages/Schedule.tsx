@@ -9,6 +9,7 @@ import CommentSection from '../components/CommentSection';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Schedule.css';
 
 const Schedule = () => {
@@ -68,7 +69,9 @@ const Schedule = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
+    if (showSkeleton) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const getTeamName = (teamId: number) => {

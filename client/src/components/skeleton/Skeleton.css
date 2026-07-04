@@ -1,15 +1,21 @@
+/* High-contrast shimmer — visible on all themes and browsers without color-mix */
+
 .skeleton-block {
+  --skeleton-base: #c5cdd6;
+
+  position: relative;
   display: block;
-  background: var(--color-border, #e0e0e0);
-  background: linear-gradient(
-    90deg,
-    var(--color-border, #e0e0e0) 0%,
-    color-mix(in srgb, var(--color-border, #e0e0e0) 55%, var(--color-surface, #fff)) 50%,
-    var(--color-border, #e0e0e0) 100%
-  );
-  background-size: 200% 100%;
-  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  overflow: hidden;
   border-radius: 4px;
+  background-color: var(--skeleton-base);
+}
+
+[data-tournament='girls'] .skeleton-block {
+  --skeleton-base: #dbc8d4;
+}
+
+[data-tournament='worldcup'] .skeleton-block {
+  --skeleton-base: #b8c4d8;
 }
 
 .skeleton-block--rounded {
@@ -18,6 +24,42 @@
 
 .skeleton-block--circle {
   border-radius: 50%;
+}
+
+/* Single page-level sweep — avoids dozens of parallel block animations */
+.page-skeleton-loading {
+  --skeleton-sweep-highlight: rgba(255, 255, 255, 0.55);
+
+  position: relative;
+  overflow: hidden;
+}
+
+[data-tournament='girls'] .page-skeleton-loading {
+  --skeleton-sweep-highlight: rgba(255, 248, 252, 0.58);
+}
+
+[data-tournament='worldcup'] .page-skeleton-loading {
+  --skeleton-sweep-highlight: rgba(240, 246, 255, 0.58);
+}
+
+.page-skeleton-loading::after {
+  content: '';
+  position: absolute;
+  inset: -20% -60%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    var(--skeleton-sweep-highlight) 50%,
+    transparent 58%
+  );
+  animation: skeleton-page-sweep 2.2s ease-in-out infinite;
+}
+
+.page-skeleton-loading > * {
+  position: relative;
+  z-index: 1;
 }
 
 .skeleton-page-title {
@@ -220,18 +262,18 @@
   text-align: center;
 }
 
-@keyframes skeleton-shimmer {
+@keyframes skeleton-page-sweep {
   0% {
-    background-position: 100% 0;
+    transform: translateX(-120%) rotate(0deg);
   }
   100% {
-    background-position: -100% 0;
+    transform: translateX(120%) rotate(0deg);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .skeleton-block {
+  .page-skeleton-loading::after {
     animation: none;
-    background: var(--color-border, #e0e0e0);
+    display: none;
   }
 }

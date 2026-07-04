@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import './Skeleton.css';
 
 interface PageSkeletonStatusProps {
   label: string;
@@ -12,8 +13,10 @@ export default function PageSkeletonStatus({
   children,
   className = '',
 }: PageSkeletonStatusProps) {
+  const rootClass = ['page-skeleton-loading', className].filter(Boolean).join(' ');
+
   return (
-    <div className={className} role="status" aria-live="polite">
+    <div className={rootClass} role="status" aria-live="polite">
       <span className="visually-hidden">{label}</span>
       {children}
     </div>

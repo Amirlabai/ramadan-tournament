@@ -4,6 +4,7 @@ import { worldcupAPI } from '../../api/client';
 import type { DashboardData } from '../../types';
 import SEO from '../../components/SEO';
 import { WorldCupDashboardSkeleton } from '../../components/skeleton';
+import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { filterDisplayableKnockoutMatches } from '../../utils/worldCupKnockout';
 import { useTournament } from '../../contexts/TournamentContext';
 import '../../pages/Dashboard.css';
@@ -47,7 +48,11 @@ const WorldCupDashboard = () => {
     return () => clearInterval(interval);
   }, [data?.nextMatches?.length]);
 
-  if (seasonLoading || loading) {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
+    error: seasonError || error,
+  });
+
+  if (showSkeleton) {
     return <WorldCupDashboardSkeleton label="טוען נתוני מונדיאל..." />;
   }
 

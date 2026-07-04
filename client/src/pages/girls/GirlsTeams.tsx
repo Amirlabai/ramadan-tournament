@@ -5,6 +5,7 @@ import TeamOwnerSettings from '../../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../../components/registration/OwnerSquadRoles';
 import SEO from '../../components/SEO';
 import { GirlsTeamsSkeleton } from '../../components/skeleton';
+import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTournament } from '../../contexts/TournamentContext';
 import type { Team } from '../../types';
@@ -89,7 +90,11 @@ const GirlsTeams = () => {
     }
   };
 
-  if (seasonLoading || loading) {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
+    error: seasonError || error,
+  });
+
+  if (showSkeleton) {
     return <GirlsTeamsSkeleton label="טוען קבוצות..." />;
   }
 

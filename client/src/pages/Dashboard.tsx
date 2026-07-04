@@ -15,6 +15,7 @@ import PlayoffBracket from '../components/PlayoffBracket';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -65,7 +66,9 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <DashboardSkeleton label="טוען לוח בקרה..." />;
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
+    if (showSkeleton) return <DashboardSkeleton label="טוען לוח בקרה..." />;
     if (error) return <div className="error">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 

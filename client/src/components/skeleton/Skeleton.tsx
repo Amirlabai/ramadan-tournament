@@ -29,5 +29,5 @@ export default function Skeleton({
     .filter(Boolean)
     .join(' ');
 
-  return <span className={classes} style={style} aria-hidden="true" />;
+  return <div className={classes} style={style} aria-hidden="true" />;
 }

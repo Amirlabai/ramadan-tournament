@@ -3,6 +3,7 @@ import { worldcupAPI } from '../../api/client';
 import type { GroupStanding, Match, TopScorer } from '../../types';
 import SEO from '../../components/SEO';
 import { WorldCupStatsSkeleton } from '../../components/skeleton';
+import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import WorldCupBracket from '../../components/WorldCupBracket';
 import { filterDisplayableKnockoutMatches } from '../../utils/worldCupKnockout';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
@@ -76,7 +77,9 @@ const WorldCupStats = () => {
     return [...map.entries()].sort(([a], [b]) => sortGroupKeys(a, b));
   }, [standings]);
 
-  if (loading) {
+  const showSkeleton = useMinSkeletonTime(loading, { error });
+
+  if (showSkeleton) {
     return <WorldCupStatsSkeleton label="טוען סטטיסטיקות..." />;
   }
   if (error) return <div className="error" role="alert">{error}</div>;

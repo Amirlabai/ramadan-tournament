@@ -8,6 +8,7 @@ import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Stats.css';
 
 const Stats = () => {
@@ -57,7 +58,9 @@ const Stats = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <StatsSkeleton label="טוען סטטיסטיקות..." />;
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
+    if (showSkeleton) return <StatsSkeleton label="טוען סטטיסטיקות..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const hasStats = standings.length > 0 || topScorers.length > 0;

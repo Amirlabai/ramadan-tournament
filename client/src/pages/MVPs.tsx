@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import { MvpsSkeleton } from '../components/skeleton';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Dashboard.css'; // Reusing Dashboard styles for the widgets
 
 const MVPs = () => {
@@ -83,7 +84,9 @@ const MVPs = () => {
         fetchMyVote();
     }, [user, authLoading]);
 
-    if (loading) return <MvpsSkeleton label="טוען מצטיינים..." />;
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
+    if (showSkeleton) return <MvpsSkeleton label="טוען מצטיינים..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 

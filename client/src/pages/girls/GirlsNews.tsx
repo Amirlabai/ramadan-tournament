@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { newsAPI } from '../../api/client';
 import SEO from '../../components/SEO';
 import { GirlsNewsSkeleton } from '../../components/skeleton';
+import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useTournament } from '../../contexts/TournamentContext';
 import type { News } from '../../types';
 
@@ -27,7 +28,11 @@ const GirlsNews = () => {
     void load();
   }, []);
 
-  if (seasonLoading || loading) {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
+    error: seasonError || error,
+  });
+
+  if (showSkeleton) {
     return <GirlsNewsSkeleton label="טוען חדשות..." />;
   }
 

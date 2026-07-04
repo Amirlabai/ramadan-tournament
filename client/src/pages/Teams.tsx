@@ -18,6 +18,7 @@ import { getRoleStarVariant } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -213,7 +214,9 @@ const Teams = () => {
         }
     };
 
-    if (loading) return <TeamsSkeleton label="טוען קבוצות..." />;
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
+    if (showSkeleton) return <TeamsSkeleton label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     const selectedPlayerRoleStar = selectedPlayer

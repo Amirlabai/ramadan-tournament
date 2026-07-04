@@ -9,6 +9,7 @@ import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import { ProfileSkeleton } from '../components/skeleton';
+import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import {
     getProfileTournamentBadge,
@@ -243,7 +244,9 @@ const Profile = () => {
         }
     }, [user]);
 
-    if (loading) {
+    const showSkeleton = useMinSkeletonTime(loading);
+
+    if (showSkeleton) {
         return <ProfileSkeleton label="טוען פרופיל..." />;
     }
 
