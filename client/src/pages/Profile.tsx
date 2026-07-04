@@ -8,7 +8,7 @@ import TeamRegistrationActions from '../components/registration/TeamRegistration
 import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
-import PageLoading from '../components/PageLoading';
+import { ProfileSkeleton } from '../components/skeleton';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import {
     getProfileTournamentBadge,
@@ -244,7 +244,7 @@ const Profile = () => {
     }, [user]);
 
     if (loading) {
-        return <PageLoading label="טוען פרופיל..." />;
+        return <ProfileSkeleton label="טוען פרופיל..." />;
     }
 
     if (!user) return null;

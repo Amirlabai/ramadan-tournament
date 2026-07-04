@@ -9,7 +9,7 @@ import { useTournament } from '../contexts/TournamentContext';
 import type { Team } from '../types';
 import SEO from '../components/SEO';
 import AccessibleModal from '../components/AccessibleModal';
-import PageLoading from '../components/PageLoading';
+import { TeamsSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
@@ -213,7 +213,7 @@ const Teams = () => {
         }
     };
 
-    if (loading) return <PageLoading label="טוען קבוצות..." />;
+    if (loading) return <TeamsSkeleton label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     const selectedPlayerRoleStar = selectedPlayer

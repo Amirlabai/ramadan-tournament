@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { worldcupAPI } from '../../api/client';
 import type { Match } from '../../types';
 import SEO from '../../components/SEO';
+import { WorldCupScheduleSkeleton } from '../../components/skeleton';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
 import '../../pages/Schedule.css';
 
@@ -83,12 +84,7 @@ const WorldCupSchedule = () => {
   }, [matches.length]);
 
   if (loading) {
-    return (
-      <div className="loading" role="status">
-        <span className="visually-hidden">טוען...</span>
-        טוען...
-      </div>
-    );
+    return <WorldCupScheduleSkeleton label="טוען לוח משחקים..." />;
   }
   if (error) return <div className="error" role="alert">{error}</div>;
 

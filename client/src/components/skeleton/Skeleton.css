@@ -1,0 +1,237 @@
+.skeleton-block {
+  display: block;
+  background: var(--color-border, #e0e0e0);
+  background: linear-gradient(
+    90deg,
+    var(--color-border, #e0e0e0) 0%,
+    color-mix(in srgb, var(--color-border, #e0e0e0) 55%, var(--color-surface, #fff)) 50%,
+    var(--color-border, #e0e0e0) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+.skeleton-block--rounded {
+  border-radius: 999px;
+}
+
+.skeleton-block--circle {
+  border-radius: 50%;
+}
+
+.skeleton-page-title {
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.skeleton-page-title__bar {
+  max-width: 14rem;
+  height: 1.75rem;
+}
+
+.skeleton-filter-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.skeleton-filter-pill {
+  width: 4.5rem;
+  height: 2.25rem;
+  border-radius: 999px;
+}
+
+.skeleton-match-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.skeleton-match-card {
+  padding: 1rem;
+  border-radius: 6px;
+  background: var(--color-bg, #f5f5f5);
+}
+
+.skeleton-match-card__teams {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.skeleton-match-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.skeleton-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 0;
+}
+
+.skeleton-data-table th,
+.skeleton-data-table td {
+  padding: 0.65rem 0.75rem;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.skeleton-data-table__cell {
+  height: 1rem;
+}
+
+.skeleton-card-block {
+  padding: 1.25rem;
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+  margin-bottom: 1rem;
+}
+
+.skeleton-profile-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-profile-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-archive-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-archive-tab {
+  width: 5.5rem;
+  height: 2.5rem;
+  border-radius: 6px;
+}
+
+.skeleton-news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.skeleton-news-card {
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
+  border: 1px solid var(--color-border, #e0e0e0);
+}
+
+.skeleton-wc-search {
+  height: 2.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+}
+
+.skeleton-section-label {
+  margin-bottom: 1rem;
+}
+
+.stats-page .standings-table .skeleton-section-label--standings,
+.stats-page .top-scorers-list .skeleton-section-label--scorers {
+  margin-bottom: 1rem;
+}
+
+.wc-group-card .skeleton-section-label--wc-group {
+  margin-bottom: 0.4rem;
+}
+
+.skeleton-filter-btn {
+  pointer-events: none;
+  cursor: default;
+}
+
+.skeleton-filter-btn .filter-count {
+  display: inline-flex;
+  align-items: center;
+}
+
+.skeleton-dashboard-card {
+  margin-bottom: 1.5rem;
+}
+
+.skeleton-dashboard-card__title {
+  margin-bottom: 1rem;
+}
+
+.skeleton-scorer-item__details {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-mvp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+}
+
+.skeleton-mvp-row__main {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-mvp-row__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-wc-team-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+}
+
+.skeleton-wc-team-header__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-premium-scorer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  text-align: center;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    background: var(--color-border, #e0e0e0);
+  }
+}

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import type { Standing, TopScorer, Match } from '../types';
 import SEO from '../components/SEO';
-import PageLoading from '../components/PageLoading';
+import { StatsSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-tournament/shared';
@@ -57,7 +57,7 @@ const Stats = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <PageLoading label="טוען סטטיסטיקות..." />;
+    if (loading) return <StatsSkeleton label="טוען סטטיסטיקות..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const hasStats = standings.length > 0 || topScorers.length > 0;

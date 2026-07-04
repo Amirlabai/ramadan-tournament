@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { worldcupAPI } from '../../api/client';
 import type { Team } from '../../types';
 import SEO from '../../components/SEO';
+import { WorldCupTeamsSkeleton } from '../../components/skeleton';
 
 const POSITION_SECTIONS: { keys: string[]; label: string }[] = [
   { keys: ['שוער', 'Goalkeeper'], label: 'שוערים' },
@@ -72,12 +73,7 @@ const WorldCupTeams = () => {
   }, [teams, query]);
 
   if (loading) {
-    return (
-      <div className="loading" role="status">
-        <span className="visually-hidden">טוען...</span>
-        טוען...
-      </div>
-    );
+    return <WorldCupTeamsSkeleton label="טוען נבחרות..." />;
   }
 
   if (error) {

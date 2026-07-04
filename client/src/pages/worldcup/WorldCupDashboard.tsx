@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { worldcupAPI } from '../../api/client';
 import type { DashboardData } from '../../types';
 import SEO from '../../components/SEO';
+import { WorldCupDashboardSkeleton } from '../../components/skeleton';
 import { filterDisplayableKnockoutMatches } from '../../utils/worldCupKnockout';
 import { useTournament } from '../../contexts/TournamentContext';
 import '../../pages/Dashboard.css';
@@ -47,12 +48,7 @@ const WorldCupDashboard = () => {
   }, [data?.nextMatches?.length]);
 
   if (seasonLoading || loading) {
-    return (
-      <div className="loading" role="status">
-        <span className="visually-hidden">טוען...</span>
-        טוען...
-      </div>
-    );
+    return <WorldCupDashboardSkeleton label="טוען נתוני מונדיאל..." />;
   }
 
   if (seasonError || error) {

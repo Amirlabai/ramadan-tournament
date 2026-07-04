@@ -7,7 +7,7 @@ import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
 import { getProfileTournamentBadge, needsIdentitySubmission } from '../utils/tournamentUser';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
-import PageLoading from '../components/PageLoading';
+import { DashboardSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
@@ -65,7 +65,7 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <PageLoading label="טוען לוח בקרה..." />;
+    if (loading) return <DashboardSkeleton label="טוען לוח בקרה..." />;
     if (error) return <div className="error">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 

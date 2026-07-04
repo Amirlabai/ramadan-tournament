@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { statsGirlsAPI } from '../../api/client';
 import SEO from '../../components/SEO';
+import { GirlsHomeSkeleton } from '../../components/skeleton';
 import { useTournament } from '../../contexts/TournamentContext';
 import '../Stats.css';
 
@@ -34,12 +35,7 @@ const GirlsHome = () => {
   }, []);
 
   if (seasonLoading || loading) {
-    return (
-      <div className="loading" role="status">
-        <span className="visually-hidden">טוען...</span>
-        טוען...
-      </div>
-    );
+    return <GirlsHomeSkeleton label="טוען טבלת נקודות..." />;
   }
 
   if (seasonError || error) {

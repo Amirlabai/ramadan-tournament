@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { STANDINGS_PLAYOFF_ZONE_SIZE } from '@ramadan-tournament/shared';
 import { archiveAPI } from '../api/client';
 import SEO from '../components/SEO';
+import { ArchiveSkeleton } from '../components/skeleton';
 import './Archive.css';
 
 interface SeasonMetadata {
@@ -55,7 +56,7 @@ const Archive: React.FC = () => {
   };
 
   if (loading && !selectedSeason) {
-    return <div className="text-center py-5"><div className="spinner-border text-success" role="status"></div></div>;
+    return <ArchiveSkeleton label="טוען ארכיון..." />;
   }
 
   return (

@@ -4,6 +4,7 @@ import TeamRegistrationActions from '../../components/registration/TeamRegistrat
 import TeamOwnerSettings from '../../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../../components/registration/OwnerSquadRoles';
 import SEO from '../../components/SEO';
+import { GirlsTeamsSkeleton } from '../../components/skeleton';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTournament } from '../../contexts/TournamentContext';
 import type { Team } from '../../types';
@@ -89,13 +90,7 @@ const GirlsTeams = () => {
   };
 
   if (seasonLoading || loading) {
-    return (
-      <div className="text-center p-5">
-        <div className="spinner-border text-tournament-primary" role="status">
-          <span className="visually-hidden">טוען...</span>
-        </div>
-      </div>
-    );
+    return <GirlsTeamsSkeleton label="טוען קבוצות..." />;
   }
 
   if (seasonError || error) {

@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import SEO from '../components/SEO';
-import PageLoading from '../components/PageLoading';
+import { ScheduleSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import { resolveAssetUrl } from '../utils/assetUrl';
@@ -68,7 +68,7 @@ const Schedule = () => {
         return () => clearInterval(interval);
     }, []);
 
-    if (loading) return <PageLoading label="טוען לוח משחקים..." />;
+    if (loading) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const getTeamName = (teamId: number) => {
