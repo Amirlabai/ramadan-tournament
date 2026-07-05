@@ -1,15 +1,9 @@
 {
-  "exported_at": "2026-07-04T08:39:32+03:00",
+  "exported_at": "2026-07-05T08:57:47+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "users.csv",
     "season_registrations.csv",
-    "teams.csv",
-    "players.csv",
-    "news.csv",
-    "votes.csv",
-    "stats_snapshots.csv",
-    "team_join_requests.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -90,7 +84,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 2175,
+      "rows": 2404,
       "file": "analytics_events.csv"
     }
   },
