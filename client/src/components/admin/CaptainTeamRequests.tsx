@@ -3,9 +3,8 @@ import { teamsAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import { resolveLegacyCaptainTeam } from '../../utils/navActionIndicators';
+import { resolveAssetUrl } from '../../utils/assetUrl';
 import './CaptainTeamRequests.css';
-
-const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 interface PendingUser {
     id: string;
@@ -100,11 +99,7 @@ const CaptainTeamRequests = () => {
                                         <div className="d-flex align-items-center gap-3">
                                             {req.avatarUrl ? (
                                                 <img
-                                                    src={
-                                                        req.avatarUrl.startsWith('http')
-                                                            ? req.avatarUrl
-                                                            : `${VITE_API_URL}${req.avatarUrl}`
-                                                    }
+                                                    src={resolveAssetUrl(req.avatarUrl) ?? ''}
                                                     alt=""
                                                     className="avatar-sm rounded-circle"
                                                 />

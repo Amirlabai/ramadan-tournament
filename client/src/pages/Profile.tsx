@@ -21,9 +21,8 @@ import {
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
 import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
 import { tournamentPaths } from '../utils/tournamentPaths';
+import { resolveAssetUrl } from '../utils/assetUrl';
 import './Profile.css';
-
-const VITE_API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '');
 
 const PROFILE_ROLE_LABELS: Record<string, string> = {
     Admin: 'מנהל',
@@ -330,9 +329,7 @@ const Profile = () => {
         }
     };
 
-    const avatarSrc = user.avatarUrl
-        ? (user.avatarUrl.startsWith('http') ? user.avatarUrl : `${VITE_API_URL}${user.avatarUrl}`)
-        : null;
+    const avatarSrc = resolveAssetUrl(user.avatarUrl) ?? null;
 
     const statusColors: Record<string, string> = {
         pending: 'warning',

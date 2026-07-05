@@ -7,6 +7,7 @@ import {
     type RegistrationDivisionSlug,
 } from '../../utils/tournamentUser';
 import { PlayerHeadImg } from '../../components/PlayerHeadImg';
+import { resolveAssetUrl } from '../../utils/assetUrl';
 import type { Team } from '../../types';
 import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
 import './RosterManager.css';
@@ -262,7 +263,7 @@ const RosterManager = () => {
                                     <tr key={req.id} className="match-table-row">
                                         <td>
                                             <div className="d-flex align-items-center gap-2">
-                                                {req.avatarUrl && <img src={req.avatarUrl} alt="" className="avatar-sm" />}
+                                                {req.avatarUrl && <img src={resolveAssetUrl(req.avatarUrl) ?? ''} alt="" className="avatar-sm" />}
                                                 <div>
                                                     <div className="fw-bold">{req.displayName}</div>
                                                     <div className="text-muted small">{req.email}</div>
@@ -306,7 +307,7 @@ const RosterManager = () => {
                                     <tr key={u.id} className="match-table-row">
                                         <td>
                                             <div className="d-flex align-items-center gap-2">
-                                                {u.avatarUrl && <img src={u.avatarUrl} alt="" className="avatar-sm" />}
+                                                {u.avatarUrl && <img src={resolveAssetUrl(u.avatarUrl) ?? ''} alt="" className="avatar-sm" />}
                                                 <div>
                                                     <div className="fw-bold">{u.displayName}</div>
                                                     <div className="text-muted small">{u.email}</div>
@@ -364,7 +365,7 @@ const RosterManager = () => {
                                         <span className="badge bg-secondary">{slug === 'girls' ? 'בנות' : 'בנים'}</span>
                                         {(team as any).logoUrl && (
                                             <div className="position-relative d-flex align-items-center">
-                                                <img src={(team as any).logoUrl.startsWith('http') ? (team as any).logoUrl : `${(import.meta.env.VITE_API_URL || 'http://localhost:5000').replace(/\/api$/, '')}${(team as any).logoUrl}`}
+                                                <img src={resolveAssetUrl((team as any).logoUrl) ?? ''}
                                                     alt="" className="team-logo-inline" />
                                                 {platformAdmin && (
                                                 <button className="btn btn-danger btn-sm p-0 d-flex align-items-center justify-content-center position-absolute top-0 start-0"
