@@ -65,7 +65,7 @@ const Footer = () => {
                         </p>
                     </div>
 
-                    <div className="col-md-6 col-lg-3">
+                    <div className="col-md-6 col-lg-3 footer-nav-tournament">
                         <h5 className="footer-heading">קישורים</h5>
                         <ul className="footer-list">
                             {tournamentLinks.map((link) => (

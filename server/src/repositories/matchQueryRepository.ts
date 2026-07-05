@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma';
+import { MATCH_DURATION_MS } from '@ramadan-tournament/shared';
 import { SeasonService } from '../services/SeasonService';
 import type { IMatch } from '../models/Match';
 
@@ -45,7 +46,12 @@ export async function listMatches(options: MatchListOptions = {}): Promise<Array
       ...(options.dateTo ? { lte: options.dateTo } : {}),
     };
   }
-  if (options.finishedOnly) where.score1 = { not: null };
+  if (options.finishedOnly) {
+    const kickoffEndedBefore = new Date(Date.now() - MATCH_DURATION_MS);
+    where.date = { ...(where.date as object), lt: kickoffEndedBefore };
+    where.score1 = { not: null };
+    where.score2 = { not: null };
+  }
 
   const orderField = options.sortField ?? 'date';
   const orderDirection = options.sortDirection ?? 'desc';

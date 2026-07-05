@@ -1,25 +1,23 @@
 /* Shared UI patterns — claim banner, dashboard card headers */
 
 .custom-claim-banner {
-    background: linear-gradient(135deg, rgba(255, 255, 0, 0.05) 0%, var(--color-primary-a05) 100%);
+    background: var(--color-primary-a05);
     border: 1px solid var(--color-primary-a20);
-    border-right: 4px solid var(--primary-green);
     border-radius: 12px;
     color: var(--text);
     padding: 1.25rem;
 }
 
 .custom-claim-banner--dashboard {
-    background: linear-gradient(135deg, rgba(46, 125, 50, 0.1) 0%, rgba(26, 35, 24, 0.3) 100%);
-    border: none;
-    border-right: 4px solid var(--primary-green);
+    background: var(--color-primary-a08);
+    border: 1px solid var(--color-primary-a20);
     border-radius: 8px;
     padding: 1rem;
 }
 
 .custom-claim-banner--mvp-vote {
-    background: linear-gradient(135deg, var(--secondary-yellow) 0%, #ffe285 100%);
-    color: var(--text);
+    background: var(--color-secondary);
+    color: var(--color-text);
     border: none;
 }
 
@@ -41,12 +39,12 @@
 .mvp-race-card h3,
 .recent-matches h2,
 .recent-matches h3 {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
+    background: var(--color-primary);
     color: var(--white) !important;
     margin: 0;
     padding: 0.875rem 1rem;
     text-align: center;
-    font-size: 1.15rem;
+    font-size: var(--font-size-lg);
     font-weight: 700;
     line-height: 1.3;
 }

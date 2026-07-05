@@ -14,6 +14,27 @@
   --color-focus: #0066cc;
   --color-white: #FFFFFF;
 
+  /* Gold / highlight accents (medals, playoff badges, news banner) */
+  --color-gold: #ffd700;
+  --color-gold-dark: #b8860b;
+  --color-gold-light: #ffe285;
+  --color-highlight-bg-start: #fff8dc;
+  --color-highlight-bg-end: #ffe4b5;
+
+  /* News banner — light surface + brand accent (not loud yellow) */
+  --color-news-banner-bg: var(--color-surface);
+  --color-news-banner-border: var(--color-primary-a20);
+  --color-news-banner-accent: var(--color-primary);
+
+  /* Typography scale (product UI — fixed rem) */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-site-title: 2.25rem;
+
   /* Playoff zone highlight (standings table) */
   --color-playoff-zone-bg: #dbeafe;
   --color-playoff-zone-accent: #1e40af;

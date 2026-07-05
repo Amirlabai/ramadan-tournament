@@ -230,7 +230,7 @@ const Teams = () => {
                 description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
                 pathname="/teams"
             />
-            <h2 className="mb-4 fw-bold text-success border-bottom pb-2">קבוצות הטורניר</h2>
+            <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">קבוצות הטורניר</h2>
 
             {teams.length === 0 ? (
                 <EmptyState

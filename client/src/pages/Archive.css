@@ -39,16 +39,18 @@
 
 /* --- Hero Award Cards --- */
 .stat-box--gold {
-    background: linear-gradient(135deg, #ffd700 0%, #ffae4b 100%);
+    background: var(--color-secondary);
+    color: var(--color-text);
 }
 
 .stat-box--mvp {
-    background: linear-gradient(135deg, var(--primary-green) 0%, var(--color-primary-dark) 100%);
+    background: var(--color-primary);
+    color: var(--white);
 }
 
 .archive-summary-card {
     background: var(--color-primary-a05);
-    border-right: 4px solid var(--primary-green);
+    border: 1px solid var(--color-primary-a20);
 }
 
 .stat-box {

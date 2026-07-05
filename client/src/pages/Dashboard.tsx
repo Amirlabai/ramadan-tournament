@@ -14,7 +14,7 @@ import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { trackEvent } from '../utils/analytics';
-import { shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Dashboard.css';
 
@@ -103,7 +103,10 @@ const Dashboard = () => {
 
     const hasPlayoffs = !!(data.playoffMatches && data.playoffMatches.length > 0);
     const hasNextMatches = !!(data.nextMatches && data.nextMatches.length > 0);
-    const hasRecentMatches = !!(data.recentMatches && data.recentMatches.length > 0);
+    const playedRecentMatches = (data.recentMatches ?? []).filter(
+        (match) => getMatchDisplayStatus(match.date) === 'finished'
+    );
+    const hasRecentMatches = playedRecentMatches.length > 0;
     const hasDashboardContent = hasPlayoffs || hasNextMatches || hasRecentMatches;
 
     const handleDismissClaimBanner = () => {
@@ -178,7 +181,7 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                <h2 className="mb-4 fw-bold text-success border-bottom pb-2">דף הבית</h2>
+                <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">דף הבית</h2>
 
                 {!hasDashboardContent && (
                     <EmptyState
@@ -247,11 +250,11 @@ const Dashboard = () => {
 
 
                 <div className="dashboard-cards-row">
-                {data.recentMatches && data.recentMatches.length > 0 && (
+                {playedRecentMatches.length > 0 && (
                     <div className="dashboard-card recent-matches">
                         <h2 className="dashboard-card-title">משחקים אחרונים</h2>
                         <div className="matches-list">
-                            {data.recentMatches.slice(0, 5).map((match) => (
+                            {playedRecentMatches.slice(0, 5).map((match) => (
                                 <button
                                     type="button"
                                     key={match.id}

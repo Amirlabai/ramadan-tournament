@@ -1,0 +1,22 @@
+.standings-table__title {
+  background: var(--color-primary);
+  color: var(--white);
+  margin: 0;
+  padding: 0.875rem 1rem;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  font-weight: 700;
+}
+
+.standings-table__table {
+  font-variant-numeric: tabular-nums;
+}
+
+.standings-table__table th,
+.standings-table__table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.standings-table__empty {
+  border-top: 1px solid var(--color-border);
+}

@@ -4,7 +4,7 @@ import {
   jerusalemDateKey,
 } from './jerusalemDate';
 
-const MATCH_DURATION_MS = 60 * 60 * 1000;
+export const MATCH_DURATION_MS = 60 * 60 * 1000;
 const TOURNAMENT_POLL_WEEKDAYS = [5, 6] as const; // Fri, Sat
 const TOURNAMENT_POLL_START_HOUR = 16;
 const TOURNAMENT_POLL_END_HOUR = 21; // exclusive upper bound

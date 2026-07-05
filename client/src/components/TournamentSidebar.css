@@ -78,14 +78,19 @@
 
 .tournament-sidebar-link:hover {
   color: var(--color-primary, #509238);
-  background: rgba(80, 146, 56, 0.08);
+  background: var(--color-primary-a08);
 }
 
 .tournament-sidebar-link.active {
   color: var(--color-primary, #509238);
   font-weight: 700;
-  background: rgba(80, 146, 56, 0.12);
+  background: var(--color-primary-a12);
   border-inline-start-color: var(--color-primary, #509238);
+}
+
+.tournament-sidebar-link:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
 }
 
 .tournament-sidebar-link.login-link {

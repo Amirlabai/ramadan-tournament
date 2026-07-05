@@ -10,6 +10,14 @@
     margin: 1rem 0;
 }
 
+.admin-panel__header h2,
+.admin-panel__title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0;
+}
+
 .admin-panel__tabs {
     display: flex;
     gap: 1rem;

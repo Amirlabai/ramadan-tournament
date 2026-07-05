@@ -1,0 +1,223 @@
+/* Shared match card — Schedule, Archive, World Cup */
+
+.matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.match-card {
+  position: relative;
+  transition: box-shadow var(--transition-speed, 0.2s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--rounded-md, 8px);
+}
+
+.match-card:hover {
+  box-shadow: var(--shadow-lg);
+}
+
+.match-card.upcoming {
+  border-top: 3px solid var(--color-warning);
+}
+
+.match-card.live {
+  border-top: 3px solid var(--color-secondary);
+}
+
+.match-card.finished {
+  border-top: 3px solid var(--color-primary);
+}
+
+.match-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+.match-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.match-status.upcoming {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.match-status.live {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .match-status.live {
+    animation: match-live-pulse 2s ease-in-out infinite;
+  }
+}
+
+@keyframes match-live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.match-status.finished {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.playoff-badge-floating {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  background: var(--color-secondary);
+  color: var(--color-text);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--rounded-sm, 4px);
+  z-index: 5;
+  box-shadow: var(--shadow);
+}
+
+.match-teams-score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+  gap: 1rem;
+}
+
+.team-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.05rem;
+  flex: 1;
+}
+
+.team-name {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-align: center;
+}
+
+.team-score {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.vs-divider {
+  font-weight: 600;
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+}
+
+.match-goals {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+}
+
+.match-goals h4 {
+  color: var(--text-light);
+  font-size: var(--font-size-sm);
+  margin-bottom: 0.5rem;
+}
+
+.goals-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.goal-item {
+  background: var(--bg);
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  transition: background-color 0.2s ease;
+}
+
+.goal-item:hover {
+  background: color-mix(in srgb, var(--color-gold) 20%, transparent);
+}
+
+.match-actions {
+  padding-top: 0.25rem;
+  display: flex;
+  justify-content: right;
+}
+
+.btn-comments {
+  background: var(--color-primary-a15);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary-a25);
+  padding: 0.5rem 1.5rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+  font-size: var(--font-size-sm);
+  min-height: 44px;
+}
+
+.btn-comments:hover {
+  background: var(--color-primary-a20);
+  border-color: var(--color-primary-a35);
+}
+
+.match-card .badge {
+  font-size: 0.75em;
+  padding: 0.35em 0.65em;
+  vertical-align: text-top;
+}
+
+.team-logo-inline {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  border-radius: 50%;
+}
+
+@media (max-width: 768px) {
+  .match-meta {
+    gap: 0.25rem;
+  }
+
+  .goal-item {
+    font-size: 0.7rem;
+  }
+
+  .match-card {
+    padding: 0.5rem;
+  }
+
+  .team-name {
+    font-size: 0.8rem;
+  }
+
+  .match-teams-score {
+    gap: 0.5rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .match-status.live {
+    animation: none;
+  }
+}

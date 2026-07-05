@@ -17,6 +17,7 @@ import {
 } from './mockStats';
 import worldcupRoutes from '../routes/worldcup';
 import { DEFAULT_BANNED_WORDS } from '../data/defaultBannedWords';
+import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
 
 const MOCK_ADMIN_ID = 'mock-dev-admin';
 
@@ -79,7 +80,12 @@ function buildDashboard() {
   }
 
   const recentMatches = matches
-    .filter((m) => m.score1 !== null && m.score2 !== null)
+    .filter(
+      (m) =>
+        m.score1 !== null &&
+        m.score2 !== null &&
+        getMatchDisplayStatus(m.date.toISOString()) === 'finished'
+    )
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 5)
     .map((m) => enrichMatch(formatMatchForApi(m), teamMap));

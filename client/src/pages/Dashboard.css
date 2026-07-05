@@ -3,13 +3,7 @@
     margin: 0 auto;
 }
 
-.news-banner {
-    background: linear-gradient(135deg, #FFF8DC 0%, #FFE4B5 100%);
-    color: white;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow-lg);
-}
+/* News banner styles live in index.css; do not override text color here */
 
 @keyframes pulse {
 
@@ -196,12 +190,17 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 250px;
-    height: 250px;
-    background: radial-gradient(circle, rgba(255, 215, 0, 0.2) 0%, rgba(255, 215, 0, 0) 70%);
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, var(--color-primary-a15) 0%, transparent 70%);
     z-index: -1;
-    animation: gold-aura-pulse 4s infinite ease-in-out;
     border-radius: 50%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .dashboard-page .top-scorer .premium-scorer-wrapper::before {
+        animation: gold-aura-pulse 4s infinite ease-out;
+    }
 }
 
 @keyframes gold-aura-pulse {
@@ -229,10 +228,15 @@
 
 .star-decoration {
     position: absolute;
-    color: #ffd700;
+    color: var(--color-gold);
     font-size: 1.2rem;
-    text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
-    animation: star-flicker 3s infinite;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--color-gold) 50%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .star-decoration {
+        animation: star-flicker 3s infinite ease-out;
+    }
 }
 
 @keyframes star-flicker {
@@ -306,11 +310,8 @@
 .dashboard-page .top-scorer .goals-count {
     font-size: 3.5rem;
     font-weight: 800;
-    color: var(--primary-green, #2e7d32);
-    background: -webkit-linear-gradient(45deg, #2e7d32, #4caf50);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--color-primary);
+    font-variant-numeric: tabular-nums;
 }
 
 .dashboard-page .top-scorer .goals-label {
@@ -361,8 +362,8 @@
 }
 
 .dashboard-page .runner-goal.vs-badge {
-    background: #FFD700;
-    color: #000;
+    background: var(--color-gold);
+    color: var(--color-text);
     font-weight: bold;
     font-size: 0.75rem;
     padding: 2px 8px;
@@ -371,21 +372,21 @@
 }
 
 .playoff-indicator-badge {
-    background: linear-gradient(135deg, var(--color-primary-dark) 0%, var(--color-primary) 100%);
-    color: #FFD700;
+    background: var(--color-primary-dark);
+    color: var(--color-gold);
     font-weight: 700;
     font-size: 0.8rem;
     padding: 4px 12px;
     border-radius: 4px;
     text-align: center;
     margin: 8px 0;
-    border: 1px solid rgba(255, 215, 0, 0.3);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border: 1px solid color-mix(in srgb, var(--color-gold) 30%, transparent);
+    box-shadow: var(--shadow);
 }
 
 .playoff-tag-mini {
-    background: #FFD700;
-    color: #000;
+    background: var(--color-gold);
+    color: var(--color-text);
     font-size: 0.65rem;
     font-weight: bold;
     padding: 1px 6px;
@@ -523,8 +524,8 @@
 }
 
 .bg-light-gold {
-    background: linear-gradient(90deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 215, 0, 0.05) 100%);
-    border-right: 4px solid var(--secondary-yellow);
+    background: color-mix(in srgb, var(--color-gold) 12%, transparent);
+    border-inline-start: 3px solid var(--color-secondary);
 }
 
 .mvp-row {
@@ -535,7 +536,17 @@
     background-color: var(--color-primary-a05);
 }
 
-.mvp-rank {
-    width: 30px;
-    text-align: center;
+@media (prefers-reduced-motion: reduce) {
+    .dashboard-page .top-scorer .premium-scorer-wrapper::before,
+    .star-decoration {
+        animation: none;
+    }
+
+    @keyframes gold-aura-pulse {
+        0%, 100% { opacity: 0.6; }
+    }
+
+    @keyframes star-flicker {
+        0%, 100% { opacity: 0.6; }
+    }
 }

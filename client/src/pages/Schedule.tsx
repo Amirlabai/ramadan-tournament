@@ -10,6 +10,7 @@ import { resolveAssetUrl } from '../utils/assetUrl';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
+import { MatchStatusBadge } from '../components/match/MatchCardParts';
 import './Schedule.css';
 
 const Schedule = () => {
@@ -143,7 +144,7 @@ const Schedule = () => {
                 description="לוח המשחקים המלא של טורניר רמדאן 2026. עדכונים חיים, תוצאות וזמני משחקים של כל שלבי הטורניר." 
                 pathname="/schedule"
             />
-            <h2 className="mb-4 fw-bold text-success border-bottom pb-2">לוח משחקים</h2>
+            <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">לוח משחקים</h2>
 
             <div className="schedule-filters" role="group" aria-label="סינון משחקים">
                 {filterOptions.map(({ key, label }) => (
@@ -177,9 +178,7 @@ const Schedule = () => {
                     const status = getMatchStatus(match);
                     return (
                         <div key={match.id} className={`match-card card ${status}`}>
-                            <span className={`match-status ${status}`}>
-                                {status === 'upcoming' ? 'עתיד' : status === 'live' ? 'Live' : 'הסתיים'}
-                            </span>
+                            <MatchStatusBadge status={status} />
                             
                             {match.phase === 'knockout' && (
                                 <div className="playoff-badge-floating">משחק פלייאוף</div>

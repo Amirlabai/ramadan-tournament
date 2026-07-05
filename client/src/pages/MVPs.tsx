@@ -98,7 +98,7 @@ const MVPs = () => {
                 pathname="/mvps"
             />
             <div className="container py-4">
-                <h2 className="mb-4 fw-bold text-success border-bottom pb-2">מצטייני הטורניר</h2>
+                <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">מצטייני הטורניר</h2>
 
                 {(voteLoaded && (!user || hasVoted === false)) && (
                     <div className="alert custom-claim-banner custom-claim-banner--mvp-vote d-flex flex-column flex-sm-row align-items-center justify-content-between mb-4 shadow-sm text-center text-sm-start" role="alert">

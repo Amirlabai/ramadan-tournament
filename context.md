@@ -89,6 +89,8 @@ When fixing or adding UI: use native buttons/links, labels, focus, keyboard, con
 
 ## Agent continuity
 
+**Design context (Jul 2026):** [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md) at repo root — tokens, themes, IS 5568 rules for UI agents. UI elevation work on branch `ui/skills-elevation` (base `dev`).
+
 **Canonical documentation:** [`docs/README.md`](docs/README.md) — client/server architecture, API, PRD, QA reviews.
 
 **Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) → [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md). Business rules: [`docs/server/BUSINESS_LOGIC.md`](docs/server/BUSINESS_LOGIC.md). Frontend: [`docs/client/ARCHITECTURE.md`](docs/client/ARCHITECTURE.md). Formal stakeholder RTM: [`docs/review/phase-1.5-rtm-qa-may-2026.md`](docs/review/phase-1.5-rtm-qa-may-2026.md) (may lag code).

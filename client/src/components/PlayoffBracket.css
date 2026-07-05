@@ -9,7 +9,7 @@
     font-size: 1.5rem;
     font-weight: 700;
     margin-bottom: 25px !important;
-    border-right: 4px solid #FFD700;
+    border-top: 3px solid var(--color-gold);
     padding-right: 15px;
 }
 
@@ -41,7 +41,7 @@
     color: var(--color-primary);
     font-size: 1.2rem;
     padding-bottom: 8px;
-    border-bottom: 3px solid #FFD700;
+    border-bottom: 3px solid var(--color-gold);
     display: block;
     margin: 0 auto 20px;
     width: fit-content;
@@ -125,7 +125,7 @@
 
 /* RTL Flow: Semis(Right) -> Connector -> Final(Left) */
 .playoff-bracket-card .bracket-connector .line {
-    border: 2px solid #FFD700;
+    border: 2px solid var(--color-gold);
     width: 100%;
     position: relative;
 }
@@ -152,7 +152,7 @@
     left: 0;
     width: 100%;
     height: 2px;
-    background: #FFD700;
+    background: var(--color-gold);
     transform: translateY(-50%) translateX(-100%);
     width: 15px;
     /* Short line into the final box */

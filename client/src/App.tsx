@@ -136,7 +136,7 @@ function AppShell() {
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header className="tournament-header text-center py-4">
-              <h1 className="display-4 fw-bold">
+              <h1 className="site-title fw-bold">
                 {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
               </h1>
               {isGirls && (

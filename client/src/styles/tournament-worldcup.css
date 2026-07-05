@@ -8,9 +8,16 @@
   --color-surface: #ffffff;
   --color-text: #1a1a2e;
   --color-muted: #5a6270;
+  --color-gold: #c9a227;
+  --color-gold-dark: #8a7018;
+  --color-gold-light: #e0c76a;
 }
 
-[data-tournament='worldcup'] .tournament-page-title,
+[data-tournament='worldcup'] .tournament-page-title {
+  color: var(--color-text);
+  border-bottom-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+}
+
 [data-tournament='worldcup'] h2.text-success,
 [data-tournament='worldcup'] .text-success {
   color: var(--color-primary) !important;

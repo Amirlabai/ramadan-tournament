@@ -6,6 +6,11 @@
   --color-secondary: #c9a0dc;
   --color-bg: #fff5f8;
   --color-focus: #5b2d6e;
+  --color-gold: #d4a017;
+  --color-gold-dark: #a67c00;
+  --color-gold-light: #e8c547;
+  --color-highlight-bg-start: #fff0f5;
+  --color-highlight-bg-end: #f5e8ff;
 
   --tournament-primary: #9b4d72;
   --tournament-primary-dark: #6b3a52;
@@ -57,20 +62,9 @@
 }
 
 [data-tournament="girls"] .news-banner {
-  background: linear-gradient(
-    90deg,
-    var(--tournament-accent) 0%,
-    #e8d5f2 100%
-  );
-}
-
-[data-tournament="girls"] .news-banner h2,
-[data-tournament="girls"] .news-banner h4 {
-  color: var(--tournament-primary-dark);
-}
-
-[data-tournament="girls"] .news-banner p {
-  color: var(--tournament-primary-dark);
+  --color-news-banner-bg: var(--tournament-surface-elevated);
+  --color-news-banner-accent: var(--tournament-primary);
+  --color-news-banner-border: color-mix(in srgb, var(--tournament-primary) 18%, transparent);
 }
 
 [data-tournament="girls"] .expand-indicator {
@@ -166,9 +160,9 @@
 }
 
 /* Semantic utilities (girls routes + profile card) */
-.tournament-page-title {
-  color: var(--tournament-primary-dark, #6b3a52);
-  border-bottom: 2px solid var(--tournament-accent, #c9a0dc);
+[data-tournament="girls"] .tournament-page-title {
+  color: var(--color-text);
+  border-bottom-color: var(--color-primary-a25);
 }
 
 .tournament-badge {

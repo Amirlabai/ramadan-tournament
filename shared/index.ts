@@ -3,6 +3,7 @@ export {
   getMatchDisplayStatus,
   hasMatchOnJerusalemDate,
   isTournamentPollingWindow,
+  MATCH_DURATION_MS,
   needsMatchStatusClockTick,
   shouldPollTournamentData,
   type MatchDisplayStatus,

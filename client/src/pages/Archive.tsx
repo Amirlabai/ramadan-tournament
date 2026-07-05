@@ -70,7 +70,7 @@ const Archive: React.FC = () => {
         pathname="/archive"
       />
 
-      <h2 className="mb-4 fw-bold text-success border-bottom pb-2">ארכיון הטורניר</h2>
+      <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">ארכיון הטורניר</h2>
 
 
       <div className="row">

@@ -4,6 +4,7 @@ import SEO from '../../components/SEO';
 import { GirlsHomeSkeleton } from '../../components/skeleton';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useTournament } from '../../contexts/TournamentContext';
+import StandingsTable from '../../components/standings/StandingsTable';
 import '../Stats.css';
 
 interface PointsStanding {
@@ -59,34 +60,31 @@ const GirlsHome = () => {
         pathname="/girls"
       />
       <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">טבלת נקודות</h2>
-      <div className="card standings-table">
-        <div className="table-responsive">
-          <table>
-            <caption className="visually-hidden">דירוג קבוצות לפי סך נקודות</caption>
-            <thead>
-              <tr>
-                <th scope="col">דירוג</th>
-                <th scope="col">קבוצה</th>
-                <th scope="col">נקודות</th>
-              </tr>
-            </thead>
-            <tbody>
-              {standings.map((row, index) => (
-                <tr key={row.teamId}>
-                  <td>{index + 1}</td>
-                  <td className="team-name">{row.teamName}</td>
-                  <td>
-                    <strong>{row.totalPoints}</strong>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {standings.length === 0 && (
-          <p className="text-center text-muted py-3 mb-0">אין קבוצות או נקודות עדיין</p>
-        )}
-      </div>
+      <StandingsTable
+        caption="דירוג קבוצות לפי סך נקודות"
+        captionClassName="visually-hidden"
+        columns={[
+          {
+            id: 'rank',
+            header: 'דירוג',
+            render: (_row, index) => index + 1,
+          },
+          {
+            id: 'team',
+            header: 'קבוצה',
+            className: 'team-name',
+            render: (row) => row.teamName,
+          },
+          {
+            id: 'points',
+            header: 'נקודות',
+            render: (row) => <strong>{row.totalPoints}</strong>,
+          },
+        ]}
+        rows={standings}
+        getRowKey={(row) => row.teamId}
+        emptyMessage="אין קבוצות או נקודות עדיין"
+      />
     </div>
   );
 };

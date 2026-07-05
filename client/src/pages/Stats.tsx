@@ -9,6 +9,7 @@ import PlayoffBracket from '../components/PlayoffBracket';
 import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
+import StandingsTable from '../components/standings/StandingsTable';
 import './Stats.css';
 
 const Stats = () => {
@@ -71,7 +72,7 @@ const Stats = () => {
                 description="טבלאות ליגה, מלכי השערים וסטטיסטיקות מתקדמות של טורניר רמדאן 2026. עקבו אחרי המירוץ לאליפות ולתואר מלך השערים."
                 pathname="/stats"
             />
-            <h2 className="mb-4 fw-bold text-success border-bottom pb-2">סטטיסטיקות</h2>
+            <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">סטטיסטיקות</h2>
 
             {!hasStats ? (
                 <EmptyState
@@ -86,52 +87,61 @@ const Stats = () => {
             )}
 
             <div className="stats-grid">
-                <div className="card standings-table">
-                    <h2>טבלת ליגה</h2>
-                    <div className="table-responsive">
-                        <table>
-                            <caption className="stats-standings-caption">
-                                טבלת דירוג קבוצות הליגה. {STANDINGS_PLAYOFF_ZONE_SIZE} המקומות הראשונים מסומנים ברקע כחול — אזור הפלייאוף.
-                            </caption>
-                            <thead>
-                                <tr>
-                                    <th scope="col">דירוג</th>
-                                    <th scope="col">קבוצה</th>
-                                    <th scope="col">משחק</th>
-                                    <th scope="col">W/D/L</th>
-                                    <th scope="col">GF</th>
-                                    <th scope="col">GA</th>
-                                    <th scope="col">GD</th>
-                                    <th scope="col">נקודות</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {standings.map((team, index) => (
-                                    <tr key={team.teamId} className={index < STANDINGS_PLAYOFF_ZONE_SIZE ? 'qualified' : ''}>
-                                        <td className="position">{index + 1}</td>
-                                        <td className="team-name">
-                                            <button
-                                                type="button"
-                                                className="btn btn-link p-0 text-decoration-none team-name"
-                                                onClick={() => navigate('/teams', { state: { expandTeamId: team.teamId } })}
-                                            >
-                                                {team.teamName}
-                                            </button>
-                                        </td>
-                                        <td>{team.played}</td>
-                                        <td>{team.won}/{team.drawn}/{team.lost}</td>
-                                        <td>{team.goalsFor}</td>
-                                        <td>{team.goalsAgainst}</td>
-                                        <td className={team.goalDifference > 0 ? 'positive' : team.goalDifference < 0 ? 'negative' : ''}>
-                                            {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
-                                        </td>
-                                        <td className="points">{team.points}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                <StandingsTable
+                    title="טבלת ליגה"
+                    caption={`טבלת דירוג קבוצות הליגה. ${STANDINGS_PLAYOFF_ZONE_SIZE} המקומות הראשונים מסומנים ברקע כחול — אזור הפלייאוף.`}
+                    columns={[
+                        {
+                            id: 'rank',
+                            header: 'דירוג',
+                            className: 'position',
+                            render: (_row, index) => index + 1,
+                        },
+                        {
+                            id: 'team',
+                            header: 'קבוצה',
+                            className: 'team-name',
+                            render: (team) => (
+                                <button
+                                    type="button"
+                                    className="btn btn-link p-0 text-decoration-none team-name"
+                                    onClick={() => navigate('/teams', { state: { expandTeamId: team.teamId } })}
+                                >
+                                    {team.teamName}
+                                </button>
+                            ),
+                        },
+                        { id: 'played', header: 'משחק', render: (team) => team.played },
+                        {
+                            id: 'wdl',
+                            header: 'W/D/L',
+                            render: (team) => `${team.won}/${team.drawn}/${team.lost}`,
+                        },
+                        { id: 'gf', header: 'GF', render: (team) => team.goalsFor },
+                        { id: 'ga', header: 'GA', render: (team) => team.goalsAgainst },
+                        {
+                            id: 'gd',
+                            header: 'GD',
+                            className: 'gd',
+                            render: (team) => (
+                                <span className={team.goalDifference > 0 ? 'positive' : team.goalDifference < 0 ? 'negative' : ''}>
+                                    {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
+                                </span>
+                            ),
+                        },
+                        {
+                            id: 'points',
+                            header: 'נקודות',
+                            className: 'points',
+                            render: (team) => team.points,
+                        },
+                    ]}
+                    rows={standings}
+                    getRowKey={(team) => team.teamId}
+                    getRowClassName={(_team, index) =>
+                        index < STANDINGS_PLAYOFF_ZONE_SIZE ? 'qualified' : undefined
+                    }
+                />
 
                 <div className="card top-scorers-list">
                     <h2>מלכי השערים</h2>

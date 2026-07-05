@@ -429,7 +429,7 @@ const AdminPanel = () => {
                 noindex
             />
             <div className="admin-panel__header">
-                <h2>פאנל ניהול</h2>
+                <h2 className="admin-panel__title">פאנל ניהול</h2>
                 <button type="button" onClick={handleLogout} className="btn btn-danger">
                     התנתק
                 </button>
