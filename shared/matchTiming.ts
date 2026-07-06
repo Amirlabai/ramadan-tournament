@@ -27,7 +27,7 @@ function toMatchDateIso(date: string | Date): string {
 export function shouldCountMatchInStats(
   match: StatsMatchLike,
   now: Date = new Date()
-): boolean {
+): match is StatsMatchLike & { score1: number; score2: number } {
   if (match.score1 == null || match.score2 == null) return false;
   return getMatchDisplayStatus(toMatchDateIso(match.date), now) === 'finished';
 }
