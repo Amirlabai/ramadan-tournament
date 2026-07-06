@@ -13,6 +13,25 @@ const STATUS_CLOCK_MARGIN_MS = 2 * 60 * 1000;
 
 export type MatchDisplayStatus = 'upcoming' | 'live' | 'finished';
 
+type StatsMatchLike = {
+  date: string | Date;
+  score1: number | null;
+  score2: number | null;
+};
+
+function toMatchDateIso(date: string | Date): string {
+  return date instanceof Date ? date.toISOString() : date;
+}
+
+/** Count in standings/scorers only after kickoff + match duration (scores still required). */
+export function shouldCountMatchInStats(
+  match: StatsMatchLike,
+  now: Date = new Date()
+): boolean {
+  if (match.score1 == null || match.score2 == null) return false;
+  return getMatchDisplayStatus(toMatchDateIso(match.date), now) === 'finished';
+}
+
 export function getMatchDisplayStatus(
   matchDateIso: string,
   now: Date = new Date()

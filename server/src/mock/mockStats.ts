@@ -1,3 +1,4 @@
+import { shouldCountMatchInStats } from '@ramadan-tournament/shared';
 import type { StandingsEntry, TopScorer } from '../types/stats';
 import type { PlayerStats } from '../services/StatsService';
 import { getMockStore, type MockMatch, type MockTeam } from './dataLoader';
@@ -21,7 +22,7 @@ export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): Sta
   });
 
   for (const match of matches) {
-    if (match.phase !== 'group' || match.score1 == null || match.score2 == null) continue;
+    if (match.phase !== 'group' || !shouldCountMatchInStats(match)) continue;
     const team1 = standings[match.team1Id];
     const team2 = standings[match.team2Id];
     if (!team1 || !team2) continue;
@@ -78,7 +79,7 @@ export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): To
   });
 
   matches.forEach((match) => {
-    if (match.score1 !== null && match.score2 !== null) {
+    if (shouldCountMatchInStats(match)) {
       if (teamMatchesCount[match.team1Id] !== undefined) teamMatchesCount[match.team1Id]++;
       if (teamMatchesCount[match.team2Id] !== undefined) teamMatchesCount[match.team2Id]++;
     }
@@ -87,7 +88,7 @@ export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): To
   const scorerStats: Record<number, TopScorer & { gamesPlayed: number }> = {};
 
   matches.forEach((match) => {
-    if (match.score1 === null || match.score2 === null) return;
+    if (!shouldCountMatchInStats(match)) return;
     match.goals.forEach((goal) => {
       const memberId = goal.memberId;
       const memberInfo = members[memberId];
@@ -126,7 +127,7 @@ export function calculatePlayerStats(teams: MockTeam[], matches: MockMatch[]): P
   });
 
   matches.forEach((match) => {
-    if (match.score1 === null || match.score2 === null) return;
+    if (!shouldCountMatchInStats(match)) return;
     (teamPlayerMap[match.team1Id] || []).forEach((id) => {
       if (playerStats[id]) playerStats[id].gamesPlayed += 1;
     });

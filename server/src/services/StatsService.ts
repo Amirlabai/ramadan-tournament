@@ -1,3 +1,4 @@
+import { shouldCountMatchInStats } from '@ramadan-tournament/shared';
 import { prisma } from '../lib/prisma';
 import { SeasonService } from './SeasonService';
 import { StandingsEntry, TopScorer } from '../types/stats';
@@ -40,7 +41,7 @@ export class StatsService {
     });
 
     for (const match of matches) {
-      if (match.score1 == null || match.score2 == null) continue;
+      if (!shouldCountMatchInStats(match)) continue;
       const team1 = standings[match.team1Id];
       const team2 = standings[match.team2Id];
       if (!team1 || !team2) continue;
@@ -114,7 +115,7 @@ export class StatsService {
     });
 
     matches.forEach((match) => {
-      if (match.score1 !== null && match.score2 !== null) {
+      if (shouldCountMatchInStats(match)) {
         if (teamMatchesCount[match.team1Id] !== undefined) teamMatchesCount[match.team1Id]++;
         if (teamMatchesCount[match.team2Id] !== undefined) teamMatchesCount[match.team2Id]++;
       }
@@ -123,7 +124,7 @@ export class StatsService {
     const scorerStats: { [key: number]: TopScorer & { gamesPlayed: number } } = {};
 
     matches.forEach((match) => {
-      if (match.score1 === null || match.score2 === null) return;
+      if (!shouldCountMatchInStats(match)) return;
       match.goals.forEach((goal) => {
         const memberId = goal.memberId;
         const memberInfo = members[memberId];
@@ -177,19 +178,18 @@ export class StatsService {
     });
 
     matches.forEach((match) => {
-      if (match.score1 !== null && match.score2 !== null) {
-        const team1Players = teamPlayerMap[match.team1Id] || [];
-        const team2Players = teamPlayerMap[match.team2Id] || [];
-        team1Players.forEach((id) => {
-          if (playerStats[id]) playerStats[id].gamesPlayed += 1;
-        });
-        team2Players.forEach((id) => {
-          if (playerStats[id]) playerStats[id].gamesPlayed += 1;
-        });
-        match.goals.forEach((goal) => {
-          if (playerStats[goal.memberId]) playerStats[goal.memberId].goals += 1;
-        });
-      }
+      if (!shouldCountMatchInStats(match)) return;
+      const team1Players = teamPlayerMap[match.team1Id] || [];
+      const team2Players = teamPlayerMap[match.team2Id] || [];
+      team1Players.forEach((id) => {
+        if (playerStats[id]) playerStats[id].gamesPlayed += 1;
+      });
+      team2Players.forEach((id) => {
+        if (playerStats[id]) playerStats[id].gamesPlayed += 1;
+      });
+      match.goals.forEach((goal) => {
+        if (playerStats[goal.memberId]) playerStats[goal.memberId].goals += 1;
+      });
     });
 
     return Object.values(playerStats);

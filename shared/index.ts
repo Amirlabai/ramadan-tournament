@@ -5,6 +5,7 @@ export {
   isTournamentPollingWindow,
   MATCH_DURATION_MS,
   needsMatchStatusClockTick,
+  shouldCountMatchInStats,
   shouldPollTournamentData,
   type MatchDisplayStatus,
 } from './matchTiming';

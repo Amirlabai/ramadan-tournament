@@ -89,7 +89,7 @@ const Stats = () => {
             <div className="stats-grid">
                 <StandingsTable
                     title="טבלת ליגה"
-                    caption={`טבלת דירוג קבוצות הליגה. ${STANDINGS_PLAYOFF_ZONE_SIZE} המקומות הראשונים מסומנים ברקע כחול — אזור הפלייאוף.`}
+                    caption={`טבלת דירוג קבוצות הליגה. ${STANDINGS_PLAYOFF_ZONE_SIZE} המקומות הראשונים מסומנים ברקע כחול — פלייאוף עליון.`}
                     columns={[
                         {
                             id: 'rank',

@@ -5,6 +5,7 @@ import {
   hasMatchOnJerusalemDate,
   isTournamentPollingWindow,
   needsMatchStatusClockTick,
+  shouldCountMatchInStats,
   shouldPollTournamentData,
 } from './matchTiming';
 
@@ -28,6 +29,34 @@ describe('getMatchDisplayStatus', () => {
 
   it('returns upcoming for invalid match date', () => {
     expect(getMatchDisplayStatus('not-a-date')).toBe('upcoming');
+  });
+});
+
+describe('shouldCountMatchInStats', () => {
+  const kickoffIso = jerusalemDateTime('2026-07-10', '17:00').toISOString();
+  const scoredMatch = { date: kickoffIso, score1: 0, score2: 0 };
+
+  it('is false before kickoff even with a 0-0 score stored', () => {
+    const now = jerusalemDateTime('2026-07-10', '16:30');
+    expect(shouldCountMatchInStats(scoredMatch, now)).toBe(false);
+  });
+
+  it('is false during the live window', () => {
+    const now = jerusalemDateTime('2026-07-10', '17:30');
+    expect(shouldCountMatchInStats(scoredMatch, now)).toBe(false);
+  });
+
+  it('is true after full-time with scores set', () => {
+    const now = jerusalemDateTime('2026-07-10', '18:01');
+    expect(shouldCountMatchInStats(scoredMatch, now)).toBe(true);
+    expect(shouldCountMatchInStats({ date: kickoffIso, score1: 2, score2: 1 }, now)).toBe(true);
+  });
+
+  it('is false when scores are missing', () => {
+    const now = jerusalemDateTime('2026-07-10', '18:01');
+    expect(shouldCountMatchInStats({ date: kickoffIso, score1: null, score2: null }, now)).toBe(
+      false
+    );
   });
 });
 
