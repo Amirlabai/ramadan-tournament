@@ -41,6 +41,20 @@ function applyDecoded(req: AuthRequest, decoded: {
     req.teamId = decoded.teamId;
 }
 
+export async function isSessionTokenVersionValid(decoded: {
+    userId: string;
+    isPlayer?: boolean;
+    tokenVersion?: number;
+}): Promise<boolean> {
+    if (decoded.isPlayer) return true;
+    if (config.mockDevData && decoded.userId === 'mock-dev-admin') return true;
+
+    const { User } = await import('../models/User');
+    const user = await User.findById(decoded.userId);
+    if (!user) return false;
+    return (decoded.tokenVersion ?? 0) === (user.tokenVersion ?? 0);
+}
+
 async function hasRequiredRole(req: AuthRequest, roles: string[]): Promise<boolean> {
     if (!req.userId) return false;
 
@@ -61,16 +75,16 @@ async function hasRequiredRole(req: AuthRequest, roles: string[]): Promise<boole
     return user != null && roles.includes(user.role);
 }
 
-export const authenticate = (
+export const authenticate = async (
     req: AuthRequest,
     res: Response,
     next: NextFunction
-): void => {
+): Promise<void> => {
     try {
         const token = readToken(req);
 
         if (!token) {
-            res.status(401).json({ error: 'Authentication required' });
+            res.status(401).json({ error: 'נדרשת התחברות' });
             return;
         }
 
@@ -79,20 +93,27 @@ export const authenticate = (
             isPlayer?: boolean;
             memberId?: number;
             teamId?: number;
+            tokenVersion?: number;
         };
+
+        if (!(await isSessionTokenVersionValid(decoded))) {
+            res.status(401).json({ error: 'ההתחברות פגה או אינה תקינה' });
+            return;
+        }
+
         applyDecoded(req, decoded);
 
         if (decoded.isPlayer) {
             const path = req.originalUrl.split('?')[0];
             if (!path.startsWith('/api/players')) {
-                res.status(401).json({ error: 'Authentication required' });
+                res.status(401).json({ error: 'נדרשת התחברות' });
                 return;
             }
         }
 
         next();
     } catch (error) {
-        res.status(401).json({ error: 'Invalid or expired token' });
+        res.status(401).json({ error: 'ההתחברות פגה או אינה תקינה' });
     }
 };
 
@@ -114,9 +135,15 @@ export const requirePlatformAdmin = async (
             isPlayer?: boolean;
             memberId?: number;
             teamId?: number;
+            tokenVersion?: number;
         };
 
         if (decoded.isPlayer) {
+            respondNotFound(res);
+            return;
+        }
+
+        if (!(await isSessionTokenVersionValid(decoded))) {
             respondNotFound(res);
             return;
         }

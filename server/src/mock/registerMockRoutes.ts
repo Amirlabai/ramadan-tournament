@@ -207,7 +207,7 @@ export function registerMockRoutes(app: Express): void {
     const expectedPassword = config.adminPassword || 'admin123';
     if (name === config.adminUsername && password === expectedPassword) {
       const token = jwt.sign(
-        { userId: MOCK_ADMIN_ID, role: 'admin' },
+        { userId: MOCK_ADMIN_ID, role: 'admin', tokenVersion: 0 },
         config.jwtSecret,
         { expiresIn: '7d' }
       );

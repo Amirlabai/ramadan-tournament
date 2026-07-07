@@ -1,5 +1,6 @@
 import { Prisma, User as PrismaUser } from '@prisma/client';
 import { toInputJson } from '../lib/json';
+import { prismaNullableTokenField } from './prismaNullables';
 
 export type UserRole = 'Admin' | 'Captain' | 'Player' | 'User' | 'admin' | 'user';
 
@@ -38,8 +39,11 @@ export interface IUser {
   playerProfile?: IPlayerProfile;
   pendingTeamRequest?: IPendingTeamRequest;
   isVerified: boolean;
-  verificationToken?: string;
-  verificationTokenExpires?: Date;
+  verificationToken?: string | null;
+  verificationTokenExpires?: Date | null;
+  passwordResetToken?: string | null;
+  passwordResetExpires?: Date | null;
+  tokenVersion?: number;
   createdAt: Date;
   updatedAt: Date;
   save(): Promise<IUser>;
@@ -73,6 +77,9 @@ export function prismaUserToIUser(row: PrismaUser): IUser {
     isVerified: row.isVerified,
     verificationToken: row.verificationToken ?? undefined,
     verificationTokenExpires: row.verificationTokenExpires ?? undefined,
+    passwordResetToken: row.passwordResetToken ?? undefined,
+    passwordResetExpires: row.passwordResetExpires ?? undefined,
+    tokenVersion: row.tokenVersion,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
     async save() {
@@ -92,8 +99,11 @@ export function prismaUserToIUser(row: PrismaUser): IUser {
           playerProfile: toInputJson(base.playerProfile),
           pendingTeamRequest: toInputJson(base.pendingTeamRequest),
           isVerified: base.isVerified,
-          verificationToken: base.verificationToken,
-          verificationTokenExpires: base.verificationTokenExpires,
+          verificationToken: prismaNullableTokenField(base.verificationToken),
+          verificationTokenExpires: prismaNullableTokenField(base.verificationTokenExpires),
+          passwordResetToken: prismaNullableTokenField(base.passwordResetToken),
+          passwordResetExpires: prismaNullableTokenField(base.passwordResetExpires),
+          tokenVersion: base.tokenVersion ?? 0,
         },
       });
       Object.assign(base, prismaUserToIUser(updated));

@@ -120,7 +120,7 @@ describe('auth concealment (404 for forbidden admin resources)', () => {
   it('returns 401 for unauthenticated session check on /api/auth/me', async () => {
     const res = await request(app).get('/api/auth/me');
     expect(res.status).toBe(401);
-    expect(res.body.error).toBe('Authentication required');
+    expect(res.body.error).toBe('נדרשת התחברות');
   });
 
   it('allows platform admin through requirePlatformAdmin', async () => {

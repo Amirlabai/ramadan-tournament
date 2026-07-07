@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SEO from '../../components/SEO';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -33,6 +33,14 @@ const Login = () => {
 
     const from = safeInternalPath(location.state?.from?.pathname);
     const authSurface = location.pathname.startsWith('/admin') ? 'admin' : 'public';
+
+    useEffect(() => {
+        const resetSuccess = (location.state as { resetSuccess?: string } | null)?.resetSuccess;
+        if (resetSuccess) {
+            setSuccessMsg(resetSuccess);
+            navigate(location.pathname, { replace: true, state: { from: location.state?.from } });
+        }
+    }, [location.pathname, location.state, navigate]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -294,6 +302,17 @@ const Login = () => {
                                 autoComplete={isLoginView ? "current-password" : "new-password"}
                                 dir="ltr"
                             />
+                            {isLoginView && (
+                                <div className="text-end mt-1">
+                                    <Link
+                                        to="/forgot-password"
+                                        className="small text-decoration-none"
+                                        onClick={() => trackEvent('forgot_password_click', { category: 'auth', properties: { surface: authSurface } })}
+                                    >
+                                        שכחת סיסמה?
+                                    </Link>
+                                </div>
+                            )}
                         </div>
 
                         {error && <div className="alert alert-danger p-2 text-center" role="alert">{error}</div>}

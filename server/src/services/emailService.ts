@@ -15,6 +15,14 @@ const isSmtpConfigured = () => !!(config.email.user && config.email.pass);
 
 const isConfigured = () => isSmtpConfigured() && !!config.email.admin;
 
+function escapeHtml(text: string): string {
+    return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+}
+
 function emailFooterHtml(): string {
     return `<p style="font-size: 12px; color: #888; text-align: center;">${tournamentBranding.displayNameHe}</p>`;
 }
@@ -156,6 +164,56 @@ export const sendVerificationEmail = async (
         console.error('[email] Failed to send verification email:', err);
     }
 };
+
+// ─── Password reset ───────────────────────────────────────────────────────────
+
+export const sendPasswordResetEmail = async (
+    email: string,
+    resetUrl: string,
+    displayName: string
+): Promise<void> => {
+    if (!isSmtpConfigured()) {
+        throw new Error('SMTP not configured');
+    }
+    try {
+        await getTransporter().sendMail({
+            from: config.email.user,
+            to: email,
+            subject: `איפוס סיסמה — ${tournamentBranding.displayNameHe}`,
+            html: buildPasswordResetEmailHtml(resetUrl, displayName),
+        });
+        console.log(`[email] Password reset email sent to ${email}`);
+    } catch (err) {
+        console.error('[email] Failed to send password reset email:', err);
+        throw err;
+    }
+};
+
+function buildPasswordResetEmailHtml(resetUrl: string, displayName: string): string {
+    const safeName = escapeHtml(displayName);
+    const safeUrl = escapeHtml(resetUrl);
+    return emailWrapperHtml(`
+        <h2 style="color: #2A6B11; text-align: center;">איפוס סיסמה</h2>
+        <p>שלום ${safeName},</p>
+        <p>קיבלנו בקשה לאיפוס הסיסמה שלך ב${tournamentBranding.displayNameHe}. לחץ על הכפתור למטה כדי לבחור סיסמה חדשה:</p>
+        <p style="text-align: center; margin: 24px 0;">
+            <a href="${safeUrl}"
+               style="background:#2A6B11;color:white;padding:12px 24px;text-decoration:none;border-radius:5px;display:inline-block;font-weight:bold;">
+               איפוס סיסמה
+            </a>
+        </p>
+        <p style="font-size: 13px; color: #666;">הקישור בתוקף לשעה אחת. אם לא ביקשת איפוס סיסמה, אפשר להתעלם מהודעה זו.</p>
+        <p style="font-size: 12px; color: #888; word-break: break-all;">אם הכפתור לא עובד, העתק את הקישור: ${safeUrl}</p>
+    `);
+}
+
+/** @internal test helper — build password reset HTML without sending */
+export function buildPasswordResetEmailHtmlForTest(
+    resetUrl: string,
+    displayName: string
+): string {
+    return buildPasswordResetEmailHtml(resetUrl, displayName);
+}
 
 // ─── Administration-side identity gap (form CSV incomplete) ─────────────────
 

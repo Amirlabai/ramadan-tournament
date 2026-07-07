@@ -1,5 +1,6 @@
 import { prisma } from '../lib/prisma';
 import { prismaUserToIUser, IUser, UserRole, IMappedPlayerInfo, IPendingTeamRequest, IPlayerProfile } from '../db/userMapper';
+import { prismaNullableTokenField } from '../db/prismaNullables';
 import { toInputJson } from '../lib/json';
 import { normalizeEmail } from '../utils/normalizeEmail';
 
@@ -21,6 +22,10 @@ function buildWhere(query: Record<string, unknown>) {
       ?? (query.verificationTokenExpires as { $gt?: Date }).$gt;
     if (gt) where.verificationTokenExpires = { gt };
   }
+  if (query.passwordResetToken) where.passwordResetToken = query.passwordResetToken;
+  if (query.passwordResetExpiresAfter instanceof Date) {
+    where.passwordResetExpires = { gt: query.passwordResetExpiresAfter };
+  }
   if (query['mappedPlayerInfo.teamId']) where.mappedPlayerInfo = { path: ['teamId'], equals: query['mappedPlayerInfo.teamId'] };
   return where;
 }
@@ -39,8 +44,11 @@ export class User {
   playerProfile?: IPlayerProfile;
   pendingTeamRequest?: IPendingTeamRequest;
   isVerified = false;
-  verificationToken?: string;
-  verificationTokenExpires?: Date;
+  verificationToken?: string | null;
+  verificationTokenExpires?: Date | null;
+  passwordResetToken?: string | null;
+  passwordResetExpires?: Date | null;
+  tokenVersion?: number;
 
   constructor(data: Partial<IUser> & Record<string, unknown>) {
     Object.assign(this, data);
@@ -61,8 +69,11 @@ export class User {
       playerProfile: toInputJson(this.playerProfile),
       pendingTeamRequest: toInputJson(this.pendingTeamRequest),
       isVerified: this.isVerified,
-      verificationToken: this.verificationToken,
-      verificationTokenExpires: this.verificationTokenExpires,
+      verificationToken: prismaNullableTokenField(this.verificationToken),
+      verificationTokenExpires: prismaNullableTokenField(this.verificationTokenExpires),
+      passwordResetToken: prismaNullableTokenField(this.passwordResetToken),
+      passwordResetExpires: prismaNullableTokenField(this.passwordResetExpires),
+      tokenVersion: this.tokenVersion ?? 0,
     };
 
     if (this.id) {
@@ -94,6 +105,9 @@ export class User {
       isVerified: this.isVerified,
       verificationToken: this.verificationToken ?? null,
       verificationTokenExpires: this.verificationTokenExpires ?? null,
+      passwordResetToken: this.passwordResetToken ?? null,
+      passwordResetExpires: this.passwordResetExpires ?? null,
+      tokenVersion: this.tokenVersion ?? 0,
       mappedPlayerInfo: (this.mappedPlayerInfo ?? null) as any,
       playerProfile: (this.playerProfile ?? null) as any,
       pendingTeamRequest: (this.pendingTeamRequest ?? null) as any,
@@ -121,6 +135,15 @@ export class User {
           where: {
             ...rest,
             verificationTokenExpires: { gt: expires.gt },
+          },
+        });
+      } else if (where.passwordResetExpires && typeof where.passwordResetExpires === 'object') {
+        const expires = where.passwordResetExpires as { gt: Date };
+        const { passwordResetExpires: _drop, ...rest } = where;
+        row = await prisma.user.findFirst({
+          where: {
+            ...rest,
+            passwordResetExpires: { gt: expires.gt },
           },
         });
       } else if (query['mappedPlayerInfo.teamId']) {

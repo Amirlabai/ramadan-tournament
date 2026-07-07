@@ -15,6 +15,8 @@ import Stats from './pages/Stats'
 import MVPs from './pages/MVPs'
 
 const Login = lazyWithRetry('Login', () => import('./pages/admin/Login'))
+const ForgotPassword = lazyWithRetry('ForgotPassword', () => import('./pages/ForgotPassword'))
+const ResetPassword = lazyWithRetry('ResetPassword', () => import('./pages/ResetPassword'))
 const AdminPanel = lazyWithRetry('AdminPanel', () => import('./pages/admin/AdminPanel'))
 const Profile = lazyWithRetry('Profile', () => import('./pages/Profile'))
 const PlayerZone = lazyWithRetry('PlayerZone', () => import('./pages/PlayerZone'))
@@ -73,6 +75,8 @@ function AppRoutes() {
         <Route path="/mvps" element={<MVPs />} />
         <Route path="/login" element={<Login />} />
         <Route path="/admin/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
         <Route path="/admin" element={<AdminPanel />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/player-zone" element={<PlayerZone />} />

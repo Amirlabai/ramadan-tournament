@@ -6,7 +6,7 @@ import { User, IUser } from '../models/User';
 import { TeamRosterService } from '../services/TeamRosterService';
 import { config } from '../config/env';
 import { AuthRequest } from '../middleware/auth';
-import { sendVerificationEmail } from '../services/emailService';
+import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
 import crypto from 'crypto';
 import { Division } from '@prisma/client';
 import { RegistrationService } from '../services/RegistrationService';
@@ -15,6 +15,16 @@ import { AuthRateLimitService } from '../services/AuthRateLimitService';
 import { normalizeEmail } from '../utils/normalizeEmail';
 import { AnalyticsService } from '../services/AnalyticsService';
 import { platformFromUserAgent } from '../utils/platformFromUserAgent';
+import { resetPasswordUrl } from '../config/tournamentBranding';
+
+const PASSWORD_RESET_EXPIRY_MS = 60 * 60 * 1000;
+
+const PASSWORD_RESET_GENERIC_MESSAGE =
+    'אם קיים חשבון עם סיסמה לכתובת זו, נשלח אליך אימייל עם קישור לאיפוס.';
+
+function hashPasswordResetToken(rawToken: string): string {
+    return crypto.createHash('sha256').update(rawToken).digest('hex');
+}
 
 function authContextFromRequest(req: Request): {
   path?: string;
@@ -57,7 +67,11 @@ const logAuthEvent = (
 
 const generateToken = (user: IUser) => {
     return jwt.sign(
-        { userId: user.id, role: user.role },
+        {
+            userId: user.id,
+            role: user.role,
+            tokenVersion: user.tokenVersion ?? 0,
+        },
         config.jwtSecret,
         { expiresIn: '7d' }
     );
@@ -485,8 +499,8 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
         }
 
         user.isVerified = true;
-        user.verificationToken = undefined;
-        user.verificationTokenExpires = undefined;
+        user.verificationToken = null;
+        user.verificationTokenExpires = null;
         await user.save();
 
         const token = generateToken(user);
@@ -546,5 +560,99 @@ export const resendVerification = async (req: Request, res: Response): Promise<v
     } catch (error) {
         console.error('Resend verification error:', error);
         res.status(500).json({ error: 'Server error during resending code' });
+    }
+};
+
+export const requestPasswordReset = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { email } = req.body;
+
+        if (!email || typeof email !== 'string') {
+            res.status(400).json({ error: 'נדרש אימייל' });
+            return;
+        }
+
+        const normalizedEmail = normalizeEmail(email);
+        if (!normalizedEmail) {
+            res.status(400).json({ error: 'פורמט אימייל לא תקין' });
+            return;
+        }
+
+        const user = await User.findOne({ email: normalizedEmail }).select('+password');
+
+        if (user?.password && user.email) {
+            const rawToken = crypto.randomBytes(32).toString('hex');
+            const expires = new Date(Date.now() + PASSWORD_RESET_EXPIRY_MS);
+            const resetUrl = resetPasswordUrl(rawToken);
+
+            try {
+                await sendPasswordResetEmail(user.email, resetUrl, user.displayName);
+            } catch (emailErr) {
+                console.error('Password reset email failed:', emailErr);
+                res.status(500).json({ error: 'שליחת האימייל נכשלה. נסה שוב מאוחר יותר.' });
+                return;
+            }
+
+            user.passwordResetToken = hashPasswordResetToken(rawToken);
+            user.passwordResetExpires = expires;
+            await user.save();
+            logAuthEvent('password_reset_requested', req);
+        }
+
+        res.json({ message: PASSWORD_RESET_GENERIC_MESSAGE });
+    } catch (error) {
+        console.error('Password reset request error:', error);
+        res.status(500).json({ error: 'שגיאת שרת' });
+    }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { token, password } = req.body;
+
+        if (!token || !password) {
+            res.status(400).json({ error: 'נדרשים קישור איפוס וסיסמה חדשה' });
+            logAuthEvent('password_reset_failed', req, { reason: 'missing_fields' });
+            return;
+        }
+
+        if (typeof token !== 'string' || typeof password !== 'string') {
+            res.status(400).json({ error: 'קלט לא תקין' });
+            logAuthEvent('password_reset_failed', req, { reason: 'invalid_types' });
+            return;
+        }
+
+        if (password.length < 6 || password.length > 128) {
+            res.status(400).json({ error: 'הסיסמה חייבת להכיל 6–128 תווים' });
+            logAuthEvent('password_reset_failed', req, { reason: 'invalid_length' });
+            return;
+        }
+
+        const hashedToken = hashPasswordResetToken(token);
+        const user = await User.findOne({
+            passwordResetToken: hashedToken,
+            passwordResetExpiresAfter: new Date(),
+        });
+
+        if (!user) {
+            res.status(400).json({ error: 'קישור האיפוס אינו תקין או שפג תוקפו' });
+            logAuthEvent('password_reset_failed', req, { reason: 'invalid_token' });
+            return;
+        }
+
+        const salt = await bcrypt.genSalt(10);
+        user.password = await bcrypt.hash(password, salt);
+        user.passwordResetToken = null;
+        user.passwordResetExpires = null;
+        user.tokenVersion = (user.tokenVersion ?? 0) + 1;
+        await user.save();
+
+        clearAuthCookie(res);
+        logAuthEvent('password_reset_success', req);
+        res.json({ message: 'הסיסמה עודכנה בהצלחה. אפשר להתחבר עם הסיסמה החדשה.' });
+    } catch (error) {
+        console.error('Password reset error:', error);
+        logAuthEvent('password_reset_failed', req, { reason: 'server_error' });
+        res.status(500).json({ error: 'שגיאת שרת' });
     }
 };

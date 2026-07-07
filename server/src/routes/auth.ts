@@ -8,6 +8,8 @@ import {
     verifyEmail,
     resendVerification,
     logout,
+    requestPasswordReset,
+    resetPassword,
 } from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 import { optionalSessionAuth } from '../middleware/optionalSessionAuth';
@@ -46,6 +48,22 @@ const resendLimiter = rateLimit({
     message: { error: 'Too many resend attempts. Try again later.' },
 });
 
+const forgotPasswordLimiter = rateLimit({
+    windowMs: 60 * 60 * 1000,
+    max: 3,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'יותר מדי בקשות לאיפוס סיסמה. נסה שוב מאוחר יותר.' },
+});
+
+const resetPasswordLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 5,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { error: 'יותר מדי ניסיונות איפוס. נסה שוב מאוחר יותר.' },
+});
+
 const logoutLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
     max: 30,
@@ -61,5 +79,7 @@ router.post('/logout', logoutLimiter, optionalSessionAuth, logout);
 router.get('/me', authenticate, getMe);
 router.post('/verify-email', verifyLimiter, verifyEmail);
 router.post('/resend-verification', resendLimiter, resendVerification);
+router.post('/forgot-password', forgotPasswordLimiter, requestPasswordReset);
+router.post('/reset-password', resetPasswordLimiter, resetPassword);
 
 export default router;

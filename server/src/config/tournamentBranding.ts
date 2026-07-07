@@ -16,3 +16,7 @@ export function profileUrl(): string {
 export function adminUrl(): string {
   return `${tournamentBranding.sitePublicUrl}/admin`;
 }
+
+export function resetPasswordUrl(rawToken: string): string {
+  return `${tournamentBranding.sitePublicUrl}/reset-password?token=${encodeURIComponent(rawToken)}`;
+}

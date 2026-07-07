@@ -218,6 +218,8 @@ export const LEGAL_PRERENDER_PATHS = [
 export const NOINDEX_PATHS = [
   '/login',
   '/admin/login',
+  '/forgot-password',
+  '/reset-password',
   '/admin',
   '/profile',
   '/player-zone',

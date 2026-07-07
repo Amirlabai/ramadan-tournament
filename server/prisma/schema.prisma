@@ -114,6 +114,9 @@ model User {
   isVerified               Boolean   @default(false) @map("is_verified")
   verificationToken        String?   @map("verification_token")
   verificationTokenExpires DateTime? @map("verification_token_expires")
+  passwordResetToken       String?   @map("password_reset_token")
+  passwordResetExpires     DateTime? @map("password_reset_expires")
+  tokenVersion             Int       @default(0) @map("token_version")
   mappedPlayerInfo         Json?     @map("mapped_player_info")
   playerProfile            Json?     @map("player_profile")
   pendingTeamRequest       Json?     @map("pending_team_request")
@@ -133,6 +136,7 @@ model User {
   teamTransferRequests TeamTransferRequest[]
   pointEntriesRecorded PointEntry[]
 
+  @@index([passwordResetToken])
   @@map("users")
 }
 

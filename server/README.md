@@ -138,7 +138,9 @@ Full route catalog: [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFER
 - `GET /api/teams`, `/api/matches`, `/api/news`, `/api/stats/*`
 
 ### Auth
-- `POST /api/auth/login`, `POST /api/auth/google`, `GET /api/auth/me`
+- `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/google`, `GET /api/auth/me`, `POST /api/auth/logout`
+- `POST /api/auth/verify-email`, `POST /api/auth/resend-verification`
+- `POST /api/auth/forgot-password`, `POST /api/auth/reset-password` — email reset link (1h; `SITE_PUBLIC_URL` for link base)
 
 ### Admin (authenticated + `admin` role)
 - Matches: `POST|PUT|DELETE /api/matches`, `POST /api/matches/sync-playoffs`

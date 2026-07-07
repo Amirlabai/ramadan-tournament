@@ -21,7 +21,7 @@ const headOnlyPublicRoutes = [
   '/news-girls',
   '/archive-girls',
 ]
-const noindexPrerenderRoutes = ['/login', '/admin/login', '/admin', '/profile', '/player-zone']
+const noindexPrerenderRoutes = ['/login', '/admin/login', '/forgot-password', '/reset-password', '/admin', '/profile', '/player-zone']
 
 /** vite-prerender-plugin + PWA can leave open handles; Node never exits (local + CI). */
 function forceExitAfterBuild(): Plugin {
