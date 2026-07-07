@@ -369,7 +369,7 @@ export default function RegistrationWorkflowAdmin() {
                         </dd>
                     </div>
                     <div className="workflow-user-card__row">
-                        <dt>תעודת זהות (מנהל)</dt>
+                        <dt>אימות מנהל (ת"ז + שנת לידה של שחקן).</dt>
                         <dd>{renderAssignCell(row)}</dd>
                     </div>
                 </dl>

@@ -4,6 +4,7 @@ import path from 'path';
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
 import { clearMappingsForDeletedPlayer } from '../repositories/userMappingRepository';
+import { mergeProfilePosition, rosterAudit } from '../utils/rosterAuditLog';
 import { invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
@@ -174,11 +175,6 @@ export class PlayerService {
   }
 
   private static async resolveActivePlayerForUser(userId: string) {
-    const byLink = await prisma.player.findFirst({
-      where: { userId, active: true },
-    });
-    if (byLink) return byLink;
-
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const mapped = user?.mappedPlayerInfo as {
       memberId?: number;
@@ -186,17 +182,23 @@ export class PlayerService {
     } | null;
 
     if (mapped?.memberId && mapped.memberId > 0 && mapped.status === 'approved') {
-      const byMember = await prisma.player.findFirst({
+      const byMapped = await prisma.player.findFirst({
         where: { memberId: mapped.memberId, active: true },
       });
-      if (!byMember) {
-        throw new Error('רשומת השחקן לא נמצאה');
+      if (byMapped) {
+        if (byMapped.userId && byMapped.userId !== userId) {
+          throw new Error('אין הרשאה לערוך שחקן זה');
+        }
+        return byMapped;
       }
-      if (byMember.userId && byMember.userId !== userId) {
-        throw new Error('אין הרשאה לערוך שחקן זה');
-      }
-      return byMember;
+      throw new Error('רשומת השחקן לא נמצאה');
     }
+
+    const byLink = await prisma.player.findFirst({
+      where: { userId, active: true },
+      orderBy: { memberId: 'asc' },
+    });
+    if (byLink) return byLink;
 
     throw new Error('לא נמצא שחקן פעיל — הצטרף לקבוצה או המתן לאישור');
   }
@@ -211,8 +213,7 @@ export class PlayerService {
     const nickname =
       raw.nickname != null ? String(raw.nickname).trim().slice(0, 50) : player.nickname;
     const number = raw.number != null ? Number(raw.number) : player.number;
-    const position =
-      raw.position != null ? String(raw.position).trim().slice(0, 30) : player.position;
+    const position = mergeProfilePosition(raw.position, player.position);
     const bio = raw.bio != null ? String(raw.bio).trim().slice(0, 300) : player.bio;
 
     if (!firstName) {
@@ -278,6 +279,17 @@ export class PlayerService {
       });
 
     await invalidatePlayerSeasonCaches(player.seasonId);
+
+    if (position !== player.position) {
+      rosterAudit('player_profile_position_changed', {
+        userId,
+        memberId: updated.memberId,
+        teamId: updated.teamId,
+        mode: 'roster',
+        positionBefore: player.position,
+        positionAfter: updated.position,
+      });
+    }
 
     return {
       firstName: updated.firstName,
@@ -387,6 +399,16 @@ export class PlayerService {
     const headPhoto = player.headPhoto;
     const pendingHeadPhoto = player.pendingHeadPhoto;
 
+    rosterAudit('roster_member_deactivate_start', {
+      memberId: player.memberId,
+      teamId: player.teamId,
+      seasonId: player.seasonId,
+      userId: player.userId,
+      position: player.position,
+      active: player.active,
+      actor: 'admin',
+    });
+
     await prisma.$transaction(async (tx) => {
       await unlinkRosterSlot(tx, {
         memberId: player.memberId,
@@ -398,6 +420,15 @@ export class PlayerService {
     });
 
     await invalidateDivisionCaches(division);
+
+    rosterAudit('roster_member_deactivate_done', {
+      memberId: player.memberId,
+      teamId: player.teamId,
+      seasonId: player.seasonId,
+      userId: player.userId,
+      position: player.position,
+    });
+
     deletePlayerPhotoFiles(headPhoto, pendingHeadPhoto);
   }
 
@@ -427,10 +458,9 @@ export class PlayerService {
       raw.number != null
         ? Number(raw.number)
         : Number((user.playerProfile as { number?: number } | null)?.number) || 99;
-    const position =
-      raw.position != null
-        ? String(raw.position).trim().slice(0, 30)
-        : (user.playerProfile as { position?: string } | null)?.position ?? '';
+    const existingPosition =
+      (user.playerProfile as { position?: string } | null)?.position ?? '';
+    const position = mergeProfilePosition(raw.position, existingPosition);
     const bio =
       raw.bio != null
         ? String(raw.bio).trim().slice(0, 300)
@@ -452,11 +482,32 @@ export class PlayerService {
       });
     }
 
-    const playerProfile = { firstName, lastName, nickname, number, position, bio };
+    const existingProfile = (user.playerProfile as Record<string, unknown> | null) ?? {};
+    const playerProfile = {
+      ...existingProfile,
+      firstName,
+      lastName,
+      nickname,
+      number,
+      position,
+      bio,
+    };
     await prisma.user.update({
       where: { id: userId },
       data: { playerProfile: toInputJson(playerProfile) },
     });
+
+    if (position !== existingPosition) {
+      rosterAudit('player_profile_position_changed', {
+        userId,
+        mode: 'pending',
+        joinRequestId: pendingJoin?.id ?? null,
+        teamId: pendingJoin?.teamId ?? null,
+        positionBefore: existingPosition,
+        positionAfter: position,
+        preservedRequestedMemberId: existingProfile.requestedMemberId ?? null,
+      });
+    }
 
     return playerProfile;
   }

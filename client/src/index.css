@@ -674,6 +674,12 @@ h2 {
   color: inherit;
 }
 
+.roster-player-card-open:focus-visible {
+  outline: 2px solid var(--primary-green);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .roster-player-card {
   background-color: var(--white);
   border: 2px solid var(--medium-gray);
@@ -681,6 +687,53 @@ h2 {
   padding: 10px;
   text-align: center;
   transition: all var(--transition-speed);
+}
+
+.roster-player-card-photo {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  border: 2px solid var(--primary-green);
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-top: 1.25rem;
+  background-color: #1a1a1a;
+}
+
+.roster-player-card-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.roster-player-card-top-scorer {
+  position: absolute;
+  top: -2px;
+  inset-inline-end: -2px;
+  font-size: 0.85rem;
+  line-height: 1;
+  background-color: var(--secondary-yellow);
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--primary-green);
+  z-index: 2;
+}
+
+.roster-player-card-hint {
+  opacity: 0.75;
+  transition: opacity var(--transition-speed);
+}
+
+.roster-player-card:hover .roster-player-card-hint,
+.roster-player-card-open:focus-visible .roster-player-card-hint {
+  opacity: 1;
+  color: var(--primary-green) !important;
 }
 
 .roster-player-card:hover {
@@ -740,6 +793,16 @@ h2 {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .roster-player-card-photo {
+    width: 56px;
+    height: 56px;
+    margin-top: 1rem;
+  }
+
+  .roster-player-card-hint {
+    font-size: 0.7rem;
+  }
+
   .player-card-stats .fw-bold {
     font-size: 0.7rem;
   }
@@ -816,6 +879,21 @@ h2 {
   .player-card-template {
     width: 120px;
     height: 160px;
+  }
+
+  .roster-player-card-photo {
+    width: 48px;
+    height: 48px;
+    margin-top: 0.75rem;
+  }
+
+  .roster-player-card-hint {
+    font-size: 0.65rem;
+    margin-top: 0.35rem !important;
+  }
+
+  .roster-player-card {
+    padding: 8px;
   }
 }
 

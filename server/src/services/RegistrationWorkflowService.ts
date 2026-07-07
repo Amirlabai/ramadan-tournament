@@ -20,6 +20,7 @@ import {
   needsIdentityWorkflowAction,
 } from './RegistrationIdentityService';
 import { parseRequestedMemberId } from '../utils/requestedMemberId';
+import { mergeProfilePosition, rosterAudit } from '../utils/rosterAuditLog';
 import {
   assertDivisionAccess,
   getNextMemberId,
@@ -137,6 +138,71 @@ async function hasClaimedCaptainReviewer(
     select: { memberId: true },
   });
   return !!captainRow;
+}
+
+function normalizePreferredJerseyNumber(value: unknown): number | null {
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 99) {
+    return null;
+  }
+  return parsed;
+}
+
+async function resolveAvailableJerseyNumber(
+  db: Pick<Prisma.TransactionClient, 'player'>,
+  seasonId: string,
+  teamId: number,
+  preferred: unknown
+): Promise<number> {
+  const preferredNumber = normalizePreferredJerseyNumber(preferred);
+  const taken = await db.player.findMany({
+    where: { seasonId, teamId, active: true },
+    select: { number: true },
+  });
+  const takenNumbers = new Set(
+    taken
+      .map((row) => row.number)
+      .filter((num) => Number.isInteger(num) && num >= 1 && num <= 99)
+  );
+  if (preferredNumber != null && !takenNumbers.has(preferredNumber)) {
+    return preferredNumber;
+  }
+  for (let candidate = 1; candidate <= 99; candidate += 1) {
+    if (!takenNumbers.has(candidate)) {
+      return candidate;
+    }
+  }
+  throw new Error('לא נותרו מספרי חולצה פנויים בקבוצה');
+}
+
+async function resolveJoinLinkMemberId(
+  db: Pick<Prisma.TransactionClient, 'player'>,
+  input: {
+    userId: string;
+    teamId: number;
+    seasonId: string;
+    requestedMemberId?: number;
+  }
+): Promise<number | null> {
+  if (input.requestedMemberId != null) {
+    return input.requestedMemberId;
+  }
+
+  const existingLinked = await db.player.findFirst({
+    where: {
+      userId: input.userId,
+      teamId: input.teamId,
+      seasonId: input.seasonId,
+      active: true,
+    },
+    select: { memberId: true },
+  });
+  if (existingLinked) {
+    return existingLinked.memberId;
+  }
+
+  // No fuzzy name match — callers must set requestedMemberId (claim/join UX) or accept create.
+  return null;
 }
 
 async function hasPreAdminReviewerCoverage(
@@ -641,6 +707,13 @@ export class RegistrationWorkflowService {
           adminReviewedBy: adminId,
         },
       });
+      rosterAudit('admin_join_rejected', {
+        requestId,
+        adminId,
+        userId: req.userId,
+        teamId: req.teamId,
+        seasonId: req.seasonId,
+      });
       await restoreRegistrationStatusAfterCancel(
         req.userId,
         req.seasonId,
@@ -664,81 +737,161 @@ export class RegistrationWorkflowService {
     const lastName = String(profile.lastName ?? '').slice(0, 50);
     const nickname = String(profile.nickname ?? req.user.displayName).slice(0, 50);
     const number = Number(profile.number) || 99;
-    const position = String(profile.position ?? '').slice(0, 30);
+    const rawPosition = profile.position != null ? String(profile.position) : undefined;
 
     let linkFirstName = firstName;
     let linkLastName = lastName;
     let linkNickname = nickname;
     let linkNumber = number;
-    let linkPosition = position;
+    let linkPosition = mergeProfilePosition(rawPosition, '');
+    let auditMode: 'link' | 'create' = 'create';
+    let auditMemberId: number | null = null;
+    let auditSlotPosition: string | null = null;
 
-    await prisma.$transaction(async (tx) => {
-      let memberId: number;
+    try {
+      await prisma.$transaction(async (tx) => {
+        let memberId: number;
 
-      if (requestedMemberId != null) {
-        const slot = await tx.player.findFirst({
-          where: {
-            memberId: requestedMemberId,
-            teamId: req.teamId,
-            seasonId: req.seasonId,
-            active: true,
-          },
+        const linkMemberId = await resolveJoinLinkMemberId(tx, {
+          userId: req.userId,
+          teamId: req.teamId,
+          seasonId: req.seasonId,
+          requestedMemberId,
         });
-        if (!slot) {
-          throw new Error('שחקן מבוקש לא נמצא בקבוצה');
+
+        if (linkMemberId != null) {
+          const slot = await tx.player.findFirst({
+            where: {
+              memberId: linkMemberId,
+              teamId: req.teamId,
+              seasonId: req.seasonId,
+              active: true,
+            },
+          });
+          if (!slot) {
+            throw new Error('שחקן מבוקש לא נמצא בקבוצה');
+          }
+          if (slot.userId && slot.userId !== req.userId) {
+            throw new Error('שחקן זה כבר משויך למשתמש אחר');
+          }
+          auditSlotPosition = slot.position;
+          const mergedPosition = mergeProfilePosition(rawPosition, slot.position);
+          await tx.player.update({
+            where: { memberId: linkMemberId },
+            data: {
+              userId: req.userId,
+              position: mergedPosition,
+            },
+          });
+          memberId = linkMemberId;
+          linkFirstName = slot.firstName;
+          linkLastName = slot.lastName;
+          linkNickname = slot.nickname;
+          linkNumber = slot.number;
+          linkPosition = mergedPosition;
+          auditMode = 'link';
+          auditMemberId = memberId;
+        } else {
+          // No requestedMemberId and no prior userId link — create a new roster row.
+          // Unclaimed placeholder slots are not auto-linked; join UX must set requestedMemberId.
+          const duplicateOnTeam = await tx.player.findFirst({
+            where: {
+              userId: req.userId,
+              teamId: req.teamId,
+              seasonId: req.seasonId,
+              active: true,
+            },
+          });
+          if (duplicateOnTeam) {
+            throw new Error('המשתמש כבר משויך לשחקן פעיל בקבוצה זו');
+          }
+
+          memberId = await getNextMemberId();
+          const allocatedNumber = await resolveAvailableJerseyNumber(
+            tx,
+            req.seasonId,
+            req.teamId,
+            number
+          );
+          const createPosition = mergeProfilePosition(rawPosition, '');
+          await tx.player.create({
+            data: {
+              memberId,
+              teamId: req.teamId,
+              seasonId: req.seasonId,
+              userId: req.userId,
+              firstName,
+              lastName,
+              nickname,
+              number: allocatedNumber,
+              position: createPosition,
+            },
+          });
+          linkNumber = allocatedNumber;
+          linkPosition = createPosition;
+          auditMode = 'create';
+          auditMemberId = memberId;
         }
-        if (slot.userId && slot.userId !== req.userId) {
-          throw new Error('שחקן זה כבר משויך למשתמש אחר');
-        }
-        await tx.player.update({
-          where: { memberId: requestedMemberId },
-          data: { userId: req.userId },
-        });
-        memberId = requestedMemberId;
-        linkFirstName = slot.firstName;
-        linkLastName = slot.lastName;
-        linkNickname = slot.nickname;
-        linkNumber = slot.number;
-        linkPosition = slot.position;
-      } else {
-        memberId = await getNextMemberId();
-        await tx.player.create({
+
+        await tx.user.update({
+          where: { id: req.userId },
           data: {
-            memberId,
-            teamId: req.teamId,
-            seasonId: req.seasonId,
-            userId: req.userId,
-            firstName,
-            lastName,
-            nickname,
-            number,
-            position,
+            mappedPlayerInfo: toInputJson({
+              teamId: req.teamId,
+              memberId,
+              status: 'approved',
+            }),
+            playerProfile: toInputJson({
+              firstName: linkFirstName,
+              lastName: linkLastName,
+              nickname: linkNickname,
+              number: linkNumber,
+              position: linkPosition,
+            }),
           },
         });
+
+        await tx.teamJoinRequest.update({
+          where: { id: requestId },
+          data: {
+            status: RequestStatus.approved,
+            adminReviewedAt: new Date(),
+            adminReviewedBy: adminId,
+          },
+        });
+      });
+
+      rosterAudit('admin_join_approved', {
+        requestId,
+        adminId,
+        userId: req.userId,
+        teamId: req.teamId,
+        seasonId: req.seasonId,
+        mode: auditMode,
+        memberId: auditMemberId,
+        requestedMemberId: requestedMemberId ?? null,
+        profilePosition: rawPosition ?? null,
+        rosterPosition: auditSlotPosition,
+        mergedPosition: linkPosition || null,
+      });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      rosterAudit('admin_join_approve_failed', {
+        requestId,
+        adminId,
+        userId: req.userId,
+        teamId: req.teamId,
+        seasonId: req.seasonId,
+        requestedMemberId: requestedMemberId ?? null,
+        profilePosition: rawPosition ?? null,
+        rosterPosition: auditSlotPosition,
+        error: message,
+      });
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        throw new Error('מספר חולצה כבר תפוס בקבוצה. בחר מספר אחר ונסה שוב.');
       }
-
-      await tx.user.update({
-        where: { id: req.userId },
-        data: {
-          playerProfile: toInputJson({
-            firstName: linkFirstName,
-            lastName: linkLastName,
-            nickname: linkNickname,
-            number: linkNumber,
-            position: linkPosition,
-          }),
-        },
-      });
-
-      await tx.teamJoinRequest.update({
-        where: { id: requestId },
-        data: {
-          status: RequestStatus.approved,
-          adminReviewedAt: new Date(),
-          adminReviewedBy: adminId,
-        },
-      });
-    });
+      throw err;
+    }
 
     await invalidateDivisionCaches(req.season.division);
   }

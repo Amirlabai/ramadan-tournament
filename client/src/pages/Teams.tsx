@@ -19,6 +19,7 @@ import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
+import { sortRosterPlayers } from '../utils/rosterSort';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -353,6 +354,7 @@ const Teams = () => {
                                                 )}
                                                 <div className="row g-3">
                                                     {(() => {
+                                                        const sortedPlayers = sortRosterPlayers(players);
                                                         const topScorerInTeam = [...players].sort((a, b) => {
                                                             const goalsA = a.totalGoals || 0;
                                                             const goalsB = b.totalGoals || 0;
@@ -362,7 +364,7 @@ const Teams = () => {
                                                             return avgB - avgA;
                                                         })[0];
 
-                                                        return players.map(player => {
+                                                        return sortedPlayers.map(player => {
                                                             const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
                                                             const roleStarVariant = getRoleStarVariant(
                                                                 !!player.isTeamOwner,
@@ -397,13 +399,20 @@ const Teams = () => {
                                                                         ) : null}
                                                                         <button
                                                                             type="button"
-                                                                            className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0 pt-4"
+                                                                            className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0"
                                                                             onClick={() => setSelectedPlayer(player)}
-                                                                            aria-label={`פרטי שחקן ${player.firstName} ${player.lastName}`}
+                                                                            aria-label={`פרטי שחקן ${player.firstName} ${player.lastName}${isTopScorer ? ', מלך השערים של הקבוצה' : ''}`}
                                                                         >
-                                                                        {isTopScorer && (
-                                                                            <span className="badge text-dark position-absolute top-0 end-0 m-2" aria-label="מלך השערים של הקבוצה">⚽</span>
-                                                                        )}
+                                                                        <div className="roster-player-card-photo mx-auto" aria-hidden="true">
+                                                                            <PlayerHeadImg
+                                                                                player={player}
+                                                                                alt=""
+                                                                                className="roster-player-card-photo-img"
+                                                                            />
+                                                                            {isTopScorer && (
+                                                                                <span className="roster-player-card-top-scorer" aria-hidden="true">⚽</span>
+                                                                            )}
+                                                                        </div>
                                                                         <div className="fw-bold mt-2">{player.nickname}</div>
                                                                         <div className="text-muted small">{player.firstName} {player.lastName}</div>
                                                                         <div className="badge bg-success mt-1">{player.number}</div>
@@ -422,6 +431,11 @@ const Teams = () => {
                                                                                 </span>
                                                                             </div>
                                                                         </div>
+                                                                        <span className="roster-player-card-hint small text-muted d-inline-flex align-items-center gap-1 mt-2" aria-hidden="true">
+                                                                            <i className="bi bi-info-circle" />
+                                                                            לפרטים
+                                                                            <i className="bi bi-chevron-left" />
+                                                                        </span>
                                                                         </button>
                                                                     </div>
                                                                 </div>
