@@ -109,10 +109,10 @@ Operational workflow when resetting for a new season:
 1. **`npm run db:fresh`** (from `server/`) — wipes all data; creates active boys season + env admin only. Remote Postgres requires `--yes`.
 2. **Promote admins** — Admin → **משתמשים**: search by email/name, grant `admin`. Changed user must **re-login** for JWT role to update.
 3. **Teams** — admin or user verifies identity (personal ID + birth year) on Profile → registration workflow (join / team creation + admin approval).
-4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams (writes to Postgres `matches` via Prisma). Example Jul 2026 group stage (Fri/Sat, 8 games/day 16:00–19:00, venue **מתנס**):
+4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams (writes to Postgres `matches` via Prisma). Example Jul 2026 group stage (Fri/Sat, 4 games/day — 2×17:00 + 2×19:00 Jerusalem, venue **מתנס**):
 
    ```powershell
-   npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
+   npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 4 --times 17:00,17:00,19:00,19:00 --match-days fri,sat --dry-run
    ```
 
    Use `--replace` to regenerate; `--yes` when `DATABASE_URL` is not localhost. Do **not** use `db:seed` for production schedules.
@@ -127,6 +127,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 **Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location` (default **מתנס**), `--match-days`, `--replace`, `--dry-run`, `--yes`, `--help`.
 
 ## Recent Changes
+- **July 2026 — Team claim review routing:** PRD join requests now route by reviewer coverage in `RegistrationWorkflowService`: if a team has owner or claimed captain, requests stay `pending` for pre-admin review; if team has neither, new requests are created as `owner_approved` for direct admin queue. Claimed captains can review pending joins only when scoped to the same `seasonId` + `teamId` with a claimed captain row (`active=true`, `isCaptain=true`, matching `userId`). Added `RegistrationWorkflowService.joinRouting.test.ts` to enforce initial status selection and admin pending-count behavior (`owner_approved` only for admin-actionable joins).
 - **July 2026 — Admin add goal wizard:** Read-only match rows expose `הוסף שער` → `AddGoalWizardModal` (team pick → scorer pick, mobile fullscreen). Scores auto-increment for the scoring team. `PUT /api/matches/:id` now persists `goals` via `Match.findOneAndUpdate` → `save()`. Inline edit/delete unchanged.
 - **June 2026 — Girls profile card:** When no active girls season exists, `TournamentRegistrationCard` hides (404 / Hebrew no-season message) instead of showing a load error; `GET /api/seasons/active?division=girls` uses `getActiveGirlsSeason()` (points season), aligned with registration.
 - **June 2026 — Nav action indicators:** Red dots on Profile/Admin links via `GET /admin/workflows/pending-count`, `ownerPendingJoinCount` on `/auth/me`, and `GET /teams/has-claimable-players` for conditional claim banners.

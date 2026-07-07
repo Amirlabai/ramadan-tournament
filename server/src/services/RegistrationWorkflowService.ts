@@ -1,5 +1,6 @@
 import {
   Division,
+  Prisma,
   RequestStatus,
   ScoringMode,
   SeasonRegistrationStatus,
@@ -117,6 +118,63 @@ function assertFootballLineup(
   if (starting.length > 6) {
     throw new Error('הרכב פתיחה: עד 5 שחקני שדה ושוער אחד');
   }
+}
+
+async function hasClaimedCaptainReviewer(
+  db: Pick<Prisma.TransactionClient, 'player'>,
+  actorId: string,
+  seasonId: string,
+  teamId: number
+): Promise<boolean> {
+  const captainRow = await db.player.findFirst({
+    where: {
+      seasonId,
+      teamId,
+      userId: actorId,
+      active: true,
+      isCaptain: true,
+    },
+    select: { memberId: true },
+  });
+  return !!captainRow;
+}
+
+async function hasPreAdminReviewerCoverage(
+  db: Pick<Prisma.TransactionClient, 'team' | 'player'>,
+  seasonId: string,
+  teamId: number
+): Promise<boolean> {
+  const team = await db.team.findFirst({
+    where: { seasonId, id: teamId },
+    select: { ownerUserId: true },
+  });
+  if (team?.ownerUserId) {
+    return true;
+  }
+  const claimedCaptain = await db.player.findFirst({
+    where: {
+      seasonId,
+      teamId,
+      active: true,
+      isCaptain: true,
+      userId: { not: null },
+    },
+    select: { memberId: true },
+  });
+  return !!claimedCaptain;
+}
+
+async function canActorReviewPendingJoin(
+  actorId: string,
+  seasonId: string,
+  teamId: number,
+  teamOwnerUserId: string | null
+): Promise<boolean> {
+  if (teamOwnerUserId === actorId) {
+    return true;
+  }
+  // Captain reviewer is strictly scoped to same season+team and claimed userId.
+  return hasClaimedCaptainReviewer(prisma, actorId, seasonId, teamId);
 }
 
 export class RegistrationWorkflowService {
@@ -439,12 +497,16 @@ export class RegistrationWorkflowService {
         data: { status: RequestStatus.invalidated },
       });
 
+      const initialStatus = (await hasPreAdminReviewerCoverage(tx, season.id, teamId))
+        ? RequestStatus.pending
+        : RequestStatus.owner_approved;
+
       const req = await tx.teamJoinRequest.create({
         data: {
           userId,
           seasonId: season.id,
           teamId,
-          status: RequestStatus.pending,
+          status: initialStatus,
         },
       });
 
@@ -508,7 +570,7 @@ export class RegistrationWorkflowService {
   }
 
   static async ownerReviewJoin(
-    ownerId: string,
+    actorId: string,
     requestId: string,
     approve: boolean
   ) {
@@ -517,12 +579,22 @@ export class RegistrationWorkflowService {
       include: { season: true, team: true },
     });
 
-    const team = await prisma.team.findFirstOrThrow({
+    const team = await prisma.team.findFirst({
       where: { seasonId: req.seasonId, id: req.teamId },
+      select: { ownerUserId: true },
     });
+    if (!team) {
+      throw new Error('הקבוצה לא נמצאה');
+    }
 
-    if (team.ownerUserId !== ownerId) {
-      throw new Error('רק בעלים הקבוצה יכול לאשר בקשה זו');
+    const canReview = await canActorReviewPendingJoin(
+      actorId,
+      req.seasonId,
+      req.teamId,
+      team.ownerUserId ?? null
+    );
+    if (!canReview) {
+      throw new Error('רק בעלים או קפטן משויך לקבוצה יכול לאשר בקשה זו');
     }
 
     if (req.status !== RequestStatus.pending) {
@@ -534,7 +606,7 @@ export class RegistrationWorkflowService {
       data: {
         status: approve ? RequestStatus.owner_approved : RequestStatus.rejected,
         ownerReviewedAt: new Date(),
-        ownerReviewedBy: ownerId,
+        ownerReviewedBy: actorId,
       },
     });
 
@@ -885,10 +957,20 @@ export class RegistrationWorkflowService {
   static async listPendingJoinsForOwner(ownerId: string, teamId: number, division: Division) {
     const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirst({
-      where: { seasonId: season.id, id: teamId, ownerUserId: ownerId },
+      where: { seasonId: season.id, id: teamId },
+      select: { id: true, ownerUserId: true },
     });
     if (!team) {
-      throw new Error('אין הרשאת בעלים לקבוצה זו');
+      throw new Error('הקבוצה לא נמצאה');
+    }
+    const canReview = await canActorReviewPendingJoin(
+      ownerId,
+      season.id,
+      teamId,
+      team.ownerUserId ?? null
+    );
+    if (!canReview) {
+      throw new Error('אין הרשאת בעלים/קפטן לקבוצה זו');
     }
     return prisma.teamJoinRequest.findMany({
       where: {
