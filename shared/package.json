@@ -33,7 +33,7 @@
   },
   "description": "Shared validation constants. Client: Vite alias → source .ts. Server: require → dist/ (built by `npm run build:shared`, root `npm run build`, server `build`, and `prepare` on install unless `--ignore-scripts`).",
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/copy-crest-map.js",
     "prepare": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"

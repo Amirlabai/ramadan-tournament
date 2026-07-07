@@ -1,4 +1,4 @@
-import { shouldCountMatchInStats } from '@ramadan-tournament/shared';
+import { shouldCountMatchInStats, effectiveTeamLogoUrl } from '@ramadan-tournament/shared';
 import { prisma } from '../lib/prisma';
 import { SeasonService } from './SeasonService';
 import { StandingsEntry, TopScorer } from '../types/stats';
@@ -36,7 +36,7 @@ export class StatsService {
         goalsAgainst: 0,
         goalDifference: 0,
         points: 0,
-        logoUrl: team.logoUrl || undefined,
+        logoUrl: effectiveTeamLogoUrl(team.id, team.logoUrl, season.id) || undefined,
       };
     });
 

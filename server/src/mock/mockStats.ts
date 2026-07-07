@@ -1,7 +1,7 @@
-import { shouldCountMatchInStats } from '@ramadan-tournament/shared';
+import { shouldCountMatchInStats, effectiveTeamLogoUrl } from '@ramadan-tournament/shared';
 import type { StandingsEntry, TopScorer } from '../types/stats';
 import type { PlayerStats } from '../services/StatsService';
-import { getMockStore, type MockMatch, type MockTeam } from './dataLoader';
+import { getMockStore, MOCK_SEASON_ID, type MockMatch, type MockTeam } from './dataLoader';
 
 export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): StandingsEntry[] {
   const standings: { [key: number]: StandingsEntry } = {};
@@ -17,7 +17,7 @@ export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): Sta
       goalsAgainst: 0,
       goalDifference: 0,
       points: 0,
-      logoUrl: team.logoUrl || undefined,
+      logoUrl: effectiveTeamLogoUrl(team.id, team.logoUrl, MOCK_SEASON_ID) || undefined,
     };
   });
 

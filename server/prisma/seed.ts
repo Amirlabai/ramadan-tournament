@@ -55,7 +55,7 @@ async function main() {
         id: team.id,
         seasonId: boysSeason.id,
         name: team.name,
-        logoUrl: team.logo || null,
+        logoUrl: null,
         status: 'active',
         players: {
           create: team.members.map((member: any) => {

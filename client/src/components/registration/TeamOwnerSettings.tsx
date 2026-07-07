@@ -9,6 +9,7 @@ interface TeamMeta {
     name: string;
     description: string;
     logoUrl?: string;
+    customLogoUrl?: string;
     logoPosition: LogoPosition;
 }
 
@@ -16,6 +17,7 @@ export interface TeamOwnerSnapshot {
     name: string;
     description?: string;
     logoUrl?: string;
+    customLogoUrl?: string;
     logoPosition?: LogoPosition;
 }
 
@@ -44,6 +46,7 @@ function snapshotToMeta(snapshot: TeamOwnerSnapshot): TeamMeta {
         name: snapshot.name,
         description: snapshot.description || '',
         logoUrl: snapshot.logoUrl,
+        customLogoUrl: snapshot.customLogoUrl,
         logoPosition: snapshot.logoPosition || 'right',
     };
 }
@@ -112,6 +115,8 @@ export default function TeamOwnerSettings({
     }, [refreshTeam]);
 
     // Sync only when the target team changes — not when `initialTeam` object identity churns.
+    // `initialTeam` is omitted from deps on purpose: parent list refetch updates branding only
+    // via onUpdated → refreshTeam after save/upload/delete; avoids resetting the edit form.
     useEffect(() => {
         if (editingRef.current) return;
 
@@ -130,6 +135,7 @@ export default function TeamOwnerSettings({
     }, [teamId, slug, applyMeta, loadTeam]);
 
     const logoSrc = resolveAssetUrl(team?.logoUrl);
+    const hasCustomLogo = Boolean(team?.customLogoUrl?.trim());
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -327,6 +333,7 @@ export default function TeamOwnerSettings({
                                             title="מחק לוגו"
                                             aria-label="מחק לוגו"
                                             disabled={logoLoading}
+                                            hidden={!hasCustomLogo}
                                             style={{
                                                 borderRadius: '50%',
                                                 transform: 'translate(-30%, -30%)',
@@ -358,7 +365,7 @@ export default function TeamOwnerSettings({
                                     ) : (
                                         <i className="bi bi-upload me-1" aria-hidden="true" />
                                     )}
-                                    {logoSrc ? 'החלף לוגו' : 'העלה לוגו'}
+                                    {logoSrc ? (hasCustomLogo ? 'החלף לוגו' : 'העלה לוגו משלך') : 'העלה לוגו'}
                                 </label>
                                 <div className="text-muted small mt-1">מומלץ PNG שקוף</div>
                             </div>

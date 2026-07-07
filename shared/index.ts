@@ -35,3 +35,12 @@ export {
   getRegistrationStatusLabel,
   registrationStatusNeedsIdentitySubmission,
 } from './registrationStatus';
+export {
+  BOYS_DEFAULT_LOGO_SEASON_ID,
+  MOCK_DEV_SEASON_ID,
+  TEAM_DEFAULT_LOGO_BY_ID,
+  effectiveTeamLogoUrl,
+  teamCustomLogoUrl,
+  buildLogosBySeasonId,
+} from './teamDefaultLogos';
+export type { CrestMapFile } from './teamDefaultLogos';

@@ -3,6 +3,7 @@ import { CacheService } from './CacheService';
 import { SeasonService } from './SeasonService';
 import { StatsService } from './StatsService';
 import { Division } from '@prisma/client';
+import { effectiveTeamLogoUrl, teamCustomLogoUrl } from '@ramadan-tournament/shared';
 import { PointsStatsService } from './PointsStatsService';
 
 function formatPlayer(player: any, statsMap: Map<number, any>, ownerUserId: string | null) {
@@ -28,12 +29,24 @@ function formatPlayer(player: any, statsMap: Map<number, any>, ownerUserId: stri
   };
 }
 
-function formatTeam(team: any, statsMap: Map<number, any>, pointsTotal?: number) {
+function formatTeam(
+  team: any,
+  statsMap: Map<number, any>,
+  seasonId: string,
+  division: Division,
+  pointsTotal?: number
+) {
+  const customLogoUrl = teamCustomLogoUrl(team.logoUrl);
+  const logoUrl =
+    division === Division.boys
+      ? effectiveTeamLogoUrl(team.id, team.logoUrl, seasonId)
+      : customLogoUrl;
   return {
     id: team.id,
     name: team.name,
     description: team.description || '',
-    logoUrl: team.logoUrl || '',
+    logoUrl,
+    customLogoUrl,
     logoPosition: team.logoPosition || 'right',
     ...(pointsTotal !== undefined ? { totalPoints: pointsTotal } : {}),
     players: team.players
@@ -61,7 +74,13 @@ export class TeamDataService {
       const statsMap = new Map(stats.map((s) => [s.memberId, s]));
       const pointsMap = new Map(pointsStandings.map((p) => [p.teamId, p.totalPoints]));
       return teams.map((t) =>
-        formatTeam(t, statsMap, division === Division.girls ? pointsMap.get(t.id) ?? 0 : undefined)
+        formatTeam(
+          t,
+          statsMap,
+          season.id,
+          division,
+          division === Division.girls ? pointsMap.get(t.id) ?? 0 : undefined
+        )
       );
     });
   }
@@ -78,6 +97,6 @@ export class TeamDataService {
     ]);
     if (!team) return null;
     const statsMap = new Map(stats.map((s) => [s.memberId, s]));
-    return formatTeam(team, statsMap);
+    return formatTeam(team, statsMap, season.id, division);
   }
 }

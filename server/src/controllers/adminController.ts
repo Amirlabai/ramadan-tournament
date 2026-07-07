@@ -109,7 +109,6 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
             id: teamIdMap[name],
             name,
             players,
-            logo: `assets/images/teams/${name.toLowerCase().replace(/ /g, '_')}.png`,
         }));
 
         if (teamsToInsert.length > 0) {
@@ -118,7 +117,7 @@ export const importPlayers = async (req: Request, res: Response): Promise<void> 
                     id: t.id,
                     name: t.name,
                     players: t.players,
-                    logoUrl: t.logo,
+                    logoUrl: '',
                 }))
             );
         }

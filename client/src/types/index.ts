@@ -24,6 +24,7 @@ export interface Team {
     description?: string;
     players: Player[];
     logoUrl?: string;
+    customLogoUrl?: string;
     logoPosition?: 'left' | 'right' | 'none';
     createdAt: string;
 }

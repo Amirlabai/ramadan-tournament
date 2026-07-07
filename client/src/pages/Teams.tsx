@@ -332,6 +332,7 @@ const Teams = () => {
                                                             name: team.name,
                                                             description: team.description,
                                                             logoUrl: team.logoUrl,
+                                                            customLogoUrl: team.customLogoUrl,
                                                             logoPosition: team.logoPosition,
                                                         }}
                                                         onEditingChange={handleOwnerSettingsEditingChange}

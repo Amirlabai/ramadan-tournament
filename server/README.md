@@ -62,6 +62,8 @@ Wipes all tables, then creates:
 
 Does **not** create teams, players, or matches.
 
+After `db:fresh`, if the new boys season UUID differs from production, update [`shared/local-team-crest-map.json`](../shared/local-team-crest-map.json) (`primaryBoysSeasonId` + `bySeasonId` entry) so default crest fallbacks apply. See [`context.md`](../context.md#fresh-tournament-start-june-2026).
+
 ### `fixtures:generate` — round-robin schedule
 
 After teams exist and are **active**, generate group-stage fixtures (single round-robin):

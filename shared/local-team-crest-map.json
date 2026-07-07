@@ -1,0 +1,69 @@
+{
+  "description": "Default team logos keyed by season UUID (client/public/assets/images/teams/). Update primaryBoysSeasonId and add a bySeasonId entry when rotating the active boys season.",
+  "primaryBoysSeasonId": "eb19f900-c99f-486f-8930-6b56a74293d6",
+  "mockDevSeasonId": "mock-dev-boys-season",
+  "bySeasonId": {
+    "eb19f900-c99f-486f-8930-6b56a74293d6": {
+      "mappings": [
+        {
+          "localTeamId": 1,
+          "localNameHe": "מקסיקו",
+          "worldCupNameEn": "Mexico",
+          "localAssetPath": "assets/images/teams/wc-mexico.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/769.svg"
+        },
+        {
+          "localTeamId": 2,
+          "localNameHe": "איטליה",
+          "worldCupNameEn": "Italy",
+          "localAssetPath": "assets/images/teams/wc-italy.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/784.svg",
+          "note": "Italy not in WC 2026; national-team crest id 784"
+        },
+        {
+          "localTeamId": 3,
+          "localNameHe": "גרמניה",
+          "worldCupNameEn": "Germany",
+          "localAssetPath": "assets/images/teams/wc-germany.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/759.svg"
+        },
+        {
+          "localTeamId": 4,
+          "localNameHe": "פנמה",
+          "worldCupNameEn": "Panama",
+          "localAssetPath": "assets/images/teams/wc-panama.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/panama.svg"
+        },
+        {
+          "localTeamId": 5,
+          "localNameHe": "הפטישים",
+          "localAssetPath": "assets/images/teams/hammers.svg",
+          "note": "Club logo"
+        },
+        {
+          "localTeamId": 6,
+          "localNameHe": "מרוקו",
+          "worldCupNameEn": "Morocco",
+          "localAssetPath": "assets/images/teams/wc-morocco.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/morocco.svg"
+        },
+        {
+          "localTeamId": 7,
+          "localNameHe": "F.C RIHANIYA",
+          "localAssetPath": "assets/images/teams/fc-rihaniya.svg",
+          "note": "Club logo"
+        },
+        {
+          "localTeamId": 8,
+          "localNameHe": "כף ורדה",
+          "worldCupNameEn": "Cape Verde Islands",
+          "localAssetPath": "assets/images/teams/wc-cape-verde.svg",
+          "sourceCrestUrl": "https://crests.football-data.org/cape_verde.svg"
+        }
+      ]
+    },
+    "mock-dev-boys-season": {
+      "inheritSeasonId": "eb19f900-c99f-486f-8930-6b56a74293d6"
+    }
+  }
+}

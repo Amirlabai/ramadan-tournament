@@ -1,7 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import { effectiveTeamLogoUrl, teamCustomLogoUrl, MOCK_DEV_SEASON_ID } from '@ramadan-tournament/shared';
 
-export const MOCK_SEASON_ID = 'mock-dev-boys-season';
+export const MOCK_SEASON_ID = MOCK_DEV_SEASON_ID;
 
 export interface MockPlayer {
   memberId: number;
@@ -145,10 +146,12 @@ export function getMockStore() {
 }
 
 export function formatTeamForApi(team: MockTeam, statsMap: Map<number, { goals: number; gamesPlayed: number }>) {
+  const customLogoUrl = teamCustomLogoUrl(team.logoUrl);
   return {
     id: team.id,
     name: team.name,
-    logoUrl: team.logoUrl,
+    logoUrl: effectiveTeamLogoUrl(team.id, team.logoUrl, MOCK_SEASON_ID),
+    customLogoUrl,
     logoPosition: team.logoPosition,
     players: team.players.map((p) => {
       const stats = statsMap.get(p.memberId);

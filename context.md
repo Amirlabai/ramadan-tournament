@@ -70,6 +70,8 @@ Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.exa
 | Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) overrides `--color-*` on `[data-tournament="girls"]` |
 | World Cup (temporary) | `data-tournament="worldcup"` on `/world-cup/*` when `VITE_WORLD_CUP_ENABLED=true` | Blue/gold — [`client/src/styles/tournament-worldcup.css`](client/src/styles/tournament-worldcup.css). Read-only proxy to football-data.org; reversion guide: [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
 
+**Local team crests (Jul 2026):** Static SVG files in [`client/public/assets/images/teams/`](client/public/assets/images/teams/). Canonical map keyed by season: [`shared/local-team-crest-map.json`](shared/local-team-crest-map.json) (`bySeasonId`, `primaryBoysSeasonId`), loaded via [`shared/teamDefaultLogos.ts`](shared/teamDefaultLogos.ts). Update map when rotating boys season (see Fresh tournament start §6). Defaults apply when `teams.logo_url` is empty; API exposes `customLogoUrl` for owner upload UI.
+
 - **Palette (boys):** edit `--color-primary`, `--color-secondary`, etc. in `tokens.css` only. Legacy names (`--primary`, `--primary-green`, `--bg`, …) alias those primitives for existing CSS.
 - Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css` → `tournament-worldcup.css`.
 - Layout/utilities (`.app`, `.card`, `.btn-primary`, `.loading`) live in [`client/src/App.css`](client/src/App.css) (no `:root` there).
@@ -120,6 +122,7 @@ Operational workflow when resetting for a new season:
 
    Use `--replace` to regenerate; `--yes` when `DATABASE_URL` is not localhost. Do **not** use `db:seed` for production schedules.
 5. **Fix schedule** — Admin → ניהול משחקים: edit date/time per match if needed.
+6. **Default team crests** — If the new boys season UUID changed, update [`shared/local-team-crest-map.json`](../shared/local-team-crest-map.json): set `primaryBoysSeasonId`, ensure a matching `bySeasonId` entry, and keep `mockDevSeasonId` aligned with the mock inherit key. Rebuild shared (`npm run build:shared`) before deploy.
 
 Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/src/scripts/generate-group-fixtures.ts`](server/src/scripts/generate-group-fixtures.ts). Demo data still available via `npm run db:seed` (loads `data/*.json`). Full CLI reference: [`server/README.md`](server/README.md#database-scripts).
 

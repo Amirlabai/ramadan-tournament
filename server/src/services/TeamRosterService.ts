@@ -1,4 +1,5 @@
 import { Division } from '@prisma/client';
+import { effectiveTeamLogoUrl, teamCustomLogoUrl } from '@ramadan-tournament/shared';
 import { prisma } from '../lib/prisma';
 import { getNextMemberId as getNextGlobalMemberId, invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
@@ -234,7 +235,10 @@ export class TeamRosterService {
     return teams.map((t) => ({
       id: t.id,
       name: t.name,
-      logoUrl: t.logoUrl || '',
+      logoUrl:
+        division === Division.boys
+          ? effectiveTeamLogoUrl(t.id, t.logoUrl, season.id)
+          : teamCustomLogoUrl(t.logoUrl),
       logoPosition: t.logoPosition || 'right',
     }));
   }

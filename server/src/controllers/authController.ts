@@ -9,6 +9,7 @@ import { AuthRequest } from '../middleware/auth';
 import { sendVerificationEmail, sendPasswordResetEmail } from '../services/emailService';
 import crypto from 'crypto';
 import { Division } from '@prisma/client';
+import { effectiveTeamLogoUrl } from '@ramadan-tournament/shared';
 import { RegistrationService } from '../services/RegistrationService';
 import { setAuthCookie, authJsonBody, clearAuthCookie } from '../utils/authCookie';
 import { AuthRateLimitService } from '../services/AuthRateLimitService';
@@ -99,7 +100,11 @@ const hydrateUserPayload = async (userDoc: any) => {
         const team = await TeamRosterService.findTeamWithPlayersById(payload.mappedPlayerInfo.teamId);
         if (team) {
             (payload.mappedPlayerInfo as any).teamName = team.name;
-            (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;
+            (payload.mappedPlayerInfo as any).logoUrl = effectiveTeamLogoUrl(
+                team.id,
+                team.logoUrl,
+                team.seasonId
+            );
             (payload.mappedPlayerInfo as any).logoPosition = team.logoPosition;
 
             if (payload.mappedPlayerInfo.memberId > 0) {
@@ -144,7 +149,11 @@ const hydrateUserPayload = async (userDoc: any) => {
             const team = await TeamRosterService.findTeamWithPlayersById(mapTeamId);
             if (team) {
                 (payload.mappedPlayerInfo as any).teamName = team.name;
-                (payload.mappedPlayerInfo as any).logoUrl = team.logoUrl;
+                (payload.mappedPlayerInfo as any).logoUrl = effectiveTeamLogoUrl(
+                    team.id,
+                    team.logoUrl,
+                    team.seasonId
+                );
                 (payload.mappedPlayerInfo as any).logoPosition = team.logoPosition;
                 const player = team.players.find((p) => p.memberId === mapMemberId);
                 if (player) {

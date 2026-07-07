@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
 import { Division } from '@prisma/client';
+import { effectiveTeamLogoUrl, teamCustomLogoUrl } from '@ramadan-tournament/shared';
 import { prisma } from '../lib/prisma';
-import { TeamRosterService } from '../services/TeamRosterService';
+import { TeamRosterService, type ITeam } from '../services/TeamRosterService';
 import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
 import path from 'path';
@@ -27,6 +28,22 @@ const requestDivision = (req: Request) => getRequestDivision(req as TournamentRe
 
 function slugToDivision(slug: ReturnType<typeof requestDivision>): Division {
     return slug === 'girls' ? Division.girls : Division.boys;
+}
+
+/** Public branding shape aligned with TeamDataService (effective logoUrl + customLogoUrl). */
+function formatTeamBrandingForApi(team: ITeam, division: Division) {
+    const customLogoUrl = teamCustomLogoUrl(team.logoUrl);
+    return {
+        id: team.id,
+        name: team.name,
+        description: team.description || '',
+        logoUrl:
+            division === Division.boys
+                ? effectiveTeamLogoUrl(team.id, team.logoUrl, team.seasonId)
+                : customLogoUrl,
+        customLogoUrl,
+        logoPosition: team.logoPosition || 'right',
+    };
 }
 
 /** Which active season division owns this numeric team id (legacy mapping is id-only). */
@@ -348,7 +365,10 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
         }
 
         await TeamRosterService.saveTeam(team);
-        res.json({ message: 'פרטי הקבוצה עודכנו בהצלחה', team });
+        res.json({
+            message: 'פרטי הקבוצה עודכנו בהצלחה',
+            team: formatTeamBrandingForApi(team, slugToDivision(requestDivision(req))),
+        });
     } catch (error) {
         console.error('Update team metadata error:', error);
         res.status(500).json({ error: 'שגיאה בעדכון פרטי הקבוצה' });
