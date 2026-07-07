@@ -18,6 +18,7 @@ vi.mock('../config/env', () => ({
   config: {
     jwtSecret: 'test-token-version-secret',
     mockDevData: false,
+    corsOrigins: ['https://example.com'],
   },
 }));
 

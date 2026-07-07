@@ -37,7 +37,10 @@ vi.mock('../utils/authCookie', () => ({
 }));
 
 vi.mock('../config/env', () => ({
-  config: { jwtSecret: 'test-secret' },
+  config: {
+    jwtSecret: 'test-secret',
+    corsOrigins: ['https://example.com'],
+  },
 }));
 
 vi.mock('../config/tournamentBranding', () => ({
