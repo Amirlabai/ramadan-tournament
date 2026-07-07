@@ -1,11 +1,8 @@
 {
-  "exported_at": "2026-07-06T09:21:13+03:00",
+  "exported_at": "2026-07-07T09:01:06+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
-    "users.csv",
     "season_registrations.csv",
-    "matches.csv",
-    "team_join_requests.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -18,7 +15,7 @@
       "file": "users.csv"
     },
     "season_registrations": {
-      "rows": 15,
+      "rows": 16,
       "file": "season_registrations.csv"
     },
     "invoice_codes": {
@@ -86,7 +83,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 2635,
+      "rows": 2920,
       "file": "analytics_events.csv"
     }
   },
