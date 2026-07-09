@@ -42,6 +42,7 @@ import ScrollToTop from './components/ScrollToTop'
 import Archive from './pages/Archive'
 import Accessibility from './pages/Accessibility'
 import About from './pages/About'
+import TournamentRules from './pages/TournamentRules'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
@@ -195,6 +196,7 @@ function App() {
       <AccessibilityToolbar />
       <Routes>
         <Route path="/about" element={<About />} />
+        <Route path="/rules" element={<TournamentRules />} />
         <Route path="/accessibility" element={<Accessibility />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />

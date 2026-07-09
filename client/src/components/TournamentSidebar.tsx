@@ -6,6 +6,7 @@ import { getMainNavItems, getNavIndex, applyNavActionDots } from '../utils/mainN
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { useDrawerSwipeClose } from '../hooks/useDrawerSwipeClose'
 import { canAccessAdminPanel } from '../utils/tournamentUser'
+import { showBoysTournamentRulesNav } from '../utils/tournamentRulesNav'
 import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext'
 import { NavActionLink } from './NavActionDot'
 import './TournamentSidebar.css'
@@ -47,6 +48,9 @@ const TournamentSidebar = ({
 
   const legalLinks = [
     { to: '/about', label: 'אודות' },
+    ...(showBoysTournamentRulesNav(isGirls, isWorldCup)
+      ? [{ to: '/rules', label: 'תקנון' }]
+      : []),
     { to: '/privacy', label: 'פרטיות' },
     { to: '/terms', label: 'תנאים' },
     { to: '/accessibility', label: 'נגישות' },

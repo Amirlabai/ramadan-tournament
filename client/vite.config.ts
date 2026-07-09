@@ -4,12 +4,15 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { vitePrerenderPlugin } from 'vite-prerender-plugin'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { readFileSync } from 'fs'
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const isBuild = process.argv.includes('build')
 const enablePrerender = isBuild && process.env.PRERENDER !== '0'
 
-const legalPrerenderRoutes = ['/about', '/accessibility', '/privacy', '/terms']
+const legalPrerenderRoutes = JSON.parse(
+  readFileSync(path.join(__dirname, 'src/config/legal-prerender-paths.json'), 'utf8')
+) as string[]
 const headOnlyPublicRoutes = [
   '/teams',
   '/schedule',

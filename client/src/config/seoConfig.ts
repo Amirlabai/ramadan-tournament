@@ -1,4 +1,6 @@
 import { PRIVACY_CONTACT_EMAIL } from './contactConfig'
+import { TOURNAMENT_RULES_TITLE } from '../content/circassianTournamentRules'
+import { LEGAL_PRERENDER_PATHS } from './legalPaths'
 
 const DEFAULT_SITE_URL = 'https://ramadan-tournament-client.vercel.app'
 
@@ -111,6 +113,12 @@ export const routeSeo: Record<string, RouteSeo> = {
       'תנאי שימוש באתר הטורניר — רישום, תוכן משתמש והצבעות.',
     keywords: `${BASE_KEYWORDS}, תנאים`,
   },
+  '/rules': {
+    title: TOURNAMENT_RULES_TITLE,
+    description:
+      'תקנון חוקי מונדיאל הצ\'רקסי 2026 — שלב בתים, פלייאוף עליון ותחתון, ניקוד, לוח זמנים ומועדי מחזורים.',
+    keywords: `${BASE_KEYWORDS}, תקנון, חוקים`,
+  },
 }
 
 export function getRouteSeo(pathname: string): RouteSeo {
@@ -205,14 +213,10 @@ export const PUBLIC_SITEMAP_PATHS = [
   '/accessibility',
   '/privacy',
   '/terms',
+  '/rules',
 ] as const
 
-export const LEGAL_PRERENDER_PATHS = [
-  '/about',
-  '/accessibility',
-  '/privacy',
-  '/terms',
-] as const
+export { LEGAL_PRERENDER_PATHS }
 
 /** Auth and utility routes excluded from search indexing. */
 export const NOINDEX_PATHS = [

@@ -4,6 +4,7 @@ import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConf
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { canAccessAdminPanel } from '../utils/tournamentUser';
+import { showBoysTournamentRulesNav } from '../utils/tournamentRulesNav';
 import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext';
 import { NavActionLink } from './NavActionDot';
 
@@ -77,6 +78,9 @@ const Footer = () => {
                             ))}
                             <li><Link to="/accessibility" className="footer-link">נגישות</Link></li>
                             <li><Link to="/about" className="footer-link">אודות</Link></li>
+                            {!showBoysTournamentRulesNav(isGirls, isWorldCup) ? null : (
+                              <li><Link to="/rules" className="footer-link">תקנון הטורניר</Link></li>
+                            )}
                             <li><Link to="/privacy" className="footer-link">מדיניות פרטיות</Link></li>
                             <li><Link to="/terms" className="footer-link">תנאי שימוש</Link></li>
                         </ul>

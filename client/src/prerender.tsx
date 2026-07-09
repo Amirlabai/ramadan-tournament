@@ -6,6 +6,7 @@ import About from './pages/About'
 import Accessibility from './pages/Accessibility'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
+import TournamentRules from './pages/TournamentRules'
 import {
   getRouteSeo,
   canonicalUrl,
@@ -21,6 +22,7 @@ const LEGAL_ROUTES: Record<string, () => ReactElement> = {
   '/accessibility': () => <Accessibility />,
   '/privacy': () => <Privacy />,
   '/terms': () => <Terms />,
+  '/rules': () => <TournamentRules />,
 }
 
 const LEGAL_ROUTE_SET = new Set<string>(LEGAL_PRERENDER_PATHS)

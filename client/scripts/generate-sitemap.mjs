@@ -1,7 +1,12 @@
-import { writeFileSync } from 'fs'
+import { writeFileSync, readFileSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import dotenv from 'dotenv'
+
+const legalPrerenderPaths = JSON.parse(
+  readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', 'src', 'config', 'legal-prerender-paths.json'), 'utf8')
+)
+const LEGAL_SITEMAP_PATHS = new Set(legalPrerenderPaths)
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 dotenv.config({ path: join(__dirname, '..', '.env') })
@@ -44,6 +49,7 @@ const paths = [
   '/accessibility',
   '/privacy',
   '/terms',
+  '/rules',
 ]
 
 const noindexPaths = ['/login', '/admin/login', '/admin', '/profile', '/player-zone']
@@ -56,7 +62,7 @@ const urls = paths
     <loc>${siteUrl}${p === '/' ? '/' : p}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${p === '/' || p.includes('schedule') ? 'daily' : 'weekly'}</changefreq>
-    <priority>${p === '/' ? '1.0' : p.startsWith('/about') || p.startsWith('/privacy') || p.startsWith('/terms') || p === '/accessibility' ? '0.5' : '0.8'}</priority>
+    <priority>${p === '/' ? '1.0' : LEGAL_SITEMAP_PATHS.has(p) ? '0.5' : '0.8'}</priority>
   </url>`
   )
   .join('\n')

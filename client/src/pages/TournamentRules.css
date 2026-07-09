@@ -1,0 +1,29 @@
+.legal-page-main h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+  color: var(--color-text, #333);
+}
+
+.legal-page-main .rules-schedule-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
+}
+
+.legal-page-main .rules-schedule-table th,
+.legal-page-main .rules-schedule-table td {
+  border: 1px solid var(--color-border, #e0e0e0);
+  padding: 0.625rem;
+  text-align: right;
+}
+
+.legal-page-main .rules-schedule-table th {
+  background-color: var(--color-primary-dark, #296912);
+  color: var(--white, #fff);
+}
+
+.legal-page-main .rules-schedule-table tbody tr:nth-child(even) {
+  background-color: var(--color-bg, #f5f5f5);
+}

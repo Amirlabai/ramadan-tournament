@@ -40,6 +40,7 @@ export function worldCupOnlyRedirect(pathname: string): string | null {
     '/accessibility',
     '/privacy',
     '/terms',
+    '/rules',
   ]);
   if (allowed.has(normalized)) return null;
 

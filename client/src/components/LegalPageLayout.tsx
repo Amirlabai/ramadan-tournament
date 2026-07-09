@@ -51,6 +51,9 @@ const LegalPageLayout = ({ children, breadcrumbs }: LegalPageLayoutProps) => {
             <Link to="/about" className="legal-page-footer-link">
               אודות
             </Link>
+            <Link to="/rules" className="legal-page-footer-link">
+              תקנון
+            </Link>
             <Link to="/accessibility" className="legal-page-footer-link">
               נגישות
             </Link>
