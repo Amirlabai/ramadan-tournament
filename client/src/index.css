@@ -695,7 +695,7 @@ h2 {
   height: 72px;
   border-radius: 50%;
   border: 2px solid var(--primary-green);
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
   margin-top: 1.25rem;
   background-color: #1a1a1a;
@@ -706,22 +706,29 @@ h2 {
   height: 100%;
   object-fit: cover;
   display: block;
+  border-radius: 50%;
+}
+
+.roster-player-card.top-scorer-highlight .roster-player-card-photo {
+  border-color: var(--secondary-yellow);
+  border-width: 3px;
 }
 
 .roster-player-card-top-scorer {
   position: absolute;
-  top: -2px;
-  inset-inline-end: -2px;
-  font-size: 0.85rem;
+  top: -4px;
+  inset-inline-end: -4px;
+  font-size: 1rem;
   line-height: 1;
   background-color: var(--secondary-yellow);
   border-radius: 50%;
-  width: 1.25rem;
-  height: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--primary-green);
+  border: 1px solid var(--secondary-yellow);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
   z-index: 2;
 }
 
@@ -797,6 +804,14 @@ h2 {
     width: 56px;
     height: 56px;
     margin-top: 1rem;
+  }
+
+  .roster-player-card-top-scorer {
+    top: -2px;
+    inset-inline-end: -2px;
+    font-size: 0.85rem;
+    width: 1.25rem;
+    height: 1.25rem;
   }
 
   .roster-player-card-hint {
