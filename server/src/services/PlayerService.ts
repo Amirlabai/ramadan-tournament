@@ -8,6 +8,7 @@ import { mergeProfilePosition, rosterAudit } from '../utils/rosterAuditLog';
 import { invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
+import { syncTeamJoinReviewQueue } from '../utils/syncTeamJoinReviewQueue';
 
 export interface PlayerProfileUpdateInput {
   firstName?: string;
@@ -363,11 +364,15 @@ export class PlayerService {
     }
 
     await prisma.$transaction(async (tx) => {
+      const wasCaptain = player.isCaptain;
       await unlinkRosterSlot(tx, {
         memberId: player.memberId,
         seasonId: player.seasonId,
         userId,
       });
+      if (wasCaptain) {
+        await syncTeamJoinReviewQueue(tx, player.seasonId, player.teamId);
+      }
     });
 
     await invalidateDivisionCaches(division);
@@ -410,6 +415,7 @@ export class PlayerService {
     });
 
     await prisma.$transaction(async (tx) => {
+      const wasCaptain = player.isCaptain;
       await unlinkRosterSlot(tx, {
         memberId: player.memberId,
         seasonId: player.seasonId,
@@ -417,6 +423,9 @@ export class PlayerService {
         clearPhotos: true,
       });
       await clearMappingsForDeletedPlayer(teamId, memberId, tx);
+      if (wasCaptain) {
+        await syncTeamJoinReviewQueue(tx, player.seasonId, player.teamId);
+      }
     });
 
     await invalidateDivisionCaches(division);

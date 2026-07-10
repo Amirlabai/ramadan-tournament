@@ -226,8 +226,8 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
                 <p className="small text-warning mb-2">
                     בקשת הצטרפות לקבוצה #{reg.pendingJoin.teamId}
                     {reg.pendingJoin.status === 'owner_approved'
-                        ? ' — אושרה על ידי הבעלים, ממתין למנהל'
-                        : ' — ממתין לאישור בעלים'}
+                        ? ' — ממתין לאישור מנהל'
+                        : ' — ממתין לאישור קפטן'}
                     .
                 </p>
             )}

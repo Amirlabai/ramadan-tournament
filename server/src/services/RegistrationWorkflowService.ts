@@ -28,7 +28,11 @@ import {
   invalidateDivisionCaches,
   lockActiveDivision,
 } from './registrationHelpers';
-import { hasClaimedCaptainReviewer } from '../utils/claimedCaptain';
+import { hasClaimedCaptainReviewer, teamHasClaimedCaptain } from '../utils/claimedCaptain';
+import {
+  syncOpenJoinQueuesForSeason,
+  syncTeamJoinReviewQueue,
+} from '../utils/syncTeamJoinReviewQueue';
 import { RegistrationQueryService } from './RegistrationQueryService';
 import { findPendingTeamCreationRequests } from '../repositories/userMappingRepository';
 
@@ -187,41 +191,13 @@ async function resolveJoinLinkMemberId(
   return null;
 }
 
-async function hasPreAdminReviewerCoverage(
-  db: Pick<Prisma.TransactionClient, 'team' | 'player'>,
-  seasonId: string,
-  teamId: number
-): Promise<boolean> {
-  const team = await db.team.findFirst({
-    where: { seasonId, id: teamId },
-    select: { ownerUserId: true },
-  });
-  if (team?.ownerUserId) {
-    return true;
-  }
-  const claimedCaptain = await db.player.findFirst({
-    where: {
-      seasonId,
-      teamId,
-      active: true,
-      isCaptain: true,
-      userId: { not: null },
-    },
-    select: { memberId: true },
-  });
-  return !!claimedCaptain;
-}
-
+/** Pre-admin join queue only when a claimed captain can review. */
 async function canActorReviewPendingJoin(
   actorId: string,
   seasonId: string,
-  teamId: number,
-  teamOwnerUserId: string | null
+  teamId: number
 ): Promise<boolean> {
-  if (teamOwnerUserId === actorId) {
-    return true;
-  }
-  // Captain reviewer is strictly scoped to same season+team and claimed userId.
+  // Claimed captain only — team owner alone does not review joins.
   return hasClaimedCaptainReviewer(prisma, actorId, seasonId, teamId);
 }
 
@@ -456,6 +432,8 @@ export class RegistrationWorkflowService {
         data: { status: RequestStatus.approved },
       });
 
+      await syncTeamJoinReviewQueue(tx, req.seasonId, teamId);
+
       return created;
     });
 
@@ -545,7 +523,7 @@ export class RegistrationWorkflowService {
         data: { status: RequestStatus.invalidated },
       });
 
-      const initialStatus = (await hasPreAdminReviewerCoverage(tx, season.id, teamId))
+      const initialStatus = (await teamHasClaimedCaptain(tx, season.id, teamId))
         ? RequestStatus.pending
         : RequestStatus.owner_approved;
 
@@ -629,24 +607,19 @@ export class RegistrationWorkflowService {
 
     const team = await prisma.team.findFirst({
       where: { seasonId: req.seasonId, id: req.teamId },
-      select: { ownerUserId: true },
+      select: { id: true },
     });
     if (!team) {
       throw new Error('הקבוצה לא נמצאה');
     }
 
-    const canReview = await canActorReviewPendingJoin(
-      actorId,
-      req.seasonId,
-      req.teamId,
-      team.ownerUserId ?? null
-    );
+    const canReview = await canActorReviewPendingJoin(actorId, req.seasonId, req.teamId);
     if (!canReview) {
-      throw new Error('רק בעלים או קפטן משויך לקבוצה יכול לאשר בקשה זו');
+      throw new Error('רק קפטן משויך לקבוצה יכול לאשר בקשה זו');
     }
 
     if (req.status !== RequestStatus.pending) {
-      throw new Error('הבקשה אינה ממתינה לאישור בעלים');
+      throw new Error('הבקשה אינה ממתינה לאישור קפטן');
     }
 
     await prisma.teamJoinRequest.update({
@@ -677,7 +650,7 @@ export class RegistrationWorkflowService {
     });
 
     if (req.status !== RequestStatus.owner_approved) {
-      throw new Error('הבקשה חייבת לעבור אישור בעלים לפני אישור מנהל');
+      throw new Error('הבקשה חייבת להיות בתור מנהל (אחרי קפטן או ללא קפטן)');
     }
 
     if (!approve) {
@@ -841,6 +814,19 @@ export class RegistrationWorkflowService {
             adminReviewedBy: adminId,
           },
         });
+
+        const linked = await tx.player.findFirst({
+          where: {
+            memberId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            active: true,
+          },
+          select: { isCaptain: true, userId: true },
+        });
+        if (linked?.isCaptain && linked.userId) {
+          await syncTeamJoinReviewQueue(tx, req.seasonId, req.teamId);
+        }
       });
 
       rosterAudit('admin_join_approved', {
@@ -962,6 +948,9 @@ export class RegistrationWorkflowService {
       data: { status: RequestStatus.approved },
     });
 
+    await syncTeamJoinReviewQueue(prisma, req.seasonId, req.fromTeamId);
+    await syncTeamJoinReviewQueue(prisma, req.seasonId, req.toTeamId);
+
     await invalidateDivisionCaches(req.season.division);
   }
 
@@ -1037,6 +1026,8 @@ export class RegistrationWorkflowService {
           },
         });
       }
+
+      await syncTeamJoinReviewQueue(tx, season.id, teamId);
     });
 
     await invalidateDivisionCaches(division);
@@ -1077,6 +1068,8 @@ export class RegistrationWorkflowService {
       },
     });
 
+    await syncTeamJoinReviewQueue(prisma, season.id, teamId);
+
     await syncPlayerProfile(ownerId, {
       firstName: user.displayName.split(' ')[0] || 'בעלים',
       lastName: user.displayName.split(' ').slice(1).join(' ') || '',
@@ -1089,24 +1082,20 @@ export class RegistrationWorkflowService {
     return memberId;
   }
 
-  static async listPendingJoinsForOwner(ownerId: string, teamId: number, division: Division) {
+  static async listPendingJoinsForOwner(actorId: string, teamId: number, division: Division) {
     const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirst({
       where: { seasonId: season.id, id: teamId },
-      select: { id: true, ownerUserId: true },
+      select: { id: true },
     });
     if (!team) {
       throw new Error('הקבוצה לא נמצאה');
     }
-    const canReview = await canActorReviewPendingJoin(
-      ownerId,
-      season.id,
-      teamId,
-      team.ownerUserId ?? null
-    );
+    const canReview = await canActorReviewPendingJoin(actorId, season.id, teamId);
     if (!canReview) {
-      throw new Error('אין הרשאת בעלים/קפטן לקבוצה זו');
+      throw new Error('אין הרשאת קפטן לקבוצה זו');
     }
+    await syncTeamJoinReviewQueue(prisma, season.id, teamId);
     return prisma.teamJoinRequest.findMany({
       where: {
         seasonId: season.id,
@@ -1124,6 +1113,9 @@ export class RegistrationWorkflowService {
     const season = seasonId
       ? await prisma.season.findUniqueOrThrow({ where: { id: seasonId } })
       : await SeasonService.getActiveSeason(Division.boys);
+
+    // Fallback repair only — write paths own sync; this fixes stuck rows for admin UI/badge.
+    await syncOpenJoinQueuesForSeason(prisma, season.id);
 
     const [creations, joins, transfers] = await Promise.all([
       prisma.teamCreationRequest.findMany({

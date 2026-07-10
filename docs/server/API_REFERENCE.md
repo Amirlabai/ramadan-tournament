@@ -2,7 +2,7 @@
 
 Complete route catalog from [`server/src/routes/`](../../server/src/routes/) and mounts in [`server/src/index.ts`](../../server/src/index.ts).
 
-**Auth legend:** `none` | `user` (JWT cookie) | `admin` | `owner` (team `ownerUserId`) | `owner-or-captain` (squad captain or team owner)
+**Auth legend:** `none` | `user` (JWT cookie) | `admin` | `owner` (team `ownerUserId`) | `claimed-captain` (roster `isCaptain` + matching `userId`) | `owner-or-captain` (squad captain or team owner)
 
 **Common errors:** `401` unauthenticated | `403` forbidden / division lock | `404` not found | `429` rate limit
 
@@ -26,7 +26,7 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | POST | `/login` | none | Email/password login → `rt_session` |
 | POST | `/google` | none | Google OAuth login |
 | POST | `/logout` | user | Clear session cookie |
-| GET | `/me` | user | Current user + `tournamentRegistration` (per division: `status`, `invoiceAlert`, `ownerPendingJoinCount`, `ownedTeamId`, `onRoster`, pending requests) |
+| GET | `/me` | user | Current user + `tournamentRegistration` (per division: `status`, `invoiceAlert`, `ownerPendingJoinCount` = claimed-captain pending join badge count, `ownedTeamId`, `onRoster`, pending requests) |
 | POST | `/verify-email` | none | OTP verification |
 | POST | `/resend-verification` | none | Resend OTP |
 
@@ -58,11 +58,11 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | POST | `/transfer-request` | user | Request transfer (rostered) |
 | GET | `/:id` | none | Single team document |
 | GET | `/:id/available-players` | none | Claimable roster slots |
-| GET | `/:id/join-requests-pending` | user | Owner: pending joins |
-| POST | `/:id/join-request` | user | Submit join request |
+| GET | `/:id/join-requests-pending` | claimed-captain | Claimed captain: list `pending` joins (syncs queue first) |
+| POST | `/:id/join-request` | user | Submit join (`pending` if claimed captain exists, else `owner_approved` admin queue) |
 | POST | `/:id/roster/add-self` | user | Self-add after approval |
-| PATCH | `/:id/squad-roles` | owner-or-captain | Set squad roles (owner or roster captain) |
-| POST | `/:id/owner-review-join` | owner | Team owner approve/reject join |
+| PATCH | `/:id/squad-roles` | owner-or-captain | Set squad roles (owner or roster captain); syncs join queue |
+| POST | `/:id/owner-review-join` | claimed-captain | Claimed captain approve/reject join (`pending` → `owner_approved` / rejected). Route name is legacy. |
 | GET | `/:id/requests` | user | Legacy captain requests |
 | POST | `/:id/requests` | user | Legacy captain approve |
 | PATCH | `/:id/metadata` | user | Owner/admin: name, description |

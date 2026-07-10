@@ -45,7 +45,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const isOwner = reg?.ownedTeamId === teamId;
     const isCaptain =
         reg?.onRoster?.isCaptain === true && reg.onRoster.teamId === teamId;
-    const canReviewJoins = isOwner || isCaptain;
+    const canReviewJoins = isCaptain;
     const onRoster = !!reg?.onRoster;
     const pendingJoin = reg?.pendingJoin;
     const pendingCreation = reg?.pendingCreation;
@@ -280,8 +280,8 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                     <p className="mb-2">
                         בקשת הצטרפות לקבוצה #{pendingJoin.teamId} בתהליך
                         {pendingJoin.status === 'owner_approved'
-                            ? ' (אושרה על ידי הבעלים, ממתין למנהל)'
-                            : ' (ממתין לאישור בעלים)'}
+                            ? ' (ממתין לאישור מנהל)'
+                            : ' (ממתין לאישור קפטן)'}
                         .
                     </p>
                     {legacyNeedsIdentity && (
@@ -312,7 +312,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
 
             {canReviewJoins && (
                 <div className="border rounded p-3 bg-white">
-                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור בעלים / קפטן)</h3>
+                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור קפטן)</h3>
                     {ownerMsg && (
                         <p className="small alert alert-info py-2" role="status" aria-live="polite">
                             {ownerMsg}

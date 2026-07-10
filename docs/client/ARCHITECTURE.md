@@ -147,15 +147,15 @@ Source: [`tournamentUser.ts`](../../client/src/utils/tournamentUser.ts) + `AuthC
 | Role | How determined | Client capabilities |
 |------|----------------|---------------------|
 | Platform admin | `isPlatformAdmin` / DB `admin` | `/admin` panel, roster add/delete, workflows |
-| PRD team owner | `ownedTeamId` on registration; `Player.isTeamOwner` on roster API | Approve joins on Profile/Teams; `TeamOwnerSettings`; Profile badge **בעלים** / **בעלים וקפטן** (light-blue star, or gold + blue outline when still squad captain) |
-| PRD squad captain | `onRoster.isCaptain` / `Player.isCaptain` | `OwnerSquadRoles` (with owner); claimed captains also get `TeamOwnerSettings` + join review; Profile badge **קפטן** (gold star); Teams player-card star |
+| PRD team owner | `ownedTeamId` on registration; `Player.isTeamOwner` on roster API | `TeamOwnerSettings` branding; Profile badge **בעלים** / **בעלים וקפטן** (light-blue star, or gold + blue outline when still squad captain). Join review only if also claimed captain. |
+| PRD squad captain | `onRoster.isCaptain` / `Player.isCaptain` | `OwnerSquadRoles` (with owner); claimed captains get `TeamOwnerSettings` + **join review**; Profile badge **קפטן** (gold star); Teams player-card star |
 | PRD player | `onRoster` without captain | Profile, transfer request |
 | Legacy captain/player | `mappedPlayerInfo` (shrinking) | Legacy panels until fully retired |
 | Anonymous | no `rt_session` | Browse public; comment (if allowed) |
 
 Star variants are shared via [`TournamentRoleStar`](../../client/src/components/TournamentRoleStar.tsx) and [`getRoleStarVariant`](../../client/src/utils/tournamentUser.ts): **captain** = gold; **owner-captain** = gold + light-blue stroke; **owner-only** = light-blue.
 
-Platform admin role is **not** overwritten by roster state in `/auth/me` (Jun 2026). `canAccessAdminPanel` = platform admin only; team owners use Profile/Teams for join approval.
+Platform admin role is **not** overwritten by roster state in `/auth/me` (Jun 2026). `canAccessAdminPanel` = platform admin only; **claimed captains** use Profile/Teams for join approval (admin finalizes `owner_approved`).
 
 ---
 

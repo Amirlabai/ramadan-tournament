@@ -110,7 +110,7 @@ Typical flow: `none` → (`awaiting_identity` \| `identity_assigned`) → `activ
 
 - **One pending request** per user per season (join **or** creation, not both).
 - Join/creation approval requires `active` + matched identity.
-- **Owner review** on join: team **owner** (`ownerUserId`) approves first (`owner_approved`), then admin final approve. Squad captains edit squad roles only (with owner).
+- **Captain-first join review:** if the team has a **claimed captain** (`isCaptain` + `userId`), new joins stay `pending` for that captain; captain approve → `owner_approved`, then admin finalizes roster. If there is **no** claimed captain, joins are created as `owner_approved` (admin queue). `owner_approved` means “admin queue” (including auto-skips that never had a captain review). Team `ownerUserId` alone does **not** hold joins in `pending`. Queue sync promotes stuck `pending` → admin when the last claimed captain disappears, and **intentionally reopens** those promoted/auto-skip rows (`owner_approved` with null `ownerReviewedAt` / `adminReviewedAt`) → `pending` when a claimed captain appears again (next captain sees them). Captain-approved rows (`ownerReviewedAt` set) stay on the admin queue.
 - Transfers: admin approval only (unchanged).
 
 ---
@@ -160,7 +160,8 @@ Controllers stay thin: validate input, call owning service, map errors to HTTP.
 | Public reads (teams, stats, news) | Yes | Yes | Yes | Yes |
 | Verify identity / registration | — | Own user | Own user | — |
 | Join/create/transfer request | — | Own user (`active`) | Own user | Own user |
-| Owner join review | — | — | Own team | — |
+| Owner join review | — | — | — | — |
+| Claimed captain join review | — | — | Own team (claimed) | — |
 | Roster add/delete/move | — | — | — | Yes |
 | Admin workflows / identity assign | — | — | — | Yes |
 | Match/news CRUD | — | — | — | Yes |
