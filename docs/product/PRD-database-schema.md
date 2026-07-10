@@ -1,6 +1,6 @@
 # PRD: Ramadan Tournament — Relational Database Schema
 
-**Version:** 0.10  
+**Version:** 0.12  
 **Status:** PRD complete — two-layer registration (§16) locked; identity gate (Jun 2026)  
 **Related plans:** Postgres+Redis migration, Player registration workflows (Phase 2)
 
@@ -98,7 +98,7 @@ erDiagram
 | `teams` | INT | `season_id`, `owner_user_id`, name, logo, `status` |
 | `players` | `member_id` INT global | `team_id`, `user_id` **required**, jersey `number`, `squad_role`, photos, `personal_id` encrypted, `active` |
 | `team_creation_requests` | UUID | |
-| `team_join_requests` | UUID | two-step owner → admin |
+| `team_join_requests` | UUID | owner/captain final, or admin if none |
 | `team_transfer_requests` | UUID | |
 | `matches` | INT | **Football seasons only** — `season_id`, teams, scores, `timestamptz` |
 | `goals` | UUID | **Football only** — `match_id`, `member_id`, `minute`, `is_own_goal` |
@@ -254,12 +254,18 @@ Original design used alphanumeric invoice codes (`invoice_codes.code_hash`), adm
 ## 7. `team_join_requests` status machine
 
 ```
-pending → owner_approved → approved (admin)
-        ↘ rejected (owner or admin)
+pending → approved (owner or claimed captain finalizes)
+        ↘ rejected (owner/captain)
         ↘ invalidated (multi-request rule)
+
+# No owner and no claimed captain:
+owner_approved → approved (admin)
+               ↘ rejected (admin)
 ```
 
-Columns: `owner_reviewed_at/by`, `admin_reviewed_at/by`, optional `same_team_retry_after` for 1-day cooldown.
+Columns: `requested_member_id` (claimed roster slot; used for prior-claim history), `owner_reviewed_at/by`, `admin_reviewed_at/by`, optional `same_team_retry_after` for 1-day cooldown.
+
+When the team has `owner_user_id` or a claimed captain, joins stay `pending` and reviewer approve links/creates the player (`approved`) — admin does not interfere. Admin queue is only `owner_approved` (no reviewer coverage). In-flight rows that already had `owner_reviewed_at` under the old two-step flow may still finish via admin once.
 
 ---
 
@@ -604,6 +610,7 @@ All data hooks (`useTeams`, `useStandings`, …) read `seasonId` from context �
 | 0.9 | 2026-05-18 | §16 two-layer registration: website login → side → join → admin invoice → user redeem |
 | 0.10 | 2026-06-27 | §16 identity gate (PID + birth year); §16.1 migration note; `awaiting_identity` / `identity_assigned`; `invoice_codes` legacy |
 | 0.11 | 2026-06-29 | §16.2 form prereg, nav indicators, owner/captain split, girls off-season profile |
+| 0.12 | 2026-07-11 | §7 join: owner/captain final approve; `requested_member_id`; admin only when no reviewer |
 
 ---
 

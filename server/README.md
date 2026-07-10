@@ -155,6 +155,9 @@ Full route catalog: [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFER
 - `GET /api/users/registration` — season registration summary
 - `POST /api/users/verify-identity` — submit personal ID + birth year
 - `POST /api/users/cancel-registration-request` — cancel pending join/creation request
+- Join/claim: `POST /api/teams/:id/join-request` — `pending` if team has owner or claimed captain, else `owner_approved` (admin)
+- Review: `GET|POST /api/teams/:id/join-requests-pending` / `owner-review-join` — owner or claimed captain **finalizes** roster (no admin step)
+- Roster post-edit: `PATCH /api/teams/:id/players/:memberId`, `POST|DELETE …/photo` — owner, claimed captain, or admin (player self-edit remains `PATCH /api/users/player-profile`)
 
 ## Service ownership
 
@@ -162,12 +165,12 @@ Full route catalog: [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFER
 |---------|------|
 | `RegistrationService` | Facade over query/workflow/identity helpers |
 | `RegistrationQueryService` | Registration summary, team list, admin user search |
-| `RegistrationWorkflowService` | Join/creation/transfer requests, squad roles, admin queues |
+| `RegistrationWorkflowService` | Join/creation/transfer requests, squad roles, admin queues; owner/captain finalize join |
 | `RegistrationIdentityService` | Encrypted personal ID match (user ↔ admin) |
 | `IdentityRateLimitService` | Failed identity submission throttles |
 | `TeamRosterService` | Admin roster mutations (Prisma) |
 | `TeamDataService` | Cached public team documents |
-| `PlayerService` | Avatar sync, voluntary leave |
+| `PlayerService` | Avatar sync, voluntary leave, managed roster post-edit |
 | `SeasonService` / `AdminSeasonService` | Active season, girls season admin |
 | `AdminUserService` | Platform admin role search and promotion |
 | `MatchDataService` / `StatsService` / `PlayoffService` | Fixtures, standings, playoffs |

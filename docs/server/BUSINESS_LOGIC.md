@@ -155,13 +155,13 @@ Controllers stay thin: validate input, call owning service, map errors to HTTP.
 
 ## Authorization matrix
 
-| Action | Anonymous | User | Captain (owner) | Platform admin |
-|--------|-----------|------|-----------------|----------------|
+| Action | Anonymous | User | Owner / claimed captain | Platform admin |
+|--------|-----------|------|-------------------------|----------------|
 | Public reads (teams, stats, news) | Yes | Yes | Yes | Yes |
 | Verify identity / registration | — | Own user | Own user | — |
 | Join/create/transfer request | — | Own user (`active`) | Own user | Own user |
-| Owner join review | — | — | — | — |
-| Claimed captain join review | — | — | Own team (claimed) | — |
+| Join review (finalize roster) | — | — | Own team | Fallback queue only (no owner/captain) |
+| Roster player post-edit (fields/photo) | — | Own linked slot | Own team | Yes |
 | Roster add/delete/move | — | — | — | Yes |
 | Admin workflows / identity assign | — | — | — | Yes |
 | Match/news CRUD | — | — | — | Yes |
