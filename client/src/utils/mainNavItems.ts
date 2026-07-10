@@ -63,7 +63,7 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
   if (user) {
     items.push({
       to: '/profile',
-      label: user.displayName || 'פרופיל',
+      label: 'פרופיל שלי',
       className: 'login-link',
       actionIndicator: 'profile',
     })
