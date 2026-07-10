@@ -49,7 +49,7 @@ router.post('/:id/owner-review-join', authenticate, ownerReviewJoin);
 router.get('/:id/requests', authenticate, getTeamRequests);
 router.post('/:id/requests', authenticate, approveTeamRequest);
 
-// Owner/admin branding: metadata & logo
+// Owner/captain/admin branding: metadata & logo
 router.patch('/:id/metadata', authenticate, updateTeamMetadata);
 router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, deleteTeamLogo);

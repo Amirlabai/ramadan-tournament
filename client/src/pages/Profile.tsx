@@ -46,17 +46,38 @@ function ownedTeamIdForReg(
     return reg?.ownedTeamId ?? null;
 }
 
-/** PRD team owners only — roster `isCaptain` does not grant branding/join panels. */
-function pickOwnedTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: number | null } {
+function claimedCaptainTeamIdForReg(
+    reg?: { onRoster?: { teamId: number; isCaptain?: boolean } | null } | null
+): number | null {
+    const roster = reg?.onRoster;
+    if (roster?.isCaptain === true && roster.teamId > 0) return roster.teamId;
+    return null;
+}
+
+/** Owner or claimed captain — branding + join panels on Profile. */
+function pickManageableTeamContext(user: User): { slug: 'boys' | 'girls'; teamId: number | null } {
     const active = resolveRegistrationSlug(user);
     const boys = user.tournamentRegistration?.boys;
     const girls = user.tournamentRegistration?.girls;
+
     const activeOwned = ownedTeamIdForReg(active === 'girls' ? girls : boys);
     if (activeOwned) return { slug: active, teamId: activeOwned };
+
     const boysOwned = ownedTeamIdForReg(boys);
     if (boysOwned) return { slug: 'boys', teamId: boysOwned };
+
     const girlsOwned = ownedTeamIdForReg(girls);
     if (girlsOwned) return { slug: 'girls', teamId: girlsOwned };
+
+    const activeCaptain = claimedCaptainTeamIdForReg(active === 'girls' ? girls : boys);
+    if (activeCaptain) return { slug: active, teamId: activeCaptain };
+
+    const boysCaptain = claimedCaptainTeamIdForReg(boys);
+    if (boysCaptain) return { slug: 'boys', teamId: boysCaptain };
+
+    const girlsCaptain = claimedCaptainTeamIdForReg(girls);
+    if (girlsCaptain) return { slug: 'girls', teamId: girlsCaptain };
+
     return { slug: active, teamId: null };
 }
 
@@ -76,9 +97,11 @@ const Profile = () => {
 
     // Player profile editing
     const playerProfile = user?.playerProfile ?? null;
-    const ownedCtx = user ? pickOwnedTeamContext(user) : { slug: 'boys' as const, teamId: null };
-    const ownedSlug = ownedCtx.slug;
-    const ownedTeamId = ownedCtx.teamId;
+    const manageableCtx = user
+        ? pickManageableTeamContext(user)
+        : { slug: 'boys' as const, teamId: null };
+    const manageableSlug = manageableCtx.slug;
+    const manageableTeamId = manageableCtx.teamId;
     const divisionReg = user?.tournamentRegistration?.[registrationSlug];
     const onRoster = divisionReg?.onRoster ?? null;
     const ownsTeam = divisionReg?.ownedTeamId ?? null;
@@ -90,7 +113,7 @@ const Profile = () => {
     const [playerSaving, setPlayerSaving] = useState(false);
     const [playerMsg, setPlayerMsg] = useState('');
 
-    const [ownedTeamName, setOwnedTeamName] = useState('');
+    const [manageableTeamName, setManageableTeamName] = useState('');
 
     // Stats data
     const [teamStanding, setTeamStanding] = useState<Standing | null>(null);
@@ -129,15 +152,15 @@ const Profile = () => {
     };
 
     useEffect(() => {
-        if (!ownedTeamId) {
-            setOwnedTeamName('');
+        if (!manageableTeamId) {
+            setManageableTeamName('');
             return;
         }
         teamsAPI
-            .getById(ownedTeamId, ownedSlug)
-            .then((res) => setOwnedTeamName((res.data as { name: string }).name))
-            .catch(() => setOwnedTeamName(''));
-    }, [ownedTeamId, ownedSlug]);
+            .getById(manageableTeamId, manageableSlug)
+            .then((res) => setManageableTeamName((res.data as { name: string }).name))
+            .catch(() => setManageableTeamName(''));
+    }, [manageableTeamId, manageableSlug]);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -376,8 +399,9 @@ const Profile = () => {
     const focusIdentity = navFocusIdentity;
     const identityGateSlug = focusIdentity ?? registrationSlug;
     const claimNeedsIdentity = needsIdentitySubmission(user, identityGateSlug);
-    const showOwnerTeamPanel = !!ownedTeamId;
-    const ownerTeamLabel = ownedTeamName || (ownedTeamId ? `קבוצה #${ownedTeamId}` : '');
+    const showManageableTeamPanel = !!manageableTeamId;
+    const manageableTeamLabel =
+        manageableTeamName || (manageableTeamId ? `קבוצה #${manageableTeamId}` : '');
     const claimTeamsPath = tournamentPaths[claimCheckSlug].teams;
     const showProfileIdentity =
         !!user.displayName || !!user.email || !!tournamentBadge || platformAdmin;
@@ -687,25 +711,25 @@ const Profile = () => {
                     </div>
                 )}
 
-                {showOwnerTeamPanel && ownedTeamId && (
+                {showManageableTeamPanel && manageableTeamId && (
                     <>
                         <TeamOwnerSettings
-                            key={`${ownedSlug}-${ownedTeamId}`}
-                            teamId={ownedTeamId}
-                            slug={ownedSlug}
+                            key={`${manageableSlug}-${manageableTeamId}`}
+                            teamId={manageableTeamId}
+                            slug={manageableSlug}
                             onUpdated={(snapshot) => {
-                                if (snapshot?.name) setOwnedTeamName(snapshot.name);
+                                if (snapshot?.name) setManageableTeamName(snapshot.name);
                             }}
                         />
                         <div className="card mb-4 p-4">
                             <h2 className="h5 mb-3 d-flex align-items-center">
                                 <i className="bi bi-shield-check me-2" />
-                                ניהול בקשות הצטרפות — {ownerTeamLabel}
+                                ניהול בקשות הצטרפות — {manageableTeamLabel}
                             </h2>
                             <TeamRegistrationActions
-                                teamId={ownedTeamId}
-                                teamName={ownerTeamLabel}
-                                slug={ownedSlug}
+                                teamId={manageableTeamId}
+                                teamName={manageableTeamLabel}
+                                slug={manageableSlug}
                             />
                         </div>
                     </>

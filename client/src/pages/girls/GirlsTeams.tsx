@@ -128,6 +128,7 @@ const GirlsTeams = () => {
           const rosterReg = user?.tournamentRegistration?.girls?.onRoster;
           const isOwner = ownedTeamId === team.id;
           const isCaptain = rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
+          const canManageBranding = isOwner || isCaptain;
           const canEditSquadRoles = isOwner || isCaptain;
           return (
             <article key={team.id} className="team-card mb-3" id={`team-row-${team.id}`}>
@@ -176,10 +177,10 @@ const GirlsTeams = () => {
               </div>
               {expandedTeam === team.id && (
                 <div className="team-players p-3 border-top">
-                  {team.description && !isOwner ? (
+                  {team.description && !canManageBranding ? (
                     <p className="text-muted small mb-3">{team.description}</p>
                   ) : null}
-                  {isOwner && (
+                  {canManageBranding && (
                     <TeamOwnerSettings
                       key={`owner-settings-girls-${team.id}`}
                       teamId={team.id}

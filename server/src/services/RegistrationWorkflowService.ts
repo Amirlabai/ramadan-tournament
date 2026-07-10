@@ -28,6 +28,7 @@ import {
   invalidateDivisionCaches,
   lockActiveDivision,
 } from './registrationHelpers';
+import { hasClaimedCaptainReviewer } from '../utils/claimedCaptain';
 import { RegistrationQueryService } from './RegistrationQueryService';
 import { findPendingTeamCreationRequests } from '../repositories/userMappingRepository';
 
@@ -119,25 +120,6 @@ function assertFootballLineup(
   if (starting.length > 6) {
     throw new Error('הרכב פתיחה: עד 5 שחקני שדה ושוער אחד');
   }
-}
-
-async function hasClaimedCaptainReviewer(
-  db: Pick<Prisma.TransactionClient, 'player'>,
-  actorId: string,
-  seasonId: string,
-  teamId: number
-): Promise<boolean> {
-  const captainRow = await db.player.findFirst({
-    where: {
-      seasonId,
-      teamId,
-      userId: actorId,
-      active: true,
-      isCaptain: true,
-    },
-    select: { memberId: true },
-  });
-  return !!captainRow;
 }
 
 function normalizePreferredJerseyNumber(value: unknown): number | null {

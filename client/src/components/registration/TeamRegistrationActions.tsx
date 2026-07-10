@@ -43,6 +43,9 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const reg =
         slug === 'boys' || slug === 'girls' ? user?.tournamentRegistration?.[slug] : undefined;
     const isOwner = reg?.ownedTeamId === teamId;
+    const isCaptain =
+        reg?.onRoster?.isCaptain === true && reg.onRoster.teamId === teamId;
+    const canReviewJoins = isOwner || isCaptain;
     const onRoster = !!reg?.onRoster;
     const pendingJoin = reg?.pendingJoin;
     const pendingCreation = reg?.pendingCreation;
@@ -56,7 +59,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
         !!user && !isPaid && !onRoster && !isOwner && !!(pendingJoin || pendingCreation);
 
     const loadPending = useCallback(async () => {
-        if (!isOwner) return;
+        if (!canReviewJoins) return;
         setLoadingPending(true);
         try {
             const res = await registrationAPI.listOwnerJoinRequests(teamId, slug);
@@ -66,7 +69,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
         } finally {
             setLoadingPending(false);
         }
-    }, [isOwner, teamId, slug]);
+    }, [canReviewJoins, teamId, slug]);
 
     useEffect(() => {
         void loadPending();
@@ -307,9 +310,9 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                 </div>
             )}
 
-            {isOwner && (
+            {canReviewJoins && (
                 <div className="border rounded p-3 bg-white">
-                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור בעלים)</h3>
+                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור בעלים / קפטן)</h3>
                     {ownerMsg && (
                         <p className="small alert alert-info py-2" role="status" aria-live="polite">
                             {ownerMsg}

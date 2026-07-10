@@ -281,6 +281,7 @@ const Teams = () => {
                             const isOwner = ownedTeamId === team.id;
                             const isCaptain =
                                 rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
+                            const canManageBranding = isOwner || isCaptain;
                             const canEditSquadRoles = isOwner || isCaptain;
 
                             return (
@@ -319,10 +320,10 @@ const Teams = () => {
                                     {isExpanded && (
                                         <tr className="team-details-row" id={`team-details-${team.id}`}>
                                             <td colSpan={5} className="bg-light p-3">
-                                                {team.description && !isOwner ? (
+                                                {team.description && !canManageBranding ? (
                                                     <p className="text-muted small mb-3">{team.description}</p>
                                                 ) : null}
-                                                {isOwner && (
+                                                {canManageBranding && (
                                                     <TeamOwnerSettings
                                                         key={`owner-settings-${slug}-${team.id}`}
                                                         teamId={team.id}

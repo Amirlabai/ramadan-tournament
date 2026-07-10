@@ -23,6 +23,7 @@ import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
 import { isPrismaUniqueViolation } from '../services/registrationHelpers';
 import { respondNotFound } from '../utils/respondNotFound';
+import { canManageTeamBranding, isTeamOwnerOrPlatformAdmin } from '../utils/canManageTeamBranding';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
@@ -82,32 +83,14 @@ async function divisionForLegacyMappedTeam(
     return null;
 }
 
-async function isPlatformAdminUser(userId: string): Promise<boolean> {
-    const user = await User.findById(userId);
-    return !!user && (user.role === 'Admin' || user.role === 'admin');
-}
-
-async function canManageTeamBranding(
-    userId: string,
-    teamId: number,
-    division: ReturnType<typeof requestDivision>
-): Promise<boolean> {
-    if (await isPlatformAdminUser(userId)) return true;
-
-    const owned = await prisma.team.findFirst({
-        where: { id: teamId, ownerUserId: userId, season: { division } },
-        select: { id: true },
-    });
-    return !!owned;
-}
-
 /** Legacy map-player workflow (pre-PRD captains with memberId 0). */
 async function canReviewLegacyTeamRequests(
     userId: string,
     teamId: number,
     division: ReturnType<typeof requestDivision>
 ): Promise<boolean> {
-    if (await canManageTeamBranding(userId, teamId, division)) return true;
+    // Owner/admin only — claimed PRD captains use join-review APIs, not legacy /requests
+    if (await isTeamOwnerOrPlatformAdmin(userId, teamId, division)) return true;
 
     const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
     if (!season) return false;
@@ -327,7 +310,7 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-// Owner/admin branding: update name, description, logo position (partial PATCH — omitted fields unchanged)
+// Owner/captain/admin branding: update name, description, logo position (partial PATCH — omitted fields unchanged)
 export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
@@ -339,7 +322,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
             return;
         }
 
-        // PRD team owner or platform admin
+        // PRD team owner, claimed captain, or platform admin
         if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
             respondNotFound(res);
             return;
@@ -375,7 +358,7 @@ export const updateTeamMetadata = async (req: AuthRequest, res: Response): Promi
     }
 };
 
-// Owner/admin branding: Upload team logo
+// Owner/captain/admin branding: Upload team logo
 export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
@@ -426,7 +409,7 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
     }
 };
 
-// Owner/admin branding: Delete team logo
+// Owner/captain/admin branding: Delete team logo
 export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const teamId = parseInt(req.params.id);
