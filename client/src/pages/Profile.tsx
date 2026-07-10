@@ -139,8 +139,20 @@ const Profile = () => {
         setPlayerSaving(true);
         setPlayerMsg('');
         try {
+            if (!playerForm.firstName.trim() || !playerForm.lastName.trim()) {
+                setPlayerMsg('שם פרטי ושם משפחה הם שדות חובה');
+                setPlayerSaving(false);
+                return;
+            }
             const number = playerForm.number.trim() ? Number(playerForm.number) : undefined;
-            await usersAPI.updatePlayerProfile({ ...playerForm, number });
+            const lastName = playerForm.lastName.trim();
+            await usersAPI.updatePlayerProfile({
+                ...playerForm,
+                firstName: playerForm.firstName.trim(),
+                lastName,
+                nickname: playerForm.nickname.trim(),
+                number,
+            });
             await refreshUser();
             setEditingPlayer(false);
             setPlayerMsg('הפרטים עודכנו בהצלחה');
@@ -560,17 +572,17 @@ const Profile = () => {
                             <form onSubmit={handleSavePlayer}>
                                 <div className="row g-3">
                                     <div className="col-6">
-                                        <label htmlFor="profile-player-firstName" className="form-label">שם פרטי</label>
+                                        <label htmlFor="profile-player-firstName" className="form-label">שם פרטי *</label>
                                         <input id="profile-player-firstName" className="form-control" value={playerForm.firstName} maxLength={50}
-                                            onChange={e => setPlayerForm(p => ({ ...p, firstName: e.target.value }))} />
+                                            onChange={e => setPlayerForm(p => ({ ...p, firstName: e.target.value }))} required />
                                     </div>
                                     <div className="col-6">
-                                        <label htmlFor="profile-player-lastName" className="form-label">שם משפחה</label>
+                                        <label htmlFor="profile-player-lastName" className="form-label">שם משפחה *</label>
                                         <input id="profile-player-lastName" className="form-control" value={playerForm.lastName} maxLength={50}
-                                            onChange={e => setPlayerForm(p => ({ ...p, lastName: e.target.value }))} />
+                                            onChange={e => setPlayerForm(p => ({ ...p, lastName: e.target.value }))} required />
                                     </div>
                                     <div className="col-6">
-                                        <label htmlFor="profile-player-nickname" className="form-label">כינוי / תג</label>
+                                        <label htmlFor="profile-player-nickname" className="form-label">כינוי / תג (ריק = שם משפחה)</label>
                                         <input id="profile-player-nickname" className="form-control" value={playerForm.nickname} maxLength={50}
                                             onChange={e => setPlayerForm(p => ({ ...p, nickname: e.target.value }))} />
                                     </div>

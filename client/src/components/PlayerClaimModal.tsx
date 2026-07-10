@@ -107,15 +107,19 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
         e.preventDefault();
         if (redirectToProfileForIdentity()) return;
         setError('');
-        if (!customProfile.firstName.trim() || !customProfile.nickname.trim() || !customProfile.number) {
-            setError('שם פרטי, כינוי ומספר חולצה הם שדות חובה');
+        if (!customProfile.firstName.trim() || !customProfile.lastName.trim() || !customProfile.number) {
+            setError('שם פרטי, שם משפחה ומספר חולצה הם שדות חובה');
             return;
         }
         setLoading(true);
         try {
+            const lastName = customProfile.lastName.trim();
+            const nickname = customProfile.nickname.trim();
             await registrationAPI.submitJoin(Number(selectedTeamId), slug, {
                 playerProfile: {
                     ...customProfile,
+                    lastName,
+                    nickname,
                     number: Number(customProfile.number),
                 },
             });
@@ -150,7 +154,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                 <div className="text-center text-theme-green py-4">
                                     <i className="bi bi-check-circle-fill display-4 mb-3"></i>
                                     <h4>הבקשה נשלחה בהצלחה!</h4>
-                                    <p className="text-muted mt-2">הבקשה ממתינה לאישור בעלים ומנהל.</p>
+                                    <p className="text-muted mt-2">הבקשה ממתינה לאישור קפטן/בעלים או מנהל.</p>
                                 </div>
                             ) : step === 'team' ? (
                                 <>
@@ -242,14 +246,14 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                                 onChange={e => setCustomProfile(p => ({ ...p, firstName: e.target.value }))} required />
                                         </div>
                                         <div className="col-6">
-                                            <label className="form-label">שם משפחה</label>
+                                            <label className="form-label">שם משפחה *</label>
                                             <input className="form-control" value={customProfile.lastName} maxLength={50}
-                                                onChange={e => setCustomProfile(p => ({ ...p, lastName: e.target.value }))} />
+                                                onChange={e => setCustomProfile(p => ({ ...p, lastName: e.target.value }))} required />
                                         </div>
                                         <div className="col-6">
-                                            <label className="form-label">כינוי / תג *</label>
+                                            <label className="form-label">כינוי / תג (ריק = שם משפחה)</label>
                                             <input className="form-control" value={customProfile.nickname} maxLength={50}
-                                                onChange={e => setCustomProfile(p => ({ ...p, nickname: e.target.value }))} required />
+                                                onChange={e => setCustomProfile(p => ({ ...p, nickname: e.target.value }))} />
                                         </div>
                                         <div className="col-3">
                                             <label className="form-label">מספר חולצה *</label>

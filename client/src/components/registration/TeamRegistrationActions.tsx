@@ -6,9 +6,18 @@ import { useCancelRegistrationRequest } from '../../hooks/useCancelRegistrationR
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import { trackEvent } from '../../utils/analytics';
 
+type PriorClaim = {
+    id: string;
+    displayName: string;
+    status: string;
+    createdAt: string;
+};
+
 type PendingJoin = {
     id: string;
     user: { displayName: string; email?: string | null };
+    requestedMemberId?: number | null;
+    priorClaims?: PriorClaim[];
 };
 
 type AvailablePlayer = {
@@ -45,7 +54,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     const isOwner = reg?.ownedTeamId === teamId;
     const isCaptain =
         reg?.onRoster?.isCaptain === true && reg.onRoster.teamId === teamId;
-    const canReviewJoins = isCaptain;
+    const canReviewJoins = isOwner || isCaptain;
     const onRoster = !!reg?.onRoster;
     const pendingJoin = reg?.pendingJoin;
     const pendingCreation = reg?.pendingCreation;
@@ -148,7 +157,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
         setOwnerMsg('');
         try {
             await registrationAPI.ownerReviewJoin(teamId, requestId, approve, slug);
-            setOwnerMsg(approve ? 'הבקשה אושרה וממתינה לאישור מנהל.' : 'הבקשה נדחה.');
+            setOwnerMsg(approve ? 'הבקשה אושרה והשחקן שויך לסגל.' : 'הבקשה נדחה.');
             await loadPending();
             await refreshUser();
             await refreshIndicators();
@@ -281,7 +290,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                         בקשת הצטרפות לקבוצה #{pendingJoin.teamId} בתהליך
                         {pendingJoin.status === 'owner_approved'
                             ? ' (ממתין לאישור מנהל)'
-                            : ' (ממתין לאישור קפטן)'}
+                            : ' (ממתין לאישור קפטן או בעלים)'}
                         .
                     </p>
                     {legacyNeedsIdentity && (
@@ -312,7 +321,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
 
             {canReviewJoins && (
                 <div className="border rounded p-3 bg-white">
-                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור קפטן)</h3>
+                    <h3 className="h6 fw-bold mb-2">בקשות הצטרפות (אישור בעלים / קפטן)</h3>
                     {ownerMsg && (
                         <p className="small alert alert-info py-2" role="status" aria-live="polite">
                             {ownerMsg}
@@ -327,34 +336,56 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                             {pending.map((row) => (
                                 <li
                                     key={row.id}
-                                    className="d-flex flex-wrap align-items-center justify-content-between gap-2 py-2 border-bottom"
+                                    className="py-2 border-bottom"
                                 >
-                                    <span>
-                                        {row.user.displayName}
-                                        {row.user.email ? (
-                                            <span className="text-muted small ms-1" dir="ltr">
-                                                ({row.user.email})
-                                            </span>
-                                        ) : null}
-                                    </span>
-                                    <span className="d-flex gap-1">
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm btn-success"
-                                            disabled={actingId === row.id}
-                                            onClick={() => void handleOwnerReview(row.id, true)}
-                                        >
-                                            אשר
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className="btn btn-sm btn-outline-danger"
-                                            disabled={actingId === row.id}
-                                            onClick={() => void handleOwnerReview(row.id, false)}
-                                        >
-                                            דחה
-                                        </button>
-                                    </span>
+                                    <div className="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                                        <span>
+                                            {row.user.displayName}
+                                            {row.user.email ? (
+                                                <span className="text-muted small ms-1" dir="ltr">
+                                                    ({row.user.email})
+                                                </span>
+                                            ) : null}
+                                            {row.requestedMemberId != null ? (
+                                                <span className="text-muted small ms-1">
+                                                    · שחקן #{row.requestedMemberId}
+                                                </span>
+                                            ) : null}
+                                        </span>
+                                        <span className="d-flex gap-1">
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-success"
+                                                disabled={actingId === row.id}
+                                                onClick={() => void handleOwnerReview(row.id, true)}
+                                            >
+                                                אשר
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="btn btn-sm btn-outline-danger"
+                                                disabled={actingId === row.id}
+                                                onClick={() => void handleOwnerReview(row.id, false)}
+                                            >
+                                                דחה
+                                            </button>
+                                        </span>
+                                    </div>
+                                    {row.priorClaims && row.priorClaims.length > 0 ? (
+                                        <div className="mt-2 small text-muted" aria-label="בקשות קודמות לאותו שחקן">
+                                            <p className="mb-1 fw-semibold">בקשות קודמות לאותו שחקן:</p>
+                                            <ul className="mb-0 ps-3">
+                                                {row.priorClaims.map((prior) => (
+                                                    <li key={prior.id}>
+                                                        {prior.displayName} — {priorClaimStatusHe(prior.status)}
+                                                        {prior.createdAt
+                                                            ? ` · ${new Date(prior.createdAt).toLocaleDateString('he-IL')}`
+                                                            : ''}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    ) : null}
                                 </li>
                             ))}
                         </ul>
@@ -363,4 +394,17 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
             )}
         </div>
     );
+}
+
+function priorClaimStatusHe(status: string): string {
+    switch (status) {
+        case 'approved':
+            return 'אושרה';
+        case 'rejected':
+            return 'נדחתה';
+        case 'invalidated':
+            return 'בוטלה';
+        default:
+            return status;
+    }
 }

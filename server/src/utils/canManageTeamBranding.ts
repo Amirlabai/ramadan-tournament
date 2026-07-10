@@ -1,7 +1,7 @@
 import { prisma } from '../lib/prisma';
 import { User } from '../models/User';
 import { SeasonService } from '../services/SeasonService';
-import { hasClaimedCaptainReviewer } from './claimedCaptain';
+import { canActorReviewPendingJoin, hasClaimedCaptainReviewer } from './claimedCaptain';
 
 type DivisionSlug = 'boys' | 'girls';
 
@@ -49,4 +49,21 @@ export async function canManageTeamBranding(
   if (owned) return true;
 
   return hasClaimedCaptainReviewer(prisma, userId, season.id, teamId);
+}
+
+/**
+ * Owner, claimed captain, or platform admin may post-edit roster player fields/photos.
+ * Linked players still self-edit via PlayerService.updateOwnProfile; last write wins.
+ */
+export async function canManageTeamRosterPlayers(
+  userId: string,
+  teamId: number,
+  division: DivisionSlug
+): Promise<boolean> {
+  if (await isPlatformAdminUser(userId)) return true;
+
+  const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+  if (!season) return false;
+
+  return canActorReviewPendingJoin(prisma, userId, season.id, teamId);
 }

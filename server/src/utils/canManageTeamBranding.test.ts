@@ -31,7 +31,7 @@ vi.mock('../models/User', () => ({
   },
 }));
 
-import { canManageTeamBranding, isTeamOwnerOrPlatformAdmin } from './canManageTeamBranding';
+import { canManageTeamBranding, canManageTeamRosterPlayers, isTeamOwnerOrPlatformAdmin } from './canManageTeamBranding';
 
 describe('canManageTeamBranding', () => {
   beforeEach(() => {
@@ -129,5 +129,37 @@ describe('isTeamOwnerOrPlatformAdmin', () => {
 
   it('denies claimed captain who is not owner', async () => {
     await expect(isTeamOwnerOrPlatformAdmin('captain-1', 7, 'boys')).resolves.toBe(false);
+  });
+});
+
+describe('canManageTeamRosterPlayers', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockUserFindById.mockResolvedValue({ role: 'user' });
+    mockTeamFindFirst.mockResolvedValue(null);
+    mockPlayerFindFirst.mockResolvedValue(null);
+    mockGetActiveSeasonForDivision.mockResolvedValue({ id: 'season-boys' });
+  });
+
+  it('allows platform admin', async () => {
+    mockUserFindById.mockResolvedValue({ role: 'admin' });
+    await expect(canManageTeamRosterPlayers('admin-1', 7, 'boys')).resolves.toBe(true);
+  });
+
+  it('allows team owner via canActorReviewPendingJoin', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: 'owner-1' });
+    await expect(canManageTeamRosterPlayers('owner-1', 7, 'boys')).resolves.toBe(true);
+  });
+
+  it('allows claimed captain', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: 'other' });
+    mockPlayerFindFirst.mockResolvedValue({ memberId: 1 });
+    await expect(canManageTeamRosterPlayers('captain-1', 7, 'boys')).resolves.toBe(true);
+  });
+
+  it('denies unrelated user', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: 'owner-1' });
+    mockPlayerFindFirst.mockResolvedValue(null);
+    await expect(canManageTeamRosterPlayers('player-1', 7, 'boys')).resolves.toBe(false);
   });
 });

@@ -23,7 +23,7 @@ import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
 import { isPrismaUniqueViolation } from '../services/registrationHelpers';
 import { respondNotFound } from '../utils/respondNotFound';
-import { canManageTeamBranding, isTeamOwnerOrPlatformAdmin } from '../utils/canManageTeamBranding';
+import { canManageTeamBranding, canManageTeamRosterPlayers, isTeamOwnerOrPlatformAdmin } from '../utils/canManageTeamBranding';
 import {
     publicUploadUrl,
     unlinkUpload,
@@ -616,6 +616,136 @@ export const movePlayer = async (req: AuthRequest, res: Response): Promise<void>
     } catch (error) {
         console.error('Move player error:', error);
         res.status(500).json({ error: 'שגיאה בהעברת שחקן' });
+    }
+};
+
+/** Owner / claimed captain / admin: patch roster player fields (post-edit override). */
+export const updateManagedPlayer = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id, 10);
+        const memberId = parseInt(req.params.memberId, 10);
+        if (!Number.isFinite(teamId) || !Number.isFinite(memberId)) {
+            res.status(400).json({ error: 'מזהה קבוצה או שחקן לא תקין' });
+            return;
+        }
+
+        const divisionSlug = requestDivision(req);
+        if (!(await canManageTeamRosterPlayers(req.userId!, teamId, divisionSlug))) {
+            respondNotFound(res);
+            return;
+        }
+
+        const player = await PlayerService.updateManagedPlayerProfile(
+            req.userId!,
+            teamId,
+            memberId,
+            slugToDivision(divisionSlug),
+            {
+                firstName: req.body?.firstName,
+                lastName: req.body?.lastName,
+                nickname: req.body?.nickname,
+                number: req.body?.number != null ? Number(req.body.number) : undefined,
+                position: req.body?.position,
+                bio: req.body?.bio,
+            }
+        );
+        res.json({ message: 'פרטי השחקן עודכנו', player });
+    } catch (error) {
+        if (error instanceof PlayerServiceError) {
+            res.status(error.status).json({ error: error.message });
+            return;
+        }
+        const message = error instanceof Error ? error.message : 'שגיאה בעדכון שחקן';
+        console.error('Update managed player error:', error);
+        res.status(400).json({ error: message });
+    }
+};
+
+export const uploadManagedPlayerPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
+    let finalPath: string | null = null;
+    try {
+        if (!req.file) {
+            res.status(400).json({ error: 'לא הועלה קובץ' });
+            return;
+        }
+
+        const teamId = parseInt(req.params.id, 10);
+        const memberId = parseInt(req.params.memberId, 10);
+        if (!Number.isFinite(teamId) || !Number.isFinite(memberId)) {
+            res.status(400).json({ error: 'מזהה קבוצה או שחקן לא תקין' });
+            return;
+        }
+
+        const divisionSlug = requestDivision(req);
+        if (!(await canManageTeamRosterPlayers(req.userId!, teamId, divisionSlug))) {
+            respondNotFound(res);
+            return;
+        }
+
+        const uploadsDir = uploadWriteDir('players');
+        const ext = safeImageExt(req.file.originalname);
+        const filename = `player_${teamId}_${memberId}_${Date.now()}${ext}`;
+        finalPath = path.join(uploadsDir, filename);
+        fs.copyFileSync(req.file.path, finalPath);
+        fs.unlinkSync(req.file.path);
+
+        const publicUrl = publicUploadUrl('players', filename);
+        const result = await PlayerService.setManagedPlayerPhoto(
+            teamId,
+            memberId,
+            slugToDivision(divisionSlug),
+            publicUrl
+        );
+        res.json({ message: 'תמונת השחקן עודכנה', headPhoto: result.headPhoto });
+    } catch (error) {
+        if (finalPath) {
+            try {
+                fs.unlinkSync(finalPath);
+            } catch {
+                /* ignore orphan cleanup failure */
+            }
+        }
+        if (error instanceof PlayerServiceError) {
+            res.status(error.status).json({ error: error.message });
+            return;
+        }
+        if (error instanceof Error && error.message === UPLOADS_DISK_MISCONFIG_MESSAGE) {
+            res.status(503).json({ error: UPLOADS_DISK_MISCONFIG_MESSAGE });
+            return;
+        }
+        console.error('Upload managed player photo error:', error);
+        res.status(500).json({ error: 'שגיאה בהעלאת תמונה' });
+    }
+};
+
+export const deleteManagedPlayerPhoto = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id, 10);
+        const memberId = parseInt(req.params.memberId, 10);
+        if (!Number.isFinite(teamId) || !Number.isFinite(memberId)) {
+            res.status(400).json({ error: 'מזהה קבוצה או שחקן לא תקין' });
+            return;
+        }
+
+        const divisionSlug = requestDivision(req);
+        if (!(await canManageTeamRosterPlayers(req.userId!, teamId, divisionSlug))) {
+            respondNotFound(res);
+            return;
+        }
+
+        await PlayerService.clearManagedPlayerPhoto(
+            teamId,
+            memberId,
+            slugToDivision(divisionSlug)
+        );
+        res.json({ message: 'תמונת השחקן נמחקה' });
+    } catch (error) {
+        if (error instanceof PlayerServiceError) {
+            res.status(error.status).json({ error: error.message });
+            return;
+        }
+        console.error('Delete managed player photo error:', error);
+        res.status(500).json({ error: 'שגיאה במחיקת תמונה' });
     }
 };
 

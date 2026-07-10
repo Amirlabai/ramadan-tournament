@@ -202,12 +202,18 @@ export const listAvailableTeams = async (req: AuthRequest, res: Response): Promi
 
 export const ownerReviewJoin = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
+    const teamId = parsePositiveTeamId(req.params.id);
     const { requestId, approve } = req.body as { requestId?: string; approve?: boolean };
     if (!requestId || !isUuid(requestId)) {
       res.status(400).json({ error: 'מזהה בקשה לא תקין' });
       return;
     }
-    await RegistrationService.ownerReviewJoin(req.userId!, requestId, approve === true);
+    await RegistrationService.ownerReviewJoin(
+      req.userId!,
+      requestId,
+      approve === true,
+      teamId
+    );
     res.json({ message: approve ? 'הבקשה אושרה על ידי הבעלים' : 'הבקשה נדחתה' });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'שגיאה בשרת';

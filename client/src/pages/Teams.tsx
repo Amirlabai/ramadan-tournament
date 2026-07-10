@@ -4,9 +4,10 @@ import { teamsAPI, votesAPI } from '../api/client';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
 import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../components/registration/OwnerSquadRoles';
+import RosterPlayerEditModal from '../components/registration/RosterPlayerEditModal';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
-import type { Team } from '../types';
+import type { Player, Team } from '../types';
 import SEO from '../components/SEO';
 import AccessibleModal from '../components/AccessibleModal';
 import { TeamsSkeleton } from '../components/skeleton';
@@ -14,12 +15,13 @@ import EmptyState from '../components/EmptyState';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
-import { getRoleStarVariant } from '../utils/tournamentUser';
+import { getRoleStarVariant, isPlatformAdmin } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { sortRosterPlayers } from '../utils/rosterSort';
+import { displayNickname, fullName } from '../utils/playerDisplayName';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -151,7 +153,8 @@ const Teams = () => {
         fetchMyVote();
     }, [isLoggedIn, authLoading]);
 
-    const [selectedPlayer, setSelectedPlayer] = useState<any | null>(null);
+    const [selectedPlayer, setSelectedPlayer] = useState<(Player & { teamId?: number }) | null>(null);
+    const [editPlayer, setEditPlayer] = useState<(Player & { teamId: number }) | null>(null);
 
     const toggleTeam = (teamId: number) => {
         const nextExpanded = expandedTeam === teamId ? null : teamId;
@@ -223,6 +226,23 @@ const Teams = () => {
     const selectedPlayerRoleStar = selectedPlayer
         ? getRoleStarVariant(!!selectedPlayer.isTeamOwner, selectedPlayer.isCaptain)
         : null;
+
+    const canEditSelectedPlayer = (() => {
+        if (!selectedPlayer?.teamId || !user) return false;
+        if (isPlatformAdmin(user)) return true;
+        const ownedTeamId =
+            slug === 'boys' || slug === 'girls'
+                ? user.tournamentRegistration?.[slug]?.ownedTeamId
+                : undefined;
+        const rosterReg =
+            slug === 'boys' || slug === 'girls'
+                ? user.tournamentRegistration?.[slug]?.onRoster
+                : undefined;
+        const isOwner = ownedTeamId === selectedPlayer.teamId;
+        const isCaptain =
+            rosterReg?.isCaptain === true && rosterReg.teamId === selectedPlayer.teamId;
+        return isOwner || isCaptain;
+    })();
 
     return (
         <div className="container py-4">
@@ -402,8 +422,8 @@ const Teams = () => {
                                                                         <button
                                                                             type="button"
                                                                             className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0"
-                                                                            onClick={() => setSelectedPlayer(player)}
-                                                                            aria-label={`פרטי שחקן ${player.firstName} ${player.lastName}${isTopScorer ? ', מלך השערים של הקבוצה' : ''}`}
+                                                                            onClick={() => setSelectedPlayer({ ...player, teamId: team.id })}
+                                                                            aria-label={`פרטי שחקן ${fullName(player)}${isTopScorer ? ', מלך השערים של הקבוצה' : ''}`}
                                                                         >
                                                                         <div className="roster-player-card-photo mx-auto" aria-hidden="true">
                                                                             <PlayerHeadImg
@@ -415,8 +435,8 @@ const Teams = () => {
                                                                                 <span className="roster-player-card-top-scorer" aria-hidden="true">⚽</span>
                                                                             )}
                                                                         </div>
-                                                                        <div className="fw-bold mt-2">{player.nickname}</div>
-                                                                        <div className="text-muted small">{player.firstName} {player.lastName}</div>
+                                                                        <div className="fw-bold mt-2">{displayNickname(player)}</div>
+                                                                        <div className="text-muted small">{fullName(player)}</div>
                                                                         <div className="badge bg-success mt-1">{player.number}</div>
                                                                         <div className="small text-secondary">{player.position}</div>
                                                                         <div className="mt-2 pt-2 border-top player-card-stats">
@@ -461,18 +481,18 @@ const Teams = () => {
             <AccessibleModal open={!!selectedPlayer} onClose={() => setSelectedPlayer(null)} titleId="player-modal-title">
                         <div className="modal-content">
                             <div className="modal-header bg-success text-white">
-                                <h2 id="player-modal-title" className="modal-title h5">{selectedPlayer?.firstName} {selectedPlayer?.lastName}</h2>
+                                <h2 id="player-modal-title" className="modal-title h5">{selectedPlayer ? fullName(selectedPlayer) : ''}</h2>
                                 <button type="button" className="btn-close btn-close-white" onClick={() => setSelectedPlayer(null)} aria-label="סגור"></button>
                             </div>
                             {selectedPlayer && (
                             <div className="modal-body text-center">
                                 <PlayerHeadImg
                                     player={selectedPlayer}
-                                    alt={`תמונת ${selectedPlayer.firstName} ${selectedPlayer.lastName}`}
+                                    alt={`תמונת ${fullName(selectedPlayer)}`}
                                     className="rounded-circle mb-3 border border-3 border-warning"
                                     style={{ width: '120px', height: '120px', objectFit: 'cover' }}
                                 />
-                                <h4>{selectedPlayer.nickname}</h4>
+                                <h4>{displayNickname(selectedPlayer)}</h4>
                                 <div className="d-flex justify-content-center gap-2 mb-3">
                                     <span className="badge bg-success fs-6">{selectedPlayer.number}</span>
                                     <span className="badge bg-secondary fs-6">{selectedPlayer.position}</span>
@@ -506,10 +526,37 @@ const Teams = () => {
                             </div>
                             )}
                             <div className="modal-footer">
+                                {canEditSelectedPlayer && selectedPlayer?.teamId != null ? (
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-success"
+                                        onClick={() => {
+                                            setEditPlayer({
+                                                ...selectedPlayer,
+                                                teamId: selectedPlayer.teamId!,
+                                            });
+                                            setSelectedPlayer(null);
+                                        }}
+                                    >
+                                        ערוך שחקן
+                                    </button>
+                                ) : null}
                                 <button type="button" className="btn btn-secondary" onClick={() => setSelectedPlayer(null)}>סגור</button>
                             </div>
                         </div>
             </AccessibleModal>
+
+            {editPlayer ? (
+                <RosterPlayerEditModal
+                    key={`edit-${editPlayer.memberId}`}
+                    open
+                    onClose={() => setEditPlayer(null)}
+                    teamId={editPlayer.teamId}
+                    player={editPlayer}
+                    slug={slug}
+                    onSaved={() => void fetchTeams(true)}
+                />
+            ) : null}
 
             {/* Vote Confirmation Modal */}
             <AccessibleModal

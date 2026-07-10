@@ -38,3 +38,37 @@ export async function hasClaimedCaptainReviewer(
   });
   return !!captainRow;
 }
+
+type JoinReviewerDb = Pick<Prisma.TransactionClient, 'player' | 'team'>;
+
+/**
+ * Team has a join reviewer when it has an ownerUserId or a claimed captain.
+ * Those joins stay `pending` for owner/captain final approval (admin does not interfere).
+ */
+export async function teamHasJoinReviewer(
+  db: JoinReviewerDb,
+  seasonId: string,
+  teamId: number
+): Promise<boolean> {
+  const team = await db.team.findFirst({
+    where: { seasonId, id: teamId },
+    select: { ownerUserId: true },
+  });
+  if (team?.ownerUserId) return true;
+  return teamHasClaimedCaptain(db, seasonId, teamId);
+}
+
+/** Actor may review pending joins if they are the team owner or a claimed captain. */
+export async function canActorReviewPendingJoin(
+  db: JoinReviewerDb,
+  actorId: string,
+  seasonId: string,
+  teamId: number
+): Promise<boolean> {
+  const team = await db.team.findFirst({
+    where: { seasonId, id: teamId },
+    select: { ownerUserId: true },
+  });
+  if (team?.ownerUserId === actorId) return true;
+  return hasClaimedCaptainReviewer(db, actorId, seasonId, teamId);
+}

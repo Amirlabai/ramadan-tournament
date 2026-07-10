@@ -58,19 +58,21 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | POST | `/transfer-request` | user | Request transfer (rostered) |
 | GET | `/:id` | none | Single team document |
 | GET | `/:id/available-players` | none | Claimable roster slots |
-| GET | `/:id/join-requests-pending` | claimed-captain | Claimed captain: list `pending` joins (syncs queue first) |
-| POST | `/:id/join-request` | user | Submit join (`pending` if claimed captain exists, else `owner_approved` admin queue) |
+| GET | `/:id/join-requests-pending` | owner / claimed-captain | List `pending` joins (+ prior claims for same slot); syncs queue first |
+| POST | `/:id/join-request` | user | Submit join (`pending` if owner or claimed captain exists, else `owner_approved` admin queue) |
 | POST | `/:id/roster/add-self` | user | Self-add after approval |
 | PATCH | `/:id/squad-roles` | owner-or-captain | Set squad roles (owner or roster captain); syncs join queue |
-| POST | `/:id/owner-review-join` | claimed-captain | Claimed captain approve/reject join (`pending` → `owner_approved` / rejected). Route name is legacy. |
+| POST | `/:id/owner-review-join` | owner / claimed-captain | Approve (finalize roster → `approved`) or reject. Route name is legacy. |
 | GET | `/:id/requests` | user | Legacy captain requests |
 | POST | `/:id/requests` | user | Legacy captain approve |
 | PATCH | `/:id/metadata` | user | Owner/admin: name, description |
 | POST | `/:id/logo` | user | Upload team logo |
 | DELETE | `/:id/logo` | user | Delete team logo |
+| PATCH | `/:id/players/:memberId` | owner / claimed-captain / admin | Post-edit roster player fields |
+| POST | `/:id/players/:memberId/photo` | owner / claimed-captain / admin | Upload player head photo |
+| DELETE | `/:id/players/:memberId/photo` | owner / claimed-captain / admin | Clear player head photo |
 | POST | `/:id/players` | admin | Add player to roster |
 | DELETE | `/:id/players/:memberId` | admin | Remove player |
-| DELETE | `/:id/players/:memberId/photo` | admin | Delete player photo |
 | PATCH | `/:id/players/:memberId/move` | admin | Move player to another team |
 
 ---

@@ -13,8 +13,10 @@ import {
     deleteTeamLogo,
     addPlayer,
     deletePlayer,
-    deletePlayerPhoto,
     movePlayer,
+    updateManagedPlayer,
+    uploadManagedPlayerPhoto,
+    deleteManagedPlayerPhoto,
 } from '../controllers/teamController';
 import {
     listAvailableTeams,
@@ -54,10 +56,19 @@ router.patch('/:id/metadata', authenticate, updateTeamMetadata);
 router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, deleteTeamLogo);
 
+// Owner/captain/admin: post-edit roster player fields & photo
+router.patch('/:id/players/:memberId', authenticate, updateManagedPlayer);
+router.post(
+    '/:id/players/:memberId/photo',
+    authenticate,
+    upload.single('photo'),
+    uploadManagedPlayerPhoto
+);
+router.delete('/:id/players/:memberId/photo', authenticate, deleteManagedPlayerPhoto);
+
 // Roster management — platform admins only (route + controller)
 router.post('/:id/players', requirePlatformAdmin, addPlayer);
 router.delete('/:id/players/:memberId', requirePlatformAdmin, deletePlayer);
-router.delete('/:id/players/:memberId/photo', requirePlatformAdmin, deletePlayerPhoto);
 router.patch('/:id/players/:memberId/move', requirePlatformAdmin, movePlayer);
 
 export default router;

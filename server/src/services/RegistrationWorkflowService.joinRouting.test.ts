@@ -175,11 +175,13 @@ describe('RegistrationWorkflowService submit join routing', () => {
     mockPlayerFindFirst
       .mockResolvedValueOnce(null) // onRoster
       .mockResolvedValueOnce({ memberId: 99 }); // claimed captain exists
-    mockTeamFindFirst.mockResolvedValueOnce({
-      id: TEAM_ID,
-      seasonId: SEASON_ID,
-      status: TeamStatus.active,
-    });
+    mockTeamFindFirst
+      .mockResolvedValueOnce({
+        id: TEAM_ID,
+        seasonId: SEASON_ID,
+        status: TeamStatus.active,
+      })
+      .mockResolvedValueOnce({ ownerUserId: null }); // teamHasJoinReviewer
 
     await RegistrationWorkflowService.submitJoinRequest(USER_ID, Division.boys, TEAM_ID);
 
@@ -188,33 +190,35 @@ describe('RegistrationWorkflowService submit join routing', () => {
     });
   });
 
-  it('creates owner_approved join when only team owner exists (no claimed captain)', async () => {
-    mockPlayerFindFirst
-      .mockResolvedValueOnce(null) // onRoster
-      .mockResolvedValueOnce(null); // no claimed captain
-    mockTeamFindFirst.mockResolvedValueOnce({
-      id: TEAM_ID,
-      seasonId: SEASON_ID,
-      status: TeamStatus.active,
-      ownerUserId: 'owner-1',
-    });
+  it('creates pending join when only team owner exists (no claimed captain)', async () => {
+    mockPlayerFindFirst.mockResolvedValueOnce(null); // onRoster
+    mockTeamFindFirst
+      .mockResolvedValueOnce({
+        id: TEAM_ID,
+        seasonId: SEASON_ID,
+        status: TeamStatus.active,
+        ownerUserId: 'owner-1',
+      })
+      .mockResolvedValueOnce({ ownerUserId: 'owner-1' }); // teamHasJoinReviewer
 
     await RegistrationWorkflowService.submitJoinRequest(USER_ID, Division.boys, TEAM_ID);
 
     expect(mockTeamJoinRequestCreate).toHaveBeenCalledWith({
-      data: expect.objectContaining({ status: RequestStatus.owner_approved }),
+      data: expect.objectContaining({ status: RequestStatus.pending }),
     });
   });
 
-  it('creates owner_approved join when no claimed captain', async () => {
+  it('creates owner_approved join when no owner and no claimed captain', async () => {
     mockPlayerFindFirst
       .mockResolvedValueOnce(null) // onRoster
       .mockResolvedValueOnce(null); // no claimed captain
-    mockTeamFindFirst.mockResolvedValueOnce({
-      id: TEAM_ID,
-      seasonId: SEASON_ID,
-      status: TeamStatus.active,
-    });
+    mockTeamFindFirst
+      .mockResolvedValueOnce({
+        id: TEAM_ID,
+        seasonId: SEASON_ID,
+        status: TeamStatus.active,
+      })
+      .mockResolvedValueOnce({ ownerUserId: null });
 
     await RegistrationWorkflowService.submitJoinRequest(USER_ID, Division.boys, TEAM_ID);
 
@@ -277,6 +281,7 @@ describe('RegistrationWorkflowService adminReviewJoin', () => {
     mockPlayerCreate.mockResolvedValue({ memberId: 501 });
     mockUserUpdate.mockResolvedValue(undefined);
     mockTeamJoinRequestUpdate.mockResolvedValue(undefined);
+    mockTeamJoinRequestUpdateMany.mockResolvedValue({ count: 1 });
     mockInvalidateDivisionCaches.mockResolvedValue(undefined);
     mockTransaction.mockImplementation(
       async (fn: (tx: ReturnType<typeof makeAdminApproveTx>) => Promise<unknown>) =>

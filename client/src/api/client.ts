@@ -65,6 +65,30 @@ export const teamsAPI = {
         api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}`),
     deletePlayerPhoto: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
         api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}/photo`),
+    updateManagedPlayer: (
+        teamId: number,
+        memberId: number,
+        data: {
+            firstName?: string;
+            lastName?: string;
+            nickname?: string;
+            number?: number;
+            position?: string;
+            bio?: string;
+        },
+        slug: TournamentSlug = 'boys'
+    ) => api.patch(`${teamsPath(slug)}/${teamId}/players/${memberId}`, data),
+    uploadManagedPlayerPhoto: (
+        teamId: number,
+        memberId: number,
+        formData: FormData,
+        slug: TournamentSlug = 'boys'
+    ) =>
+        api.post(`${teamsPath(slug)}/${teamId}/players/${memberId}/photo`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+    deleteManagedPlayerPhoto: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
+        api.delete(`${teamsPath(slug)}/${teamId}/players/${memberId}/photo`),
     movePlayer: (teamId: number, memberId: number, targetTeamId: number, slug: TournamentSlug = 'boys') =>
         api.patch(`${teamsPath(slug)}/${teamId}/players/${memberId}/move`, { targetTeamId }),
 };

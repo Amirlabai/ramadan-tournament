@@ -398,21 +398,23 @@ model TeamCreationRequest {
 }
 
 model TeamJoinRequest {
-  id              String        @id @default(uuid())
-  userId          String        @map("user_id")
-  seasonId        String        @map("season_id")
-  teamId          Int           @map("team_id")
-  status          RequestStatus @default(pending)
-  ownerReviewedAt DateTime?     @map("owner_reviewed_at")
-  ownerReviewedBy String?       @map("owner_reviewed_by")
-  adminReviewedAt DateTime?     @map("admin_reviewed_at")
-  adminReviewedBy String?       @map("admin_reviewed_by")
-  createdAt       DateTime      @default(now()) @map("created_at")
+  id                 String        @id @default(uuid())
+  userId             String        @map("user_id")
+  seasonId           String        @map("season_id")
+  teamId             Int           @map("team_id")
+  requestedMemberId  Int?          @map("requested_member_id")
+  status             RequestStatus @default(pending)
+  ownerReviewedAt    DateTime?     @map("owner_reviewed_at")
+  ownerReviewedBy    String?       @map("owner_reviewed_by")
+  adminReviewedAt    DateTime?     @map("admin_reviewed_at")
+  adminReviewedBy    String?       @map("admin_reviewed_by")
+  createdAt          DateTime      @default(now()) @map("created_at")
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   season Season @relation(fields: [seasonId], references: [id], onDelete: Cascade)
   team   Team   @relation(fields: [seasonId, teamId], references: [seasonId, id], onDelete: Cascade)
 
+  @@index([seasonId, teamId, requestedMemberId])
   @@map("team_join_requests")
 }
 

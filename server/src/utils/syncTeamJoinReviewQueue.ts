@@ -1,18 +1,19 @@
 import { RequestStatus, type Prisma } from '@prisma/client';
-import { teamHasClaimedCaptain } from './claimedCaptain';
+import { teamHasJoinReviewer } from './claimedCaptain';
 
-type JoinQueueDb = Pick<Prisma.TransactionClient, 'player' | 'teamJoinRequest'>;
+type JoinQueueDb = Pick<Prisma.TransactionClient, 'player' | 'team' | 'teamJoinRequest'>;
 
 /**
- * Keep join request status aligned with claimed-captain coverage.
+ * Keep join request status aligned with owner/captain reviewer coverage.
  *
- * - No claimed captain → promote `pending` → `owner_approved` (admin fallback).
- * - Claimed captain → reopen rows that were never captain-reviewed:
+ * - No owner and no claimed captain → promote `pending` → `owner_approved` (admin fallback).
+ * - Has owner or claimed captain → reopen rows that were never reviewer-approved:
  *   `owner_approved` + `ownerReviewedAt IS NULL` + `adminReviewedAt IS NULL` → `pending`.
  *
- * Bounce-back is intentional: auto-skips and rows promoted after a captain left both have
- * null `ownerReviewedAt`, so the next claimed captain sees them. Captain-approved rows
- * waiting for admin (`ownerReviewedAt` set) stay on the admin queue.
+ * Bounce-back is intentional: auto-skips and rows promoted after reviewers left both have
+ * null `ownerReviewedAt`, so the next owner/captain sees them. In-flight rows that already
+ * had a captain approve under the old two-step flow (`ownerReviewedAt` set) stay on the
+ * admin queue once.
  *
  * Primary callers are write paths (squad roles, leave/deactivate, admin approve, etc.).
  * `syncOpenJoinQueuesForSeason` is a repair fallback for admin list/count only.
@@ -22,8 +23,8 @@ export async function syncTeamJoinReviewQueue(
   seasonId: string,
   teamId: number
 ): Promise<void> {
-  const hasCaptain = await teamHasClaimedCaptain(db, seasonId, teamId);
-  if (hasCaptain) {
+  const hasReviewer = await teamHasJoinReviewer(db, seasonId, teamId);
+  if (hasReviewer) {
     await db.teamJoinRequest.updateMany({
       where: {
         seasonId,
@@ -37,7 +38,7 @@ export async function syncTeamJoinReviewQueue(
     return;
   }
 
-  // Leave ownerReviewedAt null so a future claimed captain can reopen these (not admin-sticky).
+  // Leave ownerReviewedAt null so a future reviewer can reopen these (not admin-sticky).
   await db.teamJoinRequest.updateMany({
     where: {
       seasonId,
@@ -50,7 +51,7 @@ export async function syncTeamJoinReviewQueue(
 
 /**
  * Fallback repair for admin workflow list/count. Prefer write-path sync; this mutates on
- * read so stuck TeamJoinRequests (e.g. pre-fix pending with no captain) reach the admin queue.
+ * read so stuck TeamJoinRequests (e.g. pre-fix pending with no reviewer) reach the admin queue.
  */
 export async function syncOpenJoinQueuesForSeason(
   db: JoinQueueDb,

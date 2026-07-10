@@ -1,10 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { RequestStatus } from '@prisma/client';
 
-const { mockPlayerFindFirst, mockTeamJoinRequestUpdateMany } = vi.hoisted(() => ({
-  mockPlayerFindFirst: vi.fn(),
-  mockTeamJoinRequestUpdateMany: vi.fn(),
-}));
+const { mockPlayerFindFirst, mockTeamFindFirst, mockTeamJoinRequestUpdateMany } = vi.hoisted(
+  () => ({
+    mockPlayerFindFirst: vi.fn(),
+    mockTeamFindFirst: vi.fn(),
+    mockTeamJoinRequestUpdateMany: vi.fn(),
+  })
+);
 
 import { syncTeamJoinReviewQueue } from './syncTeamJoinReviewQueue';
 
@@ -14,6 +17,7 @@ const TEAM_ID = 7;
 function makeDb() {
   return {
     player: { findFirst: mockPlayerFindFirst },
+    team: { findFirst: mockTeamFindFirst },
     teamJoinRequest: { updateMany: mockTeamJoinRequestUpdateMany },
   };
 }
@@ -25,6 +29,7 @@ describe('syncTeamJoinReviewQueue', () => {
   });
 
   it('reopens auto-skipped owner_approved to pending when claimed captain exists', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: null });
     mockPlayerFindFirst.mockResolvedValue({ memberId: 1 });
 
     await syncTeamJoinReviewQueue(makeDb(), SEASON_ID, TEAM_ID);
@@ -41,7 +46,26 @@ describe('syncTeamJoinReviewQueue', () => {
     });
   });
 
+  it('reopens auto-skipped owner_approved to pending when team has owner', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: 'owner-1' });
+
+    await syncTeamJoinReviewQueue(makeDb(), SEASON_ID, TEAM_ID);
+
+    expect(mockPlayerFindFirst).not.toHaveBeenCalled();
+    expect(mockTeamJoinRequestUpdateMany).toHaveBeenCalledWith({
+      where: {
+        seasonId: SEASON_ID,
+        teamId: TEAM_ID,
+        status: RequestStatus.owner_approved,
+        adminReviewedAt: null,
+        ownerReviewedAt: null,
+      },
+      data: { status: RequestStatus.pending },
+    });
+  });
+
   it('does not reopen captain-approved admin-queue rows (ownerReviewedAt set)', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: null });
     mockPlayerFindFirst.mockResolvedValue({ memberId: 1 });
 
     await syncTeamJoinReviewQueue(makeDb(), SEASON_ID, TEAM_ID);
@@ -54,10 +78,10 @@ describe('syncTeamJoinReviewQueue', () => {
         adminReviewedAt: null,
       })
     );
-    // Rows with ownerReviewedAt set fail this filter and stay owner_approved for admin.
   });
 
-  it('promotes pending to owner_approved when no claimed captain', async () => {
+  it('promotes pending to owner_approved when no owner and no claimed captain', async () => {
+    mockTeamFindFirst.mockResolvedValue({ ownerUserId: null });
     mockPlayerFindFirst.mockResolvedValue(null);
 
     await syncTeamJoinReviewQueue(makeDb(), SEASON_ID, TEAM_ID);

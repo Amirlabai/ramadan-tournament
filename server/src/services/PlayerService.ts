@@ -22,6 +22,24 @@ function normalizeFullName(firstName: string, lastName: string): string {
   return `${firstName.trim().toLowerCase()} ${lastName.trim().toLowerCase()}`.replace(/\s+/g, ' ').trim();
 }
 
+/** Require first+last. Empty nickname stays empty in DB; UI uses lastName via displayNickname. */
+export function resolvePlayerNameFields(input: {
+  firstName: string;
+  lastName: string;
+  nickname: string;
+}): { firstName: string; lastName: string; nickname: string } {
+  const firstName = input.firstName.trim().slice(0, 50);
+  const lastName = input.lastName.trim().slice(0, 50);
+  const nickname = input.nickname.trim().slice(0, 50);
+  if (!firstName) {
+    throw new Error('שם פרטי נדרש');
+  }
+  if (!lastName) {
+    throw new Error('שם משפחה נדרש');
+  }
+  return { firstName, lastName, nickname };
+}
+
 async function invalidatePlayerSeasonCaches(seasonId: string): Promise<void> {
   const season = await prisma.season.findUnique({
     where: { id: seasonId },
@@ -127,7 +145,8 @@ async function unlinkRosterSlot(
 }
 
 export class PlayerService {
-  private static async assertUniqueOnTeam(
+  /** Exported for join finalize create-path uniqueness checks. */
+  static async assertUniqueOnTeam(
     seasonId: string,
     teamId: number,
     fields: {
@@ -196,19 +215,16 @@ export class PlayerService {
   static async updateOwnProfile(userId: string, raw: PlayerProfileUpdateInput) {
     const player = await this.resolveActivePlayerForUser(userId);
 
-    const firstName =
-      raw.firstName != null ? String(raw.firstName).trim().slice(0, 50) : player.firstName;
-    const lastName =
-      raw.lastName != null ? String(raw.lastName).trim().slice(0, 50) : player.lastName;
-    const nickname =
-      raw.nickname != null ? String(raw.nickname).trim().slice(0, 50) : player.nickname;
+    const { firstName, lastName, nickname } = resolvePlayerNameFields({
+      firstName:
+        raw.firstName != null ? String(raw.firstName) : player.firstName,
+      lastName: raw.lastName != null ? String(raw.lastName) : player.lastName,
+      nickname: raw.nickname != null ? String(raw.nickname) : player.nickname,
+    });
     const number = raw.number != null ? Number(raw.number) : player.number;
     const position = mergeProfilePosition(raw.position, player.position);
     const bio = raw.bio != null ? String(raw.bio).trim().slice(0, 300) : player.bio;
 
-    if (!firstName) {
-      throw new Error('שם פרטי נדרש');
-    }
     if (!Number.isInteger(number) || number < 1 || number > 99) {
       throw new Error('מספר חולצה חייב להיות בין 1 ל־99');
     }
@@ -289,6 +305,193 @@ export class PlayerService {
       position: updated.position,
       bio: updated.bio,
     };
+  }
+
+  /**
+   * Owner / claimed captain / admin post-edit of any roster player on the team.
+   * Syncs linked user.playerProfile when the slot is claimed. Last write wins vs self-edit.
+   */
+  static async updateManagedPlayerProfile(
+    actorId: string,
+    teamId: number,
+    memberId: number,
+    division: Division,
+    raw: PlayerProfileUpdateInput
+  ) {
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) {
+      throw new PlayerServiceError('SEASON_NOT_ACTIVE', 'אין עונה פעילה', 503);
+    }
+
+    const player = await prisma.player.findFirst({
+      where: { memberId, teamId, seasonId: season.id, active: true },
+    });
+    if (!player) {
+      throw new PlayerServiceError('PLAYER_NOT_FOUND', 'שחקן לא נמצא בקבוצה', 404);
+    }
+
+    const { firstName, lastName, nickname } = resolvePlayerNameFields({
+      firstName: raw.firstName != null ? String(raw.firstName) : player.firstName,
+      lastName: raw.lastName != null ? String(raw.lastName) : player.lastName,
+      nickname: raw.nickname != null ? String(raw.nickname) : player.nickname,
+    });
+    const number = raw.number != null ? Number(raw.number) : player.number;
+    const position = mergeProfilePosition(raw.position, player.position);
+    const bio = raw.bio != null ? String(raw.bio).trim().slice(0, 300) : player.bio;
+
+    if (!Number.isInteger(number) || number < 1 || number > 99) {
+      throw new Error('מספר חולצה חייב להיות בין 1 ל־99');
+    }
+
+    await this.assertUniqueOnTeam(
+      player.seasonId,
+      player.teamId,
+      { number, firstName, lastName, nickname },
+      player.memberId
+    );
+
+    const updated = await prisma
+      .$transaction(async (tx) => {
+        const row = await tx.player.update({
+          where: { memberId: player.memberId },
+          data: { firstName, lastName, nickname, number, position, bio },
+        });
+
+        if (row.userId) {
+          await tx.user.update({
+            where: { id: row.userId },
+            data: {
+              playerProfile: toInputJson({
+                firstName,
+                lastName,
+                nickname,
+                number,
+                position,
+                bio,
+              }),
+            },
+          });
+        }
+
+        return row;
+      })
+      .catch((err: unknown) => {
+        if (
+          err &&
+          typeof err === 'object' &&
+          'code' in err &&
+          (err as { code: string }).code === 'P2002'
+        ) {
+          throw new Error('מספר חולצה זה כבר בשימוש בקבוצה');
+        }
+        throw err;
+      });
+
+    await invalidatePlayerSeasonCaches(player.seasonId);
+
+    if (position !== player.position) {
+      rosterAudit('player_profile_position_changed', {
+        userId: actorId,
+        memberId: updated.memberId,
+        teamId: updated.teamId,
+        mode: 'manager_override',
+        positionBefore: player.position,
+        positionAfter: updated.position,
+        linkedUserId: updated.userId,
+      });
+    }
+
+    return {
+      memberId: updated.memberId,
+      firstName: updated.firstName,
+      lastName: updated.lastName,
+      nickname: updated.nickname,
+      number: updated.number,
+      position: updated.position,
+      bio: updated.bio,
+      headPhoto: updated.headPhoto,
+    };
+  }
+
+  static async setManagedPlayerPhoto(
+    teamId: number,
+    memberId: number,
+    division: Division,
+    publicUrl: string
+  ): Promise<{ headPhoto: string }> {
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) {
+      throw new PlayerServiceError('SEASON_NOT_ACTIVE', 'אין עונה פעילה', 503);
+    }
+
+    const player = await prisma.player.findFirst({
+      where: { memberId, teamId, seasonId: season.id, active: true },
+    });
+    if (!player) {
+      throw new PlayerServiceError('PLAYER_NOT_FOUND', 'שחקן לא נמצא בקבוצה', 404);
+    }
+
+    const previous = player.headPhoto;
+    await prisma.$transaction(async (tx) => {
+      await tx.player.update({
+        where: { memberId },
+        data: { headPhoto: publicUrl, pendingHeadPhoto: '' },
+      });
+      if (player.userId) {
+        await tx.user.update({
+          where: { id: player.userId },
+          data: { avatarUrl: publicUrl },
+        });
+      }
+    });
+
+    if (previous && previous.startsWith('/uploads/') && previous !== publicUrl) {
+      unlinkUpload(previous);
+    }
+    if (player.pendingHeadPhoto?.startsWith('/uploads/')) {
+      unlinkUpload(player.pendingHeadPhoto);
+    }
+
+    await invalidatePlayerSeasonCaches(player.seasonId);
+    return { headPhoto: publicUrl };
+  }
+
+  static async clearManagedPlayerPhoto(
+    teamId: number,
+    memberId: number,
+    division: Division
+  ): Promise<void> {
+    const season = await SeasonService.getActiveSeasonForDivision(division).catch(() => null);
+    if (!season) {
+      throw new PlayerServiceError('SEASON_NOT_ACTIVE', 'אין עונה פעילה', 503);
+    }
+
+    const player = await prisma.player.findFirst({
+      where: { memberId, teamId, seasonId: season.id, active: true },
+    });
+    if (!player) {
+      throw new PlayerServiceError('PLAYER_NOT_FOUND', 'שחקן לא נמצא בקבוצה', 404);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.player.update({
+        where: { memberId },
+        data: { headPhoto: '', pendingHeadPhoto: '' },
+      });
+      if (player.userId) {
+        const linked = await tx.user.findUnique({
+          where: { id: player.userId },
+          select: { googlePictureUrl: true },
+        });
+        await tx.user.update({
+          where: { id: player.userId },
+          data: { avatarUrl: linked?.googlePictureUrl ?? null },
+        });
+      }
+    });
+
+    deletePlayerPhotoFiles(player.headPhoto, player.pendingHeadPhoto);
+    await invalidatePlayerSeasonCaches(player.seasonId);
   }
 
   /** Draft profile while join is pending — validate against target team roster. */
@@ -448,10 +651,15 @@ export class PlayerService {
       raw.lastName != null
         ? String(raw.lastName).trim().slice(0, 50)
         : (user.playerProfile as { lastName?: string } | null)?.lastName ?? '';
-    const nickname =
+    const nicknameRaw =
       raw.nickname != null
         ? String(raw.nickname).trim().slice(0, 50)
         : (user.playerProfile as { nickname?: string } | null)?.nickname ?? '';
+    const { firstName: fn, lastName: ln, nickname } = resolvePlayerNameFields({
+      firstName,
+      lastName,
+      nickname: nicknameRaw,
+    });
     const number =
       raw.number != null
         ? Number(raw.number)
@@ -464,9 +672,6 @@ export class PlayerService {
         ? String(raw.bio).trim().slice(0, 300)
         : (user.playerProfile as { bio?: string } | null)?.bio ?? '';
 
-    if (!firstName) {
-      throw new Error('שם פרטי נדרש');
-    }
     if (!Number.isInteger(number) || number < 1 || number > 99) {
       throw new Error('מספר חולצה חייב להיות בין 1 ל־99');
     }
@@ -474,8 +679,8 @@ export class PlayerService {
     if (pendingJoin) {
       await this.assertUniqueOnTeam(pendingJoin.seasonId, pendingJoin.teamId, {
         number,
-        firstName,
-        lastName,
+        firstName: fn,
+        lastName: ln,
         nickname,
       });
     }
@@ -483,8 +688,8 @@ export class PlayerService {
     const existingProfile = (user.playerProfile as Record<string, unknown> | null) ?? {};
     const playerProfile = {
       ...existingProfile,
-      firstName,
-      lastName,
+      firstName: fn,
+      lastName: ln,
       nickname,
       number,
       position,

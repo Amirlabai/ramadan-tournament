@@ -28,12 +28,16 @@ import {
   invalidateDivisionCaches,
   lockActiveDivision,
 } from './registrationHelpers';
-import { hasClaimedCaptainReviewer, teamHasClaimedCaptain } from '../utils/claimedCaptain';
+import {
+  canActorReviewPendingJoin,
+  teamHasJoinReviewer,
+} from '../utils/claimedCaptain';
 import {
   syncOpenJoinQueuesForSeason,
   syncTeamJoinReviewQueue,
 } from '../utils/syncTeamJoinReviewQueue';
 import { RegistrationQueryService } from './RegistrationQueryService';
+import { PlayerService, resolvePlayerNameFields } from './PlayerService';
 import { findPendingTeamCreationRequests } from '../repositories/userMappingRepository';
 
 export interface JoinRequestOptions {
@@ -191,14 +195,273 @@ async function resolveJoinLinkMemberId(
   return null;
 }
 
-/** Pre-admin join queue only when a claimed captain can review. */
-async function canActorReviewPendingJoin(
-  actorId: string,
-  seasonId: string,
-  teamId: number
-): Promise<boolean> {
-  // Claimed captain only — team owner alone does not review joins.
-  return hasClaimedCaptainReviewer(prisma, actorId, seasonId, teamId);
+type FinalizeJoinReviewer =
+  | { kind: 'owner'; reviewerId: string }
+  | { kind: 'admin'; reviewerId: string };
+
+type JoinFinalizeResult = {
+  auditMode: 'link' | 'create';
+  auditMemberId: number | null;
+  auditSlotPosition: string | null;
+  linkPosition: string;
+  requestedMemberId: number | undefined;
+  rawPosition: string | undefined;
+};
+
+/**
+ * Link or create roster row for an approved join. Shared by owner/captain final
+ * approve and admin fallback approve.
+ */
+async function finalizeJoinOntoRoster(
+  requestId: string,
+  reviewer: FinalizeJoinReviewer
+): Promise<{ division: Division } & JoinFinalizeResult> {
+  const req = await prisma.teamJoinRequest.findUniqueOrThrow({
+    where: { id: requestId },
+    include: {
+      season: true,
+      user: { select: { id: true, displayName: true, playerProfile: true } },
+    },
+  });
+
+  const expectedStatus =
+    reviewer.kind === 'owner' ? RequestStatus.pending : RequestStatus.owner_approved;
+  if (req.status !== expectedStatus) {
+    throw new Error(
+      reviewer.kind === 'owner'
+        ? 'הבקשה אינה ממתינה לאישור קפטן או בעלים'
+        : 'הבקשה חייבת להיות בתור מנהל (ללא קפטן/בעלים)'
+    );
+  }
+
+  const reg = await prisma.seasonRegistration.findUnique({
+    where: { userId_seasonId: { userId: req.userId, seasonId: req.seasonId } },
+  });
+  if (reg?.status !== SeasonRegistrationStatus.active) {
+    throw new Error('לא ניתן להוסיף לסגל לפני פדיון קוד תשלום (סטטוס רישום לא פעיל)');
+  }
+  await assertMatchedIdentityForApproval(req.userId, req.seasonId);
+
+  const profile = (req.user.playerProfile as Record<string, unknown> | null) ?? {};
+  const requestedMemberId =
+    req.requestedMemberId ?? parseRequestedMemberId(profile.requestedMemberId);
+
+  const displayFallback = String(req.user.displayName ?? '').trim() || 'שחקן';
+  const nameParts = displayFallback.split(/\s+/).filter(Boolean);
+  const { firstName, lastName, nickname } = resolvePlayerNameFields({
+    firstName: String(profile.firstName ?? nameParts[0] ?? displayFallback),
+    lastName: String(
+      profile.lastName ?? (nameParts.slice(1).join(' ') || nameParts[0] || displayFallback)
+    ),
+    nickname: String(profile.nickname ?? ''),
+  });
+  const number = Number(profile.number) || 99;
+  const rawPosition = profile.position != null ? String(profile.position) : undefined;
+
+  let linkFirstName = firstName;
+  let linkLastName = lastName;
+  let linkNickname = nickname;
+  let linkNumber = number;
+  let linkPosition = mergeProfilePosition(rawPosition, '');
+  let auditMode: 'link' | 'create' = 'create';
+  let auditMemberId: number | null = null;
+  let auditSlotPosition: string | null = null;
+
+  const reviewStamp =
+    reviewer.kind === 'owner'
+      ? {
+          status: RequestStatus.approved,
+          ownerReviewedAt: new Date(),
+          ownerReviewedBy: reviewer.reviewerId,
+        }
+      : {
+          status: RequestStatus.approved,
+          adminReviewedAt: new Date(),
+          adminReviewedBy: reviewer.reviewerId,
+        };
+
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Claim row first so concurrent owner/admin approves cannot both proceed.
+      const claimed = await tx.teamJoinRequest.updateMany({
+        where: { id: requestId, status: expectedStatus },
+        data: reviewStamp,
+      });
+      if (claimed.count !== 1) {
+        throw new Error('הבקשה כבר טופלה');
+      }
+
+      let memberId: number;
+
+      const linkMemberId = await resolveJoinLinkMemberId(tx, {
+        userId: req.userId,
+        teamId: req.teamId,
+        seasonId: req.seasonId,
+        requestedMemberId: requestedMemberId ?? undefined,
+      });
+
+      if (linkMemberId != null) {
+        const slot = await tx.player.findFirst({
+          where: {
+            memberId: linkMemberId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            active: true,
+          },
+        });
+        if (!slot) {
+          throw new Error('שחקן מבוקש לא נמצא בקבוצה');
+        }
+        if (slot.userId && slot.userId !== req.userId) {
+          throw new Error('שחקן זה כבר משויך למשתמש אחר');
+        }
+        auditSlotPosition = slot.position;
+        const mergedPosition = mergeProfilePosition(rawPosition, slot.position);
+        await tx.player.update({
+          where: { memberId: linkMemberId },
+          data: {
+            userId: req.userId,
+            position: mergedPosition,
+          },
+        });
+        memberId = linkMemberId;
+        linkFirstName = slot.firstName;
+        linkLastName = slot.lastName;
+        linkNickname = slot.nickname;
+        linkNumber = slot.number;
+        linkPosition = mergedPosition;
+        auditMode = 'link';
+        auditMemberId = memberId;
+      } else {
+        const duplicateOnTeam = await tx.player.findFirst({
+          where: {
+            userId: req.userId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            active: true,
+          },
+        });
+        if (duplicateOnTeam) {
+          throw new Error('המשתמש כבר משויך לשחקן פעיל בקבוצה זו');
+        }
+
+        await PlayerService.assertUniqueOnTeam(req.seasonId, req.teamId, {
+          number,
+          firstName,
+          lastName,
+          nickname,
+        });
+
+        memberId = await getNextMemberId();
+        const allocatedNumber = await resolveAvailableJerseyNumber(
+          tx,
+          req.seasonId,
+          req.teamId,
+          number
+        );
+        const createPosition = mergeProfilePosition(rawPosition, '');
+        await tx.player.create({
+          data: {
+            memberId,
+            teamId: req.teamId,
+            seasonId: req.seasonId,
+            userId: req.userId,
+            firstName,
+            lastName,
+            nickname,
+            number: allocatedNumber,
+            position: createPosition,
+          },
+        });
+        linkNumber = allocatedNumber;
+        linkPosition = createPosition;
+        auditMode = 'create';
+        auditMemberId = memberId;
+      }
+
+      await tx.user.update({
+        where: { id: req.userId },
+        data: {
+          mappedPlayerInfo: toInputJson({
+            teamId: req.teamId,
+            memberId,
+            status: 'approved',
+          }),
+          playerProfile: toInputJson({
+            firstName: linkFirstName,
+            lastName: linkLastName,
+            nickname: linkNickname,
+            number: linkNumber,
+            position: linkPosition,
+          }),
+        },
+      });
+
+      const linked = await tx.player.findFirst({
+        where: {
+          memberId,
+          teamId: req.teamId,
+          seasonId: req.seasonId,
+          active: true,
+        },
+        select: { isCaptain: true, userId: true },
+      });
+      if (linked?.isCaptain && linked.userId) {
+        await syncTeamJoinReviewQueue(tx, req.seasonId, req.teamId);
+      }
+    });
+
+    const auditEvent =
+      reviewer.kind === 'owner' ? 'owner_join_approved' : 'admin_join_approved';
+    rosterAudit(auditEvent, {
+      requestId,
+      ...(reviewer.kind === 'owner'
+        ? { ownerId: reviewer.reviewerId }
+        : { adminId: reviewer.reviewerId }),
+      userId: req.userId,
+      teamId: req.teamId,
+      seasonId: req.seasonId,
+      mode: auditMode,
+      memberId: auditMemberId,
+      requestedMemberId: requestedMemberId ?? null,
+      profilePosition: rawPosition ?? null,
+      rosterPosition: auditSlotPosition,
+      mergedPosition: linkPosition || null,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    rosterAudit(
+      reviewer.kind === 'owner' ? 'owner_join_approve_failed' : 'admin_join_approve_failed',
+      {
+        requestId,
+        ...(reviewer.kind === 'owner'
+          ? { ownerId: reviewer.reviewerId }
+          : { adminId: reviewer.reviewerId }),
+        userId: req.userId,
+        teamId: req.teamId,
+        seasonId: req.seasonId,
+        requestedMemberId: requestedMemberId ?? null,
+        profilePosition: rawPosition ?? null,
+        rosterPosition: auditSlotPosition,
+        error: message,
+      }
+    );
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      throw new Error('מספר חולצה כבר תפוס בקבוצה. בחר מספר אחר ונסה שוב.');
+    }
+    throw err;
+  }
+
+  await invalidateDivisionCaches(req.season.division);
+  return {
+    division: req.season.division,
+    auditMode,
+    auditMemberId,
+    auditSlotPosition,
+    linkPosition,
+    requestedMemberId,
+    rawPosition,
+  };
 }
 
 export class RegistrationWorkflowService {
@@ -523,9 +786,25 @@ export class RegistrationWorkflowService {
         data: { status: RequestStatus.invalidated },
       });
 
-      const initialStatus = (await teamHasClaimedCaptain(tx, season.id, teamId))
+      const initialStatus = (await teamHasJoinReviewer(tx, season.id, teamId))
         ? RequestStatus.pending
         : RequestStatus.owner_approved;
+
+      if (options?.memberId != null) {
+        const othersPending = await tx.teamJoinRequest.findFirst({
+          where: {
+            seasonId: season.id,
+            teamId,
+            userId: { not: userId },
+            status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
+            requestedMemberId: options.memberId,
+          },
+          select: { id: true },
+        });
+        if (othersPending) {
+          throw new Error('שחקן זה כבר מבוקש בבקשת הצטרפות אחרת');
+        }
+      }
 
       const req = await tx.teamJoinRequest.create({
         data: {
@@ -533,27 +812,9 @@ export class RegistrationWorkflowService {
           seasonId: season.id,
           teamId,
           status: initialStatus,
+          requestedMemberId: options?.memberId ?? null,
         },
       });
-
-      if (options?.memberId != null) {
-        const othersPending = await tx.teamJoinRequest.findMany({
-          where: {
-            seasonId: season.id,
-            teamId,
-            userId: { not: userId },
-            status: { in: [RequestStatus.pending, RequestStatus.owner_approved] },
-            NOT: { id: req.id },
-          },
-          include: { user: { select: { playerProfile: true } } },
-        });
-        for (const pj of othersPending) {
-          const prof = pj.user.playerProfile as Record<string, unknown> | null;
-          if (parseRequestedMemberId(prof?.requestedMemberId) === options.memberId) {
-            throw new Error('שחקן זה כבר מבוקש בבקשת הצטרפות אחרת');
-          }
-        }
-      }
 
       await tx.seasonRegistration.upsert({
         where: { userId_seasonId: { userId, seasonId: season.id } },
@@ -598,12 +859,17 @@ export class RegistrationWorkflowService {
   static async ownerReviewJoin(
     actorId: string,
     requestId: string,
-    approve: boolean
+    approve: boolean,
+    expectedTeamId?: number
   ) {
     const req = await prisma.teamJoinRequest.findUniqueOrThrow({
       where: { id: requestId },
       include: { season: true, team: true },
     });
+
+    if (expectedTeamId != null && req.teamId !== expectedTeamId) {
+      throw new Error('הבקשה אינה שייכת לקבוצה זו');
+    }
 
     const team = await prisma.team.findFirst({
       where: { seasonId: req.seasonId, id: req.teamId },
@@ -613,31 +879,38 @@ export class RegistrationWorkflowService {
       throw new Error('הקבוצה לא נמצאה');
     }
 
-    const canReview = await canActorReviewPendingJoin(actorId, req.seasonId, req.teamId);
+    const canReview = await canActorReviewPendingJoin(
+      prisma,
+      actorId,
+      req.seasonId,
+      req.teamId
+    );
     if (!canReview) {
-      throw new Error('רק קפטן משויך לקבוצה יכול לאשר בקשה זו');
+      throw new Error('רק בעלים או קפטן משויך לקבוצה יכול לאשר בקשה זו');
     }
 
     if (req.status !== RequestStatus.pending) {
-      throw new Error('הבקשה אינה ממתינה לאישור קפטן');
+      throw new Error('הבקשה אינה ממתינה לאישור קפטן או בעלים');
     }
 
-    await prisma.teamJoinRequest.update({
-      where: { id: requestId },
-      data: {
-        status: approve ? RequestStatus.owner_approved : RequestStatus.rejected,
-        ownerReviewedAt: new Date(),
-        ownerReviewedBy: actorId,
-      },
-    });
-
     if (!approve) {
+      await prisma.teamJoinRequest.update({
+        where: { id: requestId },
+        data: {
+          status: RequestStatus.rejected,
+          ownerReviewedAt: new Date(),
+          ownerReviewedBy: actorId,
+        },
+      });
       await restoreRegistrationStatusAfterCancel(
         req.userId,
         req.seasonId,
         req.season.division
       );
+      return;
     }
+
+    await finalizeJoinOntoRoster(requestId, { kind: 'owner', reviewerId: actorId });
   }
 
   static async adminReviewJoin(requestId: string, adminId: string, approve: boolean) {
@@ -650,7 +923,7 @@ export class RegistrationWorkflowService {
     });
 
     if (req.status !== RequestStatus.owner_approved) {
-      throw new Error('הבקשה חייבת להיות בתור מנהל (אחרי קפטן או ללא קפטן)');
+      throw new Error('הבקשה חייבת להיות בתור מנהל (ללא קפטן/בעלים)');
     }
 
     if (!approve) {
@@ -677,191 +950,7 @@ export class RegistrationWorkflowService {
       return;
     }
 
-    const reg = await prisma.seasonRegistration.findUnique({
-      where: { userId_seasonId: { userId: req.userId, seasonId: req.seasonId } },
-    });
-    if (reg?.status !== SeasonRegistrationStatus.active) {
-      throw new Error('לא ניתן להוסיף לסגל לפני פדיון קוד תשלום (סטטוס רישום לא פעיל)');
-    }
-    await assertMatchedIdentityForApproval(req.userId, req.seasonId);
-
-    const profile = (req.user.playerProfile as Record<string, unknown> | null) ?? {};
-    const requestedMemberId = parseRequestedMemberId(profile.requestedMemberId);
-
-    const firstName = String(profile.firstName ?? req.user.displayName).slice(0, 50);
-    const lastName = String(profile.lastName ?? '').slice(0, 50);
-    const nickname = String(profile.nickname ?? req.user.displayName).slice(0, 50);
-    const number = Number(profile.number) || 99;
-    const rawPosition = profile.position != null ? String(profile.position) : undefined;
-
-    let linkFirstName = firstName;
-    let linkLastName = lastName;
-    let linkNickname = nickname;
-    let linkNumber = number;
-    let linkPosition = mergeProfilePosition(rawPosition, '');
-    let auditMode: 'link' | 'create' = 'create';
-    let auditMemberId: number | null = null;
-    let auditSlotPosition: string | null = null;
-
-    try {
-      await prisma.$transaction(async (tx) => {
-        let memberId: number;
-
-        const linkMemberId = await resolveJoinLinkMemberId(tx, {
-          userId: req.userId,
-          teamId: req.teamId,
-          seasonId: req.seasonId,
-          requestedMemberId,
-        });
-
-        if (linkMemberId != null) {
-          const slot = await tx.player.findFirst({
-            where: {
-              memberId: linkMemberId,
-              teamId: req.teamId,
-              seasonId: req.seasonId,
-              active: true,
-            },
-          });
-          if (!slot) {
-            throw new Error('שחקן מבוקש לא נמצא בקבוצה');
-          }
-          if (slot.userId && slot.userId !== req.userId) {
-            throw new Error('שחקן זה כבר משויך למשתמש אחר');
-          }
-          auditSlotPosition = slot.position;
-          const mergedPosition = mergeProfilePosition(rawPosition, slot.position);
-          await tx.player.update({
-            where: { memberId: linkMemberId },
-            data: {
-              userId: req.userId,
-              position: mergedPosition,
-            },
-          });
-          memberId = linkMemberId;
-          linkFirstName = slot.firstName;
-          linkLastName = slot.lastName;
-          linkNickname = slot.nickname;
-          linkNumber = slot.number;
-          linkPosition = mergedPosition;
-          auditMode = 'link';
-          auditMemberId = memberId;
-        } else {
-          // No requestedMemberId and no prior userId link — create a new roster row.
-          // Unclaimed placeholder slots are not auto-linked; join UX must set requestedMemberId.
-          const duplicateOnTeam = await tx.player.findFirst({
-            where: {
-              userId: req.userId,
-              teamId: req.teamId,
-              seasonId: req.seasonId,
-              active: true,
-            },
-          });
-          if (duplicateOnTeam) {
-            throw new Error('המשתמש כבר משויך לשחקן פעיל בקבוצה זו');
-          }
-
-          memberId = await getNextMemberId();
-          const allocatedNumber = await resolveAvailableJerseyNumber(
-            tx,
-            req.seasonId,
-            req.teamId,
-            number
-          );
-          const createPosition = mergeProfilePosition(rawPosition, '');
-          await tx.player.create({
-            data: {
-              memberId,
-              teamId: req.teamId,
-              seasonId: req.seasonId,
-              userId: req.userId,
-              firstName,
-              lastName,
-              nickname,
-              number: allocatedNumber,
-              position: createPosition,
-            },
-          });
-          linkNumber = allocatedNumber;
-          linkPosition = createPosition;
-          auditMode = 'create';
-          auditMemberId = memberId;
-        }
-
-        await tx.user.update({
-          where: { id: req.userId },
-          data: {
-            mappedPlayerInfo: toInputJson({
-              teamId: req.teamId,
-              memberId,
-              status: 'approved',
-            }),
-            playerProfile: toInputJson({
-              firstName: linkFirstName,
-              lastName: linkLastName,
-              nickname: linkNickname,
-              number: linkNumber,
-              position: linkPosition,
-            }),
-          },
-        });
-
-        await tx.teamJoinRequest.update({
-          where: { id: requestId },
-          data: {
-            status: RequestStatus.approved,
-            adminReviewedAt: new Date(),
-            adminReviewedBy: adminId,
-          },
-        });
-
-        const linked = await tx.player.findFirst({
-          where: {
-            memberId,
-            teamId: req.teamId,
-            seasonId: req.seasonId,
-            active: true,
-          },
-          select: { isCaptain: true, userId: true },
-        });
-        if (linked?.isCaptain && linked.userId) {
-          await syncTeamJoinReviewQueue(tx, req.seasonId, req.teamId);
-        }
-      });
-
-      rosterAudit('admin_join_approved', {
-        requestId,
-        adminId,
-        userId: req.userId,
-        teamId: req.teamId,
-        seasonId: req.seasonId,
-        mode: auditMode,
-        memberId: auditMemberId,
-        requestedMemberId: requestedMemberId ?? null,
-        profilePosition: rawPosition ?? null,
-        rosterPosition: auditSlotPosition,
-        mergedPosition: linkPosition || null,
-      });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      rosterAudit('admin_join_approve_failed', {
-        requestId,
-        adminId,
-        userId: req.userId,
-        teamId: req.teamId,
-        seasonId: req.seasonId,
-        requestedMemberId: requestedMemberId ?? null,
-        profilePosition: rawPosition ?? null,
-        rosterPosition: auditSlotPosition,
-        error: message,
-      });
-      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
-        throw new Error('מספר חולצה כבר תפוס בקבוצה. בחר מספר אחר ונסה שוב.');
-      }
-      throw err;
-    }
-
-    await invalidateDivisionCaches(req.season.division);
+    await finalizeJoinOntoRoster(requestId, { kind: 'admin', reviewerId: adminId });
   }
 
   static async submitTransfer(
@@ -1091,21 +1180,81 @@ export class RegistrationWorkflowService {
     if (!team) {
       throw new Error('הקבוצה לא נמצאה');
     }
-    const canReview = await canActorReviewPendingJoin(actorId, season.id, teamId);
+    const canReview = await canActorReviewPendingJoin(prisma, actorId, season.id, teamId);
     if (!canReview) {
-      throw new Error('אין הרשאת קפטן לקבוצה זו');
+      throw new Error('אין הרשאת בעלים או קפטן לקבוצה זו');
     }
     await syncTeamJoinReviewQueue(prisma, season.id, teamId);
-    return prisma.teamJoinRequest.findMany({
+
+    const pending = await prisma.teamJoinRequest.findMany({
       where: {
         seasonId: season.id,
         teamId,
         status: RequestStatus.pending,
       },
       include: {
-        user: { select: { id: true, displayName: true, email: true } },
+        user: {
+          select: { id: true, displayName: true, email: true, playerProfile: true },
+        },
       },
       orderBy: { createdAt: 'asc' },
+    });
+
+    const PRIOR_STATUSES = [
+      RequestStatus.rejected,
+      RequestStatus.invalidated,
+      RequestStatus.approved,
+    ] as const;
+
+    const historyCandidates = await prisma.teamJoinRequest.findMany({
+      where: {
+        seasonId: season.id,
+        teamId,
+        status: { in: [...PRIOR_STATUSES] },
+        requestedMemberId: { not: null },
+      },
+      include: {
+        user: { select: { id: true, displayName: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 100,
+    });
+
+    return pending.map((row) => {
+      const profile = (row.user.playerProfile as Record<string, unknown> | null) ?? {};
+      const requestedMemberId =
+        row.requestedMemberId ?? parseRequestedMemberId(profile.requestedMemberId);
+      const priorClaims =
+        requestedMemberId == null
+          ? []
+          : historyCandidates
+              .filter((h) => h.id !== row.id && h.requestedMemberId === requestedMemberId)
+              .slice(0, 10)
+              .map((h) => ({
+                id: h.id,
+                userId: h.userId,
+                displayName: h.user.displayName,
+                status: h.status,
+                createdAt: h.createdAt,
+                ownerReviewedAt: h.ownerReviewedAt,
+                adminReviewedAt: h.adminReviewedAt,
+              }));
+
+      return {
+        id: row.id,
+        userId: row.userId,
+        seasonId: row.seasonId,
+        teamId: row.teamId,
+        status: row.status,
+        createdAt: row.createdAt,
+        user: {
+          id: row.user.id,
+          displayName: row.user.displayName,
+          email: row.user.email,
+        },
+        requestedMemberId: requestedMemberId ?? null,
+        priorClaims,
+      };
     });
   }
 
