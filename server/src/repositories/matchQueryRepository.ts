@@ -69,10 +69,12 @@ export async function listMatches(options: MatchListOptions = {}): Promise<Array
   return rows.map(mapRow);
 }
 
+/** Earliest kickoff still in the live window or upcoming — pins that Jerusalem match day on the home feed until the last live match ends (intentional). */
 export async function findNextUpcomingMatchDate(): Promise<Date | null> {
   const season = await SeasonService.getActiveFootballSeason();
+  const liveWindowStart = new Date(Date.now() - MATCH_DURATION_MS);
   const row = await prisma.match.findFirst({
-    where: { seasonId: season.id, date: { gte: new Date() } },
+    where: { seasonId: season.id, date: { gte: liveWindowStart } },
     orderBy: { date: 'asc' },
     select: { date: true },
   });

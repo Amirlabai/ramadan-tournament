@@ -1,21 +1,24 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { statsAPI } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
+import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { getProfileTournamentBadge, needsIdentitySubmission } from '../utils/tournamentUser';
-import type { DashboardData } from '../types';
+import type { DashboardData, Match } from '../types';
 import SEO from '../components/SEO';
 import { DashboardSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
+import { MatchStatusBadge } from '../components/match/MatchCardParts';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
+import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -34,6 +37,12 @@ const Dashboard = () => {
     const { slug } = useTournament();
     const { hasClaimablePlayers } = useHasClaimablePlayers(slug);
     const navigate = useNavigate();
+
+    const statusMatches = [
+        ...(data?.nextMatches ?? []),
+        ...(data?.recentMatches ?? []),
+    ];
+    const now = useMatchStatusNow(statusMatches);
 
     const fetchDashboard = async (isBackground = false) => {
         try {
@@ -83,9 +92,13 @@ const Dashboard = () => {
         }).format(date);
     };
 
-    const formatTime = (dateString: string) => {
+    const formatMatchDateTime = (dateString: string) => {
         const date = new Date(dateString);
         return new Intl.DateTimeFormat('he-IL', {
+            year: 'numeric',
+            month: 'numeric',
+            day: 'numeric',
+            weekday: 'long',
             hour: '2-digit',
             minute: '2-digit',
             timeZone: 'Asia/Jerusalem'
@@ -101,13 +114,20 @@ const Dashboard = () => {
     const needsPlayerMapping = userNeedsClaim && hasClaimablePlayers === true;
     const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
 
+    const liveMatches = (data.nextMatches ?? [])
+        .filter((match) => getMatchDisplayStatus(match.date, now) === 'live')
+        .sort(compareMatchesByKickoff);
+    const upcomingMatches = (data.nextMatches ?? [])
+        .filter((match) => getMatchDisplayStatus(match.date, now) === 'upcoming')
+        .sort(compareMatchesByKickoff);
     const hasPlayoffs = !!(data.playoffMatches && data.playoffMatches.length > 0);
-    const hasNextMatches = !!(data.nextMatches && data.nextMatches.length > 0);
+    const hasLiveMatches = liveMatches.length > 0;
+    const hasNextMatches = upcomingMatches.length > 0;
     const playedRecentMatches = (data.recentMatches ?? []).filter(
-        (match) => getMatchDisplayStatus(match.date) === 'finished'
+        (match) => getMatchDisplayStatus(match.date, now) === 'finished'
     );
     const hasRecentMatches = playedRecentMatches.length > 0;
-    const hasDashboardContent = hasPlayoffs || hasNextMatches || hasRecentMatches;
+    const hasDashboardContent = hasPlayoffs || hasLiveMatches || hasNextMatches || hasRecentMatches;
 
     const handleDismissClaimBanner = () => {
         trackEvent('claim_banner_dismiss', { category: 'interaction' });
@@ -137,6 +157,101 @@ const Dashboard = () => {
             <div className={`d-flex align-items-center gap-2 ${position === 'left' ? 'flex-row-reverse' : ''}`}>
                 <span className="team-name">{teamName}</span>
                 <img className="team-logo-inline" src={logo} alt={`לוגו ${teamName}`} style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+            </div>
+        );
+    };
+
+    const renderMatchCard = (match: Match) => {
+        const status = getMatchDisplayStatus(match.date, now);
+        const team1Name = match.team1Name || `קבוצה ${match.team1Id}`;
+        const team2Name = match.team2Name || `קבוצה ${match.team2Id}`;
+        const team1Logo = resolveAssetUrl(match.team1LogoUrl);
+        const team2Logo = resolveAssetUrl(match.team2LogoUrl);
+        const isLive = status === 'live';
+
+        const cardBody = (
+            <>
+                <MatchStatusBadge status={status} />
+
+                {match.phase === 'knockout' && (
+                    <div className="playoff-badge-floating">משחק פלייאוף</div>
+                )}
+
+                <div className="match-teams-score">
+                    <div className="team-side">
+                        {match.team1LogoPosition !== 'left' && team1Logo && (
+                            <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline me-2" />
+                        )}
+                        <span className="team-name">{team1Name}</span>
+                        {match.team1LogoPosition === 'left' && team1Logo && (
+                            <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline ms-2" />
+                        )}
+                        {status !== 'upcoming' && (
+                            <span className="team-score">{match.score1 ?? '—'}</span>
+                        )}
+                    </div>
+
+                    <div className="vs-divider">VS</div>
+
+                    <div className="team-side">
+                        {match.team2LogoPosition !== 'left' && team2Logo && (
+                            <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline me-2" />
+                        )}
+                        <span className="team-name">{team2Name}</span>
+                        {match.team2LogoPosition === 'left' && team2Logo && (
+                            <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline ms-2" />
+                        )}
+                        {status !== 'upcoming' && (
+                            <span className="team-score">{match.score2 ?? '—'}</span>
+                        )}
+                    </div>
+                </div>
+
+                <div className="match-meta">
+                    <span className="match-date">{formatMatchDateTime(match.date)}</span>
+                    <span className="match-location">{match.location}</span>
+                </div>
+            </>
+        );
+
+        return (
+            <div key={match.id} className={`match-card card ${status}`}>
+                {isLive ? (
+                    <Link
+                        to="/schedule"
+                        state={{ filter: 'live', matchId: match.id }}
+                        className="match-card-nav-link"
+                        aria-label={`עבור ללוח משחקים חיים — ${team1Name} נגד ${team2Name}`}
+                    >
+                        {cardBody}
+                    </Link>
+                ) : (
+                    cardBody
+                )}
+
+                <div className="match-actions">
+                    <button
+                        type="button"
+                        className="btn-comments"
+                        aria-expanded={expandedMatchId === match.id}
+                        onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
+                    >
+                        {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
+                            <>
+                                💬 תגובות
+                                {match.commentCount && match.commentCount > 0 ? (
+                                    <span className="badge bg-danger ms-2 rounded-pill">
+                                        {match.commentCount}
+                                    </span>
+                                ) : null}
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {expandedMatchId === match.id && (
+                    <CommentSection matchId={match.id} />
+                )}
             </div>
         );
     };
@@ -190,64 +305,27 @@ const Dashboard = () => {
                     />
                 )}
 
-                {/* Playoff Bracket */}
-                {data.playoffMatches && data.playoffMatches.length > 0 && (
-                    <PlayoffBracket matches={data.playoffMatches} />
-                )}
-
-                {data.nextMatches && data.nextMatches.length > 0 && (
-                    <div className="dashboard-card next-matches-card">
-                        <h2 className="dashboard-card-title">המשחקים הבאים</h2>
-                        <div className="next-matches-list">
-                            {data.nextMatches.map((match) => (
-                                <div key={match.id} className="upcoming-match-item">
-                                    <div className="match-main-info">
-                                        <div className="team-right">
-                                            {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
-                                        </div>
-                                        <div className="match-vs">
-                                            <span className="vs-badge">נגד</span>
-                                        </div>
-                                        <div className="team-left">
-                                            {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
-                                        </div>
-                                    </div>
-                                    {match.phase === 'knockout' && (
-                                        <div className="playoff-indicator-badge">משחק פלייאוף</div>
-                                    )}
-                                    <div className="match-meta" style={{ textAlign: 'right', direction: 'rtl' }}>
-                                        <div><strong>תאריך:</strong> {formatDate(match.date)}</div>
-                                        <div><strong>שעה:</strong> {formatTime(match.date)}</div>
-                                        <div><strong>מיקום:</strong> {match.location}</div>
-                                    </div>
-                                    <div className="match-actions">
-                                        <button
-                                            type="button"
-                                            className="btn-comments"
-                                            aria-expanded={expandedMatchId === match.id}
-                                            onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
-                                        >
-                                            {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
-                                                <>
-                                                    💬 תגובות
-                                                    {match.commentCount && match.commentCount > 0 ? (
-                                                        <span className="badge bg-danger ms-2 rounded-pill">
-                                                            {match.commentCount}
-                                                        </span>
-                                                    ) : null}
-                                                </>
-                                            )}
-                                        </button>
-                                    </div>
-                                    {expandedMatchId === match.id && (
-                                        <CommentSection matchId={match.id} />
-                                    )}
-                                </div>
-                            ))}
+                {hasLiveMatches && (
+                    <div className="dashboard-card live-matches-card">
+                        <h2 className="dashboard-card-title">משחקים חיים</h2>
+                        <div className="dashboard-match-list">
+                            {liveMatches.map(renderMatchCard)}
                         </div>
                     </div>
                 )}
 
+                {hasNextMatches && (
+                    <div className="dashboard-card next-matches-card">
+                        <h2 className="dashboard-card-title">המשחקים הבאים</h2>
+                        <div className="dashboard-match-list">
+                            {upcomingMatches.map(renderMatchCard)}
+                        </div>
+                    </div>
+                )}
+
+                {data.playoffMatches && data.playoffMatches.length > 0 && (
+                    <PlayoffBracket matches={data.playoffMatches} />
+                )}
 
                 <div className="dashboard-cards-row">
                 {playedRecentMatches.length > 0 && (

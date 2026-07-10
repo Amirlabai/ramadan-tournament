@@ -11,6 +11,7 @@ import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tourna
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Schedule.css';
 
 const Schedule = () => {
@@ -20,6 +21,7 @@ const Schedule = () => {
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
     const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
+    const [scrollMatchId, setScrollMatchId] = useState<number | null>(null);
     const location = useLocation();
 
     const getTeamIdByMemberId = (memberId: number) => {
@@ -28,10 +30,14 @@ const Schedule = () => {
     };
 
     useEffect(() => {
-        const state = location.state as { filter?: typeof activeFilter };
+        const state = location.state as { filter?: typeof activeFilter; matchId?: number };
         if (state?.filter) {
             setActiveFilter(state.filter);
-            // Clear state so it doesn't persist on refresh
+        }
+        if (typeof state?.matchId === 'number') {
+            setScrollMatchId(state.matchId);
+        }
+        if (state?.filter || state?.matchId != null) {
             window.history.replaceState({}, document.title);
         }
     }, [location.state]);
@@ -72,6 +78,18 @@ const Schedule = () => {
 
     const showSkeleton = useMinSkeletonTime(loading, { error });
 
+    useEffect(() => {
+        if (showSkeleton || scrollMatchId == null) return;
+        const timer = setTimeout(() => {
+            document.getElementById(`match-${scrollMatchId}`)?.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+            setScrollMatchId(null);
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [showSkeleton, scrollMatchId]);
+
     if (showSkeleton) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
@@ -90,10 +108,6 @@ const Schedule = () => {
         return team?.logoPosition || 'right';
     };
 
-    const getTeamNameById = (memberId: number) => {
-        const team = teams.find(t => t.players?.some(p => p.memberId === memberId));
-        return team ? team.name : `${memberId}`;
-    };
     const getPlayerNickname = (memberId: number) => {
         for (const team of teams) {
             const player = team.players?.find(p => p.memberId === memberId);
@@ -119,9 +133,7 @@ const Schedule = () => {
 
     const getMatchStatus = (match: Match) => getMatchDisplayStatus(match.date, now);
 
-    const sortedMatches = [...matches].sort((a, b) =>
-        new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+    const sortedMatches = [...matches].sort(compareMatchesByKickoff);
 
     const filteredMatches = (() => {
         const base = activeFilter === 'all'
@@ -177,7 +189,7 @@ const Schedule = () => {
                 {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
                     return (
-                        <div key={match.id} className={`match-card card ${status}`}>
+                        <div key={match.id} id={`match-${match.id}`} className={`match-card card ${status}`}>
                             <MatchStatusBadge status={status} />
                             
                             {match.phase === 'knockout' && (
@@ -220,31 +232,71 @@ const Schedule = () => {
                             </div>
 
                             {match.goals && match.goals.length > 0 && (() => {
-                                const goalCounts = match.goals.reduce<Record<number, number>>((acc, goal) => {
-                                    acc[goal.memberId] = (acc[goal.memberId] || 0) + 1;
-                                    return acc;
-                                }, {});
+                                const countsByTeam = (
+                                    predicate: (teamId: number | undefined) => boolean
+                                ) => {
+                                    const counts: Record<number, number> = {};
+                                    for (const goal of match.goals) {
+                                        const teamId = getTeamIdByMemberId(goal.memberId);
+                                        if (predicate(teamId)) {
+                                            counts[goal.memberId] = (counts[goal.memberId] || 0) + 1;
+                                        }
+                                    }
+                                    return Object.entries(counts);
+                                };
+                                const team1Goals = countsByTeam((id) => id === match.team1Id);
+                                const team2Goals = countsByTeam((id) => id === match.team2Id);
+                                const otherGoals = countsByTeam(
+                                    (id) => id !== match.team1Id && id !== match.team2Id
+                                );
+                                const renderGoalItem = (memberId: string, count: number) => {
+                                    const id = Number(memberId);
+                                    const teamId = getTeamIdByMemberId(id);
+                                    return (
+                                        <Link
+                                            key={memberId}
+                                            to="/teams"
+                                            state={{ expandTeamId: teamId }}
+                                            className="goal-item text-decoration-none"
+                                            onClick={(e) => {
+                                                if (!teamId) e.preventDefault();
+                                            }}
+                                        >
+                                            <span>{getPlayerNickname(id)}</span>
+                                            <span>{count > 1 ? ` ⚽×${count}` : ' ⚽'}</span>
+                                        </Link>
+                                    );
+                                };
                                 return (
                                     <div className="match-goals">
                                         <h4>כובשים:</h4>
-                                        <div className="goals-list">
-                                            {Object.entries(goalCounts).map(([memberId, count]) => (
-                                                <Link
-                                                    key={memberId}
-                                                    to="/teams"
-                                                    state={{ expandTeamId: getTeamIdByMemberId(Number(memberId)) }}
-                                                    className="goal-item text-decoration-none"
-                                                    onClick={(e) => {
-                                                        const teamId = getTeamIdByMemberId(Number(memberId));
-                                                        if (!teamId) e.preventDefault();
-                                                    }}
-                                                >
-                                                    <span>{getPlayerNickname(Number(memberId))}</span>
-                                                    <span>{count > 1 ? ` ⚽×${count}` : ' ⚽'}</span>
-                                                    <span>{getTeamNameById(Number(memberId))}</span>
-                                                </Link>
-                                            ))}
+                                        <div className="goals-list goals-list--sides" role="group" aria-label="כובשים לפי קבוצה">
+                                            <div
+                                                className="goals-side"
+                                                role="group"
+                                                aria-label={getTeamName(match.team1Id)}
+                                            >
+                                                {team1Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
+                                            </div>
+                                            <div className="goals-side-gap" aria-hidden="true" />
+                                            <div
+                                                className="goals-side"
+                                                role="group"
+                                                aria-label={getTeamName(match.team2Id)}
+                                            >
+                                                {team2Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
+                                            </div>
                                         </div>
+                                        {otherGoals.length > 0 && (
+                                            <div
+                                                className="goals-list goals-list--other"
+                                                role="group"
+                                                aria-label="אחר"
+                                            >
+                                                <span className="goals-other-label">אחר</span>
+                                                {otherGoals.map(([memberId, count]) => renderGoalItem(memberId, count))}
+                                            </div>
+                                        )}
                                     </div>
                                 );
                             })()}

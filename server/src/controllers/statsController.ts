@@ -108,7 +108,8 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
                 includeCommentCount: true,
             });
 
-            nextMatches = rawNextMatches.map(match => {
+            nextMatches = rawNextMatches
+                .map(match => {
                 const t1 = teamMap.get(match.team1Id);
                 const t2 = teamMap.get(match.team2Id);
                 return {
@@ -120,7 +121,12 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
                     team2LogoUrl: t2?.logoUrl,
                     team2LogoPosition: t2?.logoPosition
                 };
-            });
+            })
+                .sort((a, b) => {
+                    const byDate = new Date(a.date).getTime() - new Date(b.date).getTime();
+                    if (byDate !== 0) return byDate;
+                    return a.id - b.id;
+                });
         }
 
         const recentMatchesWithComments = await listMatches({

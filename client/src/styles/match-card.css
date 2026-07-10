@@ -145,6 +145,38 @@
   gap: 0.5rem;
 }
 
+.goals-list--sides {
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.goals-side {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  min-width: 0;
+}
+
+.goals-side-gap {
+  flex: 0 0 auto;
+  width: 2rem;
+}
+
+.goals-list--other {
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.goals-other-label {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  color: var(--text-light);
+}
+
 .goal-item {
   background: var(--bg);
   padding: 0.25rem 0.75rem;
@@ -201,6 +233,10 @@
 
   .goal-item {
     font-size: 0.7rem;
+  }
+
+  .goals-side-gap {
+    width: 1rem;
   }
 
   .match-card {

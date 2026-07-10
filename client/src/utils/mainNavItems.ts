@@ -51,7 +51,6 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
         external: true,
         className: 'health-form-link',
       },
-      { to: '/rules', label: 'תקנון' },
       { to: 'mvps' in paths ? paths.mvps : '/mvps', label: 'MVPs' },
       { to: paths.home ?? '/', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות' },

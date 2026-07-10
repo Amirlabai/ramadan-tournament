@@ -17,7 +17,7 @@ import {
 } from './mockStats';
 import worldcupRoutes from '../routes/worldcup';
 import { DEFAULT_BANNED_WORDS } from '../data/defaultBannedWords';
-import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
+import { getMatchDisplayStatus, MATCH_DURATION_MS, jerusalemDateKey } from '@ramadan-tournament/shared';
 
 const MOCK_ADMIN_ID = 'mock-dev-admin';
 
@@ -65,17 +65,22 @@ function buildDashboard() {
   );
 
   const now = new Date();
+  const liveWindowStart = new Date(now.getTime() - MATCH_DURATION_MS);
   const upcoming = matches
-    .filter((m) => m.date >= now)
+    .filter((m) => m.date >= liveWindowStart)
     .sort((a, b) => a.date.getTime() - b.date.getTime());
   const nextDate = upcoming[0]?.date;
 
   let nextMatches: ReturnType<typeof enrichMatch>[] = [];
   if (nextDate) {
-    const dayKey = nextDate.toISOString().slice(0, 10);
+    const dayKey = jerusalemDateKey(nextDate);
     nextMatches = matches
-      .filter((m) => m.date.toISOString().slice(0, 10) === dayKey)
-      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .filter((m) => jerusalemDateKey(m.date) === dayKey)
+      .sort((a, b) => {
+        const byDate = a.date.getTime() - b.date.getTime();
+        if (byDate !== 0) return byDate;
+        return a.id - b.id;
+      })
       .map((m) => enrichMatch(formatMatchForApi(m), teamMap));
   }
 
