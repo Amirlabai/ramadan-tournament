@@ -4,6 +4,9 @@ services:
     env: node
     region: frankfurt  # or singapore for free tier
     # Persistent disk requires a paid plan (not available on free).
+    # Blueprint may NOT auto-upgrade an existing free service — confirm in the
+    # Render dashboard: plan, disk mount at /var/data/uploads, and UPLOADS_DISK_PATH
+    # before relying on the prod 503 upload guard alone.
     plan: starter
     buildCommand: npm install && node scripts/render-api-build.mjs
     startCommand: npm start --workspace=server

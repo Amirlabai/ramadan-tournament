@@ -397,12 +397,13 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         fs.copyFileSync(file.path, filePath);
         fs.unlinkSync(file.path);
 
-        if (team.logoUrl?.startsWith('/uploads/')) {
-            unlinkUpload(team.logoUrl);
-        }
-
+        const previousLogo = team.logoUrl;
         team.logoUrl = publicUploadUrl('logos', fileName);
         await TeamRosterService.saveTeam(team);
+
+        if (previousLogo?.startsWith('/uploads/')) {
+            unlinkUpload(previousLogo);
+        }
 
         res.json({
             message: 'לוגו הקבוצה הועלה בהצלחה',

@@ -226,13 +226,14 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         fs.unlinkSync(req.file.path);
 
         const publicUrl = publicUploadUrl('players', fileName);
-
-        if (player.pending_head_photo?.startsWith('/uploads/')) {
-            unlinkUpload(player.pending_head_photo);
-        }
+        const previousPending = player.pending_head_photo;
 
         team.players[playerIndex].pending_head_photo = publicUrl;
         await TeamRosterService.saveTeam(team);
+
+        if (previousPending?.startsWith('/uploads/')) {
+            unlinkUpload(previousPending);
+        }
 
         // Send notification to admin (non-blocking)
         sendAdminNotification(`${player.firstName} ${player.lastName}`, team.name);

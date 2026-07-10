@@ -191,7 +191,9 @@ const MVPs = () => {
                                 </div>
                                 <div className="card-body p-0">
                                     {mvpLeaderboard.slice(0, 5).map((item, index) => {
+                                        if (!item?.player) return null;
                                         const teamId = item.teamId ?? resolveTeamId(item.teamName);
+                                        const playerName = `${item.player.firstName ?? ''} ${item.player.lastName ?? ''}`.trim() || 'שחקן';
                                         return (
                                         <button
                                             type="button"
@@ -199,7 +201,7 @@ const MVPs = () => {
                                             className={`mvp-row d-flex align-items-center justify-content-between p-3 border-bottom w-100 border-0 bg-transparent text-start ${index === 0 ? 'bg-light-gold' : ''}`}
                                             disabled={teamId === null}
                                             onClick={() => teamId !== null && goToPlayer(teamId, item.memberId)}
-                                            aria-label={`פרטי שחקן ${item.player.firstName} ${item.player.lastName}, ${item.teamName}`}
+                                            aria-label={`פרטי שחקן ${playerName}, ${item.teamName ?? ''}`}
                                         >
                                             <div className="d-flex align-items-center gap-3">
                                                 <div className={`mvp-rank fw-bold ${index === 0 ? 'text-warning fs-4' : 'text-secondary'}`}>
@@ -208,11 +210,11 @@ const MVPs = () => {
                                                 <PlayerHeadImg
                                                     player={toHeadPlayer({
                                                         memberId: item.memberId,
-                                                        head_photo: item.player.head_photo,
-                                                        isCaptain: item.player.isCaptain,
-                                                        isTeamOwner: item.player.isTeamOwner,
-                                                        squadRole: item.player.squadRole,
-                                                        position: item.player.position,
+                                                        head_photo: item.player?.head_photo,
+                                                        isCaptain: item.player?.isCaptain,
+                                                        isTeamOwner: item.player?.isTeamOwner,
+                                                        squadRole: item.player?.squadRole,
+                                                        position: item.player?.position,
                                                     })}
                                                     alt=""
                                                     className="mvp-head-img"
