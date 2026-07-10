@@ -127,7 +127,14 @@ const Dashboard = () => {
         (match) => getMatchDisplayStatus(match.date, now) === 'finished'
     );
     const hasRecentMatches = playedRecentMatches.length > 0;
-    const hasDashboardContent = hasPlayoffs || hasLiveMatches || hasNextMatches || hasRecentMatches;
+    const topScorers = data.topScorers ?? [];
+    const hasTopScorers = topScorers.length > 0;
+    const hasDashboardContent =
+        hasPlayoffs || hasLiveMatches || hasNextMatches || hasRecentMatches || hasTopScorers;
+
+    const goToPlayer = (teamId: number, memberId: number) => {
+        navigate('/teams', { state: { expandTeamId: teamId, selectPlayerId: memberId } });
+    };
 
     const handleDismissClaimBanner = () => {
         trackEvent('claim_banner_dismiss', { category: 'interaction' });
@@ -221,7 +228,7 @@ const Dashboard = () => {
                         to="/schedule"
                         state={{ filter: 'live', matchId: match.id }}
                         className="match-card-nav-link"
-                        aria-label={`עבור ללוח משחקים חיים — ${team1Name} נגד ${team2Name}`}
+                        aria-label={`עבור ללוח משחקים לייב — ${team1Name} נגד ${team2Name}`}
                     >
                         {cardBody}
                     </Link>
@@ -307,7 +314,7 @@ const Dashboard = () => {
 
                 {hasLiveMatches && (
                     <div className="dashboard-card live-matches-card">
-                        <h2 className="dashboard-card-title">משחקים חיים</h2>
+                        <h2 className="dashboard-card-title">משחקים לייב</h2>
                         <div className="dashboard-match-list">
                             {liveMatches.map(renderMatchCard)}
                         </div>
@@ -328,6 +335,52 @@ const Dashboard = () => {
                 )}
 
                 <div className="dashboard-cards-row">
+                {hasTopScorers && (
+                    <div className="dashboard-card top-scorer">
+                        <h2 className="dashboard-card-title">מלך השערים</h2>
+                        <div className="scorer-info">
+                            <button
+                                type="button"
+                                className="premium-scorer-wrapper w-100 border-0 bg-transparent text-center"
+                                onClick={() => goToPlayer(topScorers[0].teamId, topScorers[0].memberId)}
+                                aria-label={`פרטי שחקן ${topScorers[0].playerName}, ${topScorers[0].teamName}`}
+                            >
+                                <div className="premium-decorations">
+                                    <span className="star-decoration star-1">★</span>
+                                    <span className="star-decoration star-2">★</span>
+                                    <span className="star-decoration star-3">★</span>
+                                </div>
+                                <div className="scorer-name">
+                                    <img src="/top-scorer.svg" alt="" className="top-scorer-badge" />
+                                    {topScorers[0].playerName}
+                                </div>
+                                <div className="scorer-team">{topScorers[0].teamName}</div>
+                                <div className="scorer-goals">
+                                    <span className="goals-count">{topScorers[0].goals}</span>
+                                    <span className="goals-label">שערים</span>
+                                </div>
+                            </button>
+                            {topScorers.length > 1 && (
+                                <div className="runners-up-list">
+                                    {topScorers.slice(1, 3).map((scorer, index) => (
+                                        <button
+                                            type="button"
+                                            key={scorer.memberId}
+                                            className="runner-up-item w-100 border-0 bg-transparent text-start"
+                                            onClick={() => goToPlayer(scorer.teamId, scorer.memberId)}
+                                            aria-label={`פרטי שחקן ${scorer.playerName}, ${scorer.teamName}`}
+                                        >
+                                            <span className="runner-rank">{index + 2}.</span>
+                                            <span className="runner-name">{scorer.playerName}</span>
+                                            <span className="runner-team">({scorer.teamName})</span>
+                                            <span className="runner-goals fw-bold text-success ms-auto ps-2">{scorer.goals}</span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                )}
                 {playedRecentMatches.length > 0 && (
                     <div className="dashboard-card recent-matches">
                         <h2 className="dashboard-card-title">משחקים אחרונים</h2>

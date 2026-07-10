@@ -23,13 +23,14 @@ function toMatchDateIso(date: string | Date): string {
   return date instanceof Date ? date.toISOString() : date;
 }
 
-/** Count in standings/scorers only after kickoff + match duration (scores still required). */
+/** Count in standings/scorers once the match has started (live or finished; scores required). */
 export function shouldCountMatchInStats(
   match: StatsMatchLike,
   now: Date = new Date()
 ): match is StatsMatchLike & { score1: number; score2: number } {
   if (match.score1 == null || match.score2 == null) return false;
-  return getMatchDisplayStatus(toMatchDateIso(match.date), now) === 'finished';
+  const status = getMatchDisplayStatus(toMatchDateIso(match.date), now);
+  return status === 'live' || status === 'finished';
 }
 
 export function getMatchDisplayStatus(

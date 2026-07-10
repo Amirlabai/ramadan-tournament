@@ -145,7 +145,7 @@ const Schedule = () => {
     const filterOptions: { key: typeof activeFilter; label: string }[] = [
         { key: 'all', label: 'הכל' },
         { key: 'upcoming', label: 'עתיד' },
-        { key: 'live', label: 'Live' },
+        { key: 'live', label: 'לייב' },
         { key: 'finished', label: 'הסתיים' },
     ];
 

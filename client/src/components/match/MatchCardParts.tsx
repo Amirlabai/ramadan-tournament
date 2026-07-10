@@ -4,7 +4,7 @@ export type MatchDisplayStatus = 'upcoming' | 'live' | 'finished';
 
 const STATUS_LABELS: Record<MatchDisplayStatus, string> = {
   upcoming: 'עתיד',
-  live: 'Live',
+  live: 'לייב',
   finished: 'הסתיים',
 };
 

@@ -41,9 +41,9 @@ describe('shouldCountMatchInStats', () => {
     expect(shouldCountMatchInStats(scoredMatch, now)).toBe(false);
   });
 
-  it('is false during the live window', () => {
+  it('is true during the live window', () => {
     const now = jerusalemDateTime('2026-07-10', '17:30');
-    expect(shouldCountMatchInStats(scoredMatch, now)).toBe(false);
+    expect(shouldCountMatchInStats(scoredMatch, now)).toBe(true);
   });
 
   it('is true after full-time with scores set', () => {

@@ -130,9 +130,7 @@ function mapMatch(row: any): IMatch {
 
       });
 
-      await CacheService.invalidatePattern('rt:doc:boys:matches:*');
-
-      await CacheService.invalidatePattern('rt:doc:boys:stats:*');
+      await CacheService.invalidatePattern('rt:doc:boys:*');
 
       return match;
 
