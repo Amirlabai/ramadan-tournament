@@ -90,6 +90,11 @@ export interface TopScorer {
     teamName: string;
     teamId: number;
     goals: number;
+    position?: string;
+    head_photo?: string;
+    isCaptain?: boolean;
+    isTeamOwner?: boolean;
+    squadRole?: string | null;
 }
 
 export interface DashboardData {

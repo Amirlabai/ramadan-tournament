@@ -263,6 +263,30 @@
     filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
 }
 
+.dashboard-page .top-scorer .scorer-head-img {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid rgba(255, 215, 0, 0.85);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.dashboard-page .runner-up-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.dashboard-page .runner-head-img,
+.dashboard-page .mvp-head-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
 .dashboard-page .top-scorer .scorer-team {
     color: #666;
     font-size: 1.1rem;

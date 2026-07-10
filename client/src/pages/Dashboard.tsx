@@ -14,7 +14,9 @@ import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { toHeadPlayer } from '../utils/toHeadPlayer';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
@@ -351,6 +353,11 @@ const Dashboard = () => {
                                     <span className="star-decoration star-3">★</span>
                                 </div>
                                 <div className="scorer-name">
+                                    <PlayerHeadImg
+                                        player={toHeadPlayer(topScorers[0])}
+                                        alt=""
+                                        className="scorer-head-img"
+                                    />
                                     <img src="/top-scorer.svg" alt="" className="top-scorer-badge" />
                                     {topScorers[0].playerName}
                                 </div>
@@ -370,6 +377,11 @@ const Dashboard = () => {
                                             onClick={() => goToPlayer(scorer.teamId, scorer.memberId)}
                                             aria-label={`פרטי שחקן ${scorer.playerName}, ${scorer.teamName}`}
                                         >
+                                            <PlayerHeadImg
+                                                player={toHeadPlayer(scorer)}
+                                                alt=""
+                                                className="runner-head-img"
+                                            />
                                             <span className="runner-rank">{index + 2}.</span>
                                             <span className="runner-name">{scorer.playerName}</span>
                                             <span className="runner-team">({scorer.teamName})</span>

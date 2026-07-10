@@ -10,6 +10,8 @@ import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import StandingsTable from '../components/standings/StandingsTable';
+import { PlayerHeadImg } from '../components/PlayerHeadImg';
+import { toHeadPlayer } from '../utils/toHeadPlayer';
 import './Stats.css';
 
 const Stats = () => {
@@ -159,6 +161,11 @@ const Stats = () => {
                                 })}
                             >
                                 <div className="scorer-rank">#{index + 1}</div>
+                                <PlayerHeadImg
+                                    player={toHeadPlayer(scorer)}
+                                    alt=""
+                                    className="stats-scorer-head-img"
+                                />
                                 <div className="scorer-details">
                                     <div className="scorer-name">{scorer.playerName}</div>
                                     <div className="scorer-team">{scorer.teamName}</div>

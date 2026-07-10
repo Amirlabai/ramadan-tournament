@@ -12,6 +12,13 @@ import fs from 'fs';
 import path from 'path';
 import nodemailer from 'nodemailer';
 import { AnalyticsService } from '../services/AnalyticsService';
+import {
+  publicUploadUrl,
+  unlinkUpload,
+  uploadWriteDir,
+  UPLOADS_DISK_MISCONFIG_MESSAGE,
+} from '../utils/uploadPaths';
+import { safeImageExt } from '../utils/safeImageExt';
 
 const logPlayerZoneEvent = (
   eventName: string,
@@ -208,33 +215,22 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
 
         const player = team.players[playerIndex];
 
-        // Move file to final destination
-        // We want to store it in 'uploads/players' or similar.
-        // The multer configuration determines where it is initially (tmp).
-
-        const uploadsDir = path.join(process.cwd(), 'uploads', 'players');
-        if (!fs.existsSync(uploadsDir)) {
-            fs.mkdirSync(uploadsDir, { recursive: true });
-        }
-
-        // Use copyFileSync + unlinkSync instead of renameSync.
-        // renameSync fails with EXDEV on Render because /tmp and /uploads are on different file systems.
-        const fileExt = path.extname(req.file.originalname);
+        const uploadsDir = uploadWriteDir('players');
+        const fileExt = safeImageExt(req.file.originalname);
         const fileName = `player_${player.memberId}_${Date.now()}${fileExt}`;
         const finalPath = path.join(uploadsDir, fileName);
 
+        // Use copyFileSync + unlinkSync instead of renameSync.
+        // renameSync fails with EXDEV on Render because /tmp and /uploads are on different file systems.
         fs.copyFileSync(req.file.path, finalPath);
         fs.unlinkSync(req.file.path);
 
-        // Update DB
-        // Path relative to server root or public URL?
-        // If we serve 'uploads' directory at '/uploads', then URL is '/uploads/players/filename'
-        const publicUrl = `/uploads/players/${fileName}`;
+        const publicUrl = publicUploadUrl('players', fileName);
 
-        // If there was an old photo, maybe delete it to save space? 
-        // For now, keep it simple.
+        if (player.pending_head_photo?.startsWith('/uploads/')) {
+            unlinkUpload(player.pending_head_photo);
+        }
 
-        // Update DB - save to pending_head_photo
         team.players[playerIndex].pending_head_photo = publicUrl;
         await TeamRosterService.saveTeam(team);
 
@@ -250,6 +246,10 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
     } catch (error: any) {
         console.error('Photo upload error:', error);
         logPlayerZoneEvent('photo_upload_failed', { reason: 'server_error' });
+        if (error instanceof Error && error.message === UPLOADS_DISK_MISCONFIG_MESSAGE) {
+            res.status(503).json({ error: UPLOADS_DISK_MISCONFIG_MESSAGE });
+            return;
+        }
         res.status(500).json({
             error: 'Server error',
             details: process.env.NODE_ENV === 'development' ? error.message : undefined

@@ -1,6 +1,4 @@
 import { Division, Prisma, RequestStatus } from '@prisma/client';
-import fs from 'fs';
-import path from 'path';
 import { prisma } from '../lib/prisma';
 import { toInputJson } from '../lib/json';
 import { clearMappingsForDeletedPlayer } from '../repositories/userMappingRepository';
@@ -9,6 +7,7 @@ import { invalidateDivisionCaches } from './registrationHelpers';
 import { SeasonService } from './SeasonService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
 import { syncTeamJoinReviewQueue } from '../utils/syncTeamJoinReviewQueue';
+import { unlinkUpload } from '../utils/uploadPaths';
 
 export interface PlayerProfileUpdateInput {
   firstName?: string;
@@ -34,17 +33,7 @@ async function invalidatePlayerSeasonCaches(seasonId: string): Promise<void> {
 }
 
 function deletePlayerPhotoFile(photoPath?: string | null): void {
-  if (!photoPath?.startsWith('/uploads/players/')) return;
-  const fileName = photoPath.split('/').pop();
-  if (!fileName) return;
-  const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
-  try {
-    if (fs.existsSync(fullPath)) {
-      fs.unlinkSync(fullPath);
-    }
-  } catch (err) {
-    console.error('Failed to delete player photo file:', fullPath, err);
-  }
+  unlinkUpload(photoPath);
 }
 
 function deletePlayerPhotoFiles(headPhoto?: string | null, pendingHeadPhoto?: string | null): void {

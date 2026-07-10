@@ -26,6 +26,8 @@ import statsGirlsRoutes from './routes/statsGirls';
 import worldcupRoutes from './routes/worldcup';
 import { setGirlsDivision } from './middleware/tournamentDivision';
 import path from 'path';
+import { mountUploadsStatic } from './utils/serveUploads';
+import { isUploadsDiskMisconfigured, UPLOADS_DISK_MISCONFIG_MESSAGE } from './utils/uploadPaths';
 
 const app = express();
 
@@ -48,7 +50,10 @@ app.use(cookieParser());
 app.use(requireApiOrigin(allowedOrigins));
 app.use(express.json({ limit: '1mb' }));
 
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+if (isUploadsDiskMisconfigured()) {
+    console.error(UPLOADS_DISK_MISCONFIG_MESSAGE);
+}
+mountUploadsStatic(app);
 // Fallback: also serve public/ for any files written there historically
 app.use(express.static(path.join(process.cwd(), 'public')));
 

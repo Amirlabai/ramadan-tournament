@@ -210,7 +210,7 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
     const memberIds = results.map((r) => r.memberId);
     const players = await prisma.player.findMany({
       where: { seasonId: season.id, memberId: { in: memberIds }, active: true },
-      include: { team: { select: { name: true } } },
+      include: { team: { select: { name: true, ownerUserId: true } } },
     });
     const playerByMember = new Map(players.map((p) => [p.memberId, p]));
 
@@ -227,8 +227,14 @@ export const getVoteResults = async (req: VoteReq, res: Response): Promise<void>
               lastName: player.lastName,
               nickname: player.nickname,
               number: player.number,
+              head_photo: player.headPhoto || '',
+              isCaptain: player.isCaptain,
+              isTeamOwner: !!player.team.ownerUserId && player.userId === player.team.ownerUserId,
+              squadRole: player.squadRole,
+              position: player.position,
             },
             teamName: player.team.name,
+            teamId: player.teamId,
           };
         })
         .filter(Boolean),

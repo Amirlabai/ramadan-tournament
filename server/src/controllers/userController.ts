@@ -3,8 +3,8 @@ import { Division } from '@prisma/client';
 import { User } from '../models/User';
 import { TeamRosterService } from '../services/TeamRosterService';
 import { AuthRequest } from '../middleware/auth';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { config } from '../config/env';
 import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../services/emailService';
 import { PlayerService } from '../services/PlayerService';
@@ -13,6 +13,13 @@ import {
     findPendingTeamCreationRequests,
     clearPlayerProfile,
 } from '../repositories/userMappingRepository';
+import {
+    publicUploadUrl,
+    unlinkUpload,
+    uploadWriteDir,
+    UPLOADS_DISK_MISCONFIG_MESSAGE,
+} from '../utils/uploadPaths';
+import { safeImageExt } from '../utils/safeImageExt';
 
 // Voluntary leave team (roster row via players.user_id)
 export const leaveTeam = async (req: AuthRequest, res: Response): Promise<void> => {
@@ -114,16 +121,9 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
             return;
         }
 
-        // Remove old avatar if it's a local upload
-        if (user.avatarUrl && user.avatarUrl.startsWith('/uploads/')) {
-            const oldPath = path.join(process.cwd(), user.avatarUrl);
-            if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-        }
-
-        const uploadsDir = path.join(process.cwd(), 'uploads', 'players');
-        if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
-
-        const ext = path.extname(req.file.originalname) || '.jpg';
+        // Write new file first; only then remove the previous upload.
+        const uploadsDir = uploadWriteDir('players');
+        const ext = safeImageExt(req.file.originalname);
         const filename = `avatar_${req.userId}_${Date.now()}${ext}`;
         const finalPath = path.join(uploadsDir, filename);
 
@@ -132,13 +132,22 @@ export const uploadAvatar = async (req: AuthRequest, res: Response): Promise<voi
         fs.copyFileSync(req.file.path, finalPath);
         fs.unlinkSync(req.file.path);
 
-        user.avatarUrl = `/uploads/players/${filename}`;
+        const previousAvatar = user.avatarUrl;
+        user.avatarUrl = publicUploadUrl('players', filename);
         await user.save();
         await PlayerService.syncAvatarToRoster(req.userId!, user.avatarUrl);
+
+        if (previousAvatar?.startsWith('/uploads/')) {
+            unlinkUpload(previousAvatar);
+        }
 
         res.json({ message: 'Avatar updated successfully', avatarUrl: user.avatarUrl });
     } catch (error) {
         console.error('Avatar upload error:', error);
+        if (error instanceof Error && error.message === UPLOADS_DISK_MISCONFIG_MESSAGE) {
+            res.status(503).json({ error: UPLOADS_DISK_MISCONFIG_MESSAGE });
+            return;
+        }
         res.status(500).json({ error: 'Server error during avatar upload' });
     }
 };
@@ -150,8 +159,7 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
 
         // Delete the local file if the current avatar is an uploaded one
         if (user.avatarUrl && user.avatarUrl.startsWith('/uploads/')) {
-            const filePath = path.join(process.cwd(), user.avatarUrl);
-            if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            unlinkUpload(user.avatarUrl);
         }
         // Revert to Google profile picture, or clear entirely
         user.avatarUrl = user.googlePictureUrl ?? undefined;

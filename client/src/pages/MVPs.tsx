@@ -6,6 +6,8 @@ import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import { MvpsSkeleton } from '../components/skeleton';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
+import { PlayerHeadImg } from '../components/PlayerHeadImg';
+import { toHeadPlayer } from '../utils/toHeadPlayer';
 import './Dashboard.css'; // Reusing Dashboard styles for the widgets
 
 const MVPs = () => {
@@ -136,6 +138,11 @@ const MVPs = () => {
                                             <span className="star-decoration star-3">★</span>
                                         </div>
                                         <div className="scorer-name">
+                                            <PlayerHeadImg
+                                                player={toHeadPlayer(data.topScorers[0])}
+                                                alt=""
+                                                className="scorer-head-img"
+                                            />
                                             <img src="/top-scorer.svg" alt="תג מלך השערים" className="top-scorer-badge" />
                                             {data.topScorers[0].playerName}
                                         </div>
@@ -157,6 +164,11 @@ const MVPs = () => {
                                                     onClick={() => goToPlayer(scorer.teamId, scorer.memberId)}
                                                     aria-label={`פרטי שחקן ${scorer.playerName}, ${scorer.teamName}`}
                                                 >
+                                                    <PlayerHeadImg
+                                                        player={toHeadPlayer(scorer)}
+                                                        alt=""
+                                                        className="runner-head-img"
+                                                    />
                                                     <span className="runner-rank">{index + 2}.</span>
                                                     <span className="runner-name">{scorer.playerName}</span>
                                                     <span className="runner-team">({scorer.teamName})</span>
@@ -179,7 +191,7 @@ const MVPs = () => {
                                 </div>
                                 <div className="card-body p-0">
                                     {mvpLeaderboard.slice(0, 5).map((item, index) => {
-                                        const teamId = resolveTeamId(item.teamName);
+                                        const teamId = item.teamId ?? resolveTeamId(item.teamName);
                                         return (
                                         <button
                                             type="button"
@@ -193,6 +205,18 @@ const MVPs = () => {
                                                 <div className={`mvp-rank fw-bold ${index === 0 ? 'text-warning fs-4' : 'text-secondary'}`}>
                                                     {index + 1}
                                                 </div>
+                                                <PlayerHeadImg
+                                                    player={toHeadPlayer({
+                                                        memberId: item.memberId,
+                                                        head_photo: item.player.head_photo,
+                                                        isCaptain: item.player.isCaptain,
+                                                        isTeamOwner: item.player.isTeamOwner,
+                                                        squadRole: item.player.squadRole,
+                                                        position: item.player.position,
+                                                    })}
+                                                    alt=""
+                                                    className="mvp-head-img"
+                                                />
                                                 <div>
                                                     <div className="fw-bold fs-6">
                                                         {item.player.firstName} {item.player.lastName}

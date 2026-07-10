@@ -99,7 +99,18 @@ export class StatsService {
       }),
     ]);
 
-    const members: { [key: number]: { name: string; teamName: string; position: string; teamId: number } } = {};
+    const members: {
+      [key: number]: {
+        name: string;
+        teamName: string;
+        position: string;
+        teamId: number;
+        head_photo?: string;
+        isCaptain?: boolean;
+        isTeamOwner?: boolean;
+        squadRole?: string | null;
+      };
+    } = {};
     const teamMatchesCount: { [key: number]: number } = {};
 
     teams.forEach((team) => {
@@ -110,6 +121,10 @@ export class StatsService {
           teamName: team.name,
           position: player.position,
           teamId: team.id,
+          head_photo: player.headPhoto || undefined,
+          isCaptain: player.isCaptain,
+          isTeamOwner: !!team.ownerUserId && player.userId === team.ownerUserId,
+          squadRole: player.squadRole,
         };
       });
     });
@@ -135,6 +150,10 @@ export class StatsService {
             teamName: memberInfo?.teamName || 'Unknown',
             teamId: memberInfo?.teamId || 0,
             position: memberInfo?.position || 'Unknown',
+            head_photo: memberInfo?.head_photo,
+            isCaptain: memberInfo?.isCaptain,
+            isTeamOwner: memberInfo?.isTeamOwner,
+            squadRole: memberInfo?.squadRole,
             goals: 0,
             gamesPlayed: memberInfo ? teamMatchesCount[memberInfo.teamId] : 0,
           };

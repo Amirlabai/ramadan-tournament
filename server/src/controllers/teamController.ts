@@ -5,8 +5,8 @@ import { prisma } from '../lib/prisma';
 import { TeamRosterService, type ITeam } from '../services/TeamRosterService';
 import { User } from '../models/User';
 import { AuthRequest } from '../middleware/auth';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 import { TeamDataService } from '../services/TeamDataService';
 import { SeasonService } from '../services/SeasonService';
 import { getRequestDivision, TournamentRequest } from '../middleware/tournamentDivision';
@@ -24,6 +24,13 @@ import { PlayerServiceError } from '../errors/PlayerServiceError';
 import { isPrismaUniqueViolation } from '../services/registrationHelpers';
 import { respondNotFound } from '../utils/respondNotFound';
 import { canManageTeamBranding, isTeamOwnerOrPlatformAdmin } from '../utils/canManageTeamBranding';
+import {
+    publicUploadUrl,
+    unlinkUpload,
+    uploadWriteDir,
+    UPLOADS_DISK_MISCONFIG_MESSAGE,
+} from '../utils/uploadPaths';
+import { safeImageExt } from '../utils/safeImageExt';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
 
@@ -380,13 +387,8 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        // Create uploads directory if it doesn't exist
-        const uploadDir = path.join(process.cwd(), 'uploads', 'logos');
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
-
-        const fileName = `team_${teamId}_${Date.now()}${path.extname(file.originalname)}`;
+        const uploadDir = uploadWriteDir('logos');
+        const fileName = `team_${teamId}_${Date.now()}${safeImageExt(file.originalname)}`;
         const filePath = path.join(uploadDir, fileName);
 
         // Move file from temp to final location.
@@ -395,8 +397,11 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         fs.copyFileSync(file.path, filePath);
         fs.unlinkSync(file.path);
 
-        // Update team logo URL
-        team.logoUrl = `/uploads/logos/${fileName}`;
+        if (team.logoUrl?.startsWith('/uploads/')) {
+            unlinkUpload(team.logoUrl);
+        }
+
+        team.logoUrl = publicUploadUrl('logos', fileName);
         await TeamRosterService.saveTeam(team);
 
         res.json({
@@ -405,6 +410,10 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         });
     } catch (error) {
         console.error('Upload team logo error:', error);
+        if (error instanceof Error && error.message === UPLOADS_DISK_MISCONFIG_MESSAGE) {
+            res.status(503).json({ error: UPLOADS_DISK_MISCONFIG_MESSAGE });
+            return;
+        }
         res.status(500).json({ error: 'שגיאה בהעלאת לוגו' });
     }
 };
@@ -425,12 +434,9 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        // Delete physical file if it exists
+        // Delete physical file if it exists (repo + disk roots)
         if (team.logoUrl) {
-            const filePath = path.join(process.cwd(), team.logoUrl.replace(/^\//, ''));
-            if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
-            }
+            unlinkUpload(team.logoUrl);
         }
 
         // Update team logo URL
@@ -555,15 +561,7 @@ export const deletePlayerPhoto = async (req: AuthRequest, res: Response): Promis
         }
 
         const filePath = player.head_photo;
-        if (filePath.startsWith('/uploads/players/')) {
-            const fileName = filePath.split('/').pop();
-            if (fileName) {
-                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
-                if (fs.existsSync(fullPath)) {
-                    fs.unlinkSync(fullPath);
-                }
-            }
-        }
+        unlinkUpload(filePath);
 
         player.head_photo = '';
         await TeamRosterService.saveTeam(team);

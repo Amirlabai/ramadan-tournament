@@ -18,6 +18,8 @@ Uses `env.mock` and `data/*.json`. Admin: `admin` / `admin123`.
 
 **Full stack (Postgres):** set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and optionally `REDIS_URL`, `SMTP_*`, `GOOGLE_CLIENT_ID`.
 
+**Uploads (production):** set `UPLOADS_DISK_PATH` to the Render disk mount (see root `render.yaml`). Without it, upload endpoints return 503. Locally leave it unset so files go to `server/uploads/`. Prefer non-empty git copies when serving; never commit empty placeholders under `server/uploads/`.
+
 Optional fresh-season overrides:
 - `SEASON_YEAR_MONTH` (default `2026-06`)
 - `SEASON_DISPLAY_NAME` (default `מונדיאל קיץ 2026`)

@@ -63,7 +63,19 @@ export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): Sta
 }
 
 export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): TopScorer[] {
-  const members: Record<number, { name: string; teamName: string; position: string; teamId: number }> = {};
+  const members: Record<
+    number,
+    {
+      name: string;
+      teamName: string;
+      position: string;
+      teamId: number;
+      head_photo?: string;
+      isCaptain?: boolean;
+      isTeamOwner?: boolean;
+      squadRole?: string | null;
+    }
+  > = {};
   const teamMatchesCount: Record<number, number> = {};
 
   teams.forEach((team) => {
@@ -74,6 +86,10 @@ export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): To
         teamName: team.name,
         position: player.position,
         teamId: team.id,
+        head_photo: player.head_photo || undefined,
+        isCaptain: player.isCaptain,
+        isTeamOwner: undefined,
+        squadRole: null,
       };
     });
   });
@@ -99,6 +115,10 @@ export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): To
           teamName: memberInfo?.teamName || 'Unknown',
           teamId: memberInfo?.teamId || 0,
           position: memberInfo?.position || 'Unknown',
+          head_photo: memberInfo?.head_photo,
+          isCaptain: memberInfo?.isCaptain,
+          isTeamOwner: memberInfo?.isTeamOwner,
+          squadRole: memberInfo?.squadRole,
           goals: 0,
           gamesPlayed: memberInfo ? teamMatchesCount[memberInfo.teamId] : 0,
         };

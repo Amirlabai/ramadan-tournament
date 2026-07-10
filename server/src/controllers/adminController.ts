@@ -4,7 +4,7 @@ import { TeamRosterService } from '../services/TeamRosterService';
 import { BannedWord } from '../models/BannedWord';
 import { AutomationService } from '../services/AutomationService';
 import fs from 'fs';
-import path from 'path';
+import { unlinkUpload } from '../utils/uploadPaths';
 
 // News Automation
 export const triggerAutomation = async (req: Request, res: Response): Promise<void> => {
@@ -306,18 +306,7 @@ export const rejectPhoto = async (req: Request, res: Response) => {
         }
 
         // Reject: Delete the file and clear pending
-        // Construct file path from URL
-        // URL format: /uploads/players/filename
-        const filePath = player.pending_head_photo;
-        if (filePath.startsWith('/uploads/players/')) {
-            const fileName = filePath.split('/').pop();
-            if (fileName) {
-                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
-                if (fs.existsSync(fullPath)) {
-                    fs.unlinkSync(fullPath);
-                }
-            }
-        }
+        unlinkUpload(player.pending_head_photo);
 
         player.pending_head_photo = '';
         await TeamRosterService.saveTeam(team);
@@ -346,17 +335,8 @@ export const deletePlayerPhoto = async (req: Request, res: Response) => {
             return res.status(400).json({ error: 'Player does not have a photo' });
         }
 
-        // Delete the file if it's local
-        const filePath = player.head_photo;
-        if (filePath.startsWith('/uploads/players/')) {
-            const fileName = filePath.split('/').pop();
-            if (fileName) {
-                const fullPath = path.join(process.cwd(), 'uploads', 'players', fileName);
-                if (fs.existsSync(fullPath)) {
-                    fs.unlinkSync(fullPath);
-                }
-            }
-        }
+        // Delete the file if it's local (repo + disk)
+        unlinkUpload(player.head_photo);
 
         player.head_photo = '';
         await TeamRosterService.saveTeam(team);

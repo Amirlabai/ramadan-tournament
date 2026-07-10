@@ -37,6 +37,8 @@ Local run (requires `DATABASE_URL` in `server/.env` or the environment):
 
 Downloads missing team logos, player head photos, and user avatars from the production API into `server/uploads/`. Uses public `/api/teams` and `/api/teams-girls`; optionally queries Postgres for avatar paths when `DATABASE_URL` is set.
 
+**Recovery note:** if production already 404s the file (ephemeral wipe), sync cannot download it. Re-upload after the Render disk is live, or commit the local `server/uploads/...` copy and deploy first.
+
 ```powershell
 .\.venv\Scripts\python.exe scripts/sync_photos.py
 ```

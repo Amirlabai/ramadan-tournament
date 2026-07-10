@@ -19,4 +19,9 @@ export interface TopScorer {
     teamId: number;
     position: string;
     goals: number;
+    /** Approved roster head photo (`/uploads/...` or empty). */
+    head_photo?: string;
+    isCaptain?: boolean;
+    isTeamOwner?: boolean;
+    squadRole?: string | null;
 }

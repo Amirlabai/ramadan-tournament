@@ -3,13 +3,20 @@ services:
     name: ramadan-tournament-api
     env: node
     region: frankfurt  # or singapore for free tier
-    plan: free
+    # Persistent disk requires a paid plan (not available on free).
+    plan: starter
     buildCommand: npm install && node scripts/render-api-build.mjs
     startCommand: npm start --workspace=server
     healthCheckPath: /api/health
+    disk:
+      name: uploads
+      mountPath: /var/data/uploads
+      sizeGB: 1
     envVars:
       - key: NODE_ENV
         value: production
+      - key: UPLOADS_DISK_PATH
+        value: /var/data/uploads
       - key: DATABASE_URL
         sync: false
       - key: REDIS_URL
