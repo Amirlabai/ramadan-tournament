@@ -10,8 +10,8 @@ import { SeasonService } from '../services/SeasonService';
 import { prisma } from '../lib/prisma';
 import fs from 'fs';
 import path from 'path';
-import nodemailer from 'nodemailer';
 import { AnalyticsService } from '../services/AnalyticsService';
+import { invalidateDivisionCaches } from '../services/registrationHelpers';
 import {
   publicUploadUrl,
   unlinkUpload,
@@ -127,47 +127,6 @@ export const authenticate = async (req: Request, res: Response): Promise<void> =
     }
 };
 
-const sendAdminNotification = async (playerName: string, teamName: string) => {
-    if (!config.email.user || !config.email.pass || !config.email.admin) {
-        console.warn('Email credentials not configured, skipping notification');
-        return;
-    }
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: config.email.user,
-            pass: config.email.pass
-        }
-    });
-
-    const mailOptions = {
-        from: config.email.user,
-        to: config.email.admin,
-        subject: `תמונה חדשה לאישור: ${playerName}`,
-        html: `
-            <div dir="rtl" style="font-family: sans-serif;">
-                <h2>היי אמיר, יש תמונה חדשה שמחכה לאישורך!</h2>
-                <p><strong>שחקן:</strong> ${playerName}</p>
-                <p><strong>קבוצה:</strong> ${teamName}</p>
-                <hr />
-                <p>כדי לאשר או לדחות את התמונה, היכנס לפאנל הניהול:</p>
-                <a href="https://ramadan-tournament-client.vercel.app/admin/login" 
-                   style="background-color: #2A6B11; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
-                   לפאנל הניהול
-                </a>
-            </div>
-        `
-    };
-
-    try {
-        await transporter.sendMail(mailOptions);
-        console.log(`Admin notification email sent for ${playerName}`);
-    } catch (error) {
-        console.error('Error sending admin notification email:', error);
-    }
-};
-
 export const playerLogout = async (_req: Request, res: Response): Promise<void> => {
     clearPlayerCookie(res);
     res.json({ message: 'Logged out' });
@@ -226,21 +185,63 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         fs.unlinkSync(req.file.path);
 
         const publicUrl = publicUploadUrl('players', fileName);
+        const previousHead = player.head_photo;
         const previousPending = player.pending_head_photo;
 
-        team.players[playerIndex].pending_head_photo = publicUrl;
-        await TeamRosterService.saveTeam(team);
+        const linked = await prisma.player.findUnique({
+            where: { memberId: player.memberId },
+            select: { userId: true },
+        });
 
-        if (previousPending?.startsWith('/uploads/')) {
-            unlinkUpload(previousPending);
+        let previousUserAvatar: string | null | undefined;
+        await prisma.$transaction(async (tx) => {
+            await tx.player.update({
+                where: { memberId: player.memberId },
+                data: { headPhoto: publicUrl, pendingHeadPhoto: '' },
+            });
+            if (linked?.userId) {
+                const linkedUser = await tx.user.findUnique({
+                    where: { id: linked.userId },
+                    select: { avatarUrl: true },
+                });
+                previousUserAvatar = linkedUser?.avatarUrl;
+                await tx.user.update({
+                    where: { id: linked.userId },
+                    data: { avatarUrl: publicUrl },
+                });
+            }
+        });
+
+        team.players[playerIndex].head_photo = publicUrl;
+        team.players[playerIndex].pending_head_photo = '';
+        if (team.seasonId) {
+            const season = await prisma.season.findUnique({
+                where: { id: team.seasonId },
+                select: { division: true },
+            });
+            if (season) {
+                await invalidateDivisionCaches(season.division);
+            }
         }
 
-        // Send notification to admin (non-blocking)
-        sendAdminNotification(`${player.firstName} ${player.lastName}`, team.name);
+        if (previousHead?.startsWith('/uploads/') && previousHead !== publicUrl) {
+            unlinkUpload(previousHead);
+        }
+        if (previousPending?.startsWith('/uploads/') && previousPending !== publicUrl) {
+            unlinkUpload(previousPending);
+        }
+        if (
+            previousUserAvatar?.startsWith('/uploads/') &&
+            previousUserAvatar !== publicUrl &&
+            previousUserAvatar !== previousHead &&
+            previousUserAvatar !== previousPending
+        ) {
+            unlinkUpload(previousUserAvatar);
+        }
 
         logPlayerZoneEvent('photo_upload_success', { teamId });
         res.json({
-            message: 'Photo uploaded successfully and is pending approval',
+            message: 'Photo uploaded successfully',
             url: publicUrl
         });
 

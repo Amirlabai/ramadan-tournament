@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import rateLimit from 'express-rate-limit';
-import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, getPendingPhotos, approvePhoto, rejectPhoto, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
+import { importPlayers, getBannedWords, addBannedWord, removeBannedWord, getAllComments, deleteComment, deletePlayerPhoto, triggerAutomation } from '../controllers/adminController';
 import { getPendingTeamRequests, approveTeamRequest } from '../controllers/userController';
 import {
   listSeasons,
@@ -47,10 +47,7 @@ router.delete('/banned-words/:id', requirePlatformAdmin, removeBannedWord);
 router.get('/comments', requirePlatformAdmin, getAllComments);
 router.delete('/comments/:id', requirePlatformAdmin, deleteComment);
 
-// Photo approval
-router.get('/photos/pending', requirePlatformAdmin, getPendingPhotos);
-router.post('/photos/approve', requirePlatformAdmin, approvePhoto);
-router.post('/photos/reject', requirePlatformAdmin, rejectPhoto);
+// Photo delete (uploads are live; no approval queue)
 router.post('/photos/delete', requirePlatformAdmin, deletePlayerPhoto);
 
 // Team creation requests

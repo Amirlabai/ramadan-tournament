@@ -15,18 +15,6 @@
     transition: transform 0.2s;
 }
 
-.photo-preview-pending {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgba(0, 0, 0, 0.3);
-    color: var(--white);
-    font-weight: bold;
-    text-shadow: 0 1px 2px black;
-}
-
 .photo-preview-container:hover {
     transform: scale(1.02);
 }

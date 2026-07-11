@@ -237,9 +237,6 @@ export function registerMockRoutes(app: Express): void {
   app.get('/api/admin/comments', requirePlatformAdmin, (_req, res) => {
     res.json([]);
   });
-  app.get('/api/admin/photos/pending', requirePlatformAdmin, (_req, res) => {
-    res.json([]);
-  });
   app.get('/api/admin/workflows', requirePlatformAdmin, (_req, res) => {
     res.json({
       creationRequests: [],

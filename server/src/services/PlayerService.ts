@@ -432,12 +432,18 @@ export class PlayerService {
     }
 
     const previous = player.headPhoto;
+    let previousUserAvatar: string | null | undefined;
     await prisma.$transaction(async (tx) => {
       await tx.player.update({
         where: { memberId },
         data: { headPhoto: publicUrl, pendingHeadPhoto: '' },
       });
       if (player.userId) {
+        const linked = await tx.user.findUnique({
+          where: { id: player.userId },
+          select: { avatarUrl: true },
+        });
+        previousUserAvatar = linked?.avatarUrl;
         await tx.user.update({
           where: { id: player.userId },
           data: { avatarUrl: publicUrl },
@@ -450,6 +456,14 @@ export class PlayerService {
     }
     if (player.pendingHeadPhoto?.startsWith('/uploads/')) {
       unlinkUpload(player.pendingHeadPhoto);
+    }
+    if (
+      previousUserAvatar?.startsWith('/uploads/') &&
+      previousUserAvatar !== publicUrl &&
+      previousUserAvatar !== previous &&
+      previousUserAvatar !== player.pendingHeadPhoto
+    ) {
+      unlinkUpload(previousUserAvatar);
     }
 
     await invalidatePlayerSeasonCaches(player.seasonId);
@@ -481,12 +495,21 @@ export class PlayerService {
       if (player.userId) {
         const linked = await tx.user.findUnique({
           where: { id: player.userId },
-          select: { googlePictureUrl: true },
+          select: { avatarUrl: true },
         });
-        await tx.user.update({
-          where: { id: player.userId },
-          data: { avatarUrl: linked?.googlePictureUrl ?? null },
-        });
+        const avatar = linked?.avatarUrl?.trim() || '';
+        // Keep Google CDN; null when avatar matches cleared head, or is any tournament /uploads/ mirror
+        const shouldClearAvatar =
+          !!avatar &&
+          (avatar === (player.headPhoto || '') ||
+            avatar === (player.pendingHeadPhoto || '') ||
+            avatar.startsWith('/uploads/'));
+        if (shouldClearAvatar) {
+          await tx.user.update({
+            where: { id: player.userId },
+            data: { avatarUrl: null },
+          });
+        }
       }
     });
 
@@ -494,7 +517,7 @@ export class PlayerService {
     await invalidatePlayerSeasonCaches(player.seasonId);
   }
 
-  /** Draft profile while join is pending — validate against target team roster. */
+  /** Push profile avatar onto linked roster head_photo (live, no approval). */
   static async syncAvatarToRoster(userId: string, avatarUrl: string | undefined): Promise<void> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -518,9 +541,11 @@ export class PlayerService {
     });
     if (!player) return;
 
+    const nextHead =
+      avatarUrl && avatarUrl.startsWith('/uploads/') ? avatarUrl : '';
     await prisma.player.update({
       where: { memberId: player.memberId },
-      data: { headPhoto: avatarUrl ?? '' },
+      data: { headPhoto: nextHead, pendingHeadPhoto: '' },
     });
     await invalidatePlayerSeasonCaches(player.seasonId);
   }

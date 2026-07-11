@@ -168,7 +168,7 @@ Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/
 - **Security & Registration**: Built an Email Verification (OTP) system. New registrants must verify a 6-digit code sent via SMTP to activate their accounts. `Login.tsx` now handles the verification flow and blocks unverified logins.
 - **Playoff Automation**: Implemented automated knockout schedule generation. Admins can sync playoff matchups from the Admin Panel based on current standings, automatically creating semi-finals for March 17th and final placeholders for March 18th.
 - **Stats Automation**: Migrated from GitHub Actions to a server-side `AutomationService`. Admins can manually trigger a news update via the Admin Panel, which calculates stats, detects changes via `stats_snapshots`, and generates an AI summary in Hebrew using Gemini 1.5 Flash.
-- Implementation of photo approval system.
+- Player head photos: live on upload (Player Zone / profile `/uploads/` avatar sync); no approval queue. Admin or claimed captain can delete via managed photo APIs. Google OAuth picture is stored for opt-in profile use only — never auto-applied to Teams `head_photo`.
 - Match time support with Jerusalem timezone.
 - Iftar countdown timer widget.
 - UI refinements with mirrored foregrounds and Adygea flag.

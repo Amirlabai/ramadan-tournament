@@ -163,6 +163,8 @@ export const usersAPI = {
         api.post('/users/avatar', formData),
     deleteAvatar: () =>
         api.delete('/users/avatar'),
+    useGoogleAvatar: () =>
+        api.post('/users/avatar/use-google'),
     updatePlayerProfile: (data: { firstName?: string; lastName?: string; nickname?: string; number?: number; position?: string }) =>
         api.patch('/users/player-profile', data),
     leaveTeam: (slug: TournamentSlug = 'boys') =>
@@ -200,9 +202,6 @@ export const adminAPI = {
     removeBannedWord: (id: string) => api.delete(`/admin/banned-words/${id}`),
     getComments: () => api.get('/admin/comments'),
     deleteComment: (id: string) => api.delete(`/admin/comments/${id}`),
-    getPendingPhotos: () => api.get('/admin/photos/pending'),
-    approvePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/approve', { teamId, memberId }),
-    rejectPhoto: (teamId: number, memberId: number) => api.post('/admin/photos/reject', { teamId, memberId }),
     forceDeletePhoto: (teamId: number, memberId: number) => api.post('/admin/photos/delete', { teamId, memberId }),
     getTeamRequests: () => api.get('/admin/team-requests'),
     approveTeamRequest: (userId: string, action: 'approved' | 'rejected') =>

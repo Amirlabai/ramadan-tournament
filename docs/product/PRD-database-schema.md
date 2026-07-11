@@ -110,7 +110,7 @@ erDiagram
 | `season_archives` | `year_month` + `division` | JSONB payloads |
 | `banned_words` | UUID | word UNIQUE, case-insensitive match in app |
 
-**Not created:** `iftar_times`, `alarms`, `player_photo_requests` (use `players.pending_head_photo`).
+**Not created:** `iftar_times`, `alarms`, `player_photo_requests` (live upload writes `players.head_photo`; leftover `pending_head_photo` cleared by `server/src/scripts/cleanup-non-upload-heads.ts`).
 
 ---
 
@@ -227,8 +227,8 @@ Original design used alphanumeric invoice codes (`invoice_codes.code_hash`), adm
 | Rule | Detail |
 |------|--------|
 | `personal_id` | Encrypted at rest |
-| Pending photo | `players.pending_head_photo` URL; files on disk/Git deploy path |
-| Delete photo | Clear URL in DB; file cleanup optional; **compress uploads** anti-abuse |
+| Head photo | Live on upload → `players.head_photo` (`/uploads/` only on Teams). Google profile picture is opt-in for account avatar only — never auto-copied to roster. Column `pending_head_photo` legacy; cleanup via `cleanup-non-upload-heads.ts` |
+| Delete photo | Clear URL in DB + unlink `/uploads/` file; admin/captain managed delete; profile delete clears upload (no Google fallback onto roster) |
 
 ### I. Stats & news
 

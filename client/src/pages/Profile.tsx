@@ -308,13 +308,30 @@ const Profile = () => {
     };
 
     const handleDeleteAvatar = async () => {
-        if (!confirm('למחוק את התמונה שהעלית ולחזור לתמונת Google?')) return;
+        const isUpload = user?.avatarUrl?.startsWith('/uploads/');
+        const msg = isUpload
+            ? 'להסיר את התמונה שהעלית? הפרופיל יישאר בלי תמונה (ניתן להעלות מחדש או לבחור תמונת Google).'
+            : 'להסיר את תמונת הפרופיל?';
+        if (!confirm(msg)) return;
         setAvatarLoading(true);
         try {
             await usersAPI.deleteAvatar();
             await refreshUser();
         } catch (err: any) {
             alert(err.response?.data?.error || 'שגיאה במחיקת תמונה');
+        } finally {
+            setAvatarLoading(false);
+        }
+    };
+
+    const handleUseGoogleAvatar = async () => {
+        if (!confirm('להציג את תמונת Google בפרופיל בלבד? היא לא תופיע בכרטיס השחקן בקבוצה.')) return;
+        setAvatarLoading(true);
+        try {
+            await usersAPI.useGoogleAvatar();
+            await refreshUser();
+        } catch (err: any) {
+            alert(err.response?.data?.error || 'שגיאה בבחירת תמונת Google');
         } finally {
             setAvatarLoading(false);
         }
@@ -779,15 +796,26 @@ const Profile = () => {
                             <span className="avatar-overlay" aria-hidden="true"><i className="bi bi-camera-fill" /></span>
                         </label>
                         <input id="profile-avatar-upload" type="file" ref={fileInputRef} accept="image/*" className="visually-hidden" onChange={handleAvatarChange} aria-label="העלאת תמונת פרופיל" />
-                        {user.avatarUrl?.startsWith('/uploads/') && (
+                        {user.avatarUrl && (
                             <button
                                 type="button"
                                 className="btn btn-sm btn-outline-danger profile-delete-avatar-btn"
                                 onClick={handleDeleteAvatar}
                                 disabled={avatarLoading}
-                                title="מחק תמונה וחזור לתמונת Google"
+                                title="הסר תמונת פרופיל"
                             >
                                 <i className="bi bi-trash me-1" aria-hidden="true" />הסר תמונה
+                            </button>
+                        )}
+                        {user.googlePictureUrl && user.avatarUrl !== user.googlePictureUrl && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-outline-secondary profile-delete-avatar-btn"
+                                onClick={handleUseGoogleAvatar}
+                                disabled={avatarLoading}
+                                title="הצג תמונת Google בפרופיל בלבד (לא בקבוצה)"
+                            >
+                                <i className="bi bi-google me-1" aria-hidden="true" />תמונת Google
                             </button>
                         )}
                     </div>

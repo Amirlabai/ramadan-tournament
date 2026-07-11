@@ -9,6 +9,7 @@ import { config } from '../config/env';
 import { sendTeamRequestNotification, sendPlayerMappingNotification } from '../services/emailService';
 import { PlayerService } from '../services/PlayerService';
 import { PlayerServiceError } from '../errors/PlayerServiceError';
+import { prisma } from '../lib/prisma';
 import {
     findPendingTeamCreationRequests,
     clearPlayerProfile,
@@ -157,19 +158,62 @@ export const deleteAvatar = async (req: AuthRequest, res: Response): Promise<voi
         const user = await User.findById(req.userId!);
         if (!user) { res.status(404).json({ error: 'User not found' }); return; }
 
-        // Delete the local file if the current avatar is an uploaded one
-        if (user.avatarUrl && user.avatarUrl.startsWith('/uploads/')) {
-            unlinkUpload(user.avatarUrl);
+        const previousAvatar = user.avatarUrl;
+        if (previousAvatar?.startsWith('/uploads/')) {
+            unlinkUpload(previousAvatar);
         }
-        // Revert to Google profile picture, or clear entirely
-        user.avatarUrl = user.googlePictureUrl ?? undefined;
+        // Clear profile; Google stays available via opt-in
+        user.avatarUrl = undefined;
         await user.save();
-        await PlayerService.syncAvatarToRoster(req.userId!, user.avatarUrl);
 
-        res.json({ message: 'Avatar deleted', avatarUrl: user.avatarUrl ?? null });
+        // Clear roster only when the removed profile file was the same path as head_photo
+        if (previousAvatar?.startsWith('/uploads/')) {
+            const linked = await prisma.player.findFirst({
+                where: { userId: req.userId!, active: true, headPhoto: previousAvatar },
+                select: { memberId: true },
+            });
+            if (linked) {
+                await PlayerService.syncAvatarToRoster(req.userId!, undefined);
+            }
+        }
+
+        res.json({ message: 'Avatar deleted', avatarUrl: null });
     } catch (error) {
         console.error('Avatar delete error:', error);
         res.status(500).json({ error: 'Server error during avatar deletion' });
+    }
+};
+
+/** Opt-in: copy stored Google picture to profile avatar only (never syncs to Teams roster). */
+export const useGoogleAvatar = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const user = await User.findById(req.userId!);
+        if (!user) { res.status(404).json({ error: 'User not found' }); return; }
+        if (!user.googlePictureUrl) {
+            res.status(400).json({ error: 'אין תמונת Google זמינה לחשבון זה' });
+            return;
+        }
+
+        const previousAvatar = user.avatarUrl;
+        user.avatarUrl = user.googlePictureUrl;
+        await user.save();
+
+        // Profile-only Google — never copy CDN to roster. If roster shared the removed upload, clear it.
+        if (previousAvatar?.startsWith('/uploads/')) {
+            unlinkUpload(previousAvatar);
+            const linked = await prisma.player.findFirst({
+                where: { userId: req.userId!, active: true, headPhoto: previousAvatar },
+                select: { memberId: true },
+            });
+            if (linked) {
+                await PlayerService.syncAvatarToRoster(req.userId!, undefined);
+            }
+        }
+
+        res.json({ message: 'Avatar updated', avatarUrl: user.avatarUrl });
+    } catch (error) {
+        console.error('Use Google avatar error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 };
 

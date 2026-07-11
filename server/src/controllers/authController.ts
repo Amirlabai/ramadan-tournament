@@ -87,6 +87,7 @@ const hydrateUserPayload = async (userDoc: any) => {
         displayName: userDoc.displayName,
         role: userDoc.role,
         avatarUrl: userDoc.avatarUrl,
+        googlePictureUrl: userDoc.googlePictureUrl,
         mappedPlayerInfo: userDoc.mappedPlayerInfo ? { ...userDoc.mappedPlayerInfo } : null,
         playerProfile: userDoc.playerProfile, // fallback to custom player data
         pendingTeamRequest: userDoc.pendingTeamRequest ?? null,
@@ -423,7 +424,7 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
                 email: normalizedEmail,
                 googleId,
                 displayName: payload.name || normalizedEmail.split('@')[0],
-                avatarUrl: payload.picture,
+                // Store Google picture for opt-in only — do not auto-set profile avatar
                 googlePictureUrl: payload.picture,
                 role: 'User',
                 isVerified: true,
@@ -434,14 +435,9 @@ export const googleLogin = async (req: Request, res: Response): Promise<void> =>
             let changed = false;
             if (!user.googleId) { user.googleId = googleId; changed = true; }
             if (!user.isVerified && user.googleId) { user.isVerified = true; changed = true; }
-            // Always refresh the Google picture URL (it can change)
+            // Always refresh the Google picture URL (it can change); never auto-apply to avatarUrl
             if (payload.picture && user.googlePictureUrl !== payload.picture) {
                 user.googlePictureUrl = payload.picture;
-                changed = true;
-            }
-            // Only set avatarUrl from Google if user has no avatar yet
-            if (payload.picture && !user.avatarUrl) {
-                user.avatarUrl = payload.picture;
                 changed = true;
             }
             if (changed) await user.save();

@@ -54,6 +54,8 @@ export interface User {
     /** Set by `/auth/me` when role is platform admin (mirrors DB). */
     isPlatformAdmin?: boolean;
     avatarUrl?: string;
+    /** Google OAuth picture URL (stored for opt-in; not auto-applied). */
+    googlePictureUrl?: string;
     mappedPlayerInfo?: MappedPlayerInfo;
     playerProfile?: PlayerProfile;
     pendingTeamRequest?: PendingTeamRequest | null;
@@ -83,6 +85,7 @@ function mapUser(data: Record<string, unknown>): User {
         role: data.role as UserRole,
         isPlatformAdmin: data.isPlatformAdmin as boolean | undefined,
         avatarUrl: data.avatarUrl as string | undefined,
+        googlePictureUrl: data.googlePictureUrl as string | undefined,
         mappedPlayerInfo: data.mappedPlayerInfo as MappedPlayerInfo | undefined,
         playerProfile: data.playerProfile as PlayerProfile | undefined,
         pendingTeamRequest: data.pendingTeamRequest as PendingTeamRequest | null | undefined,

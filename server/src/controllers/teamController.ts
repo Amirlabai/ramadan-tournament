@@ -263,7 +263,10 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
                         position: userToUpdate.playerProfile.position || '',
                         hasPersonalId: false,
                         birthYear: 0,
-                        head_photo: userToUpdate.avatarUrl || '', // Apply photo immediately on creation
+                        head_photo:
+                            userToUpdate.avatarUrl?.startsWith('/uploads/')
+                                ? userToUpdate.avatarUrl
+                                : '', // Tournament uploads only — never Google CDN
                         bio: ''
                     };
 
@@ -280,8 +283,8 @@ export const approveTeamRequest = async (req: AuthRequest, res: Response): Promi
                         if (player.head_photo) {
                             // Inherit player's existing photo to the user 
                             userToUpdate.avatarUrl = player.head_photo;
-                        } else if (userToUpdate.avatarUrl) {
-                            // If player has no photo, but the user does, push user's photo to the team roster
+                        } else if (userToUpdate.avatarUrl?.startsWith('/uploads/')) {
+                            // Uploaded profile avatar only — never push Google CDN onto roster
                             player.head_photo = userToUpdate.avatarUrl;
                         }
                     }

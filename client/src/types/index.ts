@@ -124,6 +124,7 @@ export interface User {
     displayName: string;
     role: 'Admin' | 'Captain' | 'Player' | 'User' | 'admin';
     avatarUrl?: string;
+    googlePictureUrl?: string;
     mappedPlayerInfo?: MappedPlayerInfo;
     playerProfile?: Partial<Player>;
 }

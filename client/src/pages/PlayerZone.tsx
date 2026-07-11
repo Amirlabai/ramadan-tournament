@@ -60,10 +60,7 @@ const PlayerZone = () => {
             const res = await playerAPI.login(personalId, birthYear);
             setPlayer(res.data.player);
 
-            if (res.data.player.pending_head_photo) {
-                setPreview(resolveAssetUrl(res.data.player.pending_head_photo) ?? null);
-                setSuccessMsg('התמונה שלך ממתינה לאישור מנהל.');
-            } else if (res.data.player.head_photo) {
+            if (res.data.player.head_photo) {
                 setPreview(resolveAssetUrl(res.data.player.head_photo) ?? null);
             } else {
                 setPreview(null);
@@ -100,9 +97,12 @@ const PlayerZone = () => {
 
         try {
             const res = await playerAPI.uploadPhoto(formData);
-            setSuccessMsg('התמונה הועלתה בהצלחה וממתינה לאישור מנהל! מועבר לקבוצות...');
+            setSuccessMsg('התמונה הועלתה בהצלחה! מועבר לקבוצות...');
             setPreview(resolveAssetUrl(res.data.url) ?? null);
             setFile(null);
+            setPlayer((prev) =>
+                prev ? { ...prev, head_photo: res.data.url, pending_head_photo: '' } : prev
+            );
 
             // Redirect to Teams page after short delay
             setTimeout(() => {
@@ -204,13 +204,7 @@ const PlayerZone = () => {
                                     player={player}
                                     srcOverride={preview}
                                     alt={`תמונת פרופיל של ${player.firstName} ${player.lastName}`}
-                                    style={{ opacity: player.pending_head_photo && preview ? 0.7 : 1 }}
                                 />
-                                {player.pending_head_photo && preview && (
-                                    <div className="photo-preview-pending">
-                                        ממתין לאישור
-                                    </div>
-                                )}
                             </div>
 
                             <input
