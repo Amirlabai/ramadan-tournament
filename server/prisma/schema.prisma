@@ -234,17 +234,18 @@ model Player {
 }
 
 model Match {
-  id          Int        @id
-  seasonId    String     @map("season_id")
-  date        DateTime   @db.Timestamptz
-  location    String
-  phase       MatchPhase @default(group)
-  team1Id     Int        @map("team1_id")
-  team2Id     Int        @map("team2_id")
-  score1      Int?
-  score2      Int?
-  createdById String?    @map("created_by_id")
-  createdAt   DateTime   @default(now()) @map("created_at")
+  id                     Int        @id
+  seasonId               String     @map("season_id")
+  date                   DateTime   @db.Timestamptz
+  location               String
+  phase                  MatchPhase @default(group)
+  team1Id                Int        @map("team1_id")
+  team2Id                Int        @map("team2_id")
+  score1                 Int?
+  score2                 Int?
+  technicalWinnerTeamId  Int?       @map("technical_winner_team_id")
+  createdById            String?    @map("created_by_id")
+  createdAt              DateTime   @default(now()) @map("created_at")
 
   season       Season        @relation(fields: [seasonId], references: [id], onDelete: Restrict)
   team1        Team          @relation("HomeTeam", fields: [seasonId, team1Id], references: [seasonId, id])
@@ -259,15 +260,16 @@ model Match {
 }
 
 model Goal {
-  id        String  @id @default(uuid())
-  matchId   Int     @map("match_id")
-  seasonId  String  @map("season_id")
-  memberId  Int     @map("member_id")
-  minute    Int?
-  isOwnGoal Boolean @default(false) @map("is_own_goal")
+  id             String  @id @default(uuid())
+  matchId        Int     @map("match_id")
+  seasonId       String  @map("season_id")
+  memberId       Int?    @map("member_id")
+  minute         Int?
+  isOwnGoal      Boolean @default(false) @map("is_own_goal")
+  creditedTeamId Int?    @map("credited_team_id")
 
-  match  Match  @relation(fields: [seasonId, matchId], references: [seasonId, id], onDelete: Cascade)
-  player Player @relation(fields: [memberId], references: [memberId], onDelete: Restrict)
+  match  Match   @relation(fields: [seasonId, matchId], references: [seasonId, id], onDelete: Cascade)
+  player Player? @relation(fields: [memberId], references: [memberId], onDelete: Restrict)
 
   @@map("goals")
 }

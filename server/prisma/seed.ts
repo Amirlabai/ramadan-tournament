@@ -96,11 +96,13 @@ async function main() {
         score2: match.score2,
         goals: {
           create: (match.goals || []).map((g: any) => ({
-            memberId: g.member_id ?? g.memberId,
+            memberId: g.member_id ?? g.memberId ?? null,
             minute: g.minute ?? null,
             isOwnGoal: g.is_own_goal || false,
+            creditedTeamId: g.credited_team_id ?? g.creditedTeamId ?? null,
           })),
         },
+        technicalWinnerTeamId: match.technical_winner_team_id ?? match.technicalWinnerTeamId ?? null,
       },
     });
   }

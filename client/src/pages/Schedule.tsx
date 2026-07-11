@@ -131,7 +131,8 @@ const Schedule = () => {
         }).format(date);
     };
 
-    const getMatchStatus = (match: Match) => getMatchDisplayStatus(match.date, now);
+    const getMatchStatus = (match: Match) =>
+        getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId);
 
     const sortedMatches = [...matches].sort(compareMatchesByKickoff);
 
@@ -189,15 +190,20 @@ const Schedule = () => {
                 {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
                     return (
-                        <div key={match.id} id={`match-${match.id}`} className={`match-card card ${status}`}>
-                            <MatchStatusBadge status={status} />
+                        <div key={match.id} id={`match-${match.id}`} className={`match-card card ${status}${match.technicalWinnerTeamId != null ? ' technical' : ''}`}>
+                            <MatchStatusBadge
+                                status={status}
+                                technical={match.technicalWinnerTeamId != null}
+                            />
                             
                             {match.phase === 'knockout' && (
                                 <div className="playoff-badge-floating">משחק פלייאוף</div>
                             )}
 
                             <div className="match-teams-score">
-                                <div className="team-side">
+                                <div
+                                    className={`team-side${match.technicalWinnerTeamId === match.team1Id ? ' team-side--winner' : ''}`}
+                                >
                                     {getTeamLogoPosition(match.team1Id) === 'right' && getTeamLogo(match.team1Id) && (
                                         <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline me-2" />
                                     )}
@@ -212,7 +218,9 @@ const Schedule = () => {
 
                                 <div className="vs-divider">VS</div>
 
-                                <div className="team-side">
+                                <div
+                                    className={`team-side${match.technicalWinnerTeamId === match.team2Id ? ' team-side--winner' : ''}`}
+                                >
                                     {getTeamLogoPosition(match.team2Id) === 'right' && getTeamLogo(match.team2Id) && (
                                         <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline me-2" />
                                     )}
@@ -232,11 +240,18 @@ const Schedule = () => {
                             </div>
 
                             {match.goals && match.goals.length > 0 && (() => {
+                                const ownGoalsByTeam: Record<number, number> = {};
+                                for (const goal of match.goals) {
+                                    if (!goal.isOwnGoal || goal.creditedTeamId == null) continue;
+                                    ownGoalsByTeam[goal.creditedTeamId] =
+                                        (ownGoalsByTeam[goal.creditedTeamId] || 0) + 1;
+                                }
                                 const countsByTeam = (
                                     predicate: (teamId: number | undefined) => boolean
                                 ) => {
                                     const counts: Record<number, number> = {};
                                     for (const goal of match.goals) {
+                                        if (goal.isOwnGoal || goal.memberId == null) continue;
                                         const teamId = getTeamIdByMemberId(goal.memberId);
                                         if (predicate(teamId)) {
                                             counts[goal.memberId] = (counts[goal.memberId] || 0) + 1;
@@ -267,6 +282,15 @@ const Schedule = () => {
                                         </Link>
                                     );
                                 };
+                                const renderOwnGoals = (teamId: number) => {
+                                    const n = ownGoalsByTeam[teamId] || 0;
+                                    if (n === 0) return null;
+                                    return (
+                                        <span key={`og-${teamId}`} className="goal-item">
+                                            גול עצמי{n > 1 ? ` ×${n}` : ''}
+                                        </span>
+                                    );
+                                };
                                 return (
                                     <div className="match-goals">
                                         <h4>כובשים:</h4>
@@ -277,6 +301,7 @@ const Schedule = () => {
                                                 aria-label={getTeamName(match.team1Id)}
                                             >
                                                 {team1Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
+                                                {renderOwnGoals(match.team1Id)}
                                             </div>
                                             <div className="goals-side-gap" aria-hidden="true" />
                                             <div
@@ -285,6 +310,7 @@ const Schedule = () => {
                                                 aria-label={getTeamName(match.team2Id)}
                                             >
                                                 {team2Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
+                                                {renderOwnGoals(match.team2Id)}
                                             </div>
                                         </div>
                                         {otherGoals.length > 0 && (

@@ -27,6 +27,15 @@ export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): Sta
     const team2 = standings[match.team2Id];
     if (!team1 || !team2) continue;
 
+    const techWinner = match.technicalWinnerTeamId;
+    if (
+      techWinner != null
+      && techWinner !== match.team1Id
+      && techWinner !== match.team2Id
+    ) {
+      continue;
+    }
+
     team1.played += 1;
     team2.played += 1;
     team1.goalsFor += match.score1;
@@ -34,7 +43,15 @@ export function calculateStandings(teams: MockTeam[], matches: MockMatch[]): Sta
     team2.goalsFor += match.score2;
     team2.goalsAgainst += match.score1;
 
-    if (match.score1 > match.score2) {
+    if (techWinner === match.team1Id) {
+      team1.won += 1;
+      team1.points += 3;
+      team2.lost += 1;
+    } else if (techWinner === match.team2Id) {
+      team2.won += 1;
+      team2.points += 3;
+      team1.lost += 1;
+    } else if (match.score1 > match.score2) {
       team1.won += 1;
       team1.points += 3;
       team2.lost += 1;
@@ -106,6 +123,7 @@ export function calculateTopScorers(teams: MockTeam[], matches: MockMatch[]): To
   matches.forEach((match) => {
     if (!shouldCountMatchInStats(match)) return;
     match.goals.forEach((goal) => {
+      if (goal.isOwnGoal || goal.memberId == null) return;
       const memberId = goal.memberId;
       const memberInfo = members[memberId];
       if (!scorerStats[memberId]) {
@@ -155,6 +173,7 @@ export function calculatePlayerStats(teams: MockTeam[], matches: MockMatch[]): P
       if (playerStats[id]) playerStats[id].gamesPlayed += 1;
     });
     match.goals.forEach((goal) => {
+      if (goal.isOwnGoal || goal.memberId == null) return;
       if (playerStats[goal.memberId]) playerStats[goal.memberId].goals += 1;
     });
   });

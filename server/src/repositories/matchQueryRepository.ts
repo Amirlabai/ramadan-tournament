@@ -24,7 +24,13 @@ function mapRow(row: any): IMatch & { commentCount?: number } {
     team2Id: row.team2Id,
     score1: row.score1,
     score2: row.score2,
-    goals: (row.goals || []).map((g: any) => ({ memberId: g.memberId, minute: g.minute ?? 0 })),
+    technicalWinnerTeamId: row.technicalWinnerTeamId ?? null,
+    goals: (row.goals || []).map((g: any) => ({
+      memberId: g.memberId ?? null,
+      minute: g.minute ?? 0,
+      isOwnGoal: g.isOwnGoal === true,
+      creditedTeamId: g.creditedTeamId ?? null,
+    })),
     commentCount: row._count?.comments,
     toObject() {
       return { ...this, goals: [...this.goals] };
@@ -40,17 +46,31 @@ export async function listMatches(options: MatchListOptions = {}): Promise<Array
   const where: Record<string, unknown> = { seasonId: season.id };
 
   if (options.phase) where.phase = options.phase;
-  if (options.dateFrom || options.dateTo) {
-    where.date = {
-      ...(options.dateFrom ? { gte: options.dateFrom } : {}),
-      ...(options.dateTo ? { lte: options.dateTo } : {}),
-    };
-  }
+
+  const dateBounds: Record<string, Date> = {};
+  if (options.dateFrom) dateBounds.gte = options.dateFrom;
+  if (options.dateTo) dateBounds.lte = options.dateTo;
+  const hasDateBounds = Object.keys(dateBounds).length > 0;
+
   if (options.finishedOnly) {
     const kickoffEndedBefore = new Date(Date.now() - MATCH_DURATION_MS);
-    where.date = { ...(where.date as object), lt: kickoffEndedBefore };
-    where.score1 = { not: null };
-    where.score2 = { not: null };
+    where.AND = [
+      { score1: { not: null } },
+      { score2: { not: null } },
+      {
+        OR: [
+          { date: { ...dateBounds, lt: kickoffEndedBefore } },
+          {
+            AND: [
+              { technicalWinnerTeamId: { not: null } },
+              ...(hasDateBounds ? [{ date: dateBounds }] : []),
+            ],
+          },
+        ],
+      },
+    ];
+  } else if (hasDateBounds) {
+    where.date = dateBounds;
   }
 
   const orderField = options.sortField ?? 'date';
@@ -69,12 +89,16 @@ export async function listMatches(options: MatchListOptions = {}): Promise<Array
   return rows.map(mapRow);
 }
 
-/** Earliest kickoff still in the live window or upcoming — pins that Jerusalem match day on the home feed until the last live match ends (intentional). */
+/** Earliest kickoff still in the live window or upcoming — pins that Jerusalem match day on the home feed until the last live match ends (intentional). Technical wins are excluded (always finished). */
 export async function findNextUpcomingMatchDate(): Promise<Date | null> {
   const season = await SeasonService.getActiveFootballSeason();
   const liveWindowStart = new Date(Date.now() - MATCH_DURATION_MS);
   const row = await prisma.match.findFirst({
-    where: { seasonId: season.id, date: { gte: liveWindowStart } },
+    where: {
+      seasonId: season.id,
+      date: { gte: liveWindowStart },
+      technicalWinnerTeamId: null,
+    },
     orderBy: { date: 'asc' },
     select: { date: true },
   });

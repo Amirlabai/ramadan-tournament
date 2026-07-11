@@ -10,9 +10,17 @@ const STATUS_LABELS: Record<MatchDisplayStatus, string> = {
 
 interface MatchStatusBadgeProps {
   status: MatchDisplayStatus;
+  technical?: boolean;
 }
 
-export function MatchStatusBadge({ status }: MatchStatusBadgeProps) {
+export function MatchStatusBadge({ status, technical }: MatchStatusBadgeProps) {
+  if (technical) {
+    return (
+      <span className="match-status finished match-status--technical">
+        ניצחון טכני
+      </span>
+    );
+  }
   return (
     <span className={`match-status ${status}`}>{STATUS_LABELS[status]}</span>
   );

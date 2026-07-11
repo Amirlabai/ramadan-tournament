@@ -8,9 +8,13 @@ import { CacheService } from '../services/CacheService';
 
 export interface IGoal {
 
-  memberId: number;
+  memberId?: number | null;
 
   minute: number;
+
+  isOwnGoal?: boolean;
+
+  creditedTeamId?: number | null;
 
 }
 
@@ -33,6 +37,8 @@ export interface IMatch {
   score1: number | null;
 
   score2: number | null;
+
+  technicalWinnerTeamId?: number | null;
 
   goals: IGoal[];
 
@@ -66,7 +72,14 @@ function mapMatch(row: any): IMatch {
 
     score2: row.score2,
 
-    goals: (row.goals || []).map((g: any) => ({ memberId: g.memberId, minute: g.minute ?? 0 })),
+    technicalWinnerTeamId: row.technicalWinnerTeamId ?? null,
+
+    goals: (row.goals || []).map((g: any) => ({
+      memberId: g.memberId ?? null,
+      minute: g.minute ?? 0,
+      isOwnGoal: g.isOwnGoal === true,
+      creditedTeamId: g.creditedTeamId ?? null,
+    })),
 
     commentCount: row._count?.comments ?? row.commentCount,
 
@@ -94,9 +107,13 @@ function mapMatch(row: any): IMatch {
 
               matchId: match.id,
 
-              memberId: g.memberId,
+              memberId: g.memberId ?? null,
 
               minute: g.minute,
+
+              isOwnGoal: g.isOwnGoal === true,
+
+              creditedTeamId: g.creditedTeamId ?? null,
 
             })),
 
@@ -123,6 +140,8 @@ function mapMatch(row: any): IMatch {
             score1: match.score1,
 
             score2: match.score2,
+
+            technicalWinnerTeamId: match.technicalWinnerTeamId ?? null,
 
           },
 
@@ -238,6 +257,8 @@ export class Match {
 
   score2?: number | null;
 
+  technicalWinnerTeamId?: number | null;
+
   goals: IGoal[] = [];
 
   createdBy?: string;
@@ -286,6 +307,8 @@ export class Match {
 
         score2: this.score2 ?? null,
 
+        technicalWinnerTeamId: this.technicalWinnerTeamId ?? null,
+
         createdById: this.createdBy,
 
         goals: {
@@ -294,9 +317,13 @@ export class Match {
 
             seasonId: season.id,
 
-            memberId: g.memberId,
+            memberId: g.memberId ?? null,
 
             minute: g.minute,
+
+            isOwnGoal: g.isOwnGoal === true,
+
+            creditedTeamId: g.creditedTeamId ?? null,
 
           })),
 
@@ -477,6 +504,8 @@ export class Match {
     if (body.score1 !== undefined) existing.score1 = body.score1;
 
     if (body.score2 !== undefined) existing.score2 = body.score2;
+
+    if (body.technicalWinnerTeamId !== undefined) existing.technicalWinnerTeamId = body.technicalWinnerTeamId;
 
     if (body.goals !== undefined) existing.goals = body.goals;
 

@@ -67,7 +67,7 @@ function buildDashboard() {
   const now = new Date();
   const liveWindowStart = new Date(now.getTime() - MATCH_DURATION_MS);
   const upcoming = matches
-    .filter((m) => m.date >= liveWindowStart)
+    .filter((m) => m.date >= liveWindowStart && m.technicalWinnerTeamId == null)
     .sort((a, b) => a.date.getTime() - b.date.getTime());
   const nextDate = upcoming[0]?.date;
 
@@ -89,7 +89,7 @@ function buildDashboard() {
       (m) =>
         m.score1 !== null &&
         m.score2 !== null &&
-        getMatchDisplayStatus(m.date.toISOString()) === 'finished'
+        getMatchDisplayStatus(m.date.toISOString(), now, m.technicalWinnerTeamId) === 'finished'
     )
     .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 5)

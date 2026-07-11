@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import type { Match, Team, Goal } from '../../types';
-import AddGoalWizardModal from './AddGoalWizardModal';
+import AddGoalWizardModal, { type AddGoalSubmit } from './AddGoalWizardModal';
+import TechnicalWinModal from './TechnicalWinModal';
 import { applyGoalsAndScores } from '../../utils/matchGoals';
 
 interface MatchTableRowProps {
@@ -9,7 +10,8 @@ interface MatchTableRowProps {
     teams: Team[];
     onSave: (id: number, data: any) => Promise<void>;
     onDelete: (id: number) => void;
-    onAddGoal?: (matchId: number, memberId: number, teamId: number) => Promise<void>;
+    onAddGoal?: (matchId: number, payload: AddGoalSubmit) => Promise<void>;
+    onTechnicalWin?: (matchId: number, winnerTeamId: number | null) => Promise<void>;
     startInEditMode?: boolean;
 }
 
@@ -48,9 +50,19 @@ const jerusalemStringToISO = (s: string): string => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 
-const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, startInEditMode = false }: MatchTableRowProps) => {
+const MatchTableRow = ({
+    match,
+    index,
+    teams,
+    onSave,
+    onDelete,
+    onAddGoal,
+    onTechnicalWin,
+    startInEditMode = false,
+}: MatchTableRowProps) => {
     const [isEditing, setIsEditing] = useState(startInEditMode);
     const [showAddGoalWizard, setShowAddGoalWizard] = useState(false);
+    const [showTechnicalWin, setShowTechnicalWin] = useState(false);
     const [saving, setSaving] = useState(false);
     const [draft, setDraft] = useState({
         team1Id: match.team1Id.toString(),
@@ -100,6 +112,15 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
             const team1Id = parseInt(draft.team1Id);
             const team2Id = parseInt(draft.team2Id);
             const synced = applyGoalsAndScores(draft, draft.goals, teams);
+            const hasGoals = synced.goals.length > 0;
+            let technicalWinnerTeamId = hasGoals ? null : (match.technicalWinnerTeamId ?? null);
+            if (
+                technicalWinnerTeamId != null
+                && technicalWinnerTeamId !== team1Id
+                && technicalWinnerTeamId !== team2Id
+            ) {
+                technicalWinnerTeamId = null;
+            }
             const payload = {
                 team1Id,
                 team2Id,
@@ -109,6 +130,7 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                 location: draft.location,
                 phase: draft.phase,
                 goals: synced.goals,
+                technicalWinnerTeamId,
             };
             await onSave(match.id, payload);
             setIsEditing(false);
@@ -137,9 +159,15 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
     const team2Players = teams.find(t => t.id === parseInt(draft.team2Id))?.players ?? [];
     const allPlayers = [...team1Players, ...team2Players];
 
-    const playerLabel = (memberId: number) => {
+    const playerLabel = (memberId: number | null | undefined) => {
+        if (memberId == null) return 'גול עצמי';
         const p = allPlayers.find(x => x.memberId === memberId);
         return p ? (p.nickname || `${p.firstName} ${p.lastName}`) : `#${memberId}`;
+    };
+
+    const goalLabel = (g: Goal) => {
+        if (g.isOwnGoal) return 'גול עצמי';
+        return playerLabel(g.memberId);
     };
 
     const formatDate = (iso: string) =>
@@ -154,9 +182,11 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
 
     // ── Read-only row ──────────────────────────────────────────────────────────
     if (!isEditing) {
-        const goalSummary = (match.goals ?? []).length > 0
-            ? (match.goals ?? []).map(g => playerLabel(g.memberId)).join(', ')
-            : '—';
+        const goalSummary = match.technicalWinnerTeamId != null
+            ? `ניצחון טכני — ${getTeamName(match.technicalWinnerTeamId)}`
+            : (match.goals ?? []).length > 0
+                ? (match.goals ?? []).map(g => goalLabel(g)).join(', ')
+                : '—';
 
         return (
             <>
@@ -176,17 +206,48 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                         <span className="score-display">
                             {match.score1 ?? '—'} : {match.score2 ?? '—'}
                         </span>
+                        {match.technicalWinnerTeamId != null && (
+                            <span className="badge bg-secondary d-block mt-1" style={{ fontSize: '0.65rem' }}>טכני</span>
+                        )}
                     </td>
                     <td data-label="קבוצה 2" className="team-cell">{getTeamName(match.team2Id)}</td>
                     <td data-label="כובשים" className="goals-cell">{goalSummary}</td>
                     <td data-label="פעולות" className="actions-cell text-nowrap">
-                        {onAddGoal && match.id !== -1 && (
+                        {onAddGoal && match.id !== -1 && match.technicalWinnerTeamId == null && (
                             <button
                                 type="button"
                                 className="btn btn-sm btn-theme-green ms-1 match-action-add-goal"
                                 onClick={() => setShowAddGoalWizard(true)}
                             >
                                 הוסף שער
+                            </button>
+                        )}
+                        {onTechnicalWin && match.id !== -1 && match.technicalWinnerTeamId == null
+                            && (match.goals ?? []).length === 0 && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-secondary ms-1"
+                                onClick={() => setShowTechnicalWin(true)}
+                            >
+                                ניצחון טכני
+                            </button>
+                        )}
+                        {onTechnicalWin && match.id !== -1 && match.technicalWinnerTeamId != null && (
+                            <button
+                                type="button"
+                                className="btn btn-sm btn-danger ms-1"
+                                onClick={async () => {
+                                    if (!window.confirm('לבטל את הניצחון הטכני? המשחק יחזור למצב ללא תוצאה.')) {
+                                        return;
+                                    }
+                                    try {
+                                        await onTechnicalWin(match.id, null);
+                                    } catch (err: unknown) {
+                                        alert(err instanceof Error ? err.message : 'שגיאה בביטול ניצחון טכני');
+                                    }
+                                }}
+                            >
+                                בטל ניצחון טכני
                             </button>
                         )}
                         <button type="button" className="btn btn-sm btn-warning ms-1" onClick={() => setIsEditing(true)}>ערוך</button>
@@ -198,8 +259,18 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                         match={match}
                         teams={teams}
                         onClose={() => setShowAddGoalWizard(false)}
-                        onSubmit={async (memberId, teamId) => {
-                            await onAddGoal(match.id, memberId, teamId);
+                        onSubmit={async (payload) => {
+                            await onAddGoal(match.id, payload);
+                        }}
+                    />
+                )}
+                {showTechnicalWin && onTechnicalWin && (
+                    <TechnicalWinModal
+                        match={match}
+                        teams={teams}
+                        onClose={() => setShowTechnicalWin(false)}
+                        onSubmit={async (winnerTeamId) => {
+                            await onTechnicalWin(match.id, winnerTeamId);
                         }}
                     />
                 )}
@@ -238,7 +309,13 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                 </td>
                 {/* Team 1 */}
                 <td data-label="קבוצה 1" className="team-cell">
-                    <select className="form-select form-select-sm" value={draft.team1Id} onChange={e => setTeam('team1Id', e.target.value)}>
+                    <select
+                        className="form-select form-select-sm"
+                        value={draft.team1Id}
+                        onChange={e => setTeam('team1Id', e.target.value)}
+                        disabled={match.technicalWinnerTeamId != null}
+                        title={match.technicalWinnerTeamId != null ? 'בטל ניצחון טכני לפני שינוי קבוצות' : undefined}
+                    >
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </td>
@@ -252,7 +329,13 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                 </td>
                 {/* Team 2 */}
                 <td data-label="קבוצה 2" className="team-cell">
-                    <select className="form-select form-select-sm" value={draft.team2Id} onChange={e => setTeam('team2Id', e.target.value)}>
+                    <select
+                        className="form-select form-select-sm"
+                        value={draft.team2Id}
+                        onChange={e => setTeam('team2Id', e.target.value)}
+                        disabled={match.technicalWinnerTeamId != null}
+                        title={match.technicalWinnerTeamId != null ? 'בטל ניצחון טכני לפני שינוי קבוצות' : undefined}
+                    >
                         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                     </select>
                 </td>
@@ -280,7 +363,7 @@ const MatchTableRow = ({ match, index, teams, onSave, onDelete, onAddGoal, start
                             )}
                             {draft.goals.map((g, idx) => (
                                 <span key={idx} className="goal-tag">
-                                    {playerLabel(g.memberId)}
+                                    {goalLabel(g)}
                                     <button type="button" className="goal-remove" onClick={() => removeGoal(idx)}>×</button>
                                 </span>
                             ))}

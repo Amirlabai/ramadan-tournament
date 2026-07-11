@@ -78,6 +78,16 @@
   color: #1e40af;
 }
 
+.match-status.match-status--technical {
+  background: #e7e5e4;
+  color: #44403c;
+}
+
+.match-card.technical {
+  border-color: color-mix(in srgb, var(--color-primary, #166534) 35%, var(--border-color, #d1d5db));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary, #166534) 18%, transparent);
+}
+
 .playoff-badge-floating {
   position: absolute;
   top: 10px;
@@ -106,6 +116,18 @@
   align-items: center;
   gap: 0.05rem;
   flex: 1;
+}
+
+.team-side--winner {
+  padding: 0.4rem 0.6rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-primary, #166534) 14%, transparent);
+  outline: 2px solid var(--color-primary, #166534);
+}
+
+.team-side--winner .team-name {
+  font-weight: 800;
+  color: var(--color-primary, #166534);
 }
 
 .team-name {

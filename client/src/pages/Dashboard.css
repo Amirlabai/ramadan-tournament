@@ -388,6 +388,16 @@
     vertical-align: middle;
 }
 
+.technical-tag-mini {
+    background: #e7e5e4;
+    color: #44403c;
+    font-size: 0.65rem;
+    font-weight: bold;
+    padding: 1px 6px;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
 /* Specific adjustment for recent-matches content */
 .dashboard-page .recent-matches .matches-list {
     display: flex;
@@ -406,6 +416,10 @@
     border-radius: 8px;
     transition: background 0.2s;
     cursor: pointer;
+}
+
+.dashboard-page .recent-matches .match-item--technical {
+    outline: 1px solid color-mix(in srgb, var(--color-primary, #166534) 35%, transparent);
 }
 
 .dashboard-page .recent-matches .match-item:hover {
@@ -438,6 +452,18 @@
     justify-self: start;
     text-align: left;
     min-width: 0;
+}
+
+.dashboard-page .recent-matches .match-score .team-winner {
+    padding: 0.2rem 0.45rem;
+    border-radius: 6px;
+    background: color-mix(in srgb, var(--color-primary, #166534) 14%, transparent);
+    outline: 2px solid var(--color-primary, #166534);
+}
+
+.dashboard-page .recent-matches .match-score .team-winner .team-name {
+    font-weight: 800;
+    color: var(--color-primary, #166534);
 }
 
 .dashboard-page .recent-matches .match-score .team-name {

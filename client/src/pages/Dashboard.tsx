@@ -117,16 +117,16 @@ const Dashboard = () => {
     const isPendingApproval = user && user.mappedPlayerInfo?.status === 'pending';
 
     const liveMatches = (data.nextMatches ?? [])
-        .filter((match) => getMatchDisplayStatus(match.date, now) === 'live')
+        .filter((match) => getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId) === 'live')
         .sort(compareMatchesByKickoff);
     const upcomingMatches = (data.nextMatches ?? [])
-        .filter((match) => getMatchDisplayStatus(match.date, now) === 'upcoming')
+        .filter((match) => getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId) === 'upcoming')
         .sort(compareMatchesByKickoff);
     const hasPlayoffs = !!(data.playoffMatches && data.playoffMatches.length > 0);
     const hasLiveMatches = liveMatches.length > 0;
     const hasNextMatches = upcomingMatches.length > 0;
     const playedRecentMatches = (data.recentMatches ?? []).filter(
-        (match) => getMatchDisplayStatus(match.date, now) === 'finished'
+        (match) => getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId) === 'finished'
     );
     const hasRecentMatches = playedRecentMatches.length > 0;
     const topScorers = data.topScorers ?? [];
@@ -171,23 +171,26 @@ const Dashboard = () => {
     };
 
     const renderMatchCard = (match: Match) => {
-        const status = getMatchDisplayStatus(match.date, now);
+        const status = getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId);
         const team1Name = match.team1Name || `קבוצה ${match.team1Id}`;
         const team2Name = match.team2Name || `קבוצה ${match.team2Id}`;
         const team1Logo = resolveAssetUrl(match.team1LogoUrl);
         const team2Logo = resolveAssetUrl(match.team2LogoUrl);
         const isLive = status === 'live';
+        const isTechnical = match.technicalWinnerTeamId != null;
 
         const cardBody = (
             <>
-                <MatchStatusBadge status={status} />
+                <MatchStatusBadge status={status} technical={isTechnical} />
 
                 {match.phase === 'knockout' && (
                     <div className="playoff-badge-floating">משחק פלייאוף</div>
                 )}
 
                 <div className="match-teams-score">
-                    <div className="team-side">
+                    <div
+                        className={`team-side${match.technicalWinnerTeamId === match.team1Id ? ' team-side--winner' : ''}`}
+                    >
                         {match.team1LogoPosition !== 'left' && team1Logo && (
                             <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline me-2" />
                         )}
@@ -202,7 +205,9 @@ const Dashboard = () => {
 
                     <div className="vs-divider">VS</div>
 
-                    <div className="team-side">
+                    <div
+                        className={`team-side${match.technicalWinnerTeamId === match.team2Id ? ' team-side--winner' : ''}`}
+                    >
                         {match.team2LogoPosition !== 'left' && team2Logo && (
                             <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline me-2" />
                         )}
@@ -224,7 +229,7 @@ const Dashboard = () => {
         );
 
         return (
-            <div key={match.id} className={`match-card card ${status}`}>
+            <div key={match.id} className={`match-card card ${status}${isTechnical ? ' technical' : ''}`}>
                 {isLive ? (
                     <Link
                         to="/schedule"
@@ -401,19 +406,26 @@ const Dashboard = () => {
                                 <button
                                     type="button"
                                     key={match.id}
-                                    className="match-item w-100 border-0 text-start bg-transparent"
+                                    className={`match-item w-100 border-0 text-start bg-transparent${match.technicalWinnerTeamId != null ? ' match-item--technical' : ''}`}
                                     onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
                                 >
                                     <span className="match-date">
                                         {formatDate(match.date)}
                                         {match.phase === 'knockout' && <span className="playoff-tag-mini ms-2">פלייאוף</span>}
+                                        {match.technicalWinnerTeamId != null && (
+                                            <span className="technical-tag-mini ms-2">ניצחון טכני</span>
+                                        )}
                                     </span>
                                     <div className="match-score">
-                                        <div className="team-home">
+                                        <div
+                                            className={`team-home${match.technicalWinnerTeamId === match.team1Id ? ' team-winner' : ''}`}
+                                        >
                                             {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
                                         </div>
                                         <span className="score">{match.score1} - {match.score2}</span>
-                                        <div className="team-away">
+                                        <div
+                                            className={`team-away${match.technicalWinnerTeamId === match.team2Id ? ' team-winner' : ''}`}
+                                        >
                                             {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
                                         </div>
                                     </div>

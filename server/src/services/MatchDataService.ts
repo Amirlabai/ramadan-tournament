@@ -12,9 +12,12 @@ function formatMatch(match: any) {
     team2Id: match.team2Id,
     score1: match.score1,
     score2: match.score2,
+    technicalWinnerTeamId: match.technicalWinnerTeamId ?? null,
     goals: match.goals.map((g: any) => ({
-      memberId: g.memberId,
+      memberId: g.memberId ?? null,
       minute: g.minute,
+      isOwnGoal: g.isOwnGoal === true,
+      creditedTeamId: g.creditedTeamId ?? null,
     })),
     commentCount: match._count?.comments ?? 0,
   };

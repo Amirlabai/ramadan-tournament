@@ -3,11 +3,15 @@ import AccessibleModal from '../AccessibleModal';
 import type { Match, Team } from '../../types';
 import './AddGoalWizardModal.css';
 
+export type AddGoalSubmit =
+    | { kind: 'player'; memberId: number; teamId: number }
+    | { kind: 'ownGoal'; creditedTeamId: number };
+
 interface AddGoalWizardModalProps {
     match: Match;
     teams: Team[];
     onClose: () => void;
-    onSubmit: (memberId: number, teamId: number) => Promise<void>;
+    onSubmit: (payload: AddGoalSubmit) => Promise<void>;
 }
 
 const SUCCESS_CLOSE_MS = 1500;
@@ -16,6 +20,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
     const [step, setStep] = useState<'team' | 'player'>('team');
     const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null);
     const [selectedMemberId, setSelectedMemberId] = useState<number | null>(null);
+    const [ownGoalSelected, setOwnGoalSelected] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [success, setSuccess] = useState(false);
@@ -47,19 +52,28 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
     const handleTeamSelect = (teamId: number) => {
         setSelectedTeamId(teamId);
         setSelectedMemberId(null);
+        setOwnGoalSelected(false);
         setError('');
         setStep('player');
     };
 
     const handleSubmit = async () => {
-        if (!selectedTeamId || !selectedMemberId) {
-            setError('יש לבחור קבוצה ושחקן');
+        if (!selectedTeamId) {
+            setError('יש לבחור קבוצה');
+            return;
+        }
+        if (!ownGoalSelected && !selectedMemberId) {
+            setError('יש לבחור שחקן או גול עצמי');
             return;
         }
         setError('');
         setLoading(true);
         try {
-            await onSubmit(selectedMemberId, selectedTeamId);
+            if (ownGoalSelected) {
+                await onSubmit({ kind: 'ownGoal', creditedTeamId: selectedTeamId });
+            } else {
+                await onSubmit({ kind: 'player', memberId: selectedMemberId!, teamId: selectedTeamId });
+            }
             setSuccess(true);
             clearCloseTimer();
             closeTimerRef.current = setTimeout(handleClose, SUCCESS_CLOSE_MS);
@@ -75,6 +89,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
 
     const modalTitleId = 'add-goal-modal-title';
     const scoreDisplay = `${match.score1 ?? '—'} : ${match.score2 ?? '—'}`;
+    const canSubmit = ownGoalSelected || (selectedMemberId != null && players.length > 0);
 
     return (
         <AccessibleModal open onClose={handleClose} titleId={modalTitleId} className="add-goal-modal">
@@ -101,7 +116,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                             <p className="add-goal-match-summary text-muted mb-3">
                                 {team1Name} <span className="fw-bold">{scoreDisplay}</span> {team2Name}
                             </p>
-                            <p className="mb-3 text-muted">איזו קבוצה הבקיעה?</p>
+                            <p className="mb-3 text-muted">לזכות מי?</p>
                             <div className="add-goal-team-grid">
                                 <button
                                     type="button"
@@ -124,12 +139,34 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                     ) : (
                         <>
                             <p className="mb-3 text-muted">מי הבקיע?</p>
-                            {players.length === 0 ? (
-                                <p className="text-muted">אין שחקנים רשומים בקבוצה זו.</p>
-                            ) : (
-                                <div className="row g-2 add-goal-player-grid mb-3">
-                                    {players.map(p => {
-                                        const isSelected = selectedMemberId === p.memberId;
+                            <div className="row g-2 add-goal-player-grid mb-3">
+                                <div className="col-12">
+                                    <button
+                                        type="button"
+                                        className={`add-goal-player-card w-100${ownGoalSelected ? ' selected' : ''}`}
+                                        aria-pressed={ownGoalSelected}
+                                        onClick={() => {
+                                            setOwnGoalSelected(true);
+                                            setSelectedMemberId(null);
+                                            setError('');
+                                        }}
+                                    >
+                                        {ownGoalSelected && (
+                                            <span className="add-goal-player-check" aria-hidden="true">✓</span>
+                                        )}
+                                        <span className="fw-bold">גול עצמי</span>
+                                        <span className="text-muted small d-block mt-1">
+                                            נזקף לטובת {getTeamName(selectedTeamId!)} ללא כובש
+                                        </span>
+                                    </button>
+                                </div>
+                                {players.length === 0 ? (
+                                    <div className="col-12">
+                                        <p className="text-muted mb-0">אין שחקנים רשומים בקבוצה זו — ניתן לבחור גול עצמי בלבד.</p>
+                                    </div>
+                                ) : (
+                                    players.map(p => {
+                                        const isSelected = !ownGoalSelected && selectedMemberId === p.memberId;
                                         const label = p.nickname || `${p.firstName} ${p.lastName}`;
                                         return (
                                             <div key={p.memberId} className="col-12 col-sm-6">
@@ -139,6 +176,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                                     aria-pressed={isSelected}
                                                     onClick={() => {
                                                         setSelectedMemberId(p.memberId);
+                                                        setOwnGoalSelected(false);
                                                         setError('');
                                                     }}
                                                 >
@@ -152,9 +190,9 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                                 </button>
                                             </div>
                                         );
-                                    })}
-                                </div>
-                            )}
+                                    })
+                                )}
+                            </div>
                             {error && <div className="alert alert-danger py-2" role="alert">{error}</div>}
                             <div className="add-goal-footer d-flex gap-2">
                                 <button
@@ -164,6 +202,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                         setStep('team');
                                         setSelectedTeamId(null);
                                         setSelectedMemberId(null);
+                                        setOwnGoalSelected(false);
                                         setError('');
                                     }}
                                 >
@@ -173,7 +212,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                     type="button"
                                     className="btn btn-theme-green add-goal-btn ms-auto"
                                     onClick={handleSubmit}
-                                    disabled={!selectedMemberId || loading || players.length === 0}
+                                    disabled={!canSubmit || loading}
                                     aria-busy={loading}
                                     aria-label="הוסף שער"
                                 >

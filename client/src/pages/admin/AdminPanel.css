@@ -247,6 +247,7 @@
 /* Actions cell */
 .matches-table .actions-cell {
     min-width: 140px;
+    text-align: left;
 }
 
 .matches-table .actions-cell .btn {

@@ -8,23 +8,30 @@ export function isPlayerOnTeam(memberId: number, teamId: number, teams: Team[]):
     return teamMemberIds(teams, teamId).has(memberId);
 }
 
-/** Drop scorers that are not on either match team. */
+export type GoalLike = Pick<Goal, 'memberId' | 'minute' | 'isOwnGoal' | 'creditedTeamId'>;
+
+/** Drop scorers that are not on either match team (own goals kept if creditedTeamId is valid). */
 export function filterGoalsToTeams(
-    goals: Pick<Goal, 'memberId' | 'minute'>[],
+    goals: GoalLike[],
     team1Id: number,
     team2Id: number,
     teams: Team[],
 ): Goal[] {
     const team1Ids = teamMemberIds(teams, team1Id);
     const team2Ids = teamMemberIds(teams, team2Id);
-    return goals.filter(
-        (g) => team1Ids.has(g.memberId) || team2Ids.has(g.memberId),
-    ) as Goal[];
+    const matchTeams = new Set([team1Id, team2Id]);
+    return goals.filter((g) => {
+        if (g.isOwnGoal) {
+            return g.creditedTeamId != null && matchTeams.has(g.creditedTeamId);
+        }
+        const mid = g.memberId;
+        return mid != null && (team1Ids.has(mid) || team2Ids.has(mid));
+    }) as Goal[];
 }
 
-/** Count goals per match side from scorer roster membership (invalid scorers excluded). */
+/** Count goals per match side — own goals credit creditedTeamId. */
 export function syncScoresFromGoals(
-    goals: Pick<Goal, 'memberId' | 'minute'>[],
+    goals: GoalLike[],
     team1Id: number,
     team2Id: number,
     teams: Team[],
@@ -35,8 +42,14 @@ export function syncScoresFromGoals(
     let score1 = 0;
     let score2 = 0;
     for (const g of validGoals) {
-        if (team1Ids.has(g.memberId)) score1++;
-        else if (team2Ids.has(g.memberId)) score2++;
+        if (g.isOwnGoal) {
+            if (g.creditedTeamId === team1Id) score1++;
+            else if (g.creditedTeamId === team2Id) score2++;
+            continue;
+        }
+        const mid = g.memberId;
+        if (mid != null && team1Ids.has(mid)) score1++;
+        else if (mid != null && team2Ids.has(mid)) score2++;
     }
     return { score1, score2 };
 }

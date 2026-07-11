@@ -30,6 +30,12 @@ describe('getMatchDisplayStatus', () => {
   it('returns upcoming for invalid match date', () => {
     expect(getMatchDisplayStatus('not-a-date')).toBe('upcoming');
   });
+
+  it('returns finished for technical win regardless of kickoff time', () => {
+    const now = jerusalemDateTime('2026-07-10', '16:30');
+    expect(getMatchDisplayStatus(kickoffIso, now, 1)).toBe('finished');
+    expect(getMatchDisplayStatus(kickoffIso, now, 2)).toBe('finished');
+  });
 });
 
 describe('shouldCountMatchInStats', () => {
@@ -57,6 +63,16 @@ describe('shouldCountMatchInStats', () => {
     expect(shouldCountMatchInStats({ date: kickoffIso, score1: null, score2: null }, now)).toBe(
       false
     );
+  });
+
+  it('is true before kickoff when technical winner is set', () => {
+    const now = jerusalemDateTime('2026-07-10', '16:30');
+    expect(
+      shouldCountMatchInStats(
+        { date: kickoffIso, score1: 0, score2: 0, technicalWinnerTeamId: 1 },
+        now
+      )
+    ).toBe(true);
   });
 });
 

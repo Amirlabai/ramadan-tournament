@@ -30,9 +30,11 @@ export interface Team {
 }
 
 export interface Goal {
-    memberId: number;
+    memberId?: number | null;
     minute: number;
     playerName?: string;
+    isOwnGoal?: boolean;
+    creditedTeamId?: number | null;
 }
 
 export interface Match {
@@ -42,8 +44,9 @@ export interface Match {
     phase: 'group' | 'knockout';
     team1Id: number;
     team2Id: number;
-    score1: number;
-    score2: number;
+    score1: number | null;
+    score2: number | null;
+    technicalWinnerTeamId?: number | null;
     team1Name?: string;
     team1LogoUrl?: string;
     team1LogoPosition?: 'left' | 'right' | 'none';

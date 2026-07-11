@@ -25,8 +25,10 @@ export interface MockTeam {
 }
 
 export interface MockGoal {
-  memberId: number;
+  memberId: number | null;
   minute: number | null;
+  isOwnGoal?: boolean;
+  creditedTeamId?: number | null;
 }
 
 export interface MockMatch {
@@ -38,6 +40,7 @@ export interface MockMatch {
   team2Id: number;
   score1: number | null;
   score2: number | null;
+  technicalWinnerTeamId?: number | null;
   goals: MockGoal[];
 }
 
@@ -104,9 +107,12 @@ function loadMatches(dataDir: string): MockMatch[] {
     score1: match.score1,
     score2: match.score2,
     goals: (match.goals || []).map((g: any) => ({
-      memberId: g.member_id ?? g.memberId,
+      memberId: g.member_id ?? g.memberId ?? null,
       minute: g.minute ?? null,
+      isOwnGoal: !!(g.is_own_goal ?? g.isOwnGoal),
+      creditedTeamId: g.credited_team_id ?? g.creditedTeamId ?? null,
     })),
+    technicalWinnerTeamId: match.technical_winner_team_id ?? match.technicalWinnerTeamId ?? null,
   }));
 }
 
@@ -186,7 +192,13 @@ export function formatMatchForApi(match: MockMatch) {
     team2Id: match.team2Id,
     score1: match.score1,
     score2: match.score2,
-    goals: match.goals.map((g) => ({ memberId: g.memberId, minute: g.minute })),
+    technicalWinnerTeamId: match.technicalWinnerTeamId ?? null,
+    goals: match.goals.map((g) => ({
+      memberId: g.memberId,
+      minute: g.minute,
+      isOwnGoal: g.isOwnGoal === true,
+      creditedTeamId: g.creditedTeamId ?? null,
+    })),
     commentCount: 0,
   };
 }

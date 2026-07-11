@@ -15,6 +15,7 @@ import { canAccessAdminPanel, isPlatformAdmin } from '../../utils/tournamentUser
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
 import NavActionDot, { withPendingActionLabel } from '../../components/NavActionDot';
 import { assertPlayerOnTeam, syncScoresFromGoals } from '../../utils/matchGoals';
+import type { AddGoalSubmit } from '../../components/admin/AddGoalWizardModal';
 import { getMatchDisplayStatus, isSameJerusalemCalendarDay } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../../hooks/useMatchStatusNow';
 import './AdminPanel.css';
@@ -189,16 +190,29 @@ const AdminPanel = () => {
         }
     };
 
-    const handleAddGoal = async (matchId: number, memberId: number, teamId: number) => {
-        assertPlayerOnTeam(memberId, teamId, teams);
-
+    const handleAddGoal = async (matchId: number, payload: AddGoalSubmit) => {
         const match = matches.find(m => m.id === matchId);
         if (!match) throw new Error('משחק לא נמצא');
 
-        const goals = [...(match.goals ?? []), { memberId, minute: 0 }];
+        let goals;
+        if (payload.kind === 'ownGoal') {
+            goals = [
+                ...(match.goals ?? []),
+                {
+                    memberId: null,
+                    minute: 0,
+                    isOwnGoal: true,
+                    creditedTeamId: payload.creditedTeamId,
+                },
+            ];
+        } else {
+            assertPlayerOnTeam(payload.memberId, payload.teamId, teams);
+            goals = [...(match.goals ?? []), { memberId: payload.memberId, minute: 0, isOwnGoal: false }];
+        }
+
         const { score1, score2 } = syncScoresFromGoals(goals, match.team1Id, match.team2Id, teams);
 
-        const payload = {
+        const updatePayload = {
             team1Id: match.team1Id,
             team2Id: match.team2Id,
             score1,
@@ -207,10 +221,11 @@ const AdminPanel = () => {
             location: match.location,
             phase: match.phase,
             goals,
+            technicalWinnerTeamId: null,
         };
 
         try {
-            const res = await matchesAPI.update(matchId, payload);
+            const res = await matchesAPI.update(matchId, updatePayload);
             setMatches(prev =>
                 prev.map(m => (m.id === matchId ? res.data : m))
                     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -227,10 +242,59 @@ const AdminPanel = () => {
                 /* keep prior list on refetch failure */
             }
             const axiosErr = err as { response?: { data?: { error?: string } } };
-            const msg = axiosErr.response?.data?.error
-                || (err instanceof Error ? err.message : '')
-                || 'שגיאה בהוספת השער';
-            throw new Error(msg);
+            throw new Error(axiosErr.response?.data?.error || 'שגיאה בהוספת השער');
+        }
+    };
+
+    const handleTechnicalWin = async (matchId: number, winnerTeamId: number | null) => {
+        const match = matches.find(m => m.id === matchId);
+        if (!match) throw new Error('משחק לא נמצא');
+
+        if (winnerTeamId != null) {
+            if (winnerTeamId !== match.team1Id && winnerTeamId !== match.team2Id) {
+                throw new Error('ניצחון טכני חייב להיות לאחת מקבוצות המשחק');
+            }
+            if ((match.goals ?? []).length > 0) {
+                throw new Error('לא ניתן לרשום ניצחון טכני למשחק עם שערים — מחק שערים תחילה');
+            }
+        }
+
+        const updatePayload = winnerTeamId == null
+            ? {
+                team1Id: match.team1Id,
+                team2Id: match.team2Id,
+                score1: null,
+                score2: null,
+                date: match.date,
+                location: match.location,
+                phase: match.phase,
+                goals: [] as [],
+                technicalWinnerTeamId: null,
+            }
+            : {
+                team1Id: match.team1Id,
+                team2Id: match.team2Id,
+                score1: 0,
+                score2: 0,
+                date: match.date,
+                location: match.location,
+                phase: match.phase,
+                goals: [] as [],
+                technicalWinnerTeamId: winnerTeamId,
+            };
+
+        try {
+            const res = await matchesAPI.update(matchId, updatePayload);
+            setMatches(prev =>
+                prev.map(m => (m.id === matchId ? res.data : m))
+                    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+            );
+        } catch (err: unknown) {
+            const axiosErr = err as { response?: { data?: { error?: string } } };
+            throw new Error(
+                axiosErr.response?.data?.error
+                    || (winnerTeamId == null ? 'שגיאה בביטול ניצחון טכני' : 'שגיאה ברישום ניצחון טכני'),
+            );
         }
     };
 
@@ -261,7 +325,8 @@ const AdminPanel = () => {
         return team ? team.name : `קבוצה ${teamId}`;
     };
 
-    const getMatchStatus = (match: Match) => getMatchDisplayStatus(match.date, statusNow);
+    const getMatchStatus = (match: Match) =>
+        getMatchDisplayStatus(match.date, statusNow, match.technicalWinnerTeamId);
 
     const filteredAdminMatches = matches.filter((match) => {
         if (matchFilter === 'all') return true;
@@ -632,6 +697,7 @@ const AdminPanel = () => {
                                                 onSave={handleSaveMatch}
                                                 onDelete={deleteMatch}
                                                 onAddGoal={handleAddGoal}
+                                                onTechnicalWin={handleTechnicalWin}
                                             />
                                         ))}
                                 </tbody>

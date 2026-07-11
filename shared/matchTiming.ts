@@ -17,26 +17,38 @@ type StatsMatchLike = {
   date: string | Date;
   score1: number | null;
   score2: number | null;
+  technicalWinnerTeamId?: number | null;
 };
 
 function toMatchDateIso(date: string | Date): string {
   return date instanceof Date ? date.toISOString() : date;
 }
 
-/** Count in standings/scorers once the match has started (live or finished; scores required). */
+function hasTechnicalWinner(
+  technicalWinnerTeamId?: number | null
+): boolean {
+  return technicalWinnerTeamId != null;
+}
+
+/** Count in standings/scorers once the match has started (live or finished; scores required).
+ * Technical wins count immediately when scores are set. */
 export function shouldCountMatchInStats(
   match: StatsMatchLike,
   now: Date = new Date()
 ): match is StatsMatchLike & { score1: number; score2: number } {
   if (match.score1 == null || match.score2 == null) return false;
-  const status = getMatchDisplayStatus(toMatchDateIso(match.date), now);
+  if (hasTechnicalWinner(match.technicalWinnerTeamId)) return true;
+  const status = getMatchDisplayStatus(toMatchDateIso(match.date), now, match.technicalWinnerTeamId);
   return status === 'live' || status === 'finished';
 }
 
 export function getMatchDisplayStatus(
   matchDateIso: string,
-  now: Date = new Date()
+  now: Date = new Date(),
+  technicalWinnerTeamId?: number | null
 ): MatchDisplayStatus {
+  if (hasTechnicalWinner(technicalWinnerTeamId)) return 'finished';
+
   const kickoff = new Date(matchDateIso).getTime();
   if (!Number.isFinite(kickoff)) return 'upcoming';
 
@@ -75,13 +87,14 @@ export function shouldPollTournamentData(
 
 /** True when any match is near kickoff or full-time so UI should re-render status. */
 export function needsMatchStatusClockTick(
-  matches: { date: string }[],
+  matches: { date: string; technicalWinnerTeamId?: number | null }[],
   now: Date = new Date()
 ): boolean {
   if (!matches.length) return false;
 
   const current = now.getTime();
   return matches.some((match) => {
+    if (hasTechnicalWinner(match.technicalWinnerTeamId)) return false;
     const kickoff = new Date(match.date).getTime();
     if (!Number.isFinite(kickoff)) return false;
     const end = kickoff + MATCH_DURATION_MS;
