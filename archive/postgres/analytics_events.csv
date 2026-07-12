@@ -1,4 +1,4 @@
-id,created_at,event_name,category,source,session_id,path,properties
+﻿id,created_at,event_name,category,source,session_id,path,properties
 a99ebded-435a-4c87-84f0-06571124072c,2026-07-02 08:52:27.724,logout,auth,server,,/,"{""surface"": ""public""}"
 2f6e661a-f227-471c-88c0-c4814489734d,2026-07-02 08:52:49.947,google_login_success,auth,server,,/,"{""surface"": ""public""}"
 300137ac-80ef-4ace-993b-12d92123bfc8,2026-07-02 09:11:53.464,page_view,browse,client,d69c6a4a-54de-4f7f-bbe8-0c526f433786,/teams,
@@ -10132,3 +10132,117 @@ a1c4bec7-5ea3-462b-a9d8-8c683ea038e9,2026-07-12 04:42:03.559,page_view,browse,cl
 803ef18d-509c-41ef-8d9a-84bde86821f8,2026-07-12 05:01:23.159,auth_session_lost,auth,client,20a50378-1eca-4791-803d-2d8dbc565e77,/admin,"{""platform"": ""android"", ""standalone"": false}"
 90c508d2-26b3-427c-9ab2-b9b4b6a1000b,2026-07-12 05:14:36.425,page_view,browse,client,9f075109-b6df-488d-aa82-1afa52fa6014,/admin,
 47d53d8f-5601-4bab-b33a-361c405acf08,2026-07-12 05:14:40.578,page_view,browse,client,9f075109-b6df-488d-aa82-1afa52fa6014,/world-cup,
+25c51a67-54a6-46d5-a904-56bee3c6a2d6,2026-07-12 05:35:22.14,auth_session_lost,auth,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+24745153-6cf6-4442-8f3e-6774cf1beab9,2026-07-12 05:35:22.14,page_view,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,
+3266ea2c-68b3-4bab-8b6f-f88db03d1a59,2026-07-12 05:35:22.141,page_view,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/schedule,
+628337ad-e37a-41d5-9baa-2d48e0b0e8b6,2026-07-12 05:35:22.141,nav_click,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""navTo"": ""/schedule""}"
+7c69146e-b83f-406a-9d8b-867fcf16c088,2026-07-12 05:36:17.894,page_view,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,
+271683da-ac4a-4bea-b1b8-e9b99dd8c2e5,2026-07-12 05:36:17.894,nav_click,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/schedule,"{""navTo"": ""/teams""}"
+241729fe-6733-4437-9ce0-96192af72e10,2026-07-12 05:36:20.258,team_expand,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""teamId"": 2, ""division"": ""boys"", ""expanded"": true}"
+67e668ea-f34c-4e39-b20f-ee36d4107d7a,2026-07-12 05:36:32.036,team_expand,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""teamId"": 8, ""division"": ""boys"", ""expanded"": true}"
+b20b47aa-2cd8-49ec-9287-ec01d84619a8,2026-07-12 05:36:39.017,team_expand,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""teamId"": 7, ""division"": ""boys"", ""expanded"": true}"
+63f484f7-3bd3-4e68-82a2-304ac1f250e7,2026-07-12 05:36:40.666,team_expand,browse,client,2ac80573-ffb1-4a24-a1fc-b997e7f43de1,/teams,"{""teamId"": 6, ""division"": ""boys"", ""expanded"": true}"
+c6711923-bfa5-437f-a906-5725ca983092,2026-07-12 05:58:54.278,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/,"{""navTo"": ""/stats""}"
+82a17a51-dfd4-453b-8bd9-065c50de7333,2026-07-12 05:58:54.279,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/stats,
+c220dfa8-3cd6-426c-ad70-136ebf545691,2026-07-12 05:58:54.279,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/stats,"{""navTo"": ""/teams""}"
+081d302b-c40d-4e88-b03b-e69450613dc8,2026-07-12 05:58:54.28,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/teams,
+a44d299c-cc38-48cc-9d58-937c32514f50,2026-07-12 05:58:56.141,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,
+b1acaf6e-7e0f-4aa3-8085-127b10850462,2026-07-12 05:58:56.141,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/teams,"{""navTo"": ""/schedule""}"
+185c37dc-123e-4cfa-85ff-0fc841774728,2026-07-12 05:59:00.2,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,"{""navTo"": ""/""}"
+0ec12f8b-02d4-4abc-ad8e-3f1ed96c6666,2026-07-12 05:59:00.201,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/,
+a70e18ad-334f-48ab-bd5c-1a1f6e6079d7,2026-07-12 05:59:02.771,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/,"{""navTo"": ""/schedule""}"
+ef538c0d-881e-4f8f-b85a-a04d2db1588b,2026-07-12 05:59:02.771,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,
+4e2ff95b-dc1c-4c18-aa1e-1bd4030f07dd,2026-07-12 05:59:06.487,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/teams,
+b2d94d49-624e-4f57-9003-2c1d22ffade7,2026-07-12 05:59:06.487,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,"{""navTo"": ""/teams""}"
+bd3ebd95-65ee-4fa9-acaa-b4811d6529da,2026-07-12 05:59:07.792,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/teams,"{""navTo"": ""/schedule""}"
+a1429dd6-b742-4e3e-9586-f6db764b22a6,2026-07-12 05:59:07.793,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,
+79a92281-6c12-4070-9e66-5a953da82721,2026-07-12 05:59:10.343,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,"{""navTo"": ""/""}"
+114348d7-cb94-4aff-8ad5-b7e3cca651c6,2026-07-12 05:59:10.344,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/,"{""navTo"": ""/stats""}"
+fb55a67b-8c90-4c4e-abb0-06b9767d43ef,2026-07-12 05:59:10.344,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/stats,
+e8f54de4-70e3-4302-a7d5-76cd9f521a60,2026-07-12 05:59:10.344,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/,
+c1fca46f-6c99-4866-a10e-61bf30cd21ec,2026-07-12 05:59:45.066,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,
+32a74446-9bda-46b4-8789-8552bd807f2d,2026-07-12 05:59:45.066,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/stats,"{""navTo"": ""/schedule""}"
+00ca44cc-fd87-451a-9797-ddc4bbb28190,2026-07-12 06:00:55.255,nav_click,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/schedule,"{""navTo"": ""/teams""}"
+83bece16-fa94-4c7d-9a68-1a7397aead3f,2026-07-12 06:00:55.256,page_view,browse,client,d83f2ab8-25fe-45e8-8223-5f5db231f5d8,/teams,
+46239dbc-66e4-42e0-b9ef-461780fd1411,2026-07-12 06:19:41.37,page_view,browse,client,cd255cdc-374b-409e-be2b-4dc33c317fae,/schedule,
+4331f4f0-a352-4b39-b939-bd693ac9ec5e,2026-07-12 06:19:41.371,auth_session_lost,auth,client,cd255cdc-374b-409e-be2b-4dc33c317fae,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+b5663e67-336b-49e9-9a6c-6dfea5191a40,2026-07-12 06:23:51.133,page_view,browse,client,cd255cdc-374b-409e-be2b-4dc33c317fae,/teams,
+150eb53c-c329-4028-95a9-7e3cda1f1e28,2026-07-12 06:24:44.257,team_expand,browse,client,cd255cdc-374b-409e-be2b-4dc33c317fae,/teams,"{""teamId"": 1, ""division"": ""boys"", ""expanded"": true}"
+31859144-7ccf-43be-891e-5634290eb62f,2026-07-12 06:25:25.519,team_expand,browse,client,cd255cdc-374b-409e-be2b-4dc33c317fae,/teams,"{""teamId"": 6, ""division"": ""boys"", ""expanded"": true}"
+7eba1694-504d-452a-94db-d86ae4a34009,2026-07-12 06:28:56.231,page_view,browse,client,53cbc59f-4dc7-4913-8a4c-04411ac5cee4,/teams,
+e40c2f33-4b7a-4d33-82c8-58df3252c83b,2026-07-12 06:28:56.231,auth_session_lost,auth,client,53cbc59f-4dc7-4913-8a4c-04411ac5cee4,/teams,"{""platform"": ""android"", ""standalone"": false}"
+46ca221f-7637-4596-9df8-43f06237d435,2026-07-12 06:28:58.794,nav_click,browse,client,53cbc59f-4dc7-4913-8a4c-04411ac5cee4,/teams,"{""navTo"": ""/stats""}"
+e570d863-ea5e-436f-bf8c-5a762a07456f,2026-07-12 06:28:58.795,page_view,browse,client,53cbc59f-4dc7-4913-8a4c-04411ac5cee4,/stats,
+2a201026-9116-487d-a8dc-73cf62ab8b00,2026-07-12 06:31:08.539,auth_session_lost,auth,client,b4fc2eb9-c2b9-476e-a1d5-f71dac5b0217,/schedule,"{""platform"": ""desktop"", ""standalone"": false}"
+5484a52a-deba-40ee-986d-c2bcd870b252,2026-07-12 06:33:06.988,auth_session_lost,auth,client,e4158404-2c3f-472f-8264-8f39e2635da3,/schedule,"{""platform"": ""desktop"", ""standalone"": false}"
+93195775-5b72-4501-852d-f42ec8718d0c,2026-07-12 06:35:48.248,auth_session_lost,auth,client,cad15a86-9293-4a31-ad39-900ea3980dc4,/schedule,"{""platform"": ""desktop"", ""standalone"": false}"
+40780999-9f8a-4fbe-829c-bf6b82d3bbb0,2026-07-12 06:35:48.248,page_view,browse,client,cad15a86-9293-4a31-ad39-900ea3980dc4,/schedule,
+2378231d-8624-4d58-8bf7-4973492112d0,2026-07-12 06:35:54.669,nav_click,browse,client,cad15a86-9293-4a31-ad39-900ea3980dc4,/schedule,"{""navTo"": ""/stats""}"
+b8cede27-f069-4ce1-a8be-fbe92bbe7d70,2026-07-12 06:35:54.669,page_view,browse,client,cad15a86-9293-4a31-ad39-900ea3980dc4,/stats,
+5cf5cb3a-3a51-483c-a440-ec75f10e9ffb,2026-07-12 06:37:25.989,auth_session_lost,auth,client,23cf3736-06c0-496e-8630-eace144b45d3,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+51a9a87b-d696-4823-9dda-7b6927f1e13e,2026-07-12 07:08:00.186,page_view,browse,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/,
+d06df88e-c293-4431-8630-8fe84f5be660,2026-07-12 07:08:00.187,page_view,browse,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/world-cup,
+1ea9a088-6a89-4232-a2e1-9b34f2689f82,2026-07-12 07:08:00.187,auth_session_lost,auth,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/world-cup,"{""platform"": ""android"", ""standalone"": false}"
+62059f3d-d609-4083-ad31-511664ca895e,2026-07-12 07:08:11.221,nav_click,browse,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/world-cup,"{""navTo"": ""/world-cup/teams""}"
+7e008cb9-d567-4b83-be1d-5749475444f6,2026-07-12 07:08:11.222,page_view,browse,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/world-cup/teams,
+b2b25645-1523-4e1c-b379-f01f76314ff2,2026-07-12 07:08:16.018,page_view,browse,client,8014dadd-06cd-44f4-a7f9-8d9de5ab5a5c,/world-cup,
+87ea3840-7161-4fe4-82c0-4e7026282523,2026-07-12 07:08:18.221,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/schedule,
+78b45e3b-9833-44b1-8ac2-93666b2c6d69,2026-07-12 07:08:18.222,auth_session_lost,auth,client,261338ef-7019-4e45-b847-367aea90caa7,/schedule,"{""platform"": ""android"", ""standalone"": false}"
+b9cbd475-ae8d-41db-9cb3-1b4d8d886f6b,2026-07-12 07:08:18.318,page_view,browse,client,ae706f1d-72cf-4334-986a-e8262fb1102c,/teams,
+5ed3e8bd-1d56-41c1-acf6-d2f2e5fc714a,2026-07-12 07:08:18.318,auth_session_lost,auth,client,ae706f1d-72cf-4334-986a-e8262fb1102c,/teams,"{""platform"": ""android"", ""standalone"": false}"
+e8f1b00d-fab2-4b96-b6d8-7bc43b1c6f03,2026-07-12 07:09:13.065,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/teams,
+c91a54e7-c165-4e45-9201-cfbea1f8bd8c,2026-07-12 07:09:19.356,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/schedule,
+b38a1ede-dafa-4d86-be1a-6a4c6ac6598a,2026-07-12 07:09:36.38,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/teams,
+a5c6674c-1fed-41c3-9c96-8ef1ef48d88c,2026-07-12 07:10:26.439,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/schedule,
+77034740-9761-42ae-a3c9-959704f989fc,2026-07-12 07:11:13.934,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/teams,
+b70258c8-9a6a-4606-9ef6-cdde15de2d03,2026-07-12 07:11:27.507,page_view,browse,client,261338ef-7019-4e45-b847-367aea90caa7,/schedule,
+13d22a2c-c44d-4557-bcf0-f4aaf9f787ea,2026-07-12 07:39:55.065,auth_session_lost,auth,client,840efd9e-ef19-4eb9-86fb-ba40c69bb84a,/admin,"{""platform"": ""android"", ""standalone"": false}"
+d431392c-4c5c-4576-9182-6e7789286f18,2026-07-12 07:41:55.367,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/profile,
+a94f20c3-7d18-47ba-a5b1-f22e844a1711,2026-07-12 07:41:55.367,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/admin,
+3c3b396f-2d83-43f8-a146-c147163bf5cf,2026-07-12 07:42:06.507,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/stats,
+5f552908-92bc-4106-80e4-3b0c9e108f23,2026-07-12 07:42:06.507,nav_click,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/profile,"{""navTo"": ""/stats""}"
+d10f10e0-b61f-4fc8-8562-d5bc20acb873,2026-07-12 07:43:45.207,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/profile,
+52e1bc0c-2f6a-422d-a6a7-b52cb97b8ec1,2026-07-12 07:43:45.207,nav_click,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/stats,"{""navTo"": ""/profile""}"
+72462a36-e5a4-4e8b-945e-281080c2e4c3,2026-07-12 07:43:48.894,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/teams,
+a1dff509-5924-4a38-b04a-2a0ceb6bc449,2026-07-12 07:43:51.668,team_expand,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/teams,"{""teamId"": 3, ""division"": ""boys"", ""expanded"": true}"
+3d5b5390-a696-45a5-bafb-feab4ecf34b8,2026-07-12 07:44:04.29,nav_click,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/teams,"{""navTo"": ""/profile""}"
+ac127eba-a36a-4048-afd1-c4fb9dfe29ea,2026-07-12 07:44:04.29,page_view,browse,client,dc0b5e95-eefd-4d9a-b63e-3b1f0f267950,/profile,
+d999afba-8489-4d38-8284-0a5709476e29,2026-07-12 07:44:55.988,auth_session_lost,auth,client,aea5f78f-153e-425c-9b03-5625a149d804,/admin,"{""platform"": ""android"", ""standalone"": false}"
+c99de7d5-a36f-47aa-a3b1-ad1c0bd0eae1,2026-07-12 07:56:36.227,page_view,browse,client,d43a2008-5e8d-4a85-a588-a430c633c2a3,/teams,
+fd1eca35-68b3-4ce1-bbb5-33c11524f797,2026-07-12 07:56:36.228,auth_session_lost,auth,client,d43a2008-5e8d-4a85-a588-a430c633c2a3,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+bd0a279f-07c6-41f2-9b51-d2885a7b2d03,2026-07-12 08:11:12.35,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,
+bd951cad-a8e9-47db-8f50-540a3bc94e44,2026-07-12 08:11:12.35,auth_session_lost,auth,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,"{""platform"": ""desktop"", ""standalone"": false}"
+30dc19dd-8405-41b3-979b-a56d26703e9b,2026-07-12 08:11:15.745,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/schedule,
+af46e235-b502-4f19-a5f2-5c7a1a494d79,2026-07-12 08:11:15.745,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,"{""navTo"": ""/schedule""}"
+b27fdbd0-3d67-4f06-9b1f-9a5a5d4483e1,2026-07-12 08:11:45.81,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,
+96f41801-6cf2-463d-9852-1c5ae025294b,2026-07-12 08:11:45.81,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/schedule,"{""navTo"": ""/teams""}"
+ae308acb-ea6f-4f74-9345-358a6aac2d8d,2026-07-12 08:11:47.845,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/stats,
+73b3a45b-4fa9-481b-bfde-e0d1d7c97aa4,2026-07-12 08:11:47.845,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,"{""navTo"": ""/stats""}"
+8b45a5a5-a602-4c46-a8b4-b836eca5429e,2026-07-12 08:11:58.296,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/stats,"{""navTo"": ""/teams""}"
+a7079b7c-c46e-484f-8549-286be70d5089,2026-07-12 08:11:58.296,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,"{""navTo"": ""/schedule""}"
+67b36f3a-95c3-4aed-b233-f9a59ad536a9,2026-07-12 08:11:58.297,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/teams,
+04a15113-b471-4a0f-b63d-74931db6a454,2026-07-12 08:11:58.297,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/schedule,
+9f3922a6-22d9-467c-8b39-a6f26cf7dfcd,2026-07-12 08:12:05.826,page_view,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/stats,
+36c70be9-53a2-4efa-ba84-06b1fb59c3e1,2026-07-12 08:12:05.826,nav_click,browse,client,43c911ef-963c-4238-b274-13ef593327fc,/schedule,"{""navTo"": ""/stats""}"
+0cb479a2-cd2d-435c-950c-bcdd9348a64e,2026-07-12 08:44:07.846,page_view,browse,client,b12ec2d3-7491-4459-b467-2f3d95f04437,/teams,
+f9125641-1cc8-4147-b7b5-d3f21b6dfe70,2026-07-12 08:44:07.846,auth_session_lost,auth,client,b12ec2d3-7491-4459-b467-2f3d95f04437,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+a29722ff-b183-4d9d-89a3-92bf6e7b86df,2026-07-12 08:44:17.592,page_view,browse,client,b12ec2d3-7491-4459-b467-2f3d95f04437,/schedule,
+68393611-c363-4493-8739-5cc12ba925ed,2026-07-12 08:44:17.592,nav_click,browse,client,b12ec2d3-7491-4459-b467-2f3d95f04437,/teams,"{""navTo"": ""/schedule""}"
+ea4db996-19a2-4f9e-a6a6-e03063a9a2ec,2026-07-12 08:46:16.959,page_view,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/admin,
+c6a1de69-f73a-4946-968c-40367179abb8,2026-07-12 08:46:30.986,nav_click,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/admin,"{""navTo"": ""/""}"
+3a05a57b-bc8a-49b5-a144-80b159f0e1c7,2026-07-12 08:46:30.987,page_view,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/,
+a2ad2253-8c60-4fbb-8a40-0120b04c7e83,2026-07-12 08:46:33.38,nav_click,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/,"{""navTo"": ""/schedule""}"
+6d4cd131-72e4-4a37-86c5-f6fdbf39b27d,2026-07-12 08:46:33.381,page_view,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/schedule,
+368c154c-537c-4a3d-819d-96c84372f265,2026-07-12 09:05:01.075,page_view,browse,client,dafef02e-1611-451b-9f9f-38283b6cba3e,/teams,
+041c11b9-25ae-4039-9805-f7fe1a9a0b66,2026-07-12 09:05:01.075,auth_session_lost,auth,client,dafef02e-1611-451b-9f9f-38283b6cba3e,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+03b61c47-3b48-40d9-bd9c-5f38818fcaa3,2026-07-12 09:05:12.454,nav_click,browse,client,dafef02e-1611-451b-9f9f-38283b6cba3e,/teams,"{""navTo"": ""/stats""}"
+5a00b29c-f40b-47bf-89a4-f258bb076b87,2026-07-12 09:05:12.454,page_view,browse,client,dafef02e-1611-451b-9f9f-38283b6cba3e,/stats,
+07ed5270-d08e-40e5-bc5b-d83179368c89,2026-07-12 09:07:30.206,auth_session_lost,auth,client,c70d4c74-7fec-4591-935c-25ddb256a615,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+4a8a7359-1bc3-4157-aff5-a1a66827a5fb,2026-07-12 09:07:31.219,page_view,browse,client,c70d4c74-7fec-4591-935c-25ddb256a615,/schedule,
+073272ad-01a4-4dda-ad69-e9995e4d80f9,2026-07-12 09:07:55.193,page_view,browse,client,c70d4c74-7fec-4591-935c-25ddb256a615,/teams,
+40886837-2a8a-486d-9099-4db9fc4f2af1,2026-07-12 09:07:55.193,nav_click,browse,client,c70d4c74-7fec-4591-935c-25ddb256a615,/schedule,"{""navTo"": ""/teams""}"
+1cdfcee1-8b61-4352-be5e-758f7cd29b5c,2026-07-12 09:07:58.162,team_expand,browse,client,c70d4c74-7fec-4591-935c-25ddb256a615,/teams,"{""teamId"": 4, ""division"": ""boys"", ""expanded"": true}"
+b94265cd-0dc9-4cbc-88d4-db9ea67b51a5,2026-07-12 09:12:02.404,page_view,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/stats,
+c10cc023-ee9c-4a9b-ae3a-b4245beec4cc,2026-07-12 09:12:02.404,nav_click,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/schedule,"{""navTo"": ""/stats""}"
+37cf09c1-7f69-4593-a14b-762737d9f7f1,2026-07-12 09:25:51.174,nav_click,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/stats,"{""navTo"": ""/admin""}"
+be783c4a-16aa-48d8-8380-c222c2819a71,2026-07-12 09:25:51.174,page_view,browse,client,3c7f63a7-9eae-46a5-a1f2-0a2e527516fc,/admin,

@@ -1,4 +1,4 @@
-id,match_id,season_id,member_id,minute,is_own_goal,credited_team_id
+﻿id,match_id,season_id,member_id,minute,is_own_goal,credited_team_id
 fc3eb91a-493b-436d-92cf-3b67b4017cf3,85,eb19f900-c99f-486f-8930-6b56a74293d6,1,0,f,
 3c54f91f-a1eb-4630-a07c-13ba77a3614b,85,eb19f900-c99f-486f-8930-6b56a74293d6,10,0,f,
 ed5babf2-f9ba-4dba-9501-eb0bee71747d,85,eb19f900-c99f-486f-8930-6b56a74293d6,10,0,f,

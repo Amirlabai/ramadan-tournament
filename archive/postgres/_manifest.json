@@ -1,18 +1,26 @@
 {
-  "exported_at": "2026-07-12T08:21:21+03:00",
+  "exported_at": "2026-07-12T12:46:45+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
+    "seasons.csv",
     "users.csv",
     "season_registrations.csv",
+    "invoice_codes.csv",
     "teams.csv",
     "players.csv",
     "matches.csv",
     "goals.csv",
+    "bracket_slots.csv",
     "news.csv",
     "comments.csv",
     "votes.csv",
     "stats_snapshots.csv",
+    "season_archives.csv",
+    "point_entries.csv",
     "team_creation_requests.csv",
+    "team_join_requests.csv",
+    "team_transfer_requests.csv",
+    "banned_words.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -37,7 +45,7 @@
       "file": "teams.csv"
     },
     "players": {
-      "rows": 102,
+      "rows": 103,
       "file": "players.csv"
     },
     "matches": {
@@ -93,7 +101,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 10133,
+      "rows": 10247,
       "file": "analytics_events.csv"
     }
   },
@@ -104,6 +112,7 @@
     "players.csv omits personal_id_enc (national ID ciphertext)",
     "analytics_events.csv contains behavioral events (session_id, path, properties JSON) — pseudonymous, no account linkage or PII by design",
     "personal_id_enc is encrypted; restore requires PERSONAL_ID_KEY",
-    "archive/postgres/ is sensitive — do not publish or share publicly"
+    "archive/postgres/ is sensitive — do not publish or share publicly",
+    "CSVs are UTF-8 with BOM for Excel Hebrew on Windows"
   ]
 }

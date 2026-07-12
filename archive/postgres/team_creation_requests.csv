@@ -1,4 +1,4 @@
-id,user_id,season_id,team_name,description,status,created_at
+﻿id,user_id,season_id,team_name,description,status,created_at
 43351064-dcc6-4723-9a24-056f35200605,c70d4e9a-c225-456a-88d9-cd3ff49fe475,eb19f900-c99f-486f-8930-6b56a74293d6,מקסיקו,"",approved,2026-06-27 16:13:54.232
 96bbcb90-a463-473f-be60-5eb62bb5e95d,6fd358f1-2fa5-44c6-8d00-627c67e7499d,eb19f900-c99f-486f-8930-6b56a74293d6,נורווגיה,"",approved,2026-06-28 18:08:38.843
 3091779d-bf28-482b-91fa-b8a4b06d3bfc,70741229-97a8-45df-9df3-9e1eb0e9231a,eb19f900-c99f-486f-8930-6b56a74293d6,גרמניה,"",rejected,2026-07-10 08:10:03.852
