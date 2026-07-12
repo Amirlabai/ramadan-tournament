@@ -162,7 +162,8 @@ def export_table_bytes(cur, query: str) -> tuple[bytes, int]:
     cur.copy_expert(copy_command, buffer)
     text = buffer.getvalue()
     row_count = max(len(text.splitlines()) - 1, 0)
-    return text.encode("utf-8"), row_count
+    # UTF-8 BOM so Excel (Windows) opens Hebrew correctly on double-click
+    return ("\ufeff" + text).encode("utf-8"), row_count
 
 
 def write_if_changed(dest: Path, content: bytes) -> bool:
@@ -221,6 +222,7 @@ def backup_postgres() -> None:
             "analytics_events.csv contains behavioral events (session_id, path, properties JSON) — pseudonymous, no account linkage or PII by design",
             "personal_id_enc is encrypted; restore requires PERSONAL_ID_KEY",
             "archive/postgres/ is sensitive — do not publish or share publicly",
+            "CSVs are UTF-8 with BOM for Excel Hebrew on Windows",
         ],
     }
     manifest_path.write_text(
