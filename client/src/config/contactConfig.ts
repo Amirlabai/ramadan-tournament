@@ -9,3 +9,7 @@ export const BUY_COFFEE_LABEL = 'תתרום לקפה'
 
 /** Google Form — health declaration + parental consent (boys tournament). */
 export const HEALTH_DECLARATION_FORM_URL = 'https://forms.gle/YNVWz5JUF4BrvRyd7'
+
+/** Dropbox folder — match media / documentation (boys tournament). */
+export const MEDIA_DOCS_DROPBOX_URL =
+  'https://www.dropbox.com/scl/fo/ik6h4ns21d5ku05xecrg4/AKcHoyI4D7G8IchCNlI5BNQ?rlkey=e7i8sakzd5akwptjuxdnt1wau&st=v32ykez6&dl=0'

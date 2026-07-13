@@ -1,5 +1,5 @@
 import type { User } from '../contexts/AuthContext'
-import { HEALTH_DECLARATION_FORM_URL } from '../config/contactConfig'
+import { HEALTH_DECLARATION_FORM_URL, MEDIA_DOCS_DROPBOX_URL } from '../config/contactConfig'
 import { tournamentPaths, type TournamentSlug } from './tournamentPaths'
 
 export type NavActionIndicator = 'profile' | 'admin'
@@ -55,6 +55,12 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
         label: 'הצהרת בריאות לשחקנים',
         external: true,
         className: 'health-form-link',
+      },
+      {
+        to: MEDIA_DOCS_DROPBOX_URL,
+        label: 'תיעוד תמונות בחסות יוסף שמסי',
+        external: true,
+        className: 'media-docs-link',
       },
       { to: 'mvps' in paths ? paths.mvps : '/mvps', label: 'MVPs' },
       { to: paths.home ?? '/', label: 'דף הבית' },

@@ -112,6 +112,10 @@
 }
 
 .tournament-sidebar-item:has(.health-form-link) {
+  margin: 0 0.5rem 0.35rem;
+}
+
+.tournament-sidebar-item:has(.media-docs-link) {
   margin: 0 0.5rem 0.65rem;
   padding-bottom: 0.65rem;
   border-bottom: 1px solid var(--color-border, #e0e0e0);
@@ -172,6 +176,54 @@
 
 .tournament-sidebar-link.health-form-link:focus-visible {
   outline: 3px solid var(--color-focus, #0066cc);
+  outline-offset: 2px;
+}
+
+.tournament-sidebar-link.media-docs-link {
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  border-inline-start: none;
+  border: 1px solid #a8c8f5;
+  background: linear-gradient(135deg, #eaf3ff 0%, #d6e8ff 55%, #c8ddf8 100%);
+  color: #0061ff;
+  font-weight: 600;
+  line-height: 1.25;
+  box-shadow: 0 2px 8px rgba(0, 97, 255, 0.12);
+  transition: transform var(--transition-speed, 0.2s), box-shadow var(--transition-speed, 0.2s),
+    background var(--transition-speed, 0.2s);
+}
+
+.tournament-sidebar-link.media-docs-link::before {
+  content: '\f07b';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 1rem;
+  flex-shrink: 0;
+  color: #3d8bfd;
+}
+
+.tournament-sidebar-link.media-docs-link::after {
+  content: '\f35d';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.7rem;
+  margin-inline-start: auto;
+  opacity: 0.75;
+  flex-shrink: 0;
+}
+
+.tournament-sidebar-link.media-docs-link:hover {
+  color: #0052d9;
+  background: linear-gradient(135deg, #f2f8ff 0%, #ddeeff 50%, #c5dbf7 100%);
+  border-color: #7eb6ff;
+  box-shadow: 0 3px 12px rgba(0, 97, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+.tournament-sidebar-link.media-docs-link:focus-visible {
+  outline: 3px solid #0061ff;
   outline-offset: 2px;
 }
 
@@ -362,11 +414,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .tournament-sidebar-link.health-form-link {
+  .tournament-sidebar-link.health-form-link,
+  .tournament-sidebar-link.media-docs-link {
     transition: none;
   }
 
-  .tournament-sidebar-link.health-form-link:hover {
+  .tournament-sidebar-link.health-form-link:hover,
+  .tournament-sidebar-link.media-docs-link:hover {
     transform: none;
   }
 }
