@@ -689,4 +689,33 @@
         min-height: 44px;
         margin: 0 !important;
     }
+
+    /* Keep ⋮ menu inside the card — absolute + overflow-x wrapper clips off-screen */
+    .match-row-actions {
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .match-row-more {
+        width: 100%;
+    }
+
+    .match-row-more-menu {
+        position: static;
+        inset: auto;
+        width: 100%;
+        min-width: 0;
+        margin-top: 0.35rem;
+        box-shadow: none;
+    }
+
+    .match-row-regen-toast {
+        position: static;
+        inset: auto;
+        display: block;
+        margin-top: 0.35rem;
+        text-align: center;
+        pointer-events: none;
+    }
 }
