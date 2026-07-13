@@ -145,6 +145,24 @@ function AppShell() {
             <header
               className={`tournament-header py-2${isMobile ? ' tournament-header--band' : ' text-center'}`}
             >
+              {!isMobile && (
+                <>
+                  <img
+                    className="banner-foreground left"
+                    src="/assets/images/banner/leftSideBanner.webp"
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                  />
+                  <img
+                    className="banner-foreground right"
+                    src="/assets/images/banner/rightSideBanner.webp"
+                    alt=""
+                    aria-hidden="true"
+                    decoding="async"
+                  />
+                </>
+              )}
               {isMobile ? (
                 <div className="tournament-header-band">
                   <div className="tournament-header-band-switcher">

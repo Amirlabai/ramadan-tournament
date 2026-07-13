@@ -150,36 +150,51 @@ h2 {
 .banner-foreground {
   position: absolute;
   top: 0;
-  height: var(--banner-svg-height);
+  height: 100%;
   width: auto;
+  aspect-ratio: 587 / 100;
+  max-height: 100%;
+  object-fit: contain;
   pointer-events: none;
   z-index: 0;
-  opacity: var(--banner-svg-opacity);
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  filter: grayscale(0.25) contrast(1.28) brightness(1.05);
 }
 
 .banner-foreground.left {
   left: 0;
-  transform: scale(var(--banner-svg-scale));
-  transform-origin: top left;
+  transform-origin: left center;
 }
 
 .banner-foreground.right {
   right: 0;
-  /* Flip inwards by using center origin or left origin */
-  transform: scaleX(-1) scale(var(--banner-svg-scale));
-  transform-origin: center;
+  transform-origin: right center;
 }
 
 /* Header */
 .tournament-header {
   position: relative;
   z-index: 2;
+  isolation: isolate;
   background: linear-gradient(140deg, var(--color-primary) 20%, var(--color-primary-dark) 70%);
   color: var(--white);
   margin-bottom: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: visible;
+  overflow: hidden;
+}
+
+.tournament-header::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    140deg,
+    var(--color-primary) 20%,
+    var(--color-primary-dark) 70%
+  );
+  mix-blend-mode: color;
+  opacity: 0.1;
 }
 
 .tournament-header.py-2 {
@@ -278,10 +293,12 @@ h2 {
 }
 
 .tournament-header h1,
-.tournament-header p {
+.tournament-header p,
+.tournament-header .tournament-switcher-wrap,
+.tournament-header-band {
   position: relative;
   z-index: 2;
-  /* Text over SVGs */
+  /* Text over banner art */
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
@@ -984,20 +1001,9 @@ h2 {
     font-size: 0.75rem;
   }
 
-  /* Phone compatibility for banner SVGs */
-  .banner-foreground.right {
-    right: -30%;
-    /* Push further right */
-  }
-
-  .banner-foreground.left {
-    left: -30%;
-    /* Push further left */
-  }
-
+  /* Side player banners are desktop-only */
   .banner-foreground {
-    opacity: 0.5;
-    /* More subtle on mobile */
+    display: none;
   }
 
   /* Phone compatibility for side logos */
