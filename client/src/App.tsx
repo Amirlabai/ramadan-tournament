@@ -143,7 +143,7 @@ function AppShell() {
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
             <header
-              className={`tournament-header py-4${isMobile ? ' tournament-header--band' : ' text-center'}`}
+              className={`tournament-header py-2${isMobile ? ' tournament-header--band' : ' text-center'}`}
             >
               {isMobile ? (
                 <div className="tournament-header-band">

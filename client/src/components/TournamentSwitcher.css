@@ -1,21 +1,21 @@
 .tournament-switcher-wrap {
   position: relative;
   display: inline-flex;
-  margin: 0.75rem auto 0.75rem;
+  margin: 0.25rem auto 0.15rem;
   z-index: 100;
 }
 
 .tournament-switcher-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.35rem 0.85rem;
+  gap: 0.3rem;
+  padding: 0.25rem 0.7rem;
   border-radius: 999px;
   border: 2px solid var(--primary-green, var(--color-primary-dark));
   background: rgba(255, 255, 255, 0.92);
   color: var(--primary-green, var(--color-primary-dark));
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   cursor: pointer;
   min-height: 44px;
 }

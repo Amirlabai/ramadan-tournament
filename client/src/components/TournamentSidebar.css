@@ -30,6 +30,16 @@
   padding: 0 0.5rem 1rem;
 }
 
+/* Tighten join between header/news and page body (beat Bootstrap .py-4 !important) */
+.app-body > #main-content > .container.py-4,
+.app-body > #main-content > .dashboard-page > .container.py-4,
+.app-body > #main-content > .stats-page.container.py-4,
+.app-body > #main-content > .schedule-page.container.py-4,
+.app-body > #main-content > .archive-page.container.py-4 {
+  padding-top: 0.5rem !important;
+  padding-bottom: 1rem !important;
+}
+
 .tournament-sidebar--desktop {
   grid-column: 1;
   grid-row: 1;
@@ -207,6 +217,25 @@
 
   .app-body > #main-content {
     grid-column: 1;
+  }
+
+  /* Small air under header/news on phone (not the old py-4 dead zone) */
+  .app.has-mobile-bottom-nav .app-body > #main-content > .container.py-4,
+  .app.has-mobile-bottom-nav .app-body > #main-content > .dashboard-page > .container.py-4,
+  .app.has-mobile-bottom-nav .app-body > #main-content > .stats-page.container.py-4,
+  .app.has-mobile-bottom-nav .app-body > #main-content > .schedule-page.container.py-4,
+  .app.has-mobile-bottom-nav .app-body > #main-content > .archive-page.container.py-4 {
+    padding-top: 0.45rem !important;
+    padding-bottom: 0.75rem !important;
+  }
+
+  .app.has-mobile-bottom-nav .tournament-page-title.mb-4 {
+    margin-bottom: 0.65rem !important;
+  }
+
+  .app.has-mobile-bottom-nav .tournament-page-title {
+    padding-bottom: 0.3rem;
+    font-size: 1.25rem;
   }
 
   .tournament-sidebar--drawer {

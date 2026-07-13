@@ -6,8 +6,12 @@ import type { News } from '../types';
 const NewsBanner = () => {
     const { slug } = useTournament();
     const [newsItem, setNewsItem] = useState<News | null>(null);
-    const [isCollapsed, setIsCollapsed] = useState(false);
-    const [hasAutoCollapsed, setHasAutoCollapsed] = useState(false);
+    const [isCollapsed, setIsCollapsed] = useState(() =>
+        typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+    );
+    const [hasAutoCollapsed, setHasAutoCollapsed] = useState(() =>
+        typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches
+    );
 
     useEffect(() => {
         const onScroll = () => {
