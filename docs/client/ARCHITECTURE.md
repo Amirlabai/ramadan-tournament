@@ -61,7 +61,9 @@ flowchart TD
 ## App shell and navigation
 
 - **Layout:** `AppShell` (header, news banner, `app-body` grid, footer) vs `LegalPageLayout` for legal pages.
-- **Sidebar:** [`TournamentSidebar`](../../client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](../../client/src/utils/mainNavItems.ts). Desktop: sticky right sidebar (RTL). Mobile: off-canvas drawer; swipe left on `#main-content` opens drawer.
+- **Breakpoint:** JS (`useMediaMobile` in [`useSidebarDrawer.ts`](../../client/src/hooks/useSidebarDrawer.ts)) and CSS share `(max-width: 768px)`.
+- **Desktop:** sticky right sidebar ([`TournamentSidebar`](../../client/src/components/TournamentSidebar.tsx)) with full [`getMainNavItems`](../../client/src/utils/mainNavItems.ts).
+- **Mobile:** permanent bottom bar ([`MobileBottomNav`](../../client/src/components/MobileBottomNav.tsx)) — Home → Teams → Schedule/Archive → Stats (boys/WC) → Profile (girls: four tabs; news stays in [`NewsBanner`](../../client/src/components/NewsBanner.tsx)). Thin fixed header band: tournament switcher | title | hamburger. Drawer is overflow-only via `filterMobileOverflowNavItems` / `getMobilePrimaryNavItems`. Profile tab shows `user.avatarUrl`; admins get a Profile/Admin chooser. Tab tap scrolls to top (`prefers-reduced-motion` → `auto`); ScrollToTop is hidden. Swipe left on `#main-content` still opens the drawer.
 - **Tournament context:** [`TournamentContext`](../../client/src/contexts/TournamentContext.tsx) — slug, `data-tournament`, season switcher.
 - **Themes:** [`tokens.css`](../../client/src/styles/tokens.css) (boys), [`tournament-girls.css`](../../client/src/styles/tournament-girls.css), [`tournament-worldcup.css`](../../client/src/styles/tournament-worldcup.css).
 

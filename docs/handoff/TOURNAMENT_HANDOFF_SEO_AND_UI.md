@@ -1,6 +1,8 @@
 # Iron Sight → Tournament / SPA handoff
 
 > **Status (2026-05-23):** Implemented in `client/` — SEO config, legal pages, cookie gate, PWA, right sidebar, mobile drawer + swipe tabs. See `status.md` and `context.md`.
+>
+> **Mobile chrome (2026-07):** Bottom nav + thin fixed header band superseded the edge-handle drawer-as-primary-nav pattern. Canonical: [`docs/client/ARCHITECTURE.md`](../client/ARCHITECTURE.md) (App shell and navigation) and [`context.md`](../../context.md). This handoff body remains a May 2026 SEO/legal reference.
 
 Full summary of SEO, legal pages, accessibility UI, and dashboard fixes on **iron-sight**, with steps you can reuse on a similar Vite + React project (e.g. ramadan-tournament or another marketing + app shell).
 
