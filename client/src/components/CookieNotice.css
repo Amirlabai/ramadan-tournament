@@ -10,6 +10,12 @@
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
 }
 
+@media (max-width: 768px) {
+  .cookie-notice-backdrop {
+    padding-bottom: calc(var(--mobile-bottom-nav-height, 3.5rem) + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+}
+
 .cookie-notice {
   background: var(--color-surface, #fff);
   color: var(--color-text, #333);

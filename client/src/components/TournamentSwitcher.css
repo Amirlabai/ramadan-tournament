@@ -70,6 +70,25 @@
 }
 
 @media (max-width: 768px) {
+  .tournament-header--band .tournament-switcher-wrap {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+
+  .tournament-header--band .tournament-switcher-btn {
+    gap: 0.1rem;
+    padding: 0.15rem 0.4rem;
+    font-size: 0.65rem;
+    min-height: 44px;
+    max-width: min(36vw, 9rem);
+  }
+
+  .tournament-header--band .tournament-switcher-label {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
   .tournament-switcher-wrap {
     margin-top: 0.5rem;
     margin-bottom: 0.35rem;

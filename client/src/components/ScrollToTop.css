@@ -39,14 +39,8 @@
 }
 
 @media (max-width: 768px) {
+    /* Bottom nav owns the lower edge on mobile — hide scroll-to-top arrow */
     .scroll-to-top {
-        right: auto;
-        left: 50%;
-        bottom: 15px;
-        transform: translate(-50%, 10px) scale(0.85);
-    }
-
-    .scroll-to-top.visible {
-        transform: translate(-50%, 0) scale(0.85);
+        display: none;
     }
 }

@@ -13,6 +13,11 @@ export interface NavItem {
   external?: boolean
 }
 
+/** Primary bottom-tab item (profile slot is handled separately in MobileBottomNav). */
+export interface MobilePrimaryNavItem extends NavItem {
+  icon: string
+}
+
 interface MainNavContext {
   isGirls: boolean
   isWorldCup: boolean
@@ -99,4 +104,73 @@ export function getNavIndex(pathname: string, items: NavItem[]): number {
     const itemPath = item.to.replace(/\/$/, '') || '/'
     return itemPath === normalized
   })
+}
+
+function normalizePath(path: string): string {
+  return path.replace(/\/$/, '') || '/'
+}
+
+/**
+ * Mobile bottom-bar tabs (RTL right→left): Home, Teams, Schedule/Archive, Stats (boys/WC), then Profile in UI.
+ * News stays in NewsBanner — never included here. Admin is via profile chooser, not a tab.
+ */
+export function getMobilePrimaryNavItems(
+  ctx: Pick<MainNavContext, 'isGirls' | 'isWorldCup' | 'paths'>
+): MobilePrimaryNavItem[] {
+  const { isGirls, isWorldCup, paths } = ctx
+
+  if (isWorldCup) {
+    return [
+      { to: paths.home ?? '/world-cup', label: 'דף הבית', icon: 'bi-house' },
+      { to: 'teams' in paths ? paths.teams : '/world-cup/teams', label: 'נבחרות', icon: 'bi-people' },
+      {
+        to: 'schedule' in paths ? paths.schedule : '/world-cup/schedule',
+        label: 'משחקים',
+        icon: 'bi-calendar3',
+      },
+      {
+        to: 'stats' in paths ? paths.stats : '/world-cup/stats',
+        label: 'סטטיסטיקות',
+        icon: 'bi-bar-chart',
+      },
+    ]
+  }
+
+  if (isGirls) {
+    const items: MobilePrimaryNavItem[] = [
+      { to: paths.home ?? '/girls', label: 'דף הבית', icon: 'bi-house' },
+      { to: 'teams' in paths ? paths.teams : '/teams-girls', label: 'קבוצות', icon: 'bi-people' },
+    ]
+    if ('archive' in paths && paths.archive) {
+      items.push({ to: paths.archive, label: 'ארכיון', icon: 'bi-archive' })
+    }
+    return items
+  }
+
+  return [
+    { to: paths.home ?? '/', label: 'דף הבית', icon: 'bi-house' },
+    { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות', icon: 'bi-people' },
+    { to: 'schedule' in paths ? paths.schedule : '/schedule', label: 'משחקים', icon: 'bi-calendar3' },
+    { to: 'stats' in paths ? paths.stats : '/stats', label: 'סטטיסטיקות', icon: 'bi-bar-chart' },
+  ]
+}
+
+/** Paths covered by the mobile bottom bar (including profile/login). */
+export function getMobilePrimaryPaths(
+  ctx: Pick<MainNavContext, 'isGirls' | 'isWorldCup' | 'paths'>
+): Set<string> {
+  const primary = getMobilePrimaryNavItems(ctx)
+  const paths = new Set(primary.map((item) => normalizePath(item.to)))
+  paths.add('/profile')
+  paths.add('/login')
+  return paths
+}
+
+/** Drawer overflow on mobile: full main nav minus bottom-bar destinations. */
+export function filterMobileOverflowNavItems(
+  items: NavItem[],
+  ctx: Pick<MainNavContext, 'isGirls' | 'isWorldCup' | 'paths'>
+): NavItem[] {
+  const primaryPaths = getMobilePrimaryPaths(ctx)
+  return items.filter((item) => !primaryPaths.has(normalizePath(item.to)))
 }

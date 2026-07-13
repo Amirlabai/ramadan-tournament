@@ -22,6 +22,7 @@ const Profile = lazyWithRetry('Profile', () => import('./pages/Profile'))
 const PlayerZone = lazyWithRetry('PlayerZone', () => import('./pages/PlayerZone'))
 import TournamentSidebar from './components/TournamentSidebar'
 import TournamentSwitcher from './components/TournamentSwitcher'
+import MobileBottomNav from './components/MobileBottomNav'
 import NewsBanner from './components/NewsBanner'
 import {
   TournamentProvider,
@@ -112,9 +113,6 @@ function AppShell() {
     openDrawer,
     isMobile,
     reducedMotion,
-    onHandlePointerDown,
-    onHandlePointerMove,
-    onHandlePointerUp,
   } = useSidebarDrawer()
 
   const tournamentTheme = isWorldCup ? 'worldcup' : isGirls ? 'girls' : 'boys'
@@ -134,33 +132,68 @@ function AppShell() {
   return (
     <NavActionIndicatorsProvider>
       <TournamentPreferenceRedirect />
-      <div className="app" dir="rtl" data-tournament={tournamentTheme}>
+      <div
+        className={`app${isMobile ? ' has-mobile-bottom-nav' : ''}`}
+        dir="rtl"
+        data-tournament={tournamentTheme}
+      >
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
         </a>
         <div className="header-news-wrapper">
           <div className="container-fluid p-0">
-            <header className="tournament-header text-center py-4">
-              <h1 className="site-title fw-bold">
-                {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
-              </h1>
-              {isGirls && (
-                <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
+            <header
+              className={`tournament-header py-4${isMobile ? ' tournament-header--band' : ' text-center'}`}
+            >
+              {isMobile ? (
+                <div className="tournament-header-band">
+                  <div className="tournament-header-band-switcher">
+                    {!worldCupOnly && <TournamentSwitcher />}
+                  </div>
+                  <div className="tournament-header-band-title">
+                    <h1 className="site-title fw-bold mb-0">
+                      {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
+                    </h1>
+                  </div>
+                  <div className="tournament-header-band-menu">
+                    <button
+                      type="button"
+                      className="tournament-header-menu-btn"
+                      aria-label={drawerOpen ? 'סגור תפריט ניווט' : 'פתח תפריט ניווט'}
+                      aria-expanded={drawerOpen}
+                      aria-controls="tournament-sidebar-panel"
+                      onClick={() => setDrawerOpen(!drawerOpen)}
+                    >
+                      <span className="tournament-sidebar-handle-bar" aria-hidden="true" />
+                      <span className="tournament-sidebar-handle-bar" aria-hidden="true" />
+                      <span className="tournament-sidebar-handle-bar" aria-hidden="true" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <h1 className="site-title fw-bold">
+                    {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
+                  </h1>
+                  {isGirls && (
+                    <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
+                  )}
+                  {isWorldCup && (
+                    <p className="tournament-subtitle mb-0">
+                      נתונים מ-{' '}
+                      <a
+                        href="https://www.football-data.org"
+                        className="tournament-subtitle-link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        football-data.org
+                      </a>
+                    </p>
+                  )}
+                  {!worldCupOnly && <TournamentSwitcher />}
+                </>
               )}
-              {isWorldCup && (
-                <p className="tournament-subtitle mb-0">
-                  נתונים מ-{' '}
-                  <a
-                    href="https://www.football-data.org"
-                    className="tournament-subtitle-link"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    football-data.org
-                  </a>
-                </p>
-              )}
-              {!worldCupOnly && <TournamentSwitcher />}
             </header>
           </div>
           {!isWorldCup && <NewsBanner />}
@@ -175,13 +208,11 @@ function AppShell() {
               onOpenChange={setDrawerOpen}
               isMobile={isMobile}
               reducedMotion={reducedMotion}
-              onHandlePointerDown={onHandlePointerDown}
-              onHandlePointerMove={onHandlePointerMove}
-              onHandlePointerUp={onHandlePointerUp}
             />
           </div>
         </div>
         <Footer />
+        {isMobile && <MobileBottomNav />}
         <ScrollToTop />
         {consent === 'accepted' && <Analytics />}
       </div>

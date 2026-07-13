@@ -55,7 +55,7 @@
 
 @media (max-width: 768px) {
   .a11y-toolbar {
-    bottom: max(5rem, calc(env(safe-area-inset-bottom) + 4rem));
+    bottom: calc(var(--mobile-bottom-nav-height, 3.5rem) + env(safe-area-inset-bottom, 0px) + 1rem);
   }
 
   .a11y-toolbar-label {

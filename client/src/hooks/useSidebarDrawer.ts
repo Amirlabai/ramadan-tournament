@@ -1,15 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
-const MOBILE_BREAKPOINT = 768
-const DRAG_OPEN_THRESHOLD = 40
+/** Keep in sync with CSS `@media (max-width: 768px)`. */
+const MOBILE_MQ = '(max-width: 768px)'
 
 export function useMediaMobile(): boolean {
   const [mobile, setMobile] = useState(() =>
-    typeof window !== 'undefined' ? window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`).matches : false
+    typeof window !== 'undefined' ? window.matchMedia(MOBILE_MQ).matches : false
   )
 
   useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
+    const mq = window.matchMedia(MOBILE_MQ)
     const handler = () => setMobile(mq.matches)
     mq.addEventListener('change', handler)
     return () => mq.removeEventListener('change', handler)
@@ -21,7 +21,6 @@ export function useMediaMobile(): boolean {
 export function useSidebarDrawer() {
   const [open, setOpen] = useState(false)
   const isMobile = useMediaMobile()
-  const dragStartX = useRef<number | null>(null)
   const reducedMotion =
     typeof window !== 'undefined' &&
     window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -43,23 +42,6 @@ export function useSidebarDrawer() {
     }
   }, [open])
 
-  const onHandlePointerDown = useCallback((clientX: number) => {
-    dragStartX.current = clientX
-  }, [])
-
-  const onHandlePointerMove = useCallback(
-    (clientX: number) => {
-      if (dragStartX.current === null) return
-      const dx = dragStartX.current - clientX
-      if (dx > DRAG_OPEN_THRESHOLD) openDrawer()
-    },
-    [openDrawer]
-  )
-
-  const onHandlePointerUp = useCallback(() => {
-    dragStartX.current = null
-  }, [])
-
   return {
     open,
     setOpen,
@@ -68,8 +50,5 @@ export function useSidebarDrawer() {
     toggleDrawer,
     isMobile,
     reducedMotion,
-    onHandlePointerDown,
-    onHandlePointerMove,
-    onHandlePointerUp,
   }
 }
