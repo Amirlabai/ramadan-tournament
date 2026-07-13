@@ -14,6 +14,7 @@ import teamRoutes from './routes/teams';
 import matchRoutes from './routes/matches';
 import newsRoutes from './routes/news';
 import statsRoutes from './routes/stats';
+import matchStatsRoutes from './routes/matchStats';
 import adminRoutes from './routes/admin';
 import commentRoutes from './routes/comments';
 import seasonsRoutes from './routes/seasons';
@@ -112,6 +113,7 @@ function mountApiRoutes(mode: ApiMode): void {
     app.use('/api/news', newsRoutes);
     app.use('/api/news-girls', setGirlsDivision, newsRoutes);
     app.use('/api/stats', statsRoutes);
+    app.use('/api/match-stats', matchStatsRoutes);
     app.use('/api/stats-girls', statsGirlsRoutes);
     app.use('/api/admin', adminRoutes);
     app.use('/api/comments', commentRoutes);

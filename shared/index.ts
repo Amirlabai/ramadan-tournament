@@ -10,6 +10,20 @@ export {
   type MatchDisplayStatus,
 } from './matchTiming';
 export {
+  estimateWinChance,
+  generateMatchStats,
+  getMatchStatsIntervalBucket,
+  hashMatchStatsSeed,
+  MATCH_STATS_INTERVAL_MS,
+  MATCH_STATS_MAX_BUCKET,
+  mulberry32,
+  type FormResult,
+  type GenerateMatchStatsOptions,
+  type MatchStatistics,
+  type SidePair,
+  type TeamBias,
+} from './matchStatistics';
+export {
   jerusalemDateTime,
   addDaysToDateString,
   getWeekdayFromDateString,

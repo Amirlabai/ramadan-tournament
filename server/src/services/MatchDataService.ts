@@ -24,6 +24,21 @@ function formatMatch(match: any) {
 }
 
 export class MatchDataService {
+  static async getMatchById(matchId: number) {
+    const match = await prisma.match.findUnique({
+      where: { id: matchId },
+      include: {
+        goals: true,
+        _count: { select: { comments: true } },
+      },
+    });
+    if (!match) return null;
+    return {
+      ...formatMatch(match),
+      seasonId: match.seasonId,
+    };
+  }
+
   static async getAllMatchesDocument() {
     const season = await SeasonService.getActiveFootballSeason();
     const cacheKey = CacheService.key('doc', 'boys', 'matches', 'all', season.id);

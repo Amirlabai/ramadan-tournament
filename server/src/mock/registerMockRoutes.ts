@@ -15,6 +15,8 @@ import {
   getStatsMaps,
   getTopScorers,
 } from './mockStats';
+import { buildMockMatchStatsPayload, regenerateMockMatchStats } from './mockMatchStats';
+import { MATCH_STATS_SALT_PERSIST_FAILED } from '../services/matchStatsSalt';
 import worldcupRoutes from '../routes/worldcup';
 import { DEFAULT_BANNED_WORDS } from '../data/defaultBannedWords';
 import { getMatchDisplayStatus, MATCH_DURATION_MS, jerusalemDateKey } from '@ramadan-tournament/shared';
@@ -189,6 +191,43 @@ export function registerMockRoutes(app: Express): void {
   app.get('/api/stats/playoffs', (_req, res) => {
     const dashboard = buildDashboard();
     res.json(dashboard.playoffMatches);
+  });
+
+  app.get('/api/match-stats/:id', async (req, res) => {
+    const matchId = Number(req.params.id);
+    if (!Number.isInteger(matchId) || matchId <= 0) {
+      res.status(400).json({ error: 'מזהה משחק לא תקין' });
+      return;
+    }
+    const payload = await buildMockMatchStatsPayload(matchId);
+    if (!payload) {
+      res.status(404).json({ error: 'סטטיסטיקה זמינה רק למשחקים חיים או שהסתיימו' });
+      return;
+    }
+    res.json(payload);
+  });
+
+  app.post('/api/match-stats/:id/regenerate', requirePlatformAdmin, async (req, res) => {
+    try {
+      const matchId = Number(req.params.id);
+      if (!Number.isInteger(matchId) || matchId <= 0) {
+        res.status(400).json({ error: 'מזהה משחק לא תקין' });
+        return;
+      }
+      const payload = await regenerateMockMatchStats(matchId);
+      if (!payload) {
+        res.status(404).json({ error: 'משחק לא נמצא או שסטטיסטיקה לא זמינה עדיין' });
+        return;
+      }
+      res.json(payload);
+    } catch (error) {
+      if (error instanceof Error && error.message === MATCH_STATS_SALT_PERSIST_FAILED) {
+        res.status(503).json({ error: 'לא ניתן לשמור את חידוש הסטטיסטיקה כרגע' });
+        return;
+      }
+      console.error('Mock regenerate match stats error:', error);
+      res.status(500).json({ error: 'Server error' });
+    }
   });
 
   const noGirlsSeason = (_req: Request, res: Response) => {

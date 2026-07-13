@@ -102,6 +102,31 @@ export const matchesAPI = {
     syncPlayoffs: () => api.post('/matches/sync-playoffs'),
 };
 
+export type MatchStatsSidePair = { a: number; b: number };
+
+export type MatchStatsResponse = {
+    matchId: number;
+    bucket: number;
+    status: 'live' | 'finished';
+    stats: {
+        possession: MatchStatsSidePair;
+        shots: MatchStatsSidePair;
+        shotsOnTarget: MatchStatsSidePair;
+        shotsOffTarget: MatchStatsSidePair;
+        corners: MatchStatsSidePair;
+        fouls: MatchStatsSidePair;
+        offsides: MatchStatsSidePair;
+        saves: MatchStatsSidePair;
+    };
+    form: { a: Array<'W' | 'D' | 'L'>; b: Array<'W' | 'D' | 'L'> };
+    winChance: MatchStatsSidePair;
+};
+
+export const matchStatsAPI = {
+    get: (id: number) => api.get<MatchStatsResponse>(`/match-stats/${id}`),
+    regenerate: (id: number) => api.post<MatchStatsResponse>(`/match-stats/${id}/regenerate`),
+};
+
 export const statsGirlsAPI = {
     getDashboard: () => api.get('/stats-girls'),
     getStandings: () => api.get('/stats-girls/standings'),
