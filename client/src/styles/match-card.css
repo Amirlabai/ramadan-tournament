@@ -235,6 +235,160 @@
   border-color: var(--color-primary-a35);
 }
 
+.match-stats-section {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.match-stats-empty {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  text-align: center;
+}
+
+.match-stats-winchance {
+  margin-bottom: 0.75rem;
+}
+
+.match-stats-winchance-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.match-stats-winchance-bar {
+  display: flex;
+  height: 0.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.match-stats-winchance-fill--a {
+  background: var(--color-primary);
+}
+
+.match-stats-winchance-fill--b {
+  background: var(--color-secondary);
+}
+
+.match-stats-possession {
+  margin-bottom: 0.75rem;
+}
+
+.match-stats-possession-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin-bottom: 0.35rem;
+}
+
+.match-stats-possession-bar {
+  display: flex;
+  height: 0.65rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+.match-stats-possession-fill--a {
+  background: var(--color-primary);
+}
+
+.match-stats-possession-fill--b {
+  background: var(--color-secondary);
+}
+
+.match-stats-rows {
+  list-style: none;
+  margin: 0 0 0.75rem;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.match-stats-row {
+  display: grid;
+  grid-template-columns: 2.5rem 1fr 2.5rem;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--font-size-sm);
+}
+
+.match-stats-val {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+}
+
+.match-stats-label {
+  text-align: center;
+  color: var(--text-light);
+}
+
+.match-stats-players-title {
+  font-size: var(--font-size-sm);
+  color: var(--text-light);
+  margin: 0 0 0.5rem;
+}
+
+.match-stats-player-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.match-stats-player-link {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  text-decoration: none;
+  color: inherit;
+  min-width: 4.5rem;
+}
+
+.match-stats-player-head {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary-a25);
+}
+
+.match-stats-player-name {
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  text-align: center;
+}
+
+.match-stats-ai-footnote {
+  margin: 0.75rem 0 0;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-size: var(--font-size-xs);
+  color: #9a9a9a;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.match-stats-ai-star {
+  color: #c0c0c0;
+  margin-inline-end: 0.25rem;
+}
+
 .match-card .badge {
   font-size: 0.75em;
   padding: 0.35em 0.65em;

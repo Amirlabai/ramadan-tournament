@@ -14,6 +14,7 @@ import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
 import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { MatchStatsSection } from '../components/match/MatchStatsSection';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
@@ -250,9 +251,9 @@ const Dashboard = () => {
                         aria-expanded={expandedMatchId === match.id}
                         onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
                     >
-                        {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
+                        {expandedMatchId === match.id ? 'הסתר פרטים' : (
                             <>
-                                💬 תגובות
+                                פרטים
                                 {match.commentCount && match.commentCount > 0 ? (
                                     <span className="badge bg-danger ms-2 rounded-pill">
                                         {match.commentCount}
@@ -264,7 +265,16 @@ const Dashboard = () => {
                 </div>
 
                 {expandedMatchId === match.id && (
-                    <CommentSection matchId={match.id} />
+                    <>
+                        <MatchStatsSection
+                            match={match}
+                            team1Name={team1Name}
+                            team2Name={team2Name}
+                            teams={data?.teams}
+                            active
+                        />
+                        <CommentSection matchId={match.id} />
+                    </>
                 )}
             </div>
         );

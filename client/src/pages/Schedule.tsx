@@ -6,11 +6,12 @@ import SEO from '../components/SEO';
 import { ScheduleSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
+import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { MatchStatsSection } from '../components/match/MatchStatsSection';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
-import { MatchStatusBadge } from '../components/match/MatchCardParts';
 import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Schedule.css';
 
@@ -112,7 +113,7 @@ const Schedule = () => {
         for (const team of teams) {
             const player = team.players?.find(p => p.memberId === memberId);
             if (player) {
-                return `${player.nickname}(${player.number})`;
+                return player.nickname || `${player.firstName} ${player.lastName}`.trim();
             }
         }
         return '';
@@ -239,7 +240,7 @@ const Schedule = () => {
                                 <span className="match-location">{match.location}</span>
                             </div>
 
-                            {match.goals && match.goals.length > 0 && (() => {
+                            {expandedMatchId !== match.id && match.goals && match.goals.length > 0 && (() => {
                                 const ownGoalsByTeam: Record<number, number> = {};
                                 for (const goal of match.goals) {
                                     if (!goal.isOwnGoal || goal.creditedTeamId == null) continue;
@@ -334,9 +335,9 @@ const Schedule = () => {
                                     aria-expanded={expandedMatchId === match.id}
                                     onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
                                 >
-                                    {expandedMatchId === match.id ? '🔼 הסתר תגובות' : (
+                                    {expandedMatchId === match.id ? 'הסתר פרטים' : (
                                         <>
-                                            💬 תגובות
+                                            פרטים
                                             {match.commentCount && match.commentCount > 0 ? (
                                                 <span className="badge bg-danger ms-2 rounded-pill">
                                                     {match.commentCount}
@@ -348,7 +349,16 @@ const Schedule = () => {
                             </div>
 
                             {expandedMatchId === match.id && (
-                                <CommentSection matchId={match.id} />
+                                <>
+                                    <MatchStatsSection
+                                        match={match}
+                                        team1Name={getTeamName(match.team1Id)}
+                                        team2Name={getTeamName(match.team2Id)}
+                                        teams={teams}
+                                        active
+                                    />
+                                    <CommentSection matchId={match.id} />
+                                </>
                             )}
                         </div>
                     );

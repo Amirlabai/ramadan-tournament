@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
 import type { Match, Team, Goal } from '../../types';
+import { matchStatsAPI } from '../../api/client';
 import AddGoalWizardModal, { type AddGoalSubmit } from './AddGoalWizardModal';
 import TechnicalWinModal from './TechnicalWinModal';
 import { applyGoalsAndScores } from '../../utils/matchGoals';
@@ -64,6 +66,10 @@ const MatchTableRow = ({
     const [showAddGoalWizard, setShowAddGoalWizard] = useState(false);
     const [showTechnicalWin, setShowTechnicalWin] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [regenLoading, setRegenLoading] = useState(false);
+    const [regenMessage, setRegenMessage] = useState('');
+    const [menuOpen, setMenuOpen] = useState(false);
+    const menuRef = useRef<HTMLDivElement>(null);
     const [draft, setDraft] = useState({
         team1Id: match.team1Id.toString(),
         team2Id: match.team2Id.toString(),
@@ -89,7 +95,43 @@ const MatchTableRow = ({
         });
     }, [match]);
 
+    useEffect(() => {
+        if (!menuOpen) return;
+        const onDoc = (e: MouseEvent) => {
+            if (!menuRef.current?.contains(e.target as Node)) setMenuOpen(false);
+        };
+        const onKey = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setMenuOpen(false);
+        };
+        document.addEventListener('mousedown', onDoc);
+        document.addEventListener('keydown', onKey);
+        return () => {
+            document.removeEventListener('mousedown', onDoc);
+            document.removeEventListener('keydown', onKey);
+        };
+    }, [menuOpen]);
+
     const getTeamName = (id: number) => teams.find(t => t.id === id)?.name ?? `קבוצה ${id}`;
+
+    const handleRegenerateStats = async () => {
+        if (match.id === -1) return;
+        setRegenLoading(true);
+        setRegenMessage('');
+        try {
+            await matchStatsAPI.regenerate(match.id);
+            setRegenMessage('סטטיסטיקה חודשה');
+        } catch {
+            setRegenMessage('חידוש נכשל');
+        } finally {
+            setRegenLoading(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!regenMessage) return;
+        const t = window.setTimeout(() => setRegenMessage(''), 4000);
+        return () => window.clearTimeout(t);
+    }, [regenMessage]);
 
     const handleCancel = () => {
         // Reset draft to current match
@@ -213,45 +255,126 @@ const MatchTableRow = ({
                     <td data-label="קבוצה 2" className="team-cell">{getTeamName(match.team2Id)}</td>
                     <td data-label="כובשים" className="goals-cell">{goalSummary}</td>
                     <td data-label="פעולות" className="actions-cell text-nowrap">
-                        {onAddGoal && match.id !== -1 && match.technicalWinnerTeamId == null && (
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-theme-green ms-1 match-action-add-goal"
-                                onClick={() => setShowAddGoalWizard(true)}
-                            >
-                                הוסף שער
-                            </button>
-                        )}
-                        {onTechnicalWin && match.id !== -1 && match.technicalWinnerTeamId == null
-                            && (match.goals ?? []).length === 0 && (
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-secondary ms-1"
-                                onClick={() => setShowTechnicalWin(true)}
-                            >
-                                ניצחון טכני
-                            </button>
-                        )}
-                        {onTechnicalWin && match.id !== -1 && match.technicalWinnerTeamId != null && (
-                            <button
-                                type="button"
-                                className="btn btn-sm btn-danger ms-1"
-                                onClick={async () => {
-                                    if (!window.confirm('לבטל את הניצחון הטכני? המשחק יחזור למצב ללא תוצאה.')) {
-                                        return;
-                                    }
-                                    try {
-                                        await onTechnicalWin(match.id, null);
-                                    } catch (err: unknown) {
-                                        alert(err instanceof Error ? err.message : 'שגיאה בביטול ניצחון טכני');
-                                    }
-                                }}
-                            >
-                                בטל ניצחון טכני
-                            </button>
-                        )}
-                        <button type="button" className="btn btn-sm btn-warning ms-1" onClick={() => setIsEditing(true)}>ערוך</button>
-                        <button type="button" className="btn btn-sm btn-danger ms-1" onClick={() => onDelete(match.id)}>מחק</button>
+                        <div className="match-row-actions">
+                            {onAddGoal && match.id !== -1 && match.technicalWinnerTeamId == null && (
+                                <button
+                                    type="button"
+                                    className="btn btn-sm btn-theme-green match-action-add-goal"
+                                    onClick={() => setShowAddGoalWizard(true)}
+                                >
+                                    הוסף שער
+                                </button>
+                            )}
+                            <div className="match-row-more" ref={menuRef}>
+                                    <button
+                                        type="button"
+                                        className={`btn btn-sm match-row-more-btn${regenMessage ? (regenMessage.includes('נכשל') ? ' match-row-more-btn--error' : ' match-row-more-btn--ok') : ''}`}
+                                        aria-expanded={menuOpen}
+                                        aria-haspopup="menu"
+                                        aria-label="עוד פעולות"
+                                        title={regenMessage || 'עוד פעולות'}
+                                        onClick={() => setMenuOpen((open) => !open)}
+                                    >
+                                        {regenMessage && !regenMessage.includes('נכשל') ? '✓' : '⋮'}
+                                    </button>
+                                    {regenMessage ? (
+                                        <span
+                                            className={`match-row-regen-toast${regenMessage.includes('נכשל') ? ' match-row-regen-toast--error' : ''}`}
+                                            role="status"
+                                        >
+                                            {regenMessage}
+                                        </span>
+                                    ) : null}
+                                    {menuOpen && (
+                                        <ul className="match-row-more-menu" role="menu">
+                                            {match.id !== -1
+                                                && match.technicalWinnerTeamId == null
+                                                && getMatchDisplayStatus(match.date, new Date(), match.technicalWinnerTeamId) !== 'upcoming' && (
+                                                <li role="none">
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="match-row-more-item"
+                                                        disabled={regenLoading}
+                                                        onClick={() => {
+                                                            setMenuOpen(false);
+                                                            void handleRegenerateStats();
+                                                        }}
+                                                    >
+                                                        {regenLoading ? 'מחדש…' : 'חדש סטטיסטיקה'}
+                                                    </button>
+                                                </li>
+                                            )}
+                                            {match.id !== -1 && onTechnicalWin && match.technicalWinnerTeamId == null
+                                                && (match.goals ?? []).length === 0 && (
+                                                <li role="none">
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="match-row-more-item"
+                                                        onClick={() => {
+                                                            setMenuOpen(false);
+                                                            setShowTechnicalWin(true);
+                                                        }}
+                                                    >
+                                                        ניצחון טכני
+                                                    </button>
+                                                </li>
+                                            )}
+                                            {match.id !== -1 && onTechnicalWin && match.technicalWinnerTeamId != null && (
+                                                <li role="none">
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="match-row-more-item match-row-more-item--danger"
+                                                        onClick={() => {
+                                                            setMenuOpen(false);
+                                                            void (async () => {
+                                                                if (!window.confirm('לבטל את הניצחון הטכני? המשחק יחזור למצב ללא תוצאה.')) {
+                                                                    return;
+                                                                }
+                                                                try {
+                                                                    await onTechnicalWin(match.id, null);
+                                                                } catch (err: unknown) {
+                                                                    alert(err instanceof Error ? err.message : 'שגיאה בביטול ניצחון טכני');
+                                                                }
+                                                            })();
+                                                        }}
+                                                    >
+                                                        בטל ניצחון טכני
+                                                    </button>
+                                                </li>
+                                            )}
+                                            <li role="none">
+                                                <button
+                                                    type="button"
+                                                    role="menuitem"
+                                                    className="match-row-more-item"
+                                                    onClick={() => {
+                                                        setMenuOpen(false);
+                                                        setIsEditing(true);
+                                                    }}
+                                                >
+                                                    ערוך
+                                                </button>
+                                            </li>
+                                            <li role="none">
+                                                <button
+                                                    type="button"
+                                                    role="menuitem"
+                                                    className="match-row-more-item match-row-more-item--danger"
+                                                    onClick={() => {
+                                                        setMenuOpen(false);
+                                                        onDelete(match.id);
+                                                    }}
+                                                >
+                                                    {match.id === -1 ? 'בטל' : 'מחק'}
+                                                </button>
+                                            </li>
+                                        </ul>
+                                    )}
+                                </div>
+                        </div>
                     </td>
                 </tr>
                 {showAddGoalWizard && onAddGoal && (

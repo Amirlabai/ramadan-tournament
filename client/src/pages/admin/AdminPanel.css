@@ -254,6 +254,123 @@
     margin-bottom: 0.25rem;
 }
 
+.match-row-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+
+.match-row-more {
+    position: relative;
+}
+
+.match-row-more-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+    font-weight: 700;
+    background: #6c757d;
+    border: 1px solid #5c636a;
+    color: #ffffff;
+    border-radius: 6px;
+}
+
+.match-row-more-btn:hover,
+.match-row-more-btn:focus-visible,
+.match-row-more-btn[aria-expanded="true"] {
+    background: #5c636a;
+    border-color: #495057;
+    color: #ffffff;
+}
+
+.match-row-more-btn--ok {
+    background: #198754;
+    border-color: #157347;
+    color: #ffffff;
+}
+
+.match-row-more-btn--ok:hover,
+.match-row-more-btn--ok:focus-visible {
+    background: #157347;
+    border-color: #146c43;
+    color: #ffffff;
+}
+
+.match-row-more-btn--error {
+    background: #dc3545;
+    border-color: #bb2d3b;
+    color: #ffffff;
+}
+
+.match-row-regen-toast {
+    position: absolute;
+    inset-inline-end: 0;
+    bottom: calc(100% + 0.35rem);
+    z-index: 30;
+    white-space: nowrap;
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    background: #198754;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    pointer-events: none;
+}
+
+.match-row-regen-toast--error {
+    background: #dc3545;
+}
+
+.match-row-more-menu {
+    position: absolute;
+    inset-inline-end: 0;
+    top: calc(100% + 0.25rem);
+    z-index: 20;
+    margin: 0;
+    padding: 0.35rem 0;
+    list-style: none;
+    min-width: 10.5rem;
+    background: #ffffff;
+    border: 1px solid var(--border, #dee2e6);
+    border-radius: 8px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+}
+
+.match-row-more-item {
+    display: block;
+    width: 100%;
+    border: 0;
+    background: transparent;
+    text-align: start;
+    padding: 0.45rem 0.85rem;
+    font-size: 0.875rem;
+    color: inherit;
+    cursor: pointer;
+    min-height: 44px;
+}
+
+.match-row-more-item:hover,
+.match-row-more-item:focus-visible {
+    background: var(--bg, #f8f9fa);
+    outline: none;
+}
+
+.match-row-more-item:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.match-row-more-item--danger {
+    color: #b91c1c;
+}
+
 /* Phase badge */
 .phase-badge {
     font-size: 0.7rem;
