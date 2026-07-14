@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { commentsAPI } from '../api/client';
 import { trackEvent } from '../utils/analytics';
+import Skeleton from './skeleton/Skeleton';
 import './CommentSection.css';
 
 interface Comment {
@@ -16,19 +17,53 @@ interface CommentSectionProps {
     matchId: number;
 }
 
+function displayAuthor(author: string | undefined): string {
+    if (!author || author === 'Anonymous') return 'אנונימי';
+    return author;
+}
+
 const CommentSection = ({ matchId }: CommentSectionProps) => {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState(false);
     const [author, setAuthor] = useState('');
     const [content, setContent] = useState('');
     const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [success, setSuccess] = useState('');
     const [rateLimitedUntil, setRateLimitedUntil] = useState<number | null>(null);
     const [countdown, setCountdown] = useState<number>(0);
 
-    useEffect(() => {
-        fetchComments();
+    const fetchComments = useCallback(async (signal?: AbortSignal) => {
+        setLoading(true);
+        setFetchError(false);
+        try {
+            const response = await commentsAPI.getByMatchId(matchId, { signal });
+            if (signal?.aborted) return;
+            setComments(response.data);
+        } catch (err) {
+            if (signal?.aborted || (err as { code?: string; name?: string })?.code === 'ERR_CANCELED' || (err as { name?: string })?.name === 'CanceledError') {
+                return;
+            }
+            console.error('Error fetching comments:', err);
+            setFetchError(true);
+            setComments([]);
+        } finally {
+            if (!signal?.aborted) setLoading(false);
+        }
     }, [matchId]);
+
+    useEffect(() => {
+        const ac = new AbortController();
+        void fetchComments(ac.signal);
+        return () => ac.abort();
+    }, [fetchComments]);
+
+    useEffect(() => {
+        if (!success) return;
+        const t = window.setTimeout(() => setSuccess(''), 3000);
+        return () => window.clearTimeout(t);
+    }, [success]);
 
     useEffect(() => {
         if (rateLimitedUntil) {
@@ -49,17 +84,6 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
         }
     }, [rateLimitedUntil]);
 
-    const fetchComments = async () => {
-        try {
-            const response = await commentsAPI.getByMatchId(matchId);
-            setComments(response.data);
-        } catch (err) {
-            console.error('Error fetching comments:', err);
-        } finally {
-            setLoading(false);
-        }
-    };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -75,6 +99,7 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
 
         setSubmitting(true);
         setError('');
+        setSuccess('');
 
         trackEvent('comment_submit', {
             category: 'interaction',
@@ -88,9 +113,10 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                 content: content.trim(),
             });
 
-            setComments([response.data, ...comments]);
+            setComments((prev) => [response.data, ...prev]);
             setAuthor('');
             setContent('');
+            setSuccess('התגובה נשלחה');
         } catch (err: any) {
             if (err.response?.status === 429) {
                 const retryAfter = err.response.headers['retry-after'];
@@ -119,10 +145,23 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
     const authorId = `comment-author-${matchId}`;
     const contentId = `comment-content-${matchId}`;
     const errorId = `comment-error-${matchId}`;
+    const successId = `comment-success-${matchId}`;
+    const charNearLimit = content.length >= 900;
+    const submitDescribedBy = [
+        error ? errorId : null,
+        success ? successId : null,
+    ]
+        .filter(Boolean)
+        .join(' ') || undefined;
 
     return (
         <div className="comment-section">
-            <h3 className="comment-section-title">תגובות</h3>
+            <h3 className="comment-section-title">
+                תגובות
+                {!loading && !fetchError ? (
+                    <span className="comment-section-count">· {comments.length}</span>
+                ) : null}
+            </h3>
 
             <form onSubmit={handleSubmit} className="comment-form">
                 <div className="form-group">
@@ -153,8 +192,15 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                         aria-invalid={!!error}
                         aria-describedby={error ? errorId : undefined}
                     />
-                    <small className="char-count">{content.length}/1000</small>
+                    <small className={`char-count${charNearLimit ? ' char-count--warn' : ''}`}>
+                        {content.length}/1000
+                    </small>
                 </div>
+                {success ? (
+                    <div id={successId} className="comment-success" role="status" aria-live="polite">
+                        {success}
+                    </div>
+                ) : null}
                 {error && (
                     <div id={errorId} className="error-message" role="alert">
                         {error}
@@ -165,20 +211,38 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                         )}
                     </div>
                 )}
-                <p className="small text-muted mb-2">
+                <p className="comment-form__terms">
                     תגובות ציבוריות — ראו{' '}
                     <Link to="/terms#user-content">תנאי שימוש</Link>.
                 </p>
-                <button type="submit" disabled={submitting || rateLimitedUntil !== null} className="btn btn-primary">
+                <button
+                    type="submit"
+                    disabled={submitting || rateLimitedUntil !== null}
+                    className="btn btn-primary"
+                    aria-describedby={submitDescribedBy}
+                >
                     {submitting ? 'שולח...' : rateLimitedUntil ? `נסה שוב בעוד ${countdown}s` : 'שלח תגובה'}
                 </button>
             </form>
 
             <div className="comments-list" aria-live="polite">
                 {loading ? (
-                    <div className="comment-section__loading" role="status">
+                    <div className="comment-section__skeleton" role="status">
                         <span className="visually-hidden">טוען תגובות...</span>
-                        טוען תגובות...
+                        {[0, 1, 2].map((i) => (
+                            <div key={i} className="comment-section__skeleton-item">
+                                <Skeleton height="0.875rem" width="40%" />
+                                <Skeleton height="1rem" width="90%" />
+                                <Skeleton height="1rem" width="70%" />
+                            </div>
+                        ))}
+                    </div>
+                ) : fetchError ? (
+                    <div className="comment-section__fetch-error">
+                        <p>לא ניתן לטעון תגובות כרגע</p>
+                        <button type="button" onClick={() => void fetchComments()}>
+                            נסה שוב
+                        </button>
                     </div>
                 ) : comments.length === 0 ? (
                     <div className="comment-section__empty">אין עדיין תגובות. היה הראשון להגיב!</div>
@@ -186,7 +250,7 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                     comments.map((comment) => (
                         <div key={comment.id} className="comment-item">
                             <div className="comment-header">
-                                <span className="comment-author">{comment.author}</span>
+                                <span className="comment-author">{displayAuthor(comment.author)}</span>
                                 <span className="comment-date">{formatDate(comment.createdAt)}</span>
                             </div>
                             <div className="comment-content">{comment.content}</div>

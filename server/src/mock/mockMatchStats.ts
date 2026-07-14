@@ -4,6 +4,7 @@ import {
   getMatchDisplayStatus,
   getMatchStatsIntervalBucket,
   hashMatchStatsSeed,
+  EMPTY_MATCH_STATISTICS,
 } from '@ramadan-tournament/shared';
 import { accumulateTeamFormBias } from '../services/matchFormBias';
 import type { MatchStatsPayload } from '../services/MatchStatsService';
@@ -22,19 +23,30 @@ export async function buildMockMatchStatsPayload(
   if (match.technicalWinnerTeamId != null) return null;
 
   const status = getMatchDisplayStatus(kickoffIso, now, match.technicalWinnerTeamId);
-  if (status === 'upcoming') return null;
+  const prior = matches.filter((m) => m.id !== matchId && m.date.getTime() < match.date.getTime());
+  const sideA = accumulateTeamFormBias(prior, match.team1Id, match.date);
+  const sideB = accumulateTeamFormBias(prior, match.team2Id, match.date);
+  const bias = { a: sideA.bias, b: sideB.bias };
+  const winChance = estimateWinChance(sideA.bias, sideB.bias, sideA.form, sideB.form);
+
+  if (status === 'upcoming') {
+    return {
+      matchId,
+      bucket: -1,
+      status: 'upcoming',
+      stats: EMPTY_MATCH_STATISTICS,
+      winChance,
+    };
+  }
 
   const bucket = getMatchStatsIntervalBucket(kickoffIso, now, match.technicalWinnerTeamId);
   if (bucket < 0) return null;
 
-  const prior = matches.filter((m) => m.id !== matchId && m.date.getTime() < match.date.getTime());
-  const sideA = accumulateTeamFormBias(prior, match.team1Id, match.date);
-  const sideB = accumulateTeamFormBias(prior, match.team2Id, match.date);
   const salt = await getRegenSalt(matchId);
   const seed = hashMatchStatsSeed(matchId, salt);
   const stats = generateMatchStats(match.score1 ?? 0, match.score2 ?? 0, seed, {
     bucket,
-    bias: { a: sideA.bias, b: sideB.bias },
+    bias,
   });
 
   return {
@@ -42,9 +54,7 @@ export async function buildMockMatchStatsPayload(
     bucket,
     status,
     stats,
-    form: { a: sideA.form, b: sideB.form },
-    bias: { a: sideA.bias, b: sideB.bias },
-    winChance: estimateWinChance(sideA.bias, sideB.bias, sideA.form, sideB.form),
+    winChance,
   };
 }
 

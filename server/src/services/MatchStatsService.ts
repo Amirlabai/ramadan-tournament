@@ -4,9 +4,8 @@ import {
   getMatchStatsIntervalBucket,
   hashMatchStatsSeed,
   estimateWinChance,
-  type FormResult,
+  EMPTY_MATCH_STATISTICS,
   type MatchStatistics,
-  type TeamBias,
 } from '@ramadan-tournament/shared';
 import { prisma } from '../lib/prisma';
 import { MatchDataService } from './MatchDataService';
@@ -16,10 +15,8 @@ import { getRegenSalt, setRegenSalt } from './matchStatsSalt';
 export type MatchStatsPayload = {
   matchId: number;
   bucket: number;
-  status: 'live' | 'finished';
+  status: 'live' | 'finished' | 'upcoming';
   stats: MatchStatistics;
-  form: { a: FormResult[]; b: FormResult[] };
-  bias: { a: TeamBias; b: TeamBias };
   winChance: { a: number; b: number };
 };
 
@@ -40,17 +37,7 @@ export class MatchStatsService {
       now,
       match.technicalWinnerTeamId
     );
-    if (status === 'upcoming') return null;
 
-    const bucket = getMatchStatsIntervalBucket(
-      kickoffIso,
-      now,
-      match.technicalWinnerTeamId
-    );
-    if (bucket < 0) return null;
-
-    const score1 = match.score1 ?? 0;
-    const score2 = match.score2 ?? 0;
     const matchDate = match.date instanceof Date ? match.date : new Date(match.date);
 
     const candidates = await prisma.match.findMany({
@@ -79,12 +66,35 @@ export class MatchStatsService {
     const prior = candidates as FormBiasMatch[];
     const sideA = accumulateTeamFormBias(prior, match.team1Id, matchDate);
     const sideB = accumulateTeamFormBias(prior, match.team2Id, matchDate);
+    const bias = { a: sideA.bias, b: sideB.bias };
+    const winChance = estimateWinChance(sideA.bias, sideB.bias, sideA.form, sideB.form);
+
+    // ponytail: upcoming = winChance only on the wire (no form/bias leak); empty stats
+    if (status === 'upcoming') {
+      return {
+        matchId,
+        bucket: -1,
+        status: 'upcoming',
+        stats: EMPTY_MATCH_STATISTICS,
+        winChance,
+      };
+    }
+
+    const bucket = getMatchStatsIntervalBucket(
+      kickoffIso,
+      now,
+      match.technicalWinnerTeamId
+    );
+    if (bucket < 0) return null;
+
+    const score1 = match.score1 ?? 0;
+    const score2 = match.score2 ?? 0;
 
     const salt = await getRegenSalt(matchId);
     const seed = hashMatchStatsSeed(matchId, salt);
     const stats = generateMatchStats(score1, score2, seed, {
       bucket,
-      bias: { a: sideA.bias, b: sideB.bias },
+      bias,
     });
 
     return {
@@ -92,9 +102,7 @@ export class MatchStatsService {
       bucket,
       status,
       stats,
-      form: { a: sideA.form, b: sideB.form },
-      bias: { a: sideA.bias, b: sideB.bias },
-      winChance: estimateWinChance(sideA.bias, sideB.bias, sideA.form, sideB.form),
+      winChance,
     };
   }
 

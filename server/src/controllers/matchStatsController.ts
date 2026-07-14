@@ -18,7 +18,7 @@ export const getMatchStats = async (req: Request, res: Response): Promise<void> 
 
     const payload = await MatchStatsService.getPayload(matchId);
     if (!payload) {
-      res.status(404).json({ error: 'סטטיסטיקה זמינה רק למשחקים חיים או שהסתיימו (לא לניצחון טכני)' });
+      res.status(404).json({ error: 'סטטיסטיקה לא זמינה למשחק זה (או ניצחון טכני)' });
       return;
     }
 

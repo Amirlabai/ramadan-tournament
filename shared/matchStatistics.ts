@@ -50,6 +50,18 @@ export type MatchStatistics = {
   saves: SidePair;
 };
 
+/** Zeroed/neutral stats for upcoming odds-only responses (no fabricated live buckets). */
+export const EMPTY_MATCH_STATISTICS: MatchStatistics = {
+  possession: { a: 50, b: 50 },
+  shots: { a: 0, b: 0 },
+  shotsOnTarget: { a: 0, b: 0 },
+  shotsOffTarget: { a: 0, b: 0 },
+  corners: { a: 0, b: 0 },
+  fouls: { a: 0, b: 0 },
+  offsides: { a: 0, b: 0 },
+  saves: { a: 0, b: 0 },
+};
+
 export type GenerateMatchStatsOptions = {
   /** 0..5; scales count stats toward full-match totals (monotonic). */
   bucket?: number;

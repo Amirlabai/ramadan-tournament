@@ -22,6 +22,7 @@ export {
   type MatchStatistics,
   type SidePair,
   type TeamBias,
+  EMPTY_MATCH_STATISTICS,
 } from './matchStatistics';
 export {
   jerusalemDateTime,

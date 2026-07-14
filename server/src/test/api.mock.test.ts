@@ -75,6 +75,28 @@ describe('mock API (supertest)', () => {
     expect(res.body.stats.offsides.a).toBeLessThanOrEqual(2);
     expect(res.body.stats).not.toHaveProperty('yellowCards');
     expect(res.body.winChance.a + res.body.winChance.b).toBe(100);
+    expect(res.body).not.toHaveProperty('form');
+    expect(res.body).not.toHaveProperty('bias');
+  });
+
+  it('buildMockMatchStatsPayload returns odds for upcoming kickoff', async () => {
+    const { buildMockMatchStatsPayload } = await import('../mock/mockMatchStats');
+    const matchesRes = await request(app).get('/api/matches');
+    expect(matchesRes.status).toBe(200);
+    const match = matchesRes.body.find(
+      (m: { technicalWinnerTeamId?: number | null }) => m.technicalWinnerTeamId == null
+    );
+    expect(match).toBeTruthy();
+
+    const beforeKickoff = new Date(new Date(match.date).getTime() - 60_000);
+    const payload = await buildMockMatchStatsPayload(match.id, beforeKickoff);
+    expect(payload).toBeTruthy();
+    expect(payload!.status).toBe('upcoming');
+    expect(payload!.bucket).toBe(-1);
+    expect(payload!.winChance.a + payload!.winChance.b).toBe(100);
+    expect(payload!.stats.shots.a + payload!.stats.shots.b).toBe(0);
+    expect(payload).not.toHaveProperty('form');
+    expect(payload).not.toHaveProperty('bias');
   });
 
   it('GET /api/match-stats/:id returns 400 for invalid id', async () => {

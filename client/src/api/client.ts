@@ -107,7 +107,7 @@ export type MatchStatsSidePair = { a: number; b: number };
 export type MatchStatsResponse = {
     matchId: number;
     bucket: number;
-    status: 'live' | 'finished';
+    status: 'live' | 'finished' | 'upcoming';
     stats: {
         possession: MatchStatsSidePair;
         shots: MatchStatsSidePair;
@@ -118,7 +118,6 @@ export type MatchStatsResponse = {
         offsides: MatchStatsSidePair;
         saves: MatchStatsSidePair;
     };
-    form: { a: Array<'W' | 'D' | 'L'>; b: Array<'W' | 'D' | 'L'> };
     winChance: MatchStatsSidePair;
 };
 
@@ -266,7 +265,8 @@ export const adminAPI = {
 };
 
 export const commentsAPI = {
-    getByMatchId: (matchId: number) => api.get(`/comments/${matchId}`),
+    getByMatchId: (matchId: number, opts?: { signal?: AbortSignal }) =>
+        api.get(`/comments/${matchId}`, { signal: opts?.signal }),
     create: (data: { matchId: number; author?: string; content: string }) => api.post('/comments', data),
 };
 
