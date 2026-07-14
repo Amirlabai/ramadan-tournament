@@ -20,11 +20,15 @@
   min-height: 44px;
 }
 
-.tournament-switcher-btn:hover,
+.tournament-switcher-btn:hover {
+  background: var(--primary-green, var(--color-primary-dark));
+  color: var(--white);
+}
+
 .tournament-switcher-btn:focus-visible {
   background: var(--primary-green, var(--color-primary-dark));
   color: var(--white);
-  outline: 2px solid var(--accent-gold, #ffc107);
+  outline: 3px solid var(--color-focus, #0066cc);
   outline-offset: 2px;
 }
 
@@ -41,7 +45,7 @@
   border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 0.5rem;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-  z-index: 20;
+  z-index: 30;
 }
 
 .tournament-switcher-option {
@@ -57,10 +61,13 @@
   font-size: 0.95rem;
 }
 
-.tournament-switcher-option:hover,
+.tournament-switcher-option:hover {
+  background: rgba(27, 94, 32, 0.08);
+}
+
 .tournament-switcher-option:focus-visible {
   background: rgba(27, 94, 32, 0.08);
-  outline: 2px solid var(--accent-gold, #ffc107);
+  outline: 3px solid var(--color-focus, #0066cc);
   outline-offset: 0;
 }
 

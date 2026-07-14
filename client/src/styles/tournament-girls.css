@@ -90,17 +90,24 @@
   color: var(--tournament-primary);
 }
 
-[data-tournament="girls"] .tournament-switcher-btn:hover,
+[data-tournament="girls"] .tournament-switcher-btn:hover {
+  background: var(--tournament-primary);
+  color: #fff;
+}
+
 [data-tournament="girls"] .tournament-switcher-btn:focus-visible {
   background: var(--tournament-primary);
   color: #fff;
-  outline-color: var(--tournament-focus);
+  outline-color: var(--tournament-focus, var(--color-focus));
 }
 
-[data-tournament="girls"] .tournament-switcher-option:hover,
+[data-tournament="girls"] .tournament-switcher-option:hover {
+  background: rgba(155, 77, 114, 0.1);
+}
+
 [data-tournament="girls"] .tournament-switcher-option:focus-visible {
   background: rgba(155, 77, 114, 0.1);
-  outline-color: var(--tournament-focus);
+  outline-color: var(--tournament-focus, var(--color-focus));
 }
 
 [data-tournament="girls"] .tournament-switcher-option.active {

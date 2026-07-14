@@ -33,9 +33,12 @@ const TournamentSwitcher = () => {
     first?.focus();
   }, [open]);
 
+  const wasOpenRef = useRef(false);
   useEffect(() => {
-    if (open) return;
-    triggerRef.current?.focus();
+    if (wasOpenRef.current && !open) {
+      triggerRef.current?.focus();
+    }
+    wasOpenRef.current = open;
   }, [open]);
 
   const onMenuKeyDown = (e: KeyboardEvent<HTMLUListElement>) => {

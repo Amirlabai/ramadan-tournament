@@ -147,6 +147,30 @@ h2 {
   z-index: 2;
 }
 
+/* Clip banners here so the header can overflow:visible for the tournament switcher menu */
+.tournament-header-banners {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tournament-header-banners::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(
+    140deg,
+    var(--color-primary) 20%,
+    var(--color-primary-dark) 70%
+  );
+  mix-blend-mode: color;
+  opacity: 0.1;
+}
+
 .banner-foreground {
   position: absolute;
   top: 0;
@@ -170,7 +194,7 @@ h2 {
   transform-origin: right center;
 }
 
-/* Header */
+/* Header — z-index:2 stacks the whole context (incl. overflowing switcher menu) above .news-banner (z-index:1). Menu z-index only orders inside this context. */
 .tournament-header {
   position: relative;
   z-index: 2;
@@ -179,22 +203,7 @@ h2 {
   color: var(--white);
   margin-bottom: 0;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  overflow: hidden;
-}
-
-.tournament-header::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-  background: linear-gradient(
-    140deg,
-    var(--color-primary) 20%,
-    var(--color-primary-dark) 70%
-  );
-  mix-blend-mode: color;
-  opacity: 0.1;
+  overflow: visible;
 }
 
 .tournament-header.py-2 {
