@@ -30,15 +30,8 @@
     white-space: nowrap;
 }
 
-.dashboard-card-title,
-.next-matches-card h2,
-.next-matches-card h3,
-.top-scorer h2,
-.top-scorer h3,
-.mvp-race-card h2,
-.mvp-race-card h3,
-.recent-matches h2,
-.recent-matches h3 {
+/* Section chrome only — do not style nested match expand h2/h3 (stats, comments). */
+.dashboard-card-title {
     background: var(--color-primary);
     color: var(--white) !important;
     margin: 0;
@@ -58,13 +51,7 @@
         text-align: center;
     }
 
-    .dashboard-card-title,
-    .next-matches-card h2,
-    .next-matches-card h3,
-    .top-scorer h2,
-    .top-scorer h3,
-    .recent-matches h2,
-    .recent-matches h3 {
+    .dashboard-card-title {
         padding: 0.65rem 0.75rem;
         font-size: 1rem;
     }

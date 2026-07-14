@@ -58,13 +58,7 @@
   border-right: 4px solid var(--color-secondary);
 }
 
-[data-tournament='worldcup'] .dashboard-card-title,
-[data-tournament='worldcup'] .next-matches-card h2,
-[data-tournament='worldcup'] .next-matches-card h3,
-[data-tournament='worldcup'] .top-scorer h2,
-[data-tournament='worldcup'] .top-scorer h3,
-[data-tournament='worldcup'] .recent-matches h2,
-[data-tournament='worldcup'] .recent-matches h3 {
+[data-tournament='worldcup'] .dashboard-card-title {
   background: linear-gradient(135deg, var(--color-primary) 0%, #0f2848 100%);
 }
 
