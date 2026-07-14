@@ -52,7 +52,7 @@ const DonationPopup = () => {
     if (!ready || showBanner) return
     if (!shouldOfferPopup()) return
 
-    const todayKey = jerusalemDateKey()
+    const todayKey = jerusalemDateKey(new Date())
     markShown(todayKey)
     setOpen(true)
   }, [ready, showBanner])
