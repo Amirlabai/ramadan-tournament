@@ -2,6 +2,7 @@ export { STANDINGS_PLAYOFF_ZONE_SIZE } from './standingsConstants';
 export {
   getMatchDisplayStatus,
   hasMatchOnJerusalemDate,
+  isDonationPopupWindow,
   isTournamentPollingWindow,
   MATCH_DURATION_MS,
   needsMatchStatusClockTick,

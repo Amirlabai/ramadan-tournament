@@ -24,6 +24,9 @@ shared/dist
 tools/analytics-explorer/dist
 server/src/**/*.js
 
+# Local analytics dashboard outputs (scripts/analytics_dashboard.py)
+artifacts/
+
 # Vector index (workspace-chroma skill)
 .chroma/
 

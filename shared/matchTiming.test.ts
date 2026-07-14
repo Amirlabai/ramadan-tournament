@@ -3,6 +3,7 @@ import { jerusalemDateTime } from './jerusalemDate';
 import {
   getMatchDisplayStatus,
   hasMatchOnJerusalemDate,
+  isDonationPopupWindow,
   isTournamentPollingWindow,
   needsMatchStatusClockTick,
   shouldCountMatchInStats,
@@ -110,6 +111,43 @@ describe('isTournamentPollingWindow', () => {
   it('is true on Saturday during the window', () => {
     const now = jerusalemDateTime('2026-07-11', '18:00');
     expect(isTournamentPollingWindow(now)).toBe(true);
+  });
+});
+
+describe('isDonationPopupWindow', () => {
+  it('is false on Friday before 17:00', () => {
+    const now = jerusalemDateTime('2026-07-10', '16:59');
+    expect(isDonationPopupWindow(now)).toBe(false);
+  });
+
+  it('is true on Friday at exactly 17:00', () => {
+    const now = jerusalemDateTime('2026-07-10', '17:00');
+    expect(isDonationPopupWindow(now)).toBe(true);
+  });
+
+  it('is true on Saturday evening', () => {
+    const now = jerusalemDateTime('2026-07-11', '20:00');
+    expect(isDonationPopupWindow(now)).toBe(true);
+  });
+
+  it('is true on Friday after the poll window ends', () => {
+    const now = jerusalemDateTime('2026-07-10', '22:00');
+    expect(isDonationPopupWindow(now)).toBe(true);
+  });
+
+  it('is false on Sunday', () => {
+    const now = jerusalemDateTime('2026-07-12', '18:00');
+    expect(isDonationPopupWindow(now)).toBe(false);
+  });
+
+  it('is false on Monday', () => {
+    const now = jerusalemDateTime('2026-07-13', '18:00');
+    expect(isDonationPopupWindow(now)).toBe(false);
+  });
+
+  it('is false on Tuesday after 17:00', () => {
+    const now = jerusalemDateTime('2026-07-14', '18:00');
+    expect(isDonationPopupWindow(now)).toBe(false);
   });
 });
 

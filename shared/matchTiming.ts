@@ -8,6 +8,9 @@ export const MATCH_DURATION_MS = 60 * 60 * 1000;
 const TOURNAMENT_POLL_WEEKDAYS = [5, 6] as const; // Fri, Sat
 const TOURNAMENT_POLL_START_HOUR = 16;
 const TOURNAMENT_POLL_END_HOUR = 21; // exclusive upper bound
+/** Fri/Sat donation popup: from 17:00 Jerusalem until end of that calendar day. */
+const DONATION_POPUP_WEEKDAYS = [5, 6] as const; // Fri, Sat
+const DONATION_POPUP_START_HOUR = 17;
 /** Refresh status badges shortly before/after kickoff or full-time. */
 const STATUS_CLOCK_MARGIN_MS = 2 * 60 * 1000;
 
@@ -68,6 +71,15 @@ export function isTournamentPollingWindow(now: Date = new Date()): boolean {
 
   const weekday = getWeekdayFromDateString(jerusalemDateKey(now));
   return (TOURNAMENT_POLL_WEEKDAYS as readonly number[]).includes(weekday);
+}
+
+/** True Fri/Sat Jerusalem from 17:00 through end of that calendar day. */
+export function isDonationPopupWindow(now: Date = new Date()): boolean {
+  const { hour } = getJerusalemParts(now);
+  if (hour < DONATION_POPUP_START_HOUR) return false;
+
+  const weekday = getWeekdayFromDateString(jerusalemDateKey(now));
+  return (DONATION_POPUP_WEEKDAYS as readonly number[]).includes(weekday);
 }
 
 export function hasMatchOnJerusalemDate(

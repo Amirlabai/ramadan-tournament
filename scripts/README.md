@@ -74,21 +74,44 @@ Example offline pipeline:
 
 Or use [deploy.bat](../deploy.bat), which runs import + stats and commits to git.
 
+### analytics_dashboard.py
+
+Offline HTML dashboard from a Postgres `analytics_events` CSV export (typically after [`backup_postgres.py`](backup_postgres.py)). Complements the live Analytics Explorer (`npm run analytics:explorer`), which needs `DATABASE_URL`.
+
+Writes gitignored outputs under `artifacts/analytics-dashboard/`:
+
+- `index.html` — interactive Plotly dashboard (KPIs, auth health, traffic, funnels)
+- `metrics.json` — machine-readable summary for diffs
+- `deploy_correlation.json` — only with `--correlate-deploys`
+
+**Chunking:** files ≥5 MiB are streamed in 50k-row chunks (peak memory stays near one chunk). Force with `--chunksize N` or `--force-chunked`.
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt
+.\.venv\Scripts\python.exe scripts/analytics_dashboard.py
+.\.venv\Scripts\python.exe scripts/analytics_dashboard.py --open
+.\.venv\Scripts\python.exe scripts/analytics_dashboard.py --correlate-deploys
+.\.venv\Scripts\python.exe scripts/analytics_dashboard.py --force-chunked --chunksize 20000
+.\.venv\Scripts\python.exe scripts/analytics_dashboard.py --csv archive\postgres\analytics_events.csv --out artifacts\analytics-dashboard
+```
+
 ## Dependencies
 
-See [requirements.txt](requirements.txt): `requests`, `python-dotenv`, `psycopg2-binary`.
+See [requirements.txt](requirements.txt): `requests`, `python-dotenv`, `psycopg2-binary`, `pandas`, `plotly`.
 
 ## Layout
 
 ```
 scripts/
-├── README.md           # this file
+├── README.md              # this file
 ├── requirements.txt
-├── _paths.py           # REPO_ROOT and DATA_DIR
-├── backup_postgres.py  # GitHub Actions
-├── sync_photos.py      # GitHub Actions
-├── fetch_alarms.py     # GitHub Actions
-├── import_players.py   # legacy
-├── update_stats.py     # legacy
-└── json_to_js.py       # legacy
+├── _paths.py              # REPO_ROOT and DATA_DIR
+├── backup_postgres.py     # GitHub Actions
+├── sync_photos.py         # GitHub Actions
+├── fetch_alarms.py        # GitHub Actions
+├── analytics_dashboard.py # offline HTML dashboard from CSV
+├── analytics_report/      # load / metrics / charts / render
+├── import_players.py      # legacy
+├── update_stats.py        # legacy
+└── json_to_js.py          # legacy
 ```

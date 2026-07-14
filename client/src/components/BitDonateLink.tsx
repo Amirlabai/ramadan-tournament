@@ -1,4 +1,4 @@
-import { BUY_COFFEE_LABEL, DONATE_PAGE_URL } from '../config/contactConfig'
+import { DONATE_LABEL, DONATE_PAGE_URL } from '../config/contactConfig'
 
 const donateLinkProps = {
   href: DONATE_PAGE_URL,
@@ -10,7 +10,7 @@ export function BitDonateLink({ className }: { className?: string }) {
   const classes = ['buy-coffee-link', className].filter(Boolean).join(' ')
   return (
     <a {...donateLinkProps} className={classes}>
-      {BUY_COFFEE_LABEL} ☕
+      {DONATE_LABEL}
     </a>
   )
 }
