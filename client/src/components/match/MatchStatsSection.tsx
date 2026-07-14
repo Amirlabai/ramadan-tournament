@@ -110,6 +110,7 @@ function WinChanceBar({
 function StatsSkeleton({ upcoming }: { upcoming?: boolean }) {
   return (
     <div className="match-stats-section match-stats-section--loading" role="status">
+      <h3 className="match-stats-heading">סטטיסטיקה</h3>
       <span className="visually-hidden">טוען סטטיסטיקה…</span>
       <Skeleton height="0.75rem" width="100%" className="match-stats-skel-bar" rounded />
       {!upcoming ? (
@@ -221,6 +222,7 @@ export function MatchStatsSection({
   if (match.technicalWinnerTeamId != null) {
     return (
       <div className="match-stats-section" role="region" aria-label="סטטיסטיקת משחק">
+        <h3 className="match-stats-heading">סטטיסטיקה</h3>
         <p className="match-stats-empty">אין סטטיסטיקה למשחק עם ניצחון טכני</p>
       </div>
     );
@@ -233,6 +235,7 @@ export function MatchStatsSection({
   if (error || !payload) {
     return (
       <div className="match-stats-section" role="region" aria-label="סטטיסטיקת משחק">
+        <h3 className="match-stats-heading">סטטיסטיקה</h3>
         <p className="match-stats-empty">
           {error ||
             (status === 'upcoming'
@@ -266,6 +269,7 @@ export function MatchStatsSection({
 
   return (
     <div className="match-stats-section" role="region" aria-label="סטטיסטיקת משחק">
+      <h3 className="match-stats-heading">סטטיסטיקה</h3>
       {showWinChance ? (
         <WinChanceBar chance={chance} team1Name={team1Name} team2Name={team2Name} />
       ) : null}
