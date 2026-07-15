@@ -65,46 +65,60 @@ const Teams = () => {
         }
         if (state?.selectPlayerId) {
             setSelectedPlayerId(state.selectPlayerId);
-            // If we don't have an expandTeamId but have a player, we'll need to expand their team
-            // But usually they come together
         }
 
         if (state?.expandTeamId || state?.selectPlayerId) {
-            // Clear state so it doesn't persist on refresh
             window.history.replaceState({}, document.title);
         }
     }, [location.state]);
 
+    const showSkeleton = useMinSkeletonTime(loading, { error });
+
     useEffect(() => {
-        if (!loading && shouldScroll && expandedTeam) {
-            // Short delay to ensure DOM is fully ready after loading state change
-            const timer = setTimeout(() => {
-                const element = document.getElementById(`team-row-${expandedTeam}`);
-                if (element) {
-                    const rect = element.getBoundingClientRect();
-                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-                    // Align to top with 100px offset to account for sticky header and provide margin
-                    let targetY = rect.top + scrollTop - 100;
+        // Wait until real list is painted — scroll while skeleton mounts misses team-row-*.
+        if (showSkeleton || !shouldScroll || expandedTeam == null) return;
 
-                    // If we have a selected player, try to scroll specifically to them inside the expanded team
-                    if (selectedPlayerId) {
-                        const playerElement = document.getElementById(`player-card-${selectedPlayerId}`);
-                        if (playerElement) {
-                            const pRect = playerElement.getBoundingClientRect();
-                            targetY = pRect.top + scrollTop - 150; // A bit more margin for player cards
-                        }
-                    }
+        let cancelled = false;
+        let activeTimer: number | undefined;
+        const maxAttempts = 12;
+        const scrollBehavior: ScrollBehavior = window.matchMedia(
+            '(prefers-reduced-motion: reduce)'
+        ).matches
+            ? 'auto'
+            : 'smooth';
 
-                    window.scrollTo({
-                        top: targetY,
-                        behavior: 'smooth'
-                    });
-                    setShouldScroll(false);
-                }
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [loading, shouldScroll, expandedTeam]);
+        const tryScroll = (attempt: number) => {
+            if (cancelled) return;
+            const wantPlayer = selectedPlayerId != null;
+            const playerEl = wantPlayer
+                ? document.getElementById(`player-card-${selectedPlayerId}`)
+                : null;
+            const teamEl = document.getElementById(`team-row-${expandedTeam}`);
+            const isLast = attempt >= maxAttempts;
+
+            // Prefer player when requested; only fall back to team on the last try.
+            const target = wantPlayer
+                ? (playerEl ?? (isLast ? teamEl : null))
+                : teamEl;
+
+            if (target) {
+                target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
+                setShouldScroll(false);
+                return;
+            }
+            if (!isLast) {
+                activeTimer = window.setTimeout(() => tryScroll(attempt + 1), 50);
+            } else {
+                setShouldScroll(false);
+            }
+        };
+
+        activeTimer = window.setTimeout(() => tryScroll(0), 50);
+        return () => {
+            cancelled = true;
+            if (activeTimer != null) window.clearTimeout(activeTimer);
+        };
+    }, [showSkeleton, shouldScroll, expandedTeam, selectedPlayerId]);
 
     const fetchTeams = async (isBackground = false) => {
         try {
@@ -231,8 +245,6 @@ const Teams = () => {
             setVoteConfirmPlayer(null);
         }
     };
-
-    const showSkeleton = useMinSkeletonTime(loading, { error });
 
     if (showSkeleton) return <TeamsSkeleton label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;

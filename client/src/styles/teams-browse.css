@@ -68,6 +68,7 @@
 .teams-browse-card {
   overflow: hidden;
   background: var(--color-surface, #fff);
+  scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
 }
 
 .teams-browse-header {
@@ -283,6 +284,7 @@
   border-radius: 0;
   background: var(--color-surface, #fff);
   isolation: isolate;
+  scroll-margin-top: calc(5.25rem + env(safe-area-inset-top, 0px));
 }
 
 .roster-player-row:last-child {
