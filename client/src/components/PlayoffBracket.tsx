@@ -41,7 +41,7 @@ const PlayoffBracket: React.FC<PlayoffBracketProps> = ({ matches }) => {
 
     return (
         <div className="playoff-bracket-card dashboard-card mb-5">
-            <h2>תרשים פלייאוף</h2>
+            <h2 className="dashboard-card-title">תרשים פלייאוף</h2>
             <div className="brackets-wrapper">
                 {/* Winners Bracket (Right) */}
                 <div className="bracket winners-bracket">

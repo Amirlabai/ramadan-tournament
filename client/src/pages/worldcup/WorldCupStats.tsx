@@ -104,7 +104,7 @@ const WorldCupStats = () => {
         <div className="wc-group-grid">
           {groups.map(([group, rows]) => (
             <div key={group} className="card standings-table wc-group-card">
-              <h3>{wcGroupLabel(group)}</h3>
+              <h3 className="dashboard-card-title">{wcGroupLabel(group)}</h3>
               <table className="wc-group-table">
                 <caption className="visually-hidden">דירוג {wcGroupLabel(group)}</caption>
                 <thead>
@@ -146,7 +146,7 @@ const WorldCupStats = () => {
         </div>
 
         <div className="card top-scorers-list wc-scorers-panel">
-          <h3>מלכי השערים</h3>
+          <h3 className="dashboard-card-title">מלכי השערים</h3>
           {topScorers.length === 0 ? (
             <p className="text-muted text-center mb-0 py-3">נתוני מלכי השערים עדיין לא זמינים.</p>
           ) : (

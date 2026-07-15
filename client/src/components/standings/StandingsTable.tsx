@@ -31,7 +31,7 @@ export default function StandingsTable<T>({
 }: StandingsTableProps<T>) {
   return (
     <div className="card standings-table">
-      {title ? <h2 className="standings-table__title">{title}</h2> : null}
+      {title ? <h2 className="dashboard-card-title standings-table__title">{title}</h2> : null}
       <div className="table-responsive">
         <table className="standings-table__table">
           <caption className={captionClassName}>{caption}</caption>

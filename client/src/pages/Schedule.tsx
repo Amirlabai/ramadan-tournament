@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { matchesAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import SEO from '../components/SEO';
 import { ScheduleSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
-import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { MatchStatusBadge, MatchTeamsScore } from '../components/match/MatchCardParts';
+import { MatchCommentsToggle } from '../components/match/MatchCommentsToggle';
 import { MatchStatsSection } from '../components/match/MatchStatsSection';
+import { UpcomingWinChance } from '../components/match/UpcomingWinChance';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
@@ -21,14 +23,9 @@ const Schedule = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
-    const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('all');
+    const [activeFilter, setActiveFilter] = useState<'all' | 'upcoming' | 'live' | 'finished'>('upcoming');
     const [scrollMatchId, setScrollMatchId] = useState<number | null>(null);
     const location = useLocation();
-
-    const getTeamIdByMemberId = (memberId: number) => {
-        const team = teams.find(t => t.players?.some(p => p.memberId === memberId));
-        return team?.id;
-    };
 
     useEffect(() => {
         const state = location.state as { filter?: typeof activeFilter; matchId?: number };
@@ -37,6 +34,7 @@ const Schedule = () => {
         }
         if (typeof state?.matchId === 'number') {
             setScrollMatchId(state.matchId);
+            setExpandedMatchId(state.matchId);
         }
         if (state?.filter || state?.matchId != null) {
             window.history.replaceState({}, document.title);
@@ -81,6 +79,23 @@ const Schedule = () => {
 
     useEffect(() => {
         if (showSkeleton || scrollMatchId == null) return;
+
+        const target = matches.find((m) => m.id === scrollMatchId);
+        if (target) {
+            const status = getMatchDisplayStatus(
+                target.date,
+                now,
+                target.technicalWinnerTeamId
+            );
+            if (activeFilter !== 'all' && activeFilter !== status) {
+                setActiveFilter(status);
+                return;
+            }
+        } else if (activeFilter !== 'all') {
+            setActiveFilter('all');
+            return;
+        }
+
         const timer = setTimeout(() => {
             document.getElementById(`match-${scrollMatchId}`)?.scrollIntoView({
                 behavior: 'smooth',
@@ -89,7 +104,7 @@ const Schedule = () => {
             setScrollMatchId(null);
         }, 100);
         return () => clearTimeout(timer);
-    }, [showSkeleton, scrollMatchId]);
+    }, [showSkeleton, scrollMatchId, matches, activeFilter, now]);
 
     if (showSkeleton) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
@@ -101,22 +116,8 @@ const Schedule = () => {
 
     const getTeamLogo = (teamId: number) => {
         const team = teams.find(t => t.id === teamId);
-        return resolveAssetUrl(team?.logoUrl);
-    };
-
-    const getTeamLogoPosition = (teamId: number) => {
-        const team = teams.find(t => t.id === teamId);
-        return team?.logoPosition || 'right';
-    };
-
-    const getPlayerNickname = (memberId: number) => {
-        for (const team of teams) {
-            const player = team.players?.find(p => p.memberId === memberId);
-            if (player) {
-                return player.nickname || `${player.firstName} ${player.lastName}`.trim();
-            }
-        }
-        return '';
+        if (!team || team.logoPosition === 'none') return undefined;
+        return resolveAssetUrl(team.logoUrl);
     };
 
     const formatDate = (dateString: string) => {
@@ -190,6 +191,11 @@ const Schedule = () => {
                 ) : null}
                 {filteredMatches.map((match) => {
                     const status = getMatchStatus(match);
+                    const team1Name = getTeamName(match.team1Id);
+                    const team2Name = getTeamName(match.team2Id);
+                    const team1Logo = getTeamLogo(match.team1Id);
+                    const team2Logo = getTeamLogo(match.team2Id);
+                    const expandPanelId = `match-expand-${match.id}`;
                     return (
                         <div key={match.id} id={`match-${match.id}`} className={`match-card card ${status}${match.technicalWinnerTeamId != null ? ' technical' : ''}`}>
                             <MatchStatusBadge
@@ -201,164 +207,72 @@ const Schedule = () => {
                                 <div className="playoff-badge-floating">משחק פלייאוף</div>
                             )}
 
-                            <div className="match-teams-score">
-                                <div
-                                    className={`team-side${match.technicalWinnerTeamId === match.team1Id ? ' team-side--winner' : ''}`}
-                                >
-                                    {getTeamLogoPosition(match.team1Id) === 'right' && getTeamLogo(match.team1Id) && (
-                                        <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline me-2" />
-                                    )}
-                                    <span className="team-name">{getTeamName(match.team1Id)}</span>
-                                    {getTeamLogoPosition(match.team1Id) === 'left' && getTeamLogo(match.team1Id) && (
-                                        <img src={getTeamLogo(match.team1Id)!} alt={`לוגו ${getTeamName(match.team1Id)}`} className="team-logo-inline ms-2" />
-                                    )}
-                                    {status !== 'upcoming' && (
-                                        <span className="team-score">{match.score1 ?? '—'}</span>
-                                    )}
-                                </div>
-
-                                <div className="vs-divider">VS</div>
-
-                                <div
-                                    className={`team-side${match.technicalWinnerTeamId === match.team2Id ? ' team-side--winner' : ''}`}
-                                >
-                                    {getTeamLogoPosition(match.team2Id) === 'right' && getTeamLogo(match.team2Id) && (
-                                        <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline me-2" />
-                                    )}
-                                    <span className="team-name">{getTeamName(match.team2Id)}</span>
-                                    {getTeamLogoPosition(match.team2Id) === 'left' && getTeamLogo(match.team2Id) && (
-                                        <img src={getTeamLogo(match.team2Id)!} alt={`לוגו ${getTeamName(match.team2Id)}`} className="team-logo-inline ms-2" />
-                                    )}
-                                    {status !== 'upcoming' && (
-                                        <span className="team-score">{match.score2 ?? '—'}</span>
-                                    )}
-                                </div>
-                            </div>
+                            <MatchTeamsScore
+                                team1Name={team1Name}
+                                team2Name={team2Name}
+                                score1={match.score1}
+                                score2={match.score2}
+                                showScores={status !== 'upcoming'}
+                                team1Winner={match.technicalWinnerTeamId === match.team1Id}
+                                team2Winner={match.technicalWinnerTeamId === match.team2Id}
+                                team1Logo={
+                                    team1Logo ? (
+                                        <img
+                                            src={team1Logo}
+                                            alt={`לוגו ${team1Name}`}
+                                            className="team-logo-inline"
+                                        />
+                                    ) : undefined
+                                }
+                                team2Logo={
+                                    team2Logo ? (
+                                        <img
+                                            src={team2Logo}
+                                            alt={`לוגו ${team2Name}`}
+                                            className="team-logo-inline"
+                                        />
+                                    ) : undefined
+                                }
+                            />
 
                             <div className="match-meta">
                                 <span className="match-date">{formatDate(match.date)}</span>
                                 <span className="match-location">{match.location}</span>
                             </div>
 
-                            {expandedMatchId !== match.id && match.goals && match.goals.length > 0 && (() => {
-                                const ownGoalsByTeam: Record<number, number> = {};
-                                for (const goal of match.goals) {
-                                    if (!goal.isOwnGoal || goal.creditedTeamId == null) continue;
-                                    ownGoalsByTeam[goal.creditedTeamId] =
-                                        (ownGoalsByTeam[goal.creditedTeamId] || 0) + 1;
-                                }
-                                const countsByTeam = (
-                                    predicate: (teamId: number | undefined) => boolean
-                                ) => {
-                                    const counts: Record<number, number> = {};
-                                    for (const goal of match.goals) {
-                                        if (goal.isOwnGoal || goal.memberId == null) continue;
-                                        const teamId = getTeamIdByMemberId(goal.memberId);
-                                        if (predicate(teamId)) {
-                                            counts[goal.memberId] = (counts[goal.memberId] || 0) + 1;
-                                        }
-                                    }
-                                    return Object.entries(counts);
-                                };
-                                const team1Goals = countsByTeam((id) => id === match.team1Id);
-                                const team2Goals = countsByTeam((id) => id === match.team2Id);
-                                const otherGoals = countsByTeam(
-                                    (id) => id !== match.team1Id && id !== match.team2Id
-                                );
-                                const renderGoalItem = (memberId: string, count: number) => {
-                                    const id = Number(memberId);
-                                    const teamId = getTeamIdByMemberId(id);
-                                    return (
-                                        <Link
-                                            key={memberId}
-                                            to="/teams"
-                                            state={{ expandTeamId: teamId }}
-                                            className="goal-item text-decoration-none"
-                                            onClick={(e) => {
-                                                if (!teamId) e.preventDefault();
-                                            }}
-                                        >
-                                            <span>{getPlayerNickname(id)}</span>
-                                            <span>{count > 1 ? ` ⚽×${count}` : ' ⚽'}</span>
-                                        </Link>
-                                    );
-                                };
-                                const renderOwnGoals = (teamId: number) => {
-                                    const n = ownGoalsByTeam[teamId] || 0;
-                                    if (n === 0) return null;
-                                    return (
-                                        <span key={`og-${teamId}`} className="goal-item">
-                                            גול עצמי{n > 1 ? ` ×${n}` : ''}
-                                        </span>
-                                    );
-                                };
-                                return (
-                                    <div className="match-goals">
-                                        <h4>כובשים:</h4>
-                                        <div className="goals-list goals-list--sides" role="group" aria-label="כובשים לפי קבוצה">
-                                            <div
-                                                className="goals-side"
-                                                role="group"
-                                                aria-label={getTeamName(match.team1Id)}
-                                            >
-                                                {team1Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
-                                                {renderOwnGoals(match.team1Id)}
-                                            </div>
-                                            <div className="goals-side-gap" aria-hidden="true" />
-                                            <div
-                                                className="goals-side"
-                                                role="group"
-                                                aria-label={getTeamName(match.team2Id)}
-                                            >
-                                                {team2Goals.map(([memberId, count]) => renderGoalItem(memberId, count))}
-                                                {renderOwnGoals(match.team2Id)}
-                                            </div>
-                                        </div>
-                                        {otherGoals.length > 0 && (
-                                            <div
-                                                className="goals-list goals-list--other"
-                                                role="group"
-                                                aria-label="אחר"
-                                            >
-                                                <span className="goals-other-label">אחר</span>
-                                                {otherGoals.map(([memberId, count]) => renderGoalItem(memberId, count))}
-                                            </div>
-                                        )}
-                                    </div>
-                                );
-                            })()}
+                            {status === 'upcoming' && match.technicalWinnerTeamId == null ? (
+                                <UpcomingWinChance
+                                    matchId={match.id}
+                                    team1Name={team1Name}
+                                    team2Name={team2Name}
+                                />
+                            ) : null}
 
                             <div className="match-actions">
-                                <button
-                                    type="button"
-                                    className="btn-comments"
-                                    aria-expanded={expandedMatchId === match.id}
-                                    onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
-                                >
-                                    {expandedMatchId === match.id ? 'הסתר פרטים' : (
-                                        <>
-                                            פרטים
-                                            {match.commentCount && match.commentCount > 0 ? (
-                                                <span className="badge bg-danger ms-2 rounded-pill">
-                                                    {match.commentCount}
-                                                </span>
-                                            ) : null}
-                                        </>
-                                    )}
-                                </button>
+                                <MatchCommentsToggle
+                                    expanded={expandedMatchId === match.id}
+                                    status={status}
+                                    commentCount={match.commentCount}
+                                    controlsId={expandPanelId}
+                                    onClick={() =>
+                                        setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
+                                    }
+                                />
                             </div>
 
                             {expandedMatchId === match.id && (
-                                <>
-                                    <MatchStatsSection
-                                        match={match}
-                                        team1Name={getTeamName(match.team1Id)}
-                                        team2Name={getTeamName(match.team2Id)}
-                                        teams={teams}
-                                        active
-                                    />
+                                <div id={expandPanelId}>
+                                    {status !== 'upcoming' ? (
+                                        <MatchStatsSection
+                                            match={match}
+                                            team1Name={team1Name}
+                                            team2Name={team2Name}
+                                            teams={teams}
+                                            active
+                                        />
+                                    ) : null}
                                     <CommentSection matchId={match.id} />
-                                </>
+                                </div>
                             )}
                         </div>
                     );

@@ -35,12 +35,6 @@ type StatusMsg = { type: 'success' | 'error'; text: string };
 
 const REFRESH_FAILED_MSG = 'העדכון נשמר, אך לא ניתן לרענן את התצוגה — רענן את העמוד';
 
-const logoPositionLabel: Record<LogoPosition, string> = {
-    right: 'ימין (רגיל)',
-    left: 'שמאל',
-    none: 'לא מוצג',
-};
-
 function snapshotToMeta(snapshot: TeamOwnerSnapshot): TeamMeta {
     return {
         name: snapshot.name,
@@ -278,26 +272,6 @@ export default function TeamOwnerSettings({
                                 required
                             />
                         </div>
-                        <div className="col-md-6">
-                            <label className="form-label" htmlFor={`team-logo-pos-${teamId}`}>
-                                מיקום לוגו בדף הקבוצות
-                            </label>
-                            <select
-                                id={`team-logo-pos-${teamId}`}
-                                className="form-select"
-                                value={form.logoPosition}
-                                onChange={(e) =>
-                                    setForm((f) => ({
-                                        ...f,
-                                        logoPosition: e.target.value as LogoPosition,
-                                    }))
-                                }
-                            >
-                                <option value="right">ימין (רגיל)</option>
-                                <option value="left">שמאל</option>
-                                <option value="none">אל תציג לוגו</option>
-                            </select>
-                        </div>
                         <div className="col-12">
                             <label className="form-label" htmlFor={`team-desc-${teamId}`}>
                                 תיאור הקבוצה
@@ -311,6 +285,25 @@ export default function TeamOwnerSettings({
                                 onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                                 placeholder="תיאור קצר על הקבוצה (יוצג בדף הקבוצות)"
                             />
+                        </div>
+                        <div className="col-12">
+                            <div className="form-check">
+                                <input
+                                    id={`team-show-logo-${teamId}`}
+                                    className="form-check-input"
+                                    type="checkbox"
+                                    checked={form.logoPosition !== 'none'}
+                                    onChange={(e) =>
+                                        setForm((f) => ({
+                                            ...f,
+                                            logoPosition: e.target.checked ? 'right' : 'none',
+                                        }))
+                                    }
+                                />
+                                <label className="form-check-label" htmlFor={`team-show-logo-${teamId}`}>
+                                    הצג לוגו ברשימת הקבוצות
+                                </label>
+                            </div>
                         </div>
                     </div>
 
@@ -408,9 +401,6 @@ export default function TeamOwnerSettings({
                         <div className="col-md-8">
                             <div className="mb-2">
                                 <strong>שם:</strong> {team.name}
-                            </div>
-                            <div className="mb-2">
-                                <strong>מיקום לוגו:</strong> {logoPositionLabel[team.logoPosition]}
                             </div>
                         </div>
                         <div className="col-md-4 text-center">

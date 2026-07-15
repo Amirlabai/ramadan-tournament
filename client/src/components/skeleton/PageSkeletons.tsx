@@ -133,7 +133,7 @@ export function TeamsSkeleton({ label }: PageSkeletonProps) {
 
 export function GirlsTeamsSkeleton({ label }: PageSkeletonProps) {
   return (
-    <PageSkeletonStatus label={label} className="container py-4">
+    <PageSkeletonStatus label={label} className="browse-page container py-4">
       <SEO
         title="קבוצות — טורניר בנות"
         description="רשימת הקבוצות והסגלים בטורניר בנות רמדאן 2026, כולל סך נקודות לכל קבוצה."
@@ -147,7 +147,7 @@ export function GirlsTeamsSkeleton({ label }: PageSkeletonProps) {
 
 export function GirlsHomeSkeleton({ label }: PageSkeletonProps) {
   return (
-    <PageSkeletonStatus label={label} className="stats-page container py-4">
+    <PageSkeletonStatus label={label} className="stats-page browse-page container py-4">
       <SEO
         title="טורניר בנות — נקודות"
         description="טבלת נקודות לטורניר בנות רמדאן 2026. הקבוצה עם הכי הרבה נקודות מובילה."
@@ -161,7 +161,7 @@ export function GirlsHomeSkeleton({ label }: PageSkeletonProps) {
 
 export function GirlsNewsSkeleton({ label }: PageSkeletonProps) {
   return (
-    <PageSkeletonStatus label={label} className="container py-4">
+    <PageSkeletonStatus label={label} className="browse-page container py-4">
       <SEO
         title="חדשות — טורניר בנות"
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."

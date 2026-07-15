@@ -83,11 +83,10 @@
   margin-bottom: 1rem;
 }
 
-[data-tournament='worldcup'] .wc-group-card h3,
-[data-tournament='worldcup'] .wc-scorers-panel h3 {
-  color: var(--color-primary);
-  margin-bottom: 1rem;
-  font-size: 1.25rem;
+[data-tournament='worldcup'] .wc-group-card > .dashboard-card-title,
+[data-tournament='worldcup'] .wc-scorers-panel > .dashboard-card-title {
+  color: var(--white) !important;
+  margin-bottom: 0;
 }
 
 [data-tournament='worldcup'] .match-card.live,
@@ -126,13 +125,18 @@
 
 .wc-group-card {
   margin-bottom: 0;
-  padding: 0.65rem 0.5rem;
+  padding: 0;
   overflow: hidden;
 }
 
-.wc-group-card h3 {
-  margin-bottom: 0.4rem;
+.wc-group-card > .dashboard-card-title {
+  margin-bottom: 0;
   font-size: 1.05rem;
+}
+
+.wc-group-card .wc-group-table,
+.wc-group-card > table {
+  margin: 0.5rem 0.5rem 0.65rem;
 }
 
 .wc-group-table {

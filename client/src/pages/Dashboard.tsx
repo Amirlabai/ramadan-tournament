@@ -13,8 +13,10 @@ import EmptyState from '../components/EmptyState';
 import CommentSection from '../components/CommentSection';
 import PlayerClaimModal from '../components/PlayerClaimModal';
 import PlayoffBracket from '../components/PlayoffBracket';
-import { MatchStatusBadge } from '../components/match/MatchCardParts';
+import { MatchStatusBadge, MatchTeamsScore } from '../components/match/MatchCardParts';
+import { MatchCommentsToggle } from '../components/match/MatchCommentsToggle';
 import { MatchStatsSection } from '../components/match/MatchStatsSection';
+import { UpcomingWinChance } from '../components/match/UpcomingWinChance';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
@@ -157,16 +159,19 @@ const Dashboard = () => {
         setShowClaimModal(true);
     };
 
-    const renderTeamNameWithLogo = (teamName: string, logoUrl?: string, logoPosition?: string) => {
-        const logo = resolveAssetUrl(logoUrl);
-        const position = logoPosition || 'right';
+    const renderTeamNameWithLogo = (
+        teamName: string,
+        logoUrl?: string,
+        logoPosition?: Match['team1LogoPosition']
+    ) => {
+        const logo = logoPosition === 'none' ? undefined : resolveAssetUrl(logoUrl);
 
-        if (!logo || position === 'none') return <span className="team-name">{teamName}</span>;
+        if (!logo) return <span className="team-name">{teamName}</span>;
 
         return (
-            <div className={`d-flex align-items-center gap-2 ${position === 'left' ? 'flex-row-reverse' : ''}`}>
-                <span className="team-name">{teamName}</span>
+            <div className="d-flex align-items-center gap-2">
                 <img className="team-logo-inline" src={logo} alt={`לוגו ${teamName}`} style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
+                <span className="team-name">{teamName}</span>
             </div>
         );
     };
@@ -175,10 +180,13 @@ const Dashboard = () => {
         const status = getMatchDisplayStatus(match.date, now, match.technicalWinnerTeamId);
         const team1Name = match.team1Name || `קבוצה ${match.team1Id}`;
         const team2Name = match.team2Name || `קבוצה ${match.team2Id}`;
-        const team1Logo = resolveAssetUrl(match.team1LogoUrl);
-        const team2Logo = resolveAssetUrl(match.team2LogoUrl);
+        const team1Logo =
+            match.team1LogoPosition === 'none' ? undefined : resolveAssetUrl(match.team1LogoUrl);
+        const team2Logo =
+            match.team2LogoPosition === 'none' ? undefined : resolveAssetUrl(match.team2LogoUrl);
         const isLive = status === 'live';
         const isTechnical = match.technicalWinnerTeamId != null;
+        const expandPanelId = `match-expand-${match.id}`;
 
         const cardBody = (
             <>
@@ -188,46 +196,42 @@ const Dashboard = () => {
                     <div className="playoff-badge-floating">משחק פלייאוף</div>
                 )}
 
-                <div className="match-teams-score">
-                    <div
-                        className={`team-side${match.technicalWinnerTeamId === match.team1Id ? ' team-side--winner' : ''}`}
-                    >
-                        {match.team1LogoPosition !== 'left' && team1Logo && (
-                            <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline me-2" />
-                        )}
-                        <span className="team-name">{team1Name}</span>
-                        {match.team1LogoPosition === 'left' && team1Logo && (
-                            <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline ms-2" />
-                        )}
-                        {status !== 'upcoming' && (
-                            <span className="team-score">{match.score1 ?? '—'}</span>
-                        )}
-                    </div>
-
-                    <div className="vs-divider">VS</div>
-
-                    <div
-                        className={`team-side${match.technicalWinnerTeamId === match.team2Id ? ' team-side--winner' : ''}`}
-                    >
-                        {match.team2LogoPosition !== 'left' && team2Logo && (
-                            <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline me-2" />
-                        )}
-                        <span className="team-name">{team2Name}</span>
-                        {match.team2LogoPosition === 'left' && team2Logo && (
-                            <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline ms-2" />
-                        )}
-                        {status !== 'upcoming' && (
-                            <span className="team-score">{match.score2 ?? '—'}</span>
-                        )}
-                    </div>
-                </div>
+                <MatchTeamsScore
+                    team1Name={team1Name}
+                    team2Name={team2Name}
+                    score1={match.score1}
+                    score2={match.score2}
+                    showScores={status !== 'upcoming'}
+                    team1Winner={match.technicalWinnerTeamId === match.team1Id}
+                    team2Winner={match.technicalWinnerTeamId === match.team2Id}
+                    team1Logo={
+                        team1Logo ? (
+                            <img src={team1Logo} alt={`לוגו ${team1Name}`} className="team-logo-inline" />
+                        ) : undefined
+                    }
+                    team2Logo={
+                        team2Logo ? (
+                            <img src={team2Logo} alt={`לוגו ${team2Name}`} className="team-logo-inline" />
+                        ) : undefined
+                    }
+                />
 
                 <div className="match-meta">
                     <span className="match-date">{formatMatchDateTime(match.date)}</span>
                     <span className="match-location">{match.location}</span>
                 </div>
+
+                {status === 'upcoming' && !isTechnical ? (
+                    <UpcomingWinChance
+                        matchId={match.id}
+                        team1Name={team1Name}
+                        team2Name={team2Name}
+                    />
+                ) : null}
             </>
         );
+
+        const isExpanded = expandedMatchId === match.id;
 
         return (
             <div key={match.id} className={`match-card card ${status}${isTechnical ? ' technical' : ''}`}>
@@ -245,36 +249,28 @@ const Dashboard = () => {
                 )}
 
                 <div className="match-actions">
-                    <button
-                        type="button"
-                        className="btn-comments"
-                        aria-expanded={expandedMatchId === match.id}
-                        onClick={() => setExpandedMatchId(expandedMatchId === match.id ? null : match.id)}
-                    >
-                        {expandedMatchId === match.id ? 'הסתר פרטים' : (
-                            <>
-                                פרטים
-                                {match.commentCount && match.commentCount > 0 ? (
-                                    <span className="badge bg-danger ms-2 rounded-pill">
-                                        {match.commentCount}
-                                    </span>
-                                ) : null}
-                            </>
-                        )}
-                    </button>
+                    <MatchCommentsToggle
+                        expanded={isExpanded}
+                        status={status}
+                        commentCount={match.commentCount}
+                        controlsId={expandPanelId}
+                        onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
+                    />
                 </div>
 
-                {expandedMatchId === match.id && (
-                    <>
-                        <MatchStatsSection
-                            match={match}
-                            team1Name={team1Name}
-                            team2Name={team2Name}
-                            teams={data?.teams}
-                            active
-                        />
+                {isExpanded && (
+                    <div id={expandPanelId}>
+                        {status !== 'upcoming' ? (
+                            <MatchStatsSection
+                                match={match}
+                                team1Name={team1Name}
+                                team2Name={team2Name}
+                                teams={data?.teams}
+                                active
+                            />
+                        ) : null}
                         <CommentSection matchId={match.id} />
-                    </>
+                    </div>
                 )}
             </div>
         );
@@ -416,8 +412,12 @@ const Dashboard = () => {
                                 <button
                                     type="button"
                                     key={match.id}
-                                    className={`match-item w-100 border-0 text-start bg-transparent${match.technicalWinnerTeamId != null ? ' match-item--technical' : ''}`}
-                                    onClick={() => navigate('/schedule', { state: { filter: 'finished' } })}
+                                    className={`match-item w-100 text-start${match.technicalWinnerTeamId != null ? ' match-item--technical' : ''}`}
+                                    onClick={() =>
+                                        navigate('/schedule', {
+                                            state: { filter: 'finished', matchId: match.id },
+                                        })
+                                    }
                                 >
                                     <span className="match-date">
                                         {formatDate(match.date)}

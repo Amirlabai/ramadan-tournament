@@ -107,7 +107,7 @@ const GirlsTeams = () => {
   }
 
   return (
-    <div className="container py-4">
+    <div className="browse-page container py-4">
       <SEO
         title="קבוצות — טורניר בנות"
         description="רשימת הקבוצות והסגלים בטורניר בנות רמדאן 2026, כולל סך נקודות לכל קבוצה."

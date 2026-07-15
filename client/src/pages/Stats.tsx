@@ -146,7 +146,7 @@ const Stats = () => {
                 />
 
                 <div className="card top-scorers-list">
-                    <h2>מלכי השערים</h2>
+                    <h2 className="dashboard-card-title">מלכי השערים</h2>
                     <div className="scorers-list">
                         {topScorers.slice(0, 10).map((scorer, index) => (
                             <button

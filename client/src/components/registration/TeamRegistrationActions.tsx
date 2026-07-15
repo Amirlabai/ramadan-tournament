@@ -225,7 +225,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                     ) : (
                         <button
                             type="button"
-                            className="btn btn-sm btn-outline-success"
+                            className="btn btn-sm btn-success"
                             onClick={() => void handleJoinRequest()}
                             disabled={loadingJoin}
                             aria-label={`בקש להצטרף ל${teamName}`}

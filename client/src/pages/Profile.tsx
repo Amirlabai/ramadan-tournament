@@ -800,7 +800,7 @@ const Profile = () => {
                         {user.avatarUrl && (
                             <button
                                 type="button"
-                                className="btn btn-sm btn-outline-danger profile-delete-avatar-btn"
+                                className="btn btn-sm btn-danger profile-delete-avatar-btn"
                                 onClick={handleDeleteAvatar}
                                 disabled={avatarLoading}
                                 title="הסר תמונת פרופיל"

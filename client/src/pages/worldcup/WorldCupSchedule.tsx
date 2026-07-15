@@ -5,6 +5,7 @@ import type { Match } from '../../types';
 import SEO from '../../components/SEO';
 import { WorldCupScheduleSkeleton } from '../../components/skeleton';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
+import { MatchTeamsScore } from '../../components/match/MatchCardParts';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
 import '../../pages/Schedule.css';
 
@@ -122,7 +123,7 @@ const WorldCupSchedule = () => {
   ];
 
   const crest = (url?: string, name?: string) =>
-    url ? <img src={url} alt={name ? `דגל ${name}` : ''} className="team-logo-inline me-2" /> : null;
+    url ? <img src={url} alt={name ? `דגל ${name}` : ''} className="team-logo-inline" /> : null;
 
   return (
     <div className="schedule-page container py-4">
@@ -174,19 +175,16 @@ const WorldCupSchedule = () => {
                   <div className="playoff-badge-floating">נוקאאוט</div>
                 )}
 
-                <div className="match-teams-score">
-                  <div className="team-side">
-                    {crest(match.team1LogoUrl, match.team1Name)}
-                    <span className="team-name">{match.team1Name || `קבוצה ${match.team1Id}`}</span>
-                    {status !== 'upcoming' && <span className="team-score">{match.score1}</span>}
-                  </div>
-                  <div className="vs-divider">נגד</div>
-                  <div className="team-side">
-                    {crest(match.team2LogoUrl, match.team2Name)}
-                    <span className="team-name">{match.team2Name || `קבוצה ${match.team2Id}`}</span>
-                    {status !== 'upcoming' && <span className="team-score">{match.score2}</span>}
-                  </div>
-                </div>
+                <MatchTeamsScore
+                  team1Name={match.team1Name || `קבוצה ${match.team1Id}`}
+                  team2Name={match.team2Name || `קבוצה ${match.team2Id}`}
+                  score1={match.score1}
+                  score2={match.score2}
+                  showScores={status !== 'upcoming'}
+                  team1Logo={crest(match.team1LogoUrl, match.team1Name)}
+                  team2Logo={crest(match.team2LogoUrl, match.team2Name)}
+                  vsLabel="נגד"
+                />
 
                 <div className="match-meta">
                   <span className="match-date">{formatDate(match.date)}</span>

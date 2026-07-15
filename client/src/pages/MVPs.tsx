@@ -119,19 +119,17 @@ const MVPs = () => {
                     </div>
                 )}
 
-                <div className="row">
-                    <div className="col-md-6 mb-4">
-                        {data.topScorers && data.topScorers.length > 0 && (
-                            <div className="dashboard-card top-scorer h-100 mt-0">
-                                <h2>מלך השערים</h2>
-                                <div className="scorer-info h-100">
-                                    {/* 1st Place - Premium with Gold Aura */}
-                                    <button
-                                        type="button"
-                                        className="premium-scorer-wrapper h-100 w-100 border-0 bg-transparent text-center"
-                                        onClick={() => goToPlayer(data.topScorers[0].teamId, data.topScorers[0].memberId)}
-                                        aria-label={`פרטי שחקן ${data.topScorers[0].playerName}, ${data.topScorers[0].teamName}`}
-                                    >
+                <div className="dashboard-cards-row">
+                    {data.topScorers && data.topScorers.length > 0 && (
+                        <div className="dashboard-card top-scorer mt-0">
+                            <h2 className="dashboard-card-title">מלך השערים</h2>
+                            <div className="scorer-info">
+                                <button
+                                    type="button"
+                                    className="premium-scorer-wrapper w-100 border-0 bg-transparent text-center"
+                                    onClick={() => goToPlayer(data.topScorers[0].teamId, data.topScorers[0].memberId)}
+                                    aria-label={`פרטי שחקן ${data.topScorers[0].playerName}, ${data.topScorers[0].teamName}`}
+                                >
                                         <div className="premium-decorations">
                                             <span className="star-decoration star-1">★</span>
                                             <span className="star-decoration star-2">★</span>
@@ -180,17 +178,12 @@ const MVPs = () => {
                                 </div>
                             </div>
                         )}
-                    </div>
 
-                    <div className="col-md-6 mb-4">
-                        {/* MVP Race Leaderboard */}
-                        {mvpLeaderboard && mvpLeaderboard.length > 0 && (
-                            <div className="dashboard-card mvp-race-card h-100 mt-0">
-                                <div className="card-header d-flex justify-content-between align-items-center">
-                                    <h3 className="mb-0 fs-4 w-100 text-center">🏆 MVP</h3>
-                                </div>
-                                <div className="card-body p-0">
-                                    {mvpLeaderboard.slice(0, 5).map((item, index) => {
+                    {mvpLeaderboard && mvpLeaderboard.length > 0 && (
+                        <div className="dashboard-card mvp-race-card mt-0">
+                            <h2 className="dashboard-card-title">🏆 MVP</h2>
+                            <div className="mvp-race-list">
+                                {mvpLeaderboard.slice(0, 5).map((item, index) => {
                                         if (!item?.player) return null;
                                         const teamId = item.teamId ?? resolveTeamId(item.teamName);
                                         const playerName = `${item.player.firstName ?? ''} ${item.player.lastName ?? ''}`.trim() || 'שחקן';
@@ -234,10 +227,9 @@ const MVPs = () => {
                                         </button>
                                         );
                                     })}
-                                </div>
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

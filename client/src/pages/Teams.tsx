@@ -320,13 +320,10 @@ const Teams = () => {
                                         <td>{team.id}</td>
                                         <td className="fw-bold fs-8">
                                             <div className="d-flex align-items-center gap-2">
-                                                {team.logoPosition === 'right' && logoSrc && (
+                                                {logoSrc && team.logoPosition !== 'none' && (
                                                     <img className="team-logo-inline" src={logoSrc} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                                                 )}
                                                 <span>{team.name}</span>
-                                                {team.logoPosition === 'left' && logoSrc && (
-                                                    <img className="team-logo-inline" src={logoSrc} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
-                                                )}
                                             </div>
                                         </td>
                                         <td className="d-none d-md-table-cell">{players.length}</td>

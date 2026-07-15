@@ -3,13 +3,12 @@ import Skeleton from './Skeleton';
 
 export default function SkeletonMvpPanels() {
   return (
-    <div className="row" aria-hidden="true">
-      <div className="col-md-6 mb-4">
-        <div className="dashboard-card top-scorer h-100 mt-0">
-          <div className="dashboard-card-title">
-            <Skeleton width="5.5rem" height="1.25rem" />
-          </div>
-          <div className="scorer-info">
+    <div className="dashboard-cards-row" aria-hidden="true">
+      <div className="dashboard-card top-scorer mt-0">
+        <div className="dashboard-card-title">
+          <Skeleton width="5.5rem" height="1.25rem" />
+        </div>
+        <div className="scorer-info">
             <div className="skeleton-premium-scorer">
               <Skeleton width="2.5rem" height="2.5rem" circle />
               <Skeleton width="65%" height="1.5rem" />
@@ -28,15 +27,13 @@ export default function SkeletonMvpPanels() {
               ))}
             </div>
           </div>
-        </div>
       </div>
-      <div className="col-md-6 mb-4">
-        <div className="dashboard-card mvp-race-card h-100 mt-0">
-          <div className="card-header d-flex justify-content-center py-3">
-            <Skeleton width="4rem" height="1.25rem" />
-          </div>
-          <div className="card-body p-0">
-            {Array.from({ length: 5 }, (_, i) => (
+      <div className="dashboard-card mvp-race-card mt-0">
+        <div className="dashboard-card-title">
+          <Skeleton width="4rem" height="1.25rem" />
+        </div>
+        <div className="mvp-race-list">
+          {Array.from({ length: 5 }, (_, i) => (
               <div key={i} className="skeleton-mvp-row">
                 <div className="skeleton-mvp-row__main">
                   <Skeleton width="1.75rem" height={i === 0 ? '1.75rem' : '1.25rem'} />
@@ -51,7 +48,6 @@ export default function SkeletonMvpPanels() {
                 </div>
               </div>
             ))}
-          </div>
         </div>
       </div>
     </div>

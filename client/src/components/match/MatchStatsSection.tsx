@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
-import { matchStatsAPI, type MatchStatsResponse, type MatchStatsSidePair } from '../../api/client';
+import { matchStatsAPI, type MatchStatsResponse } from '../../api/client';
 import type { Goal, Match, Player, Team } from '../../types';
 import { PlayerHeadImg } from '../PlayerHeadImg';
 import Skeleton from '../skeleton/Skeleton';
+import { WinChanceBar } from './WinChanceBar';
 
 type StatRow = {
   label: string;
@@ -71,40 +72,6 @@ function uniqueScorers(
       const oy = y.side == null ? 2 : sideOrder[y.side];
       return ox - oy || y.count - x.count || x.memberId - y.memberId;
     });
-}
-
-function WinChanceBar({
-  chance,
-  team1Name,
-  team2Name,
-}: {
-  chance: MatchStatsSidePair;
-  team1Name: string;
-  team2Name: string;
-}) {
-  return (
-    <div
-      className="match-stats-winchance"
-      role="group"
-      aria-label={`הערכת יתרון: ${chance.a}% ל${team1Name}, ${chance.b}% ל${team2Name}`}
-    >
-      <p className="match-stats-winchance-caption">סיכוי לניצחון</p>
-      <div className="match-stats-winchance-bar" aria-hidden="true">
-        <div
-          className="match-stats-winchance-fill match-stats-winchance-fill--a"
-          style={{ flexGrow: Math.max(chance.a, 1) }}
-        >
-          <strong className="match-stats-winchance-pct">{chance.a}%</strong>
-        </div>
-        <div
-          className="match-stats-winchance-fill match-stats-winchance-fill--b"
-          style={{ flexGrow: Math.max(chance.b, 1) }}
-        >
-          <strong className="match-stats-winchance-pct">{chance.b}%</strong>
-        </div>
-      </div>
-    </div>
-  );
 }
 
 function StatsSkeleton({ upcoming }: { upcoming?: boolean }) {
@@ -193,7 +160,7 @@ export function MatchStatsSection({
           setPayload(null);
           setError(
             status === 'upcoming'
-              ? 'הערכת יתרון תופיע כשהנתונים יהיו זמינים'
+              ? 'הערכה לפי נתונים תופיע כשהנתונים יהיו זמינים'
               : 'לא ניתן לטעון סטטיסטיקה כרגע'
           );
         }
@@ -223,7 +190,9 @@ export function MatchStatsSection({
     return (
       <div className="match-stats-section" role="region" aria-label="סטטיסטיקת משחק">
         <h3 className="match-stats-heading">סטטיסטיקה</h3>
-        <p className="match-stats-empty">אין סטטיסטיקה למשחק עם ניצחון טכני</p>
+        <p className="match-stats-empty">
+          במשחק עם ניצחון טכני אין נתוני משחק להצגה (שערים, בעיטות וכו׳).
+        </p>
       </div>
     );
   }
@@ -239,8 +208,8 @@ export function MatchStatsSection({
         <p className="match-stats-empty">
           {error ||
             (status === 'upcoming'
-              ? 'הערכת יתרון תופיע כשהנתונים יהיו זמינים'
-              : 'אין סטטיסטיקה זמינה')}
+              ? 'הערכה לפי נתונים תופיע כשהנתונים יהיו זמינים'
+              : 'עדיין אין נתוני משחק להצגה. אפשר לבדוק שוב מאוחר יותר או לעבור לטבלה בסטטיסטיקה.')}
         </p>
       </div>
     );

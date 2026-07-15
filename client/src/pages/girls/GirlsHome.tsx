@@ -53,7 +53,7 @@ const GirlsHome = () => {
   }
 
   return (
-    <div className="stats-page container py-4">
+    <div className="stats-page browse-page container py-4">
       <SEO
         title="טורניר בנות — נקודות"
         description="טבלת נקודות לטורניר בנות רמדאן 2026. הקבוצה עם הכי הרבה נקודות מובילה."

@@ -166,7 +166,7 @@ const WorldCupDashboard = () => {
                 <button
                   type="button"
                   key={match.id}
-                  className="match-item w-100 border-0 text-start bg-transparent"
+                  className="match-item w-100 text-start"
                   onClick={() =>
                     navigate('/world-cup/schedule', {
                       state: { filter: 'finished', matchId: match.id },

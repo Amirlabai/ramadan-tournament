@@ -1,12 +1,7 @@
+/* Title chrome comes from .dashboard-card-title (shared-ui); keep hook for BEM consumers. */
 .standings-table__title {
-  background: var(--color-primary);
-  color: var(--white);
-  margin: 0;
-  padding: 0.875rem 1rem;
-  text-align: center;
-  font-size: var(--font-size-lg);
-  font-weight: 700;
-  border-radius: 6px;
+  /* flush green band — same as dashboard section headers */
+  border-radius: 0;
 }
 
 .standings-table__table {

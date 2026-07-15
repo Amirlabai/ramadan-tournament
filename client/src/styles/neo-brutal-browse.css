@@ -1,0 +1,269 @@
+/**
+ * Browse cards — same language as admin workflow-queue cards:
+ * 2px status-colored border, L-frame (thick inline-start + bottom), light tinted fill.
+ * No black neo-brutal shadows. One L layer only — shells that nest L cards stay flat.
+ */
+
+.dashboard-page,
+.schedule-page,
+.archive-page,
+.stats-page,
+.wc-teams-page,
+.browse-page {
+  --browse-card-radius: 0.5rem;
+  --browse-card-border-w: 2px;
+  --browse-card-accent-w: 6px;
+}
+
+/* Nested containers: flat 2px primary frame so child match L-cards carry the accent. */
+.dashboard-page .dashboard-card.next-matches-card,
+.dashboard-page .dashboard-card.live-matches-card,
+.dashboard-page .dashboard-card.recent-matches {
+  border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
+  border-radius: var(--browse-card-radius);
+  background: var(--color-surface, #fff);
+  box-shadow: none;
+}
+
+/* Standalone shells (no nested L match cards) — full L-frame. */
+.dashboard-page .dashboard-card.top-scorer,
+.dashboard-page .dashboard-card.mvp-race-card {
+  border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
+  border-inline-start-width: var(--browse-card-accent-w);
+  border-bottom-width: var(--browse-card-accent-w);
+  border-radius: var(--browse-card-radius);
+  background: var(--color-surface, #fff);
+  box-shadow: none;
+}
+
+/* Top scorer body only — warm gold fill under the green title */
+.dashboard-page .top-scorer .scorer-info {
+  background-color: #fffdf5;
+  background: color-mix(in srgb, var(--color-gold, #ffd700) 12%, #fff);
+}
+
+.dashboard-page .dashboard-card.next-matches-card:hover,
+.dashboard-page .dashboard-card.live-matches-card:hover,
+.dashboard-page .dashboard-card.recent-matches:hover,
+.dashboard-page .dashboard-card.top-scorer:hover,
+.dashboard-page .dashboard-card.mvp-race-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Title: green band only — no extra border/shadow (was leaving a dark line) */
+.dashboard-page .dashboard-card > .dashboard-card-title,
+.stats-page .standings-table > .dashboard-card-title,
+.stats-page .top-scorers-list > .dashboard-card-title,
+.stats-page .playoff-bracket-card > .dashboard-card-title,
+.stats-page .wc-group-card > .dashboard-card-title,
+.archive-page .standings-table > .dashboard-card-title,
+.archive-page .top-scorers-list > .dashboard-card-title {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Match cards — status tint like admin create/join panels (all browse surfaces) */
+.match-card.card {
+  border: var(--browse-card-border-w, 2px) solid var(--color-border, #dee2e6);
+  border-radius: var(--browse-card-radius, 0.5rem);
+  background: var(--color-surface, #fff);
+  box-shadow: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.match-card.card.upcoming {
+  border-color: var(--color-warning, #ffc107);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  background-color: #fff9e6;
+  background: color-mix(in srgb, var(--color-warning, #ffc107) 8%, #fff);
+}
+
+.match-card.card.live {
+  border-color: var(--color-secondary, #ffae00);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  background-color: #fff8e6;
+  background: color-mix(in srgb, var(--color-secondary, #ffae00) 10%, #fff);
+}
+
+.match-card.card.finished {
+  border-color: var(--color-primary, #2a6b11);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  background-color: #f3f8f0;
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 6%, #fff);
+}
+
+.match-card.card.technical {
+  border-color: color-mix(in srgb, var(--color-primary, #2a6b11) 35%, var(--color-border, #dee2e6));
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  background-color: #f5f5f4;
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 4%, #fff);
+  box-shadow: none;
+}
+
+.match-card.card:hover {
+  box-shadow: none;
+  transform: none;
+  filter: brightness(0.99);
+}
+
+.match-card-nav-link:focus-visible,
+.match-card.card:focus-visible {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: 2px;
+}
+
+.match-status {
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  box-shadow: none;
+  font-weight: 700;
+}
+
+.playoff-badge-floating {
+  border: 2px solid var(--color-secondary, #ffae00);
+  border-radius: 4px;
+  box-shadow: none;
+  font-weight: 800;
+}
+
+.team-side--winner {
+  border: 2px solid var(--color-primary, #2a6b11);
+  border-radius: 4px;
+  outline: none;
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 10%, #fff);
+}
+
+.dashboard-page .recent-matches .match-item {
+  border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
+  border-inline-start-width: var(--browse-card-accent-w);
+  border-bottom-width: var(--browse-card-accent-w);
+  border-radius: var(--browse-card-radius);
+  background-color: #f3f8f0;
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 6%, #fff);
+  box-shadow: none;
+  transition: filter 0.15s ease;
+  cursor: pointer;
+}
+
+.dashboard-page .recent-matches .match-item:hover {
+  filter: brightness(0.98);
+  transform: none;
+  box-shadow: none;
+}
+
+.dashboard-page .recent-matches .match-item--technical {
+  border-color: color-mix(in srgb, var(--color-primary, #2a6b11) 35%, var(--color-border, #dee2e6));
+  outline: none;
+}
+
+.dashboard-page .recent-matches .match-score .team-winner {
+  border: 2px solid var(--color-primary, #2a6b11);
+  border-radius: 4px;
+  box-shadow: none;
+  outline: none;
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 10%, #fff);
+}
+
+/* WC / dashboard next-match rows (not full match-card) */
+.dashboard-page .next-matches-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+.dashboard-page .upcoming-match-item {
+  border: var(--browse-card-border-w) solid var(--color-warning, #ffc107);
+  border-inline-start-width: var(--browse-card-accent-w);
+  border-bottom-width: var(--browse-card-accent-w);
+  border-radius: var(--browse-card-radius);
+  background-color: #fff9e6;
+  background: color-mix(in srgb, var(--color-warning, #ffc107) 8%, #fff);
+  box-shadow: none;
+  padding: 0.875rem 1rem;
+  transition: filter 0.15s ease;
+}
+
+.dashboard-page .upcoming-match-item:hover {
+  filter: brightness(0.98);
+  transform: none;
+  box-shadow: none;
+}
+
+/* Stats / Archive section shells */
+.stats-page .standings-table,
+.stats-page .top-scorers-list,
+.stats-page .playoff-bracket-card,
+.archive-page .standings-table,
+.archive-page .top-scorers-list,
+.archive-page .season-list.card,
+.archive-page .archive-summary-card,
+.archive-page .stat-box.dashboard-card {
+  border: var(--browse-card-border-w, 2px) solid var(--color-primary, #2a6b11);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  border-radius: var(--browse-card-radius, 0.5rem);
+  background: var(--color-surface, #fff);
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.stats-page .standings-table,
+.stats-page .top-scorers-list,
+.stats-page .playoff-bracket-card,
+.archive-page .standings-table,
+.archive-page .top-scorers-list {
+  padding: 0;
+}
+
+.stats-page .standings-table:hover,
+.stats-page .top-scorers-list:hover,
+.stats-page .playoff-bracket-card:hover,
+.archive-page .standings-table:hover,
+.archive-page .top-scorers-list:hover,
+.archive-page .season-list.card:hover,
+.archive-page .archive-summary-card:hover,
+.archive-page .stat-box.dashboard-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Team browse cards + girls news */
+.wc-teams-page .wc-team-card,
+[data-tournament='worldcup'] .wc-teams-page .wc-team-card,
+.browse-page .team-card,
+[data-tournament='girls'] .browse-page .team-card,
+.browse-page .browse-news-card {
+  border: var(--browse-card-border-w, 2px) solid var(--color-primary, #2a6b11);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  border-radius: var(--browse-card-radius, 0.5rem);
+  background: var(--color-surface, #fff);
+  box-shadow: none;
+  transition: border-color 0.15s ease, filter 0.15s ease;
+}
+
+.wc-teams-page .wc-team-card:hover,
+[data-tournament='worldcup'] .wc-teams-page .wc-team-card:hover,
+.browse-page .team-card:hover,
+[data-tournament='girls'] .browse-page .team-card:hover,
+.browse-page .browse-news-card:hover {
+  transform: none;
+  box-shadow: none;
+  filter: brightness(0.99);
+}
+
+.wc-teams-page .wc-team-card.is-open,
+[data-tournament='worldcup'] .wc-teams-page .wc-team-card.is-open {
+  border-color: var(--color-secondary, #ffae00);
+  border-inline-start-width: var(--browse-card-accent-w, 6px);
+  border-bottom-width: var(--browse-card-accent-w, 6px);
+  background: color-mix(in srgb, var(--color-secondary, #ffae00) 8%, #fff);
+  box-shadow: none;
+}

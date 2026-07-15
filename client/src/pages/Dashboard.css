@@ -61,6 +61,10 @@
     margin-top: 0;
 }
 
+.mvps-page .dashboard-cards-row {
+    margin-top: 0;
+}
+
 .next-matches-card,
 .live-matches-card,
 .top-scorer,
@@ -69,8 +73,7 @@
     padding: 0;
     overflow: hidden;
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: var(--browse-card-radius, 0.5rem);
     margin-top: 1.5rem;
 }
 
@@ -86,8 +89,8 @@
 .dashboard-match-list {
     display: flex;
     flex-direction: column;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem 1rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 0.75rem;
 }
 
 .dashboard-match-list .match-card {
@@ -498,6 +501,14 @@
 
 .mvp-race-card {
     background: var(--white);
+}
+
+.mvp-race-list {
+    padding: 0;
+}
+
+.mvp-race-list .mvp-row:last-child {
+    border-bottom: none !important;
 }
 
 .bg-light-gold {

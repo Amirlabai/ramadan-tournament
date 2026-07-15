@@ -45,7 +45,7 @@ const GirlsNews = () => {
   }
 
   return (
-    <div className="container py-4">
+    <div className="browse-page container py-4">
       <SEO
         title="חדשות — טורניר בנות"
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."
@@ -57,7 +57,7 @@ const GirlsNews = () => {
       ) : (
         <ul className="list-unstyled">
           {items.map((item) => (
-            <li key={item.id} className="card mb-3 p-3 shadow-sm">
+            <li key={item.id} className="browse-news-card card mb-3 p-3">
               <h3 className="h5 mb-2">{item.title}</h3>
               <p className="mb-2">{item.message}</p>
               <time className="text-muted small" dateTime={item.date}>

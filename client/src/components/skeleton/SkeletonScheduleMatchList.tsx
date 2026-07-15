@@ -13,14 +13,14 @@ export default function SkeletonScheduleMatchList({ count = 4 }: SkeletonSchedul
           <span className="match-status upcoming">
             <Skeleton width="2.5rem" height="0.75rem" />
           </span>
-          <div className="match-teams-score">
-            <div className="team-side">
+          <div className="match-teams-score" dir="ltr">
+            <div className="team-side team-side--home">
               <Skeleton width="70%" height="1rem" />
             </div>
-            <div className="vs-divider">
+            <div className="match-scoreline">
               <Skeleton width="1.5rem" height="0.875rem" />
             </div>
-            <div className="team-side">
+            <div className="team-side team-side--away">
               <Skeleton width="70%" height="1rem" />
             </div>
           </div>

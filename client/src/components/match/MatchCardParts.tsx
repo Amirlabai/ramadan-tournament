@@ -34,9 +34,14 @@ interface MatchTeamsScoreProps {
   showScores: boolean;
   team1Logo?: ReactNode;
   team2Logo?: ReactNode;
+  team1Winner?: boolean;
+  team2Winner?: boolean;
   vsLabel?: string;
 }
 
+/**
+ * LTR scoreline: logo + name (left) | score VS score (center) | name + logo (right)
+ */
 export function MatchTeamsScore({
   team1Name,
   team2Name,
@@ -45,20 +50,34 @@ export function MatchTeamsScore({
   showScores,
   team1Logo,
   team2Logo,
+  team1Winner,
+  team2Winner,
   vsLabel = 'VS',
 }: MatchTeamsScoreProps) {
   return (
-    <div className="match-teams-score">
-      <div className="team-side">
-        {team1Logo}
+    <div className="match-teams-score" dir="ltr">
+      <div
+        className={`team-side team-side--home${team1Winner ? ' team-side--winner' : ''}`}
+      >
+        {team1Logo ? <span className="team-logo-slot">{team1Logo}</span> : null}
         <span className="team-name">{team1Name}</span>
-        {showScores && <span className="team-score">{score1 ?? '—'}</span>}
       </div>
-      <div className="vs-divider">{vsLabel}</div>
-      <div className="team-side">
-        {team2Logo}
+
+      <div className="match-scoreline" aria-hidden={!showScores}>
+        {showScores ? (
+          <span className="team-score">{score1 ?? '—'}</span>
+        ) : null}
+        <span className="vs-divider">{vsLabel}</span>
+        {showScores ? (
+          <span className="team-score">{score2 ?? '—'}</span>
+        ) : null}
+      </div>
+
+      <div
+        className={`team-side team-side--away${team2Winner ? ' team-side--winner' : ''}`}
+      >
         <span className="team-name">{team2Name}</span>
-        {showScores && <span className="team-score">{score2 ?? '—'}</span>}
+        {team2Logo ? <span className="team-logo-slot">{team2Logo}</span> : null}
       </div>
     </div>
   );

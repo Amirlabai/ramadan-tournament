@@ -83,7 +83,8 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 ## Components
 
 - **`.dashboard-card-title`** — solid `--color-primary` background, white text, centered.
-- **`.match-card`** — status via top border or badge, not thick side stripe; shared `MatchCard.css`.
+- **`.match-card`** — status via badge + tinted fill + **L-frame** (2px border, 6px inline-start + bottom accent) from [`neo-brutal-browse.css`](client/src/styles/neo-brutal-browse.css); shared `match-card.css` for inner layout.
+- **Browse L-frame** — intentional product language (aligned with admin workflow-queue cards). Use on match cards, team/news browse cards, and standalone section shells that do **not** nest other L-framed cards. Nested tray + card both with L is wrong: outer shell stays flat 2px; L stays on the inner match rows/cards.
 - **`.standings-table`** — responsive table with `caption`, `scope`, playoff row class `qualified`.
 - **`.tournament-sidebar-link.active`** — primary color + subtle bg + start border.
 - **Claim banners** — tinted border, no heavy multi-stop gradients.
@@ -95,11 +96,13 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 - Use `--color-*` tokens and tournament utility classes (`.btn-tournament-primary`, `.text-tournament-primary`).
 - Keep gradients for site header/footer only.
 - Respect `prefers-reduced-motion` on animations.
+- Use the browse L-frame (`--browse-card-accent-w`) for status-bearing cards; keep one L layer (no nested L).
 
 **Don't**
 
 - Gradient text (`background-clip: text`) on stats numbers.
 - White text on cream news banner.
 - Mix Bootstrap Icons and Font Awesome without loading both CDNs.
-- Thick `border-right: 4px` accent stripes on cards (use full border or bg tint).
+- Arbitrary thick side stripes outside the shared browse L-frame tokens (e.g. one-off `border-right: 4px` callouts).
+- Nest an L-framed section shell around L-framed match cards — flatten the shell.
 - Bootstrap `text-success` on girls pages — use `.text-tournament-primary`.

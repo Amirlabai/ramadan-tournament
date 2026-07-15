@@ -1,23 +1,18 @@
 .playoff-bracket-card {
     background: white;
-    padding: 30px;
+    padding: 0;
+    overflow: hidden;
 }
 
-.playoff-bracket-card h2 {
-    color: var(--color-primary);
-    font-family: 'Outfit', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 25px !important;
-    border-top: 3px solid var(--color-gold);
-    padding-right: 15px;
+.playoff-bracket-card > .dashboard-card-title {
+    margin-bottom: 0;
 }
 
 .playoff-bracket-card .brackets-wrapper {
     display: flex;
     justify-content: center;
     gap: 40px;
-    padding: 10px;
+    padding: 1.5rem 1rem 1.75rem;
     width: 100%;
     direction: rtl;
     /* Ensure RTL flow */
