@@ -1,7 +1,7 @@
 /**
- * Browse cards — same language as admin workflow-queue cards:
- * 2px status-colored border, L-frame (thick inline-start + bottom), light tinted fill.
- * No black neo-brutal shadows. One L layer only — shells that nest L cards stay flat.
+ * Browse cards — 2px status-colored border, light tinted fill, no soft shadow.
+ * Accent L-frames (thick inline-start + bottom) were tried on spectator browse
+ * and regretted — do not revive; see DESIGN.md «Regretted experiments».
  */
 
 .dashboard-page,
@@ -12,25 +12,15 @@
 .browse-page {
   --browse-card-radius: 0.5rem;
   --browse-card-border-w: 2px;
-  --browse-card-accent-w: 6px;
 }
 
-/* Nested containers: flat 2px primary frame so child match L-cards carry the accent. */
+/* Dashboard section shells — flat 2px primary frame */
 .dashboard-page .dashboard-card.next-matches-card,
 .dashboard-page .dashboard-card.live-matches-card,
-.dashboard-page .dashboard-card.recent-matches {
-  border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
-  border-radius: var(--browse-card-radius);
-  background: var(--color-surface, #fff);
-  box-shadow: none;
-}
-
-/* Standalone shells (no nested L match cards) — full L-frame. */
+.dashboard-page .dashboard-card.recent-matches,
 .dashboard-page .dashboard-card.top-scorer,
 .dashboard-page .dashboard-card.mvp-race-card {
   border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
-  border-inline-start-width: var(--browse-card-accent-w);
-  border-bottom-width: var(--browse-card-accent-w);
   border-radius: var(--browse-card-radius);
   background: var(--color-surface, #fff);
   box-shadow: none;
@@ -64,7 +54,7 @@
   box-shadow: none;
 }
 
-/* Match cards — status tint like admin create/join panels (all browse surfaces) */
+/* Match cards — uniform 2px status border + tint (all browse surfaces) */
 .match-card.card {
   border: var(--browse-card-border-w, 2px) solid var(--color-border, #dee2e6);
   border-radius: var(--browse-card-radius, 0.5rem);
@@ -75,32 +65,24 @@
 
 .match-card.card.upcoming {
   border-color: var(--color-warning, #ffc107);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   background-color: #fff9e6;
   background: color-mix(in srgb, var(--color-warning, #ffc107) 8%, #fff);
 }
 
 .match-card.card.live {
   border-color: var(--color-secondary, #ffae00);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   background-color: #fff8e6;
   background: color-mix(in srgb, var(--color-secondary, #ffae00) 10%, #fff);
 }
 
 .match-card.card.finished {
   border-color: var(--color-primary, #2a6b11);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   background-color: #f3f8f0;
   background: color-mix(in srgb, var(--color-primary, #2a6b11) 6%, #fff);
 }
 
 .match-card.card.technical {
   border-color: color-mix(in srgb, var(--color-primary, #2a6b11) 35%, var(--color-border, #dee2e6));
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   background-color: #f5f5f4;
   background: color-mix(in srgb, var(--color-primary, #2a6b11) 4%, #fff);
   box-shadow: none;
@@ -141,8 +123,6 @@
 
 .dashboard-page .recent-matches .match-item {
   border: var(--browse-card-border-w) solid var(--color-primary, #2a6b11);
-  border-inline-start-width: var(--browse-card-accent-w);
-  border-bottom-width: var(--browse-card-accent-w);
   border-radius: var(--browse-card-radius);
   background-color: #f3f8f0;
   background: color-mix(in srgb, var(--color-primary, #2a6b11) 6%, #fff);
@@ -180,8 +160,6 @@
 
 .dashboard-page .upcoming-match-item {
   border: var(--browse-card-border-w) solid var(--color-warning, #ffc107);
-  border-inline-start-width: var(--browse-card-accent-w);
-  border-bottom-width: var(--browse-card-accent-w);
   border-radius: var(--browse-card-radius);
   background-color: #fff9e6;
   background: color-mix(in srgb, var(--color-warning, #ffc107) 8%, #fff);
@@ -206,8 +184,6 @@
 .archive-page .archive-summary-card,
 .archive-page .stat-box.dashboard-card {
   border: var(--browse-card-border-w, 2px) solid var(--color-primary, #2a6b11);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   border-radius: var(--browse-card-radius, 0.5rem);
   background: var(--color-surface, #fff);
   box-shadow: none;
@@ -241,8 +217,6 @@
 [data-tournament='girls'] .browse-page .team-card,
 .browse-page .browse-news-card {
   border: var(--browse-card-border-w, 2px) solid var(--color-primary, #2a6b11);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   border-radius: var(--browse-card-radius, 0.5rem);
   background: var(--color-surface, #fff);
   box-shadow: none;
@@ -262,8 +236,6 @@
 .wc-teams-page .wc-team-card.is-open,
 [data-tournament='worldcup'] .wc-teams-page .wc-team-card.is-open {
   border-color: var(--color-secondary, #ffae00);
-  border-inline-start-width: var(--browse-card-accent-w, 6px);
-  border-bottom-width: var(--browse-card-accent-w, 6px);
   background: color-mix(in srgb, var(--color-secondary, #ffae00) 8%, #fff);
   box-shadow: none;
 }

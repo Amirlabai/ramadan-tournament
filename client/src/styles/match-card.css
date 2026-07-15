@@ -16,7 +16,7 @@
   margin-bottom: 0;
 }
 
-/* Status edge + hover elevation: owned by neo-brutal-browse.css (L-frame, filter-only). */
+/* Status edge + hover elevation: owned by neo-brutal-browse.css (border tint, filter-only). */
 .match-card:hover {
   box-shadow: none;
 }
