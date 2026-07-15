@@ -1,0 +1,540 @@
+/**
+ * Teams browse — accordion list + dense roster (boys/girls).
+ * Border language: neo-brutal-browse.css on .teams-browse-card.
+ */
+
+.teams-browse-page .teams-browse-card.is-open,
+[data-tournament] .teams-browse-page .teams-browse-card.is-open {
+  border-color: var(--color-primary, #509238);
+  background: color-mix(in srgb, var(--color-primary, #509238) 5%, #fff);
+  box-shadow: none;
+}
+
+.teams-browse-page {
+  max-width: 960px;
+}
+
+.teams-browse-page .tournament-page-title {
+  margin-bottom: 0.35rem;
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.teams-browse-summary {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.35rem 0.5rem;
+  margin: 0 0 1.15rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #4b5563);
+  line-height: 1.4;
+}
+
+.teams-browse-summary strong {
+  color: var(--color-text, #333);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.teams-browse-summary-sep {
+  opacity: 0.55;
+  user-select: none;
+}
+
+.teams-browse-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.teams-browse-search {
+  flex: 1 1 220px;
+  max-width: 420px;
+  border-radius: 999px;
+  padding-inline: 1rem 1.25rem;
+}
+
+.teams-browse-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.teams-browse-card {
+  overflow: hidden;
+  background: var(--color-surface, #fff);
+}
+
+.teams-browse-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  text-align: start;
+  color: inherit;
+  min-height: 44px;
+}
+
+.teams-browse-header:hover {
+  background: color-mix(in srgb, var(--color-primary, #509238) 5%, #fff);
+}
+
+.teams-browse-header:focus-visible {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: -2px;
+}
+
+.teams-browse-crest {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary, #509238) 6%, #fff);
+}
+
+.teams-browse-title {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.teams-browse-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--color-text, #333);
+  line-height: 1.3;
+  text-wrap: balance;
+}
+
+.teams-browse-card.is-open .teams-browse-name {
+  color: var(--color-primary, #509238);
+}
+
+.teams-browse-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.45rem;
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #4b5563);
+  line-height: 1.35;
+}
+
+.teams-browse-meta-count {
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.teams-browse-meta-captain {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.teams-browse-meta-captain-label {
+  flex-shrink: 0;
+}
+
+.teams-browse-meta-captain-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  unicode-bidi: isolate;
+}
+
+.teams-browse-chevron {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--color-primary, #509238) 14%, #fff);
+  color: var(--color-primary, #509238);
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.teams-browse-card.is-open .teams-browse-chevron {
+  background: var(--color-primary, #509238);
+  color: #fff;
+}
+
+.teams-browse-team-vote {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.teams-browse-squad {
+  padding: 0.65rem 0.75rem 0.85rem;
+  border-top: 1px solid color-mix(in srgb, var(--color-primary, #509238) 14%, transparent);
+  background: color-mix(in srgb, var(--color-primary, #509238) 3%, #fff);
+}
+
+.teams-browse-card.is-open .teams-browse-header {
+  background: color-mix(in srgb, var(--color-primary, #509238) 6%, #fff);
+}
+
+/* Roster table — named areas so goals/avg never collapse */
+.roster-table {
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border, #e0e0e0);
+  border-radius: var(--browse-card-radius, 0.5rem);
+  overflow: hidden;
+  background: var(--color-surface, #fff);
+}
+
+.roster-table-head,
+.roster-player-row {
+  display: grid;
+  grid-template-columns: 2.25rem minmax(0, 1fr) minmax(4.5rem, 7rem) 6.5rem;
+  grid-template-areas: 'num player pos stats';
+  gap: 0.4rem;
+  align-items: center;
+  padding: 0.45rem 0.6rem;
+}
+
+.roster-table-head--vote,
+.roster-player-row--vote {
+  grid-template-columns: 2.25rem 2.25rem minmax(0, 1fr) minmax(4.5rem, 7rem) 6.5rem;
+  grid-template-areas: 'vote num player pos stats';
+}
+
+.roster-table-head {
+  background: color-mix(in srgb, var(--color-primary, #509238) 10%, #fff);
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-text, #333);
+}
+
+.roster-col-vote {
+  grid-area: vote;
+  text-align: center;
+}
+
+.roster-col-num,
+.roster-player-row-num {
+  grid-area: num;
+  text-align: center;
+}
+
+.roster-col-player {
+  grid-area: player;
+}
+
+.roster-col-pos,
+.roster-player-row-pos {
+  grid-area: pos;
+}
+
+.roster-col-stats,
+.roster-player-row-stats {
+  grid-area: stats;
+}
+
+.roster-col-stats,
+.roster-player-row-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  align-items: center;
+  justify-items: center;
+  min-width: 0;
+}
+
+.roster-col-stats > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.roster-player-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roster-player-row {
+  border: 0;
+  border-bottom: 1px solid var(--color-border, #e0e0e0);
+  border-radius: 0;
+  background: var(--color-surface, #fff);
+  isolation: isolate;
+}
+
+.roster-player-row:last-child {
+  border-bottom: 0;
+}
+
+.roster-player-row-main {
+  grid-area: player;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  text-align: start;
+  color: inherit;
+  cursor: pointer;
+}
+
+.roster-player-row-main--static {
+  cursor: default;
+}
+
+.roster-player-row-main:focus-visible {
+  outline: 2px solid var(--color-focus, #0066cc);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.roster-player-row.top-scorer-highlight {
+  background: color-mix(in srgb, var(--color-secondary, #ffae00) 12%, #fff);
+}
+
+.roster-player-row.selected {
+  background: color-mix(in srgb, var(--color-gold, #ffd700) 18%, #fff);
+}
+
+.roster-player-row-vote {
+  grid-area: vote;
+  z-index: 2;
+  min-width: 44px;
+  min-height: 44px;
+  margin-inline: -0.35rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.roster-player-row-num {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--color-text, #333);
+}
+
+.roster-player-row-photo {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-primary, #509238);
+  overflow: visible;
+  flex-shrink: 0;
+  background-color: #1a1a1a;
+}
+
+.roster-player-row.top-scorer-highlight .roster-player-row-photo {
+  border-color: var(--color-secondary, #ffae00);
+}
+
+.roster-player-row-photo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  border-radius: 50%;
+}
+
+.roster-player-row-top-scorer {
+  position: absolute;
+  top: -4px;
+  inset-inline-end: -4px;
+  font-size: 0.7rem;
+  line-height: 1;
+  background-color: var(--color-secondary, #ffae00);
+  color: var(--color-text, #333);
+  border-radius: 50%;
+  width: 1.05rem;
+  height: 1.05rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.roster-player-row-role-badge {
+  position: absolute;
+  bottom: -3px;
+  z-index: 2;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.62rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0;
+  border: 1.5px solid var(--color-surface, #fff);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.roster-player-row-role-badge--captain {
+  inset-inline-start: -3px;
+  background: #2563eb;
+  color: #fff;
+}
+
+.roster-player-row-role-badge--owner {
+  inset-inline-end: -3px;
+  background: #111827;
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .roster-player-row-role-badge {
+    width: 0.9rem;
+    height: 0.9rem;
+    font-size: 0.5rem;
+    bottom: -2px;
+    border-width: 1px;
+  }
+
+  .roster-player-row-role-badge--captain {
+    inset-inline-start: -2px;
+  }
+
+  .roster-player-row-role-badge--owner {
+    inset-inline-end: -2px;
+  }
+}
+
+.roster-player-row-body {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.05rem;
+}
+
+.roster-player-row-nick {
+  font-weight: 700;
+  font-size: 0.88rem;
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roster-player-row-fullname {
+  font-size: 0.72rem;
+  color: var(--color-text-muted, #4b5563);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.roster-player-row-pos-inline {
+  display: none;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--color-primary, #509238);
+}
+
+.roster-player-row-pos {
+  justify-self: stretch;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-primary, #509238) 10%, #fff);
+  color: var(--color-primary, #509238);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.roster-player-row-stat {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--color-text, #333);
+  width: 100%;
+}
+
+@media (min-width: 769px) {
+  .roster-table-head,
+  .roster-player-row {
+    grid-template-columns: 2.5rem minmax(0, 1fr) minmax(6rem, 8rem) 7.5rem;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .roster-table-head--vote,
+  .roster-player-row--vote {
+    grid-template-columns: 2.5rem 2.5rem minmax(0, 1fr) minmax(6rem, 8rem) 7.5rem;
+  }
+
+  .roster-player-row-photo {
+    width: 40px;
+    height: 40px;
+  }
+
+  .roster-player-row-pos {
+    font-size: 0.75rem;
+  }
+
+  .roster-player-row-pos-inline {
+    display: none !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .roster-table-head,
+  .roster-player-row {
+    grid-template-columns: 2.1rem minmax(0, 1fr) 5.75rem;
+    grid-template-areas: 'num player stats';
+  }
+
+  .roster-table-head--vote,
+  .roster-player-row--vote {
+    grid-template-columns: 2.15rem 2.1rem minmax(0, 1fr) 5.75rem;
+    grid-template-areas: 'vote num player stats';
+  }
+
+  .roster-table-head .roster-col-pos,
+  .roster-player-row-pos {
+    display: none;
+  }
+
+  .roster-player-row-pos-inline {
+    display: block;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .teams-browse-header,
+  .roster-player-row {
+    transition: none;
+  }
+}

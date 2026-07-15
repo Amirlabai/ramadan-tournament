@@ -16,7 +16,7 @@ export { default as SkeletonWcGroupGrid } from './SkeletonWcGroupGrid';
 export { default as SkeletonWcTeamsList } from './SkeletonWcTeamsList';
 export { default as SkeletonScheduleFilters } from './SkeletonScheduleFilters';
 export { default as SkeletonScheduleMatchList } from './SkeletonScheduleMatchList';
-export { default as SkeletonGirlsTeamsList } from './SkeletonGirlsTeamsList';
+export { default as SkeletonTeamsBrowseList } from './SkeletonTeamsBrowseList';
 export { default as SkeletonStatsLayout } from './SkeletonStatsLayout';
 export { default as SkeletonGirlsHomeLayout } from './SkeletonGirlsHomeLayout';
 export { default as SkeletonBracketPlaceholder } from './SkeletonBracketPlaceholder';

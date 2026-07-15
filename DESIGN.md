@@ -85,6 +85,7 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 - **`.dashboard-card-title`** — solid `--color-primary` background, white text, centered.
 - **`.match-card`** — status via badge + tinted fill + 2px status-colored border from [`neo-brutal-browse.css`](client/src/styles/neo-brutal-browse.css); shared `match-card.css` for inner layout.
 - **Browse cards** — 2px border, status tint, no soft shadow. Same language for match cards, team/news browse cards, and section shells. No thick L-frame / side+bottom accent on spectator UI (admin workflow queues may keep their own chrome).
+- **Teams browse** — `.teams-browse-page` / `.teams-browse-card` accordion (WC pattern) + dense `.roster-player-row` in [`teams-browse.css`](client/src/styles/teams-browse.css). Search toolbar; public team ID omitted. Join/request actions stay inside expand.
 - **`.standings-table`** — responsive table with `caption`, `scope`, playoff row class `qualified`.
 - **`.tournament-sidebar-link.active`** — primary color + subtle bg + start border.
 - **Claim banners** — tinted border, no heavy multi-stop gradients.

@@ -1,10 +1,11 @@
-import { Fragment, useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { teamsAPI, votesAPI } from '../api/client';
 import TeamRegistrationActions from '../components/registration/TeamRegistrationActions';
 import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import OwnerSquadRoles from '../components/registration/OwnerSquadRoles';
 import RosterPlayerEditModal from '../components/registration/RosterPlayerEditModal';
+import RosterPlayerRow from '../components/roster/RosterPlayerRow';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import type { Player, Team } from '../types';
@@ -22,11 +23,19 @@ import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tourna
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { sortRosterPlayers } from '../utils/rosterSort';
 import { displayNickname, fullName } from '../utils/playerDisplayName';
+import {
+    computeTeamsBrowseSummary,
+    filterRosterPlayers,
+    getTeamTopScorer,
+    sortTeamsById,
+    teamHasPlayerMatch,
+} from '../utils/teamsBrowse';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const [query, setQuery] = useState('');
     const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
     const [selectedPlayerId, setSelectedPlayerId] = useState<number | null>(null);
     const [shouldScroll, setShouldScroll] = useState(false);
@@ -167,22 +176,27 @@ const Teams = () => {
         setExpandedTeam(nextExpanded);
     };
 
-    const handleTeamRowClick = (e: React.MouseEvent, teamId: number) => {
-        const target = e.target as HTMLElement;
-        if (target.closest('button, a, input, select, textarea, [data-no-row-toggle]')) {
+    const filteredTeams = useMemo(() => {
+        const sorted = sortTeamsById(teams);
+        if (!query.trim()) return sorted;
+        return sorted.filter((t) => teamHasPlayerMatch(t, query));
+    }, [teams, query]);
+
+    const browseSummary = useMemo(() => computeTeamsBrowseSummary(teams), [teams]);
+
+    useEffect(() => {
+        if (!query.trim()) return;
+        if (filteredTeams.length === 0) {
+            setExpandedTeam(null);
             return;
         }
-        toggleTeam(teamId);
-    };
+        setExpandedTeam((prev) => {
+            if (prev != null && filteredTeams.some((t) => t.id === prev)) return prev;
+            return filteredTeams[0].id;
+        });
+    }, [query, filteredTeams]);
 
-    const handleTeamRowKeyDown = (e: React.KeyboardEvent, teamId: number) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            toggleTeam(teamId);
-        }
-    };
-
-    const handleVoteClick = (player: any, e: React.MouseEvent) => {
+    const handleVoteClick = (player: Player & { teamId: number }, e: React.MouseEvent) => {
         e.stopPropagation();
 
         if (!isLoggedIn) {
@@ -245,13 +259,13 @@ const Teams = () => {
     })();
 
     return (
-        <div className="container py-4">
+        <div className="teams-browse-page container py-4">
             <SEO
                 title="קבוצות ושחקנים"
                 description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
                 pathname="/teams"
             />
-            <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">קבוצות הטורניר</h2>
+            <h2 className="mb-0 fw-bold tournament-page-title">קבוצות הטורניר</h2>
 
             {teams.length === 0 ? (
                 <EmptyState
@@ -260,87 +274,153 @@ const Teams = () => {
                 />
             ) : (
                 <>
+                    <p className="teams-browse-summary" aria-label="סיכום קבוצות">
+                        <span>
+                            <strong>{browseSummary.teamCount}</strong> קבוצות
+                        </span>
+                        <span className="teams-browse-summary-sep" aria-hidden="true">
+                            ·
+                        </span>
+                        <span>
+                            <strong>{browseSummary.playerCount}</strong> שחקנים
+                        </span>
+                        <span className="teams-browse-summary-sep" aria-hidden="true">
+                            ·
+                        </span>
+                        <span>
+                            <strong>{browseSummary.goalCount}</strong> שערים
+                        </span>
+                    </p>
+
                     {(voteLoaded && !dismissPrompt && (!isLoggedIn || !myVote)) && (
-                        <div className="alert alert-warning alert-dismissible fade show mb-4 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
+                        <div className="alert alert-warning alert-dismissible fade show mb-3 shadow-sm" style={{ backgroundColor: '#fff8e1', border: '1px solid #ffecb3' }} role="alert">
                             <strong>{isLoggedIn ? 'טרם בחרת שחקן מצטיין!' : 'הצבעה ל-MVP:'}</strong>
                             <span className="ms-2">
                                 {isLoggedIn
-                                    ? 'לחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'
-                                    : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בכרטסייה של השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
+                                    ? 'לחץ על סימון הכוכב (⭐) בשורת השחקן בקבוצתו כדי לבחור בו כמצטיין!'
+                                    : 'התחבר למערכת ולחץ על סימון הכוכב (⭐) בשורת השחקן בקבוצתו כדי לבחור בו כמצטיין!'}
                             </span>
                             <button type="button" className="btn-close" onClick={() => setDismissPrompt(true)} aria-label="סגור"></button>
                         </div>
                     )}
 
-                    <div className="table-responsive">
-                <table className="table table-hover" id="teamsTable">
-                    <caption className="visually-hidden">רשימת קבוצות הטורניר</caption>
-                    <thead>
-                        <tr>
-                            <th scope="col">ID</th>
-                            <th scope="col">שם הקבוצה</th>
-                            <th scope="col" className="d-none d-md-table-cell">מספר שחקנים</th>
-                            <th scope="col">קפטן</th>
-                            <th scope="col"><span className="visually-hidden">הרחבה</span></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {teams.map((team) => {
-                            const players = team.players ?? [];
-                            const captain = players.find(p => p.isCaptain);
-                            const isExpanded = expandedTeam === team.id;
-                            const logoSrc = resolveAssetUrl(team.logoUrl);
-                            const ownedTeamId =
-                                slug === 'boys' || slug === 'girls'
-                                    ? user?.tournamentRegistration?.[slug]?.ownedTeamId
-                                    : undefined;
-                            const rosterReg =
-                                slug === 'boys' || slug === 'girls'
-                                    ? user?.tournamentRegistration?.[slug]?.onRoster
-                                    : undefined;
-                            const isOwner = ownedTeamId === team.id;
-                            const isCaptain =
-                                rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
-                            const canManageBranding = isOwner || isCaptain;
-                            const canEditSquadRoles = isOwner || isCaptain;
+                    <div className="teams-browse-toolbar">
+                        <label htmlFor="teams-browse-search" className="visually-hidden">
+                            חיפוש שחקן
+                        </label>
+                        <input
+                            id="teams-browse-search"
+                            type="search"
+                            className="form-control teams-browse-search"
+                            placeholder="חיפוש שחקן..."
+                            value={query}
+                            onChange={(e) => setQuery(e.target.value)}
+                        />
+                    </div>
 
-                            return (
-                                <Fragment key={team.id}>
-                                    <tr
+                    {filteredTeams.length === 0 ? (
+                        <p className="text-muted text-center">לא נמצאו שחקנים התואמים לחיפוש.</p>
+                    ) : (
+                        <div className="teams-browse-list">
+                            {filteredTeams.map((team) => {
+                                const players = team.players ?? [];
+                                const captain = players.find((p) => p.isCaptain);
+                                const isExpanded = expandedTeam === team.id;
+                                const logoSrc = resolveAssetUrl(team.logoUrl);
+                                const ownedTeamId =
+                                    slug === 'boys' || slug === 'girls'
+                                        ? user?.tournamentRegistration?.[slug]?.ownedTeamId
+                                        : undefined;
+                                const rosterReg =
+                                    slug === 'boys' || slug === 'girls'
+                                        ? user?.tournamentRegistration?.[slug]?.onRoster
+                                        : undefined;
+                                const isOwner = ownedTeamId === team.id;
+                                const isCaptain =
+                                    rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
+                                const canManageBranding = isOwner || isCaptain;
+                                const canEditSquadRoles = isOwner || isCaptain;
+                                const captainName = captain
+                                    ? `${captain.firstName} ${captain.lastName}`
+                                    : null;
+                                const visiblePlayers = filterRosterPlayers(
+                                    sortRosterPlayers(players),
+                                    query
+                                );
+                                const topScorerInTeam = getTeamTopScorer(players);
+
+                                return (
+                                    <article
+                                        key={team.id}
                                         id={`team-row-${team.id}`}
-                                        className={`team-row ${isExpanded ? 'bg-light' : ''}`}
-                                        role="button"
-                                        tabIndex={0}
-                                        aria-expanded={isExpanded}
-                                        aria-controls={`team-details-${team.id}`}
-                                        aria-label={isExpanded ? `כווץ פרטי ${team.name}` : `הרחב פרטי ${team.name}`}
-                                        onClick={(e) => handleTeamRowClick(e, team.id)}
-                                        onKeyDown={(e) => handleTeamRowKeyDown(e, team.id)}
+                                        className={`teams-browse-card${isExpanded ? ' is-open' : ''}`}
                                     >
-                                        <td>{team.id}</td>
-                                        <td className="fw-bold fs-8">
-                                            <div className="d-flex align-items-center gap-2">
-                                                {logoSrc && team.logoPosition !== 'none' && (
-                                                    <img className="team-logo-inline" src={logoSrc} alt={`לוגו ${team.name}`} style={{ width: 32, height: 32, objectFit: 'contain' }} />
-                                                )}
-                                                <span>{team.name}</span>
-                                            </div>
-                                        </td>
-                                        <td className="d-none d-md-table-cell">{players.length}</td>
-                                        <td>{captain ? `${captain.firstName} ${captain.lastName}` : 'אין'}</td>
-                                        <td>
-                                            <span className="expand-icon" aria-hidden="true">
-                                                {isExpanded ? '▼' : '►'}
+                                        <button
+                                            type="button"
+                                            className="teams-browse-header btn border-0 bg-transparent"
+                                            aria-expanded={isExpanded}
+                                            aria-controls={`team-details-${team.id}`}
+                                            aria-label={
+                                                isExpanded
+                                                    ? `כווץ פרטי ${team.name}`
+                                                    : `הרחב פרטי ${team.name}`
+                                            }
+                                            onClick={() => toggleTeam(team.id)}
+                                        >
+                                            {logoSrc && team.logoPosition !== 'none' ? (
+                                                <img
+                                                    className="teams-browse-crest"
+                                                    src={logoSrc}
+                                                    alt=""
+                                                    width={44}
+                                                    height={44}
+                                                />
+                                            ) : null}
+                                            <span className="teams-browse-title">
+                                                <span className="teams-browse-name">{team.name}</span>
+                                                <span className="teams-browse-meta">
+                                                    <span className="teams-browse-meta-count">
+                                                        {players.length} שחקנים
+                                                    </span>
+                                                    {captainName ? (
+                                                        <>
+                                                            <span
+                                                                className="teams-browse-summary-sep"
+                                                                aria-hidden="true"
+                                                            >
+                                                                ·
+                                                            </span>
+                                                            <span className="teams-browse-meta-captain">
+                                                                <span className="teams-browse-meta-captain-label">
+                                                                    קפטן
+                                                                </span>
+                                                                <span
+                                                                    className="teams-browse-meta-captain-name"
+                                                                    dir="auto"
+                                                                >
+                                                                    {captainName}
+                                                                </span>
+                                                            </span>
+                                                        </>
+                                                    ) : null}
+                                                </span>
                                             </span>
-                                        </td>
-                                    </tr>
-                                    {isExpanded && (
-                                        <tr className="team-details-row" id={`team-details-${team.id}`}>
-                                            <td colSpan={5} className="bg-light p-3">
+                                            <span className="teams-browse-chevron" aria-hidden="true">
+                                                <i
+                                                    className={`bi ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`}
+                                                />
+                                            </span>
+                                        </button>
+
+                                        {isExpanded ? (
+                                            <div
+                                                className="teams-browse-squad"
+                                                id={`team-details-${team.id}`}
+                                            >
                                                 {team.description && !canManageBranding ? (
                                                     <p className="text-muted small mb-3">{team.description}</p>
                                                 ) : null}
-                                                {canManageBranding && (
+                                                {canManageBranding ? (
                                                     <TeamOwnerSettings
                                                         key={`owner-settings-${slug}-${team.id}`}
                                                         teamId={team.id}
@@ -356,13 +436,13 @@ const Teams = () => {
                                                         onEditingChange={handleOwnerSettingsEditingChange}
                                                         onUpdated={() => void fetchTeams(true)}
                                                     />
-                                                )}
+                                                ) : null}
                                                 <TeamRegistrationActions
                                                     teamId={team.id}
                                                     teamName={team.name}
                                                     slug={slug}
                                                 />
-                                                {canEditSquadRoles && (
+                                                {canEditSquadRoles ? (
                                                     <OwnerSquadRoles
                                                         key={team.id}
                                                         teamId={team.id}
@@ -370,109 +450,62 @@ const Teams = () => {
                                                         slug={slug}
                                                         onSaved={() => void fetchTeams(true)}
                                                     />
+                                                ) : null}
+                                                {players.length === 0 ? (
+                                                    <p className="text-muted small mb-0">אין שחקנים רשומים</p>
+                                                ) : (
+                                                    <div className="roster-table">
+                                                        <div className="roster-table-head roster-table-head--vote">
+                                                            <span className="roster-col-vote" title="הצבעה" aria-hidden="true">
+                                                              ★
+                                                            </span>
+                                                            <span className="roster-col-num">#</span>
+                                                            <span className="roster-col-player">שחקן</span>
+                                                            <span className="roster-col-pos">עמדה</span>
+                                                            <span className="roster-col-stats">
+                                                              <span>שערים</span>
+                                                              <span>ממוצע</span>
+                                                            </span>
+                                                        </div>
+                                                        <ul className="roster-player-list">
+                                                            {visiblePlayers.map((player) => {
+                                                                const isTopScorer =
+                                                                    !!topScorerInTeam &&
+                                                                    player.memberId ===
+                                                                        topScorerInTeam.memberId;
+                                                                return (
+                                                                    <RosterPlayerRow
+                                                                        key={player.memberId}
+                                                                        player={player}
+                                                                        teamId={team.id}
+                                                                        isTopScorer={isTopScorer}
+                                                                        selected={
+                                                                            selectedPlayerId ===
+                                                                            player.memberId
+                                                                        }
+                                                                        showVote
+                                                                        myVoteMemberId={
+                                                                            myVote?.playerMemberId ?? null
+                                                                        }
+                                                                        isVoting={isVoting}
+                                                                        onVote={handleVoteClick}
+                                                                        onOpen={setSelectedPlayer}
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </ul>
+                                                    </div>
                                                 )}
-                                                <div className="row g-3">
-                                                    {(() => {
-                                                        const sortedPlayers = sortRosterPlayers(players);
-                                                        const topScorerInTeam = [...players].sort((a, b) => {
-                                                            const goalsA = a.totalGoals || 0;
-                                                            const goalsB = b.totalGoals || 0;
-                                                            if (goalsB !== goalsA) return goalsB - goalsA;
-                                                            const avgA = (a.totalGoals && a.gamesPlayed) ? a.totalGoals / a.gamesPlayed : 0;
-                                                            const avgB = (b.totalGoals && b.gamesPlayed) ? b.totalGoals / b.gamesPlayed : 0;
-                                                            return avgB - avgA;
-                                                        })[0];
-
-                                                        return sortedPlayers.map(player => {
-                                                            const isTopScorer = topScorerInTeam && player.memberId === topScorerInTeam.memberId && (player.totalGoals || 0) > 0;
-                                                            const roleStarVariant = getRoleStarVariant(
-                                                                !!player.isTeamOwner,
-                                                                player.isCaptain
-                                                            );
-
-                                                            return (
-                                                                <div key={player.memberId} className="col-6 col-md-4 col-lg-3">
-                                                                    <div
-                                                                        id={`player-card-${player.memberId}`}
-                                                                        className={`roster-player-card position-relative ${isTopScorer ? 'top-scorer-highlight' : ''} ${selectedPlayerId === player.memberId ? 'selected' : ''}`}
-                                                                    >
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={(e) => handleVoteClick(player, e)}
-                                                                            className="btn btn-sm position-absolute top-0 start-0 m-1 p-1 border-0 bg-transparent roster-player-card-vote"
-                                                                            aria-label={myVote?.playerMemberId === player.memberId ? `בטל הצבעה ל${player.firstName} ${player.lastName}` : `הצבע ל${player.firstName} ${player.lastName} כמצטיין`}
-                                                                            aria-pressed={myVote?.playerMemberId === player.memberId}
-                                                                            disabled={isVoting}
-                                                                        >
-                                                                            <i className={`fs-5 ${myVote?.playerMemberId === player.memberId ? 'text-warning fa-solid fa-star' : 'text-secondary fa-regular fa-star'}`} aria-hidden="true"></i>
-                                                                        </button>
-                                                                        {roleStarVariant ? (
-                                                                            <span
-                                                                                className="position-absolute top-0 end-0 m-2 mt-4 roster-player-card-role-star"
-                                                                                aria-hidden="true"
-                                                                            >
-                                                                                <TournamentRoleStar variant={roleStarVariant} size="sm" decorative />
-                                                                            </span>
-                                                                        ) : null}
-                                                                        <button
-                                                                            type="button"
-                                                                            className="roster-player-card-open w-100 border-0 bg-transparent text-center p-0"
-                                                                            onClick={() => setSelectedPlayer({ ...player, teamId: team.id })}
-                                                                            aria-label={`פרטי שחקן ${fullName(player)}${isTopScorer ? ', מלך השערים של הקבוצה' : ''}`}
-                                                                        >
-                                                                        <div className="roster-player-card-photo mx-auto" aria-hidden="true">
-                                                                            <PlayerHeadImg
-                                                                                player={player}
-                                                                                alt=""
-                                                                                className="roster-player-card-photo-img"
-                                                                            />
-                                                                            {isTopScorer && (
-                                                                                <span className="roster-player-card-top-scorer" aria-hidden="true">⚽</span>
-                                                                            )}
-                                                                        </div>
-                                                                        <div className="fw-bold mt-2">{displayNickname(player)}</div>
-                                                                        <div className="text-muted small">{fullName(player)}</div>
-                                                                        <div className="badge bg-success mt-1">{player.number}</div>
-                                                                        <div className="small text-secondary">{player.position}</div>
-                                                                        <div className="mt-2 pt-2 border-top player-card-stats">
-                                                                            <div className="d-flex justify-content-between small">
-                                                                                <span className="text-muted">שערים:</span>
-                                                                                <span className="fw-bold text-success">{player.totalGoals || 0}</span>
-                                                                            </div>
-                                                                            <div className="d-flex justify-content-between small">
-                                                                                <span className="text-muted">ממוצע:</span>
-                                                                                <span className="text-muted">
-                                                                                    {(player.totalGoals && player.gamesPlayed)
-                                                                                        ? (player.totalGoals / player.gamesPlayed).toFixed(2)
-                                                                                        : '0.00'}
-                                                                                </span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <span className="roster-player-card-hint small text-muted d-inline-flex align-items-center gap-1 mt-2" aria-hidden="true">
-                                                                            <i className="bi bi-info-circle" />
-                                                                            לפרטים
-                                                                            <i className="bi bi-chevron-left" />
-                                                                        </span>
-                                                                        </button>
-                                                                    </div>
-                                                                </div>
-                                                            );
-                                                        });
-                                                    })()}
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </Fragment>
-                            );
-                        })}
-                    </tbody>
-                </table>
-                    </div>
+                                            </div>
+                                        ) : null}
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    )}
                 </>
             )}
 
-            {/* Player Details Modal */}
             <AccessibleModal open={!!selectedPlayer} onClose={() => setSelectedPlayer(null)} titleId="player-modal-title">
                         <div className="modal-content">
                             <div className="modal-header bg-success text-white">
@@ -553,7 +586,6 @@ const Teams = () => {
                 />
             ) : null}
 
-            {/* Vote Confirmation Modal */}
             <AccessibleModal
                 open={!!voteConfirmPlayer}
                 onClose={() => !isVoting && setVoteConfirmPlayer(null)}

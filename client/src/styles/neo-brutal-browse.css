@@ -9,6 +9,7 @@
 .archive-page,
 .stats-page,
 .wc-teams-page,
+.teams-browse-page,
 .browse-page {
   --browse-card-radius: 0.5rem;
   --browse-card-border-w: 2px;
@@ -213,6 +214,7 @@
 /* Team browse cards + girls news */
 .wc-teams-page .wc-team-card,
 [data-tournament='worldcup'] .wc-teams-page .wc-team-card,
+.teams-browse-page .teams-browse-card,
 .browse-page .team-card,
 [data-tournament='girls'] .browse-page .team-card,
 .browse-page .browse-news-card {
@@ -225,6 +227,7 @@
 
 .wc-teams-page .wc-team-card:hover,
 [data-tournament='worldcup'] .wc-teams-page .wc-team-card:hover,
+.teams-browse-page .teams-browse-card:hover,
 .browse-page .team-card:hover,
 [data-tournament='girls'] .browse-page .team-card:hover,
 .browse-page .browse-news-card:hover {
@@ -237,5 +240,11 @@
 [data-tournament='worldcup'] .wc-teams-page .wc-team-card.is-open {
   border-color: var(--color-secondary, #ffae00);
   background: color-mix(in srgb, var(--color-secondary, #ffae00) 8%, #fff);
+  box-shadow: none;
+}
+
+.teams-browse-page .teams-browse-card.is-open {
+  border-color: var(--color-primary, #2a6b11);
+  background: color-mix(in srgb, var(--color-primary, #2a6b11) 5%, #fff);
   box-shadow: none;
 }

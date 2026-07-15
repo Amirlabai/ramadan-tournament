@@ -1,7 +1,6 @@
 import SEO from '../SEO';
 import PageSkeletonStatus from './PageSkeletonStatus';
 import SkeletonPageTitle from './SkeletonPageTitle';
-import SkeletonDataTable from './SkeletonDataTable';
 import SkeletonProfileLayout from './SkeletonProfileLayout';
 import SkeletonArchiveLayout from './SkeletonArchiveLayout';
 import SkeletonNewsList from './SkeletonNewsList';
@@ -11,15 +10,13 @@ import SkeletonWcGroupGrid from './SkeletonWcGroupGrid';
 import SkeletonWcTeamsList from './SkeletonWcTeamsList';
 import SkeletonScheduleFilters from './SkeletonScheduleFilters';
 import SkeletonScheduleMatchList from './SkeletonScheduleMatchList';
-import SkeletonGirlsTeamsList from './SkeletonGirlsTeamsList';
+import SkeletonTeamsBrowseList from './SkeletonTeamsBrowseList';
 import SkeletonStatsLayout from './SkeletonStatsLayout';
 import SkeletonGirlsHomeLayout from './SkeletonGirlsHomeLayout';
 
 interface PageSkeletonProps {
   label: string;
 }
-
-const TEAMS_COLUMNS = ['3rem', '42%', '18%', '22%', '2.5rem'];
 
 export function DashboardSkeleton({ label }: PageSkeletonProps) {
   return (
@@ -119,28 +116,28 @@ export function WorldCupStatsSkeleton({ label }: PageSkeletonProps) {
 
 export function TeamsSkeleton({ label }: PageSkeletonProps) {
   return (
-    <PageSkeletonStatus label={label} className="container py-4">
+    <PageSkeletonStatus label={label} className="teams-browse-page container py-4">
       <SEO
         title="קבוצות ושחקנים"
         description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
         pathname="/teams"
       />
       <SkeletonPageTitle />
-      <SkeletonDataTable rows={6} columns={5} columnWidths={TEAMS_COLUMNS} />
+      <SkeletonTeamsBrowseList count={6} />
     </PageSkeletonStatus>
   );
 }
 
 export function GirlsTeamsSkeleton({ label }: PageSkeletonProps) {
   return (
-    <PageSkeletonStatus label={label} className="browse-page container py-4">
+    <PageSkeletonStatus label={label} className="teams-browse-page browse-page container py-4">
       <SEO
         title="קבוצות — טורניר בנות"
         description="רשימת הקבוצות והסגלים בטורניר בנות רמדאן 2026, כולל סך נקודות לכל קבוצה."
         pathname="/teams-girls"
       />
       <SkeletonPageTitle />
-      <SkeletonGirlsTeamsList count={6} />
+      <SkeletonTeamsBrowseList count={6} showVoteSlot />
     </PageSkeletonStatus>
   );
 }
