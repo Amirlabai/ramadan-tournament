@@ -9,6 +9,7 @@ import { isValidIsraeliId, sanitizePersonalIdInput } from '../../utils/israeliId
 import TransferRequestForm from '../registration/TransferRequestForm';
 import { trackEvent } from '../../utils/analytics';
 import { tournamentPaths } from '../../utils/tournamentPaths';
+import { SHOW_PROFILE_TEAM_CREATION } from '../../config/registrationUi';
 import './TournamentRegistrationCard.css';
 
 interface RegistrationSummary {
@@ -200,7 +201,8 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
 
             {reg.awaitingAdminIdentity && (
                 <div className="alert alert-info py-2 small mb-3" role="status">
-                    הזנת את פרטי הזהות. ממתין שהמנהל ירשום את אותם פרטים — לאחר התאמה תוכל לבקש הצטרפות או הקמת קבוצה.
+                    הזנת את פרטי הזהות. ממתין שהמנהל ירשום את אותם פרטים — לאחר התאמה תוכל לבקש הצטרפות
+                    {SHOW_PROFILE_TEAM_CREATION ? ' או הקמת קבוצה' : ''}.
                     טעית? עדכן למטה לפני שהמנהל רושם, או פנה למנהל.
                 </div>
             )}
@@ -233,7 +235,9 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
             )}
             {hasPendingRequest && !reg.pendingTransfer && (
                 <p className="small text-muted mb-2">
-                    ניתן להחזיק בקשה אחת בלבד (הצטרפות או הקמת קבוצה). לשינוי — בטל את הבקשה הנוכחית.
+                    {SHOW_PROFILE_TEAM_CREATION
+                        ? 'ניתן להחזיק בקשה אחת בלבד (הצטרפות או הקמת קבוצה). לשינוי — בטל את הבקשה הנוכחית.'
+                        : 'ניתן להחזיק בקשה אחת בלבד. לשינוי — בטל את הבקשה הנוכחית.'}
                 </p>
             )}
             {hasPendingRequest && (
@@ -276,16 +280,20 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
                             <Link to={teamsPath} className="registration-card__teams-link">
                                 בקשת הצטרפות — עמוד קבוצות
                             </Link>
-                            <span className="registration-card__cta-hint text-muted">
-                                {' '}
-                                · או הקמת קבוצה בפרופיל
-                            </span>
+                            {SHOW_PROFILE_TEAM_CREATION && (
+                                <span className="registration-card__cta-hint text-muted">
+                                    {' '}
+                                    · או הקמת קבוצה בפרופיל
+                                </span>
+                            )}
                         </>
                     ) : (
                         <>
                             הרישום פעיל. שלח בקשת הצטרפות מ
                             <Link to={teamsPath}>עמוד קבוצות</Link>
-                            {' '}או בקשת הקמת קבוצה מהטופס בפרופיל.
+                            {SHOW_PROFILE_TEAM_CREATION
+                                ? ' או בקשת הקמת קבוצה מהטופס בפרופיל.'
+                                : '.'}
                         </>
                     )}
                 </p>

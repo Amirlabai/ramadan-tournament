@@ -402,8 +402,7 @@ const Teams = () => {
                                                                         <button
                                                                             type="button"
                                                                             onClick={(e) => handleVoteClick(player, e)}
-                                                                            className="btn btn-sm position-absolute top-0 start-0 m-1 p-1 border-0 bg-transparent"
-                                                                            style={{ zIndex: 10 }}
+                                                                            className="btn btn-sm position-absolute top-0 start-0 m-1 p-1 border-0 bg-transparent roster-player-card-vote"
                                                                             aria-label={myVote?.playerMemberId === player.memberId ? `בטל הצבעה ל${player.firstName} ${player.lastName}` : `הצבע ל${player.firstName} ${player.lastName} כמצטיין`}
                                                                             aria-pressed={myVote?.playerMemberId === player.memberId}
                                                                             disabled={isVoting}
@@ -412,8 +411,7 @@ const Teams = () => {
                                                                         </button>
                                                                         {roleStarVariant ? (
                                                                             <span
-                                                                                className="position-absolute top-0 end-0 m-2 mt-4"
-                                                                                style={{ zIndex: 5 }}
+                                                                                className="position-absolute top-0 end-0 m-2 mt-4 roster-player-card-role-star"
                                                                                 aria-hidden="true"
                                                                             >
                                                                                 <TournamentRoleStar variant={roleStarVariant} size="sm" decorative />

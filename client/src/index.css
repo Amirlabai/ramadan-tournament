@@ -809,6 +809,16 @@ h2 {
   padding: 10px;
   text-align: center;
   transition: all var(--transition-speed);
+  /* Keep vote/role stars inside this card so they do not paint over the fixed mobile header */
+  isolation: isolate;
+}
+
+.roster-player-card-vote {
+  z-index: 2;
+}
+
+.roster-player-card-role-star {
+  z-index: 1;
 }
 
 .roster-player-card-photo {

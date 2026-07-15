@@ -6,6 +6,7 @@ import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext'
 import { resolveAssetUrl } from '../utils/assetUrl'
 import { canAccessAdminPanel } from '../utils/tournamentUser'
 import { getMobilePrimaryNavItems } from '../utils/mainNavItems'
+import { prefersEnglishUi } from '../utils/localeDirection'
 import { trackEvent } from '../utils/analytics'
 import AccessibleModal from './AccessibleModal'
 import NavActionDot, {
@@ -34,6 +35,8 @@ const MobileBottomNav = () => {
   const location = useLocation()
   const navigate = useNavigate()
   const [chooserOpen, setChooserOpen] = useState(false)
+  // Device/browser primary lang: en* → LTR (Home left); else RTL with the Hebrew site.
+  const navDir: 'rtl' | 'ltr' = prefersEnglishUi() ? 'ltr' : 'rtl'
   const chooserTitleId = useId()
   const isAdmin = canAccessAdminPanel(user)
   const primaryItems = getMobilePrimaryNavItems({ isGirls, isWorldCup, paths })
@@ -89,7 +92,7 @@ const MobileBottomNav = () => {
 
   return (
     <>
-      <nav className="mobile-bottom-nav" aria-label="ניווט ראשי">
+      <nav className="mobile-bottom-nav" aria-label="ניווט ראשי" dir={navDir}>
         <ul className="mobile-bottom-nav-list" role="list">
           {primaryItems.map((item) => {
             const active = isPathActive(location.pathname, item.to)

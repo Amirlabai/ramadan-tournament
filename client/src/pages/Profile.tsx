@@ -22,6 +22,7 @@ import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
 import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
 import { tournamentPaths } from '../utils/tournamentPaths';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { SHOW_PROFILE_TEAM_CREATION } from '../config/registrationUi';
 import './Profile.css';
 
 const PROFILE_ROLE_LABELS: Record<string, string> = {
@@ -541,7 +542,7 @@ const Profile = () => {
                     </div>
                 )}
 
-                {canRequestTeam && (
+                {SHOW_PROFILE_TEAM_CREATION && canRequestTeam && (
                     <div className="card mb-4 p-4">
                         <h2 className="h5 mb-3">בקשה לפתיחת קבוצה חדשה</h2>
                         <p className="text-muted small mb-0">

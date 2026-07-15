@@ -479,8 +479,23 @@ export default function RegistrationWorkflowAdmin() {
                         )}
                     </section>
 
-                    <section className="mb-3">
-                        <h5 className="h6">הקמת קבוצות ({data.creations.length})</h5>
+                    <section
+                        className="mb-4 workflow-queue-card workflow-queue-card--creation"
+                        aria-labelledby="workflow-creation-heading"
+                    >
+                        <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <h5 id="workflow-creation-heading" className="h6 mb-0">
+                                <i className="bi bi-flag-fill me-1" aria-hidden="true" />
+                                הקמת קבוצות ({data.creations.length})
+                            </h5>
+                            <span className="badge workflow-queue-badge workflow-queue-badge--creation">
+                                הקמת קבוצה חדשה
+                            </span>
+                        </div>
+                        <p className="small text-muted mb-2">
+                            אישור כאן יוצר קבוצה חדשה בטורניר וממנה את המבקש כבעלים — לא הצטרפות לסגל
+                            קיים.
+                        </p>
                         <div className="table-responsive">
                             <table className="table table-sm table-hover align-middle mb-0">
                                 <caption className="visually-hidden">בקשות הקמת קבוצות ממתינות</caption>
@@ -522,7 +537,7 @@ export default function RegistrationWorkflowAdmin() {
                                                 <td>
                                                     <button
                                                         type="button"
-                                                        className="btn btn-sm btn-success me-1"
+                                                        className="btn btn-sm workflow-approve-creation me-1"
                                                         disabled={!paid}
                                                         title={
                                                             paid
@@ -530,6 +545,13 @@ export default function RegistrationWorkflowAdmin() {
                                                                 : 'לא ניתן לאשר לפני התאמת זהות ורישום פעיל'
                                                         }
                                                         onClick={async () => {
+                                                            // Confirm only on create-approve (high-impact).
+                                                            // Create-reject and join approve/reject stay one-click.
+                                                            const who = c.user.displayName || 'המשתמש';
+                                                            const ok = window.confirm(
+                                                                `לאשר הקמת קבוצה חדשה "${c.teamName}" עבור ${who}?\n\nפעולה זו יוצרת קבוצה חדשה — לא מוסיפה שחקן לסגל קיים.`
+                                                            );
+                                                            if (!ok) return;
                                                             setMsg('');
                                                             try {
                                                                 await adminAPI.reviewCreationRequest(c.id, true);
@@ -545,7 +567,7 @@ export default function RegistrationWorkflowAdmin() {
                                                             }
                                                         }}
                                                     >
-                                                        אשר
+                                                        אשר הקמת קבוצה
                                                     </button>
                                                     <button
                                                         type="button"
@@ -581,11 +603,21 @@ export default function RegistrationWorkflowAdmin() {
                         )}
                     </section>
 
-                    <section className="mb-3">
-                        <h5 className="h6">
-                            הצטרפות (אחרי בעלים) (
-                            {data.joins.filter((j) => j.status === 'owner_approved').length})
-                        </h5>
+                    <section
+                        className="mb-4 workflow-queue-card workflow-queue-card--join"
+                        aria-labelledby="workflow-join-heading"
+                    >
+                        <div className="d-flex flex-wrap align-items-center gap-2 mb-2">
+                            <h5 id="workflow-join-heading" className="h6 mb-0">
+                                <i className="bi bi-person-plus-fill me-1" aria-hidden="true" />
+                                הצטרפות (אחרי בעלים) (
+                                {data.joins.filter((j) => j.status === 'owner_approved').length})
+                            </h5>
+                            <span className="badge text-bg-success">הצטרפות לסגל</span>
+                        </div>
+                        <p className="small text-muted mb-2">
+                            אישור כאן מוסיף שחקן לסגל של קבוצה קיימת — לא יוצר קבוצה חדשה.
+                        </p>
                         <div className="table-responsive">
                             <table className="table table-sm table-hover align-middle mb-0">
                                 <caption className="visually-hidden">
@@ -652,7 +684,7 @@ export default function RegistrationWorkflowAdmin() {
                                                                 }
                                                             }}
                                                         >
-                                                            אשר סגל
+                                                            אשר הצטרפות לסגל
                                                         </button>
                                                         <button
                                                             type="button"

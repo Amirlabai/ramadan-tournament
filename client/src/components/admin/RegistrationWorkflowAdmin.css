@@ -102,6 +102,53 @@
     word-break: break-all;
 }
 
+.registration-workflow-admin .workflow-queue-card {
+    padding: 1rem;
+    border: 2px solid var(--color-border, #dee2e6);
+    border-radius: 0.5rem;
+    background: var(--color-surface, #fff);
+}
+
+.registration-workflow-admin .workflow-queue-card--creation {
+    border-color: var(--bs-warning, #ffc107);
+    border-inline-start-width: 6px;
+    background-color: #fff9e6;
+    background: color-mix(in srgb, var(--bs-warning, #ffc107) 8%, #fff);
+}
+
+.registration-workflow-admin .workflow-queue-card--join {
+    border-color: var(--color-primary, #2a6b11);
+    border-inline-start-width: 6px;
+    background-color: #f3f8f0;
+    background: color-mix(in srgb, var(--color-primary, #2a6b11) 6%, #fff);
+}
+
+/* Dark text on amber — Bootstrap text-bg-warning / btn-warning fail AA on light yellow */
+.registration-workflow-admin .workflow-queue-badge--creation {
+    color: #1a1a1a;
+    background-color: #f5c518;
+    border: 1px solid #8a6d00;
+    font-weight: 600;
+}
+
+.registration-workflow-admin .workflow-approve-creation {
+    color: #1a1a1a;
+    background-color: #f5c518;
+    border: 1px solid #8a6d00;
+    font-weight: 600;
+}
+
+.registration-workflow-admin .workflow-approve-creation:hover:not(:disabled),
+.registration-workflow-admin .workflow-approve-creation:focus-visible:not(:disabled) {
+    color: #1a1a1a;
+    background-color: #e0b000;
+    border-color: #6b5400;
+}
+
+.registration-workflow-admin .workflow-approve-creation:disabled {
+    opacity: 0.55;
+}
+
 @media (max-width: 768px) {
     .registration-workflow-admin .workflow-toolbar {
         flex-direction: column;
