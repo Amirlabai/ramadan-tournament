@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
 import type { Match, Team, Goal } from '../../types';
 import { matchStatsAPI } from '../../api/client';
@@ -69,7 +69,11 @@ const MatchTableRow = ({
     const [regenLoading, setRegenLoading] = useState(false);
     const [regenMessage, setRegenMessage] = useState('');
     const [menuOpen, setMenuOpen] = useState(false);
+    const [menuUp, setMenuUp] = useState(false);
+    const [menuMaxHeight, setMenuMaxHeight] = useState<number | undefined>(undefined);
     const menuRef = useRef<HTMLDivElement>(null);
+    const menuBtnRef = useRef<HTMLButtonElement>(null);
+    const menuListRef = useRef<HTMLUListElement>(null);
     const [draft, setDraft] = useState({
         team1Id: match.team1Id.toString(),
         team2Id: match.team2Id.toString(),
@@ -108,6 +112,70 @@ const MatchTableRow = ({
         return () => {
             document.removeEventListener('mousedown', onDoc);
             document.removeEventListener('keydown', onKey);
+        };
+    }, [menuOpen]);
+
+    useLayoutEffect(() => {
+        if (!menuOpen) {
+            setMenuUp(false);
+            setMenuMaxHeight(undefined);
+            return;
+        }
+
+        const placeMenu = () => {
+            const wrap = menuRef.current;
+            const menu = menuListRef.current;
+            const btn = menuBtnRef.current;
+            if (!wrap || !menu || !btn) return;
+
+            // Measure natural height without a prior cap.
+            menu.style.maxHeight = '';
+            const menuHeight = menu.scrollHeight;
+            const pad = 8;
+
+            const tableWrap = wrap.closest('.matches-table-wrapper');
+            const clipRect = tableWrap?.getBoundingClientRect();
+            const btnRect = btn.getBoundingClientRect();
+            const bottomEdge = Math.min(window.innerHeight, clipRect?.bottom ?? window.innerHeight);
+            const topEdge = Math.max(0, clipRect?.top ?? 0);
+
+            const spaceBelow = bottomEdge - btnRect.bottom - pad;
+            const spaceAbove = btnRect.top - topEdge - pad;
+
+            let up = false;
+            if (spaceBelow >= menuHeight) {
+                up = false;
+            } else if (spaceAbove >= menuHeight) {
+                up = true;
+            } else {
+                // Neither fits — pick the larger side and scroll inside the menu.
+                up = spaceAbove > spaceBelow;
+            }
+
+            const available = Math.max(0, up ? spaceAbove : spaceBelow);
+            setMenuUp(up);
+            setMenuMaxHeight(available < menuHeight ? Math.max(available, 88) : undefined);
+        };
+
+        placeMenu();
+
+        const tableWrap = menuRef.current?.closest('.matches-table-wrapper');
+        const closeOnScroll = (e: Event) => {
+            // Keep open while scrolling inside a height-capped menu.
+            if (menuListRef.current?.contains(e.target as Node)) return;
+            setMenuOpen(false);
+        };
+        const onResize = () => placeMenu();
+
+        tableWrap?.addEventListener('scroll', closeOnScroll, { passive: true });
+        window.addEventListener('resize', onResize);
+        // Capture ancestor scrolls (page / admin panel) that would leave the menu stranded.
+        window.addEventListener('scroll', closeOnScroll, true);
+
+        return () => {
+            tableWrap?.removeEventListener('scroll', closeOnScroll);
+            window.removeEventListener('resize', onResize);
+            window.removeEventListener('scroll', closeOnScroll, true);
         };
     }, [menuOpen]);
 
@@ -267,6 +335,7 @@ const MatchTableRow = ({
                             )}
                             <div className="match-row-more" ref={menuRef}>
                                     <button
+                                        ref={menuBtnRef}
                                         type="button"
                                         className={`btn btn-sm match-row-more-btn${regenMessage ? (regenMessage.includes('נכשל') ? ' match-row-more-btn--error' : ' match-row-more-btn--ok') : ''}`}
                                         aria-expanded={menuOpen}
@@ -275,7 +344,14 @@ const MatchTableRow = ({
                                         title={regenMessage || 'עוד פעולות'}
                                         onClick={() => setMenuOpen((open) => !open)}
                                     >
-                                        {regenMessage && !regenMessage.includes('נכשל') ? '✓' : '⋮'}
+                                        {regenMessage && !regenMessage.includes('נכשל') ? (
+                                            '✓'
+                                        ) : (
+                                            <>
+                                                <span className="match-row-more-btn-icon" aria-hidden="true">⋮</span>
+                                                <span className="match-row-more-btn-label">עוד פעולות</span>
+                                            </>
+                                        )}
                                     </button>
                                     {regenMessage ? (
                                         <span
@@ -286,7 +362,12 @@ const MatchTableRow = ({
                                         </span>
                                     ) : null}
                                     {menuOpen && (
-                                        <ul className="match-row-more-menu" role="menu">
+                                        <ul
+                                            ref={menuListRef}
+                                            className={`match-row-more-menu${menuUp ? ' match-row-more-menu--up' : ''}`}
+                                            style={menuMaxHeight != null ? { maxHeight: menuMaxHeight } : undefined}
+                                            role="menu"
+                                        >
                                             {match.id !== -1
                                                 && match.technicalWinnerTeamId == null
                                                 && getMatchDisplayStatus(match.date, new Date(), match.technicalWinnerTeamId) !== 'upcoming' && (

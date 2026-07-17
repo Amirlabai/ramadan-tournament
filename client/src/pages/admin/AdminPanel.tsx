@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import SEO from '../../components/SEO';
 import { useNavigate } from 'react-router-dom';
 import { matchesAPI, newsAPI, teamsAPI, adminAPI, type TournamentSlug } from '../../api/client';
@@ -328,6 +328,16 @@ const AdminPanel = () => {
     const getMatchStatus = (match: Match) =>
         getMatchDisplayStatus(match.date, statusNow, match.technicalWinnerTeamId);
 
+    const matchFilterCounts = useMemo(() => {
+        let today = 0;
+        let upcoming = 0;
+        for (const match of matches) {
+            if (isSameJerusalemCalendarDay(match.date)) today += 1;
+            if (getMatchStatus(match) === 'upcoming') upcoming += 1;
+        }
+        return { today, upcoming };
+    }, [matches, statusNow]);
+
     const filteredAdminMatches = matches.filter((match) => {
         if (matchFilter === 'all') return true;
         if (matchFilter === 'today') {
@@ -608,13 +618,15 @@ const AdminPanel = () => {
                             onClick={() => setMatchFilter('today')}
                         >
                             היום
-                            <span className="filter-count">
-                                {matches.filter(m => {
-                                    const d = new Date(m.date);
-                                    const now = new Date();
-                                    return d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-                                }).length}
-                            </span>
+                            <span className="filter-count">{matchFilterCounts.today}</span>
+                        </button>
+                        <button
+                            type="button"
+                            className={`filter-btn ${matchFilter === 'upcoming' ? 'active' : ''}`}
+                            onClick={() => setMatchFilter('upcoming')}
+                        >
+                            עתיד
+                            <span className="filter-count">{matchFilterCounts.upcoming}</span>
                         </button>
                     </div>
 

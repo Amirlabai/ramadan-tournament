@@ -281,6 +281,10 @@
     border-radius: 6px;
 }
 
+.match-row-more-btn-label {
+    display: none;
+}
+
 .match-row-more-btn:hover,
 .match-row-more-btn:focus-visible,
 .match-row-more-btn[aria-expanded="true"] {
@@ -341,6 +345,13 @@
     border: 1px solid var(--border, #dee2e6);
     border-radius: 8px;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.match-row-more-menu--up {
+    top: auto;
+    bottom: calc(100% + 0.25rem);
 }
 
 .match-row-more-item {
@@ -688,6 +699,8 @@
         width: 100%;
         min-height: 44px;
         margin: 0 !important;
+        justify-content: center;
+        text-align: center;
     }
 
     /* Keep ⋮ menu inside the card — absolute + overflow-x wrapper clips off-screen */
@@ -699,6 +712,21 @@
 
     .match-row-more {
         width: 100%;
+    }
+
+    .match-row-more-btn {
+        gap: 0.35rem;
+        padding-inline: 0.75rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+
+    .match-row-more-btn-icon {
+        display: none;
+    }
+
+    .match-row-more-btn-label {
+        display: inline;
     }
 
     .match-row-more-menu {
