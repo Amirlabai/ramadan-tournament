@@ -261,6 +261,10 @@
     flex-wrap: wrap;
 }
 
+.match-action-add-goal {
+    min-height: 44px;
+}
+
 .match-row-more {
     position: relative;
 }
