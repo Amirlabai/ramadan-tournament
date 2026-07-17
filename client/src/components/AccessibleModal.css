@@ -1,13 +1,14 @@
 .accessible-modal {
   position: fixed;
   inset: 0;
-  z-index: 1050;
+  /* Above mobile bottom nav (2300), profile chooser (2400), drawer (2500). */
+  z-index: 2600;
 }
 
 .accessible-modal__backdrop {
   position: absolute;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: var(--modal-backdrop);
 }
 
 .accessible-modal__dialog {

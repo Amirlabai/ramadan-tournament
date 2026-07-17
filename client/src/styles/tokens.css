@@ -63,6 +63,14 @@
   --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 
+  /* Radius scale (DESIGN.md) */
+  --rounded-sm: 4px;
+  --rounded-md: 8px;
+  --rounded-lg: 12px;
+
+  /* Modal chrome */
+  --modal-backdrop: rgba(0, 0, 0, 0.5);
+
   /* Banner SVG controls */
   --banner-svg-height: 100%;
   --banner-svg-scale: 1.0;

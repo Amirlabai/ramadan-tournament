@@ -12,7 +12,7 @@ interface AccessibleModalProps {
     className?: string;
     /** Extra class on the dialog panel — use for placement variants. */
     dialogClassName?: string;
-    /** Bootstrap vertical centering. Default true; set false for bottom-anchored sheets. */
+    /** Bootstrap vertical centering. Default true. Set false to skip stretch/centering (e.g. viewport-bound shells). */
     centered?: boolean;
 }
 

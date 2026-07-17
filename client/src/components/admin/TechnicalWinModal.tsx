@@ -33,7 +33,7 @@ const TechnicalWinModal = ({ match, teams, onClose, onSubmit }: TechnicalWinModa
     };
 
     return (
-        <AccessibleModal open onClose={onClose} titleId={titleId} className="add-goal-modal">
+        <AccessibleModal open onClose={onClose} titleId={titleId} className="add-goal-modal" centered={false}>
             <div className="modal-content add-goal-modal-content">
                 <div className="modal-header">
                     <h2 id={titleId} className="modal-title fw-bold h5">ניצחון טכני</h2>

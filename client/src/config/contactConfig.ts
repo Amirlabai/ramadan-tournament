@@ -23,6 +23,10 @@ export const MEDIA_DOCS_SPONSORS: MediaDocsSponsor[] = [
     name: 'יוסף שמסי',
     url: 'https://www.dropbox.com/scl/fo/ik6h4ns21d5ku05xecrg4/AKcHoyI4D7G8IchCNlI5BNQ?rlkey=e7i8sakzd5akwptjuxdnt1wau&st=v32ykez6&dl=0',
   },
+  {
+    name: 'אסא נאש',
+    url: 'https://photos.app.goo.gl/iyK2K7cpWG2dKGTk8',
+  },
 ]
 
 export function mediaDocsNavLabel(name: string): string {

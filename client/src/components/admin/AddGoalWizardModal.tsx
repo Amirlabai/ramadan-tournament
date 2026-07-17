@@ -90,9 +90,16 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
     const modalTitleId = 'add-goal-modal-title';
     const scoreDisplay = `${match.score1 ?? '—'} : ${match.score2 ?? '—'}`;
     const canSubmit = ownGoalSelected || (selectedMemberId != null && players.length > 0);
+    const showPlayerFooter = !success && step === 'player';
 
     return (
-        <AccessibleModal open onClose={handleClose} titleId={modalTitleId} className="add-goal-modal">
+        <AccessibleModal
+            open
+            onClose={handleClose}
+            titleId={modalTitleId}
+            className="add-goal-modal"
+            centered={false}
+        >
             <div className="modal-content add-goal-modal-content">
                 <div className="modal-header">
                     <h2 id={modalTitleId} className="modal-title fw-bold h5">
@@ -139,7 +146,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                     ) : (
                         <>
                             <p className="mb-3 text-muted">מי הבקיע?</p>
-                            <div className="row g-2 add-goal-player-grid mb-3">
+                            <div className="row g-2 add-goal-player-grid">
                                 <div className="col-12">
                                     <button
                                         type="button"
@@ -193,38 +200,46 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                     })
                                 )}
                             </div>
-                            {error && <div className="alert alert-danger py-2" role="alert">{error}</div>}
-                            <div className="add-goal-footer d-flex gap-2">
-                                <button
-                                    type="button"
-                                    className="btn btn-secondary add-goal-btn"
-                                    onClick={() => {
-                                        setStep('team');
-                                        setSelectedTeamId(null);
-                                        setSelectedMemberId(null);
-                                        setOwnGoalSelected(false);
-                                        setError('');
-                                    }}
-                                >
-                                    חזור
-                                </button>
-                                <button
-                                    type="button"
-                                    className="btn btn-theme-green add-goal-btn ms-auto"
-                                    onClick={handleSubmit}
-                                    disabled={!canSubmit || loading}
-                                    aria-busy={loading}
-                                    aria-label="הוסף שער"
-                                >
-                                    {loading && (
-                                        <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
-                                    )}
-                                    הוסף שער
-                                </button>
-                            </div>
                         </>
                     )}
                 </div>
+
+                {showPlayerFooter ? (
+                    <div className="modal-footer add-goal-footer">
+                        {error ? (
+                            <div className="alert alert-danger py-2 mb-2 w-100" role="alert">
+                                {error}
+                            </div>
+                        ) : null}
+                        <div className="d-flex gap-2 w-100">
+                            <button
+                                type="button"
+                                className="btn btn-secondary add-goal-btn"
+                                onClick={() => {
+                                    setStep('team');
+                                    setSelectedTeamId(null);
+                                    setSelectedMemberId(null);
+                                    setOwnGoalSelected(false);
+                                    setError('');
+                                }}
+                            >
+                                חזור
+                            </button>
+                            <button
+                                type="button"
+                                className="btn btn-theme-green add-goal-btn ms-auto"
+                                onClick={handleSubmit}
+                                disabled={!canSubmit || loading}
+                                aria-busy={loading}
+                            >
+                                {loading && (
+                                    <span className="spinner-border spinner-border-sm me-2" aria-hidden="true" />
+                                )}
+                                הוסף שער
+                            </button>
+                        </div>
+                    </div>
+                ) : null}
             </div>
         </AccessibleModal>
     );
