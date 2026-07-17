@@ -61,7 +61,7 @@ const TournamentSidebar = ({
     <>
       <ul className="tournament-sidebar-list" role="list">
         {items.map((item) => (
-          <li key={item.to} className="tournament-sidebar-item">
+          <li key={`${item.to}::${item.label}`} className="tournament-sidebar-item">
             <NavActionLink
               to={item.to}
               label={item.label}
@@ -96,7 +96,7 @@ const TournamentSidebar = ({
         >
           {items.map((item, i) => (
             <span
-              key={item.to}
+              key={`${item.to}::${item.label}`}
               className={`tournament-sidebar-dot ${i === activeIndex ? 'active' : ''}`}
             />
           ))}

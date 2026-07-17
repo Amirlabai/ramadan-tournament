@@ -1,5 +1,9 @@
 import type { User } from '../contexts/AuthContext'
-import { HEALTH_DECLARATION_FORM_URL, MEDIA_DOCS_DROPBOX_URL } from '../config/contactConfig'
+import {
+  HEALTH_DECLARATION_FORM_URL,
+  MEDIA_DOCS_SPONSORS,
+  mediaDocsNavLabel,
+} from '../config/contactConfig'
 import { tournamentPaths, type TournamentSlug } from './tournamentPaths'
 
 export type NavActionIndicator = 'profile' | 'admin'
@@ -24,6 +28,32 @@ interface MainNavContext {
   paths: (typeof tournamentPaths)[TournamentSlug]
   user: User | null
   showAdminNav: boolean
+}
+
+function mediaDocsNavItems(): NavItem[] {
+  return MEDIA_DOCS_SPONSORS.flatMap((sponsor) => {
+    const name = sponsor.name.trim()
+    const url = sponsor.url.trim()
+    // External-only CTA: require an absolute http(s) URL so a bad value never
+    // renders a button that resolves to an in-app route.
+    if (!name || !/^https?:\/\//i.test(url)) {
+      if (import.meta.env.DEV) {
+        console.warn(
+          `[mediaDocsNavItems] Skipped sponsor — needs a name and an http(s) url:`,
+          sponsor
+        )
+      }
+      return []
+    }
+    return [
+      {
+        to: url,
+        label: mediaDocsNavLabel(name),
+        external: true,
+        className: 'media-docs-link',
+      },
+    ]
+  })
 }
 
 export function getMainNavItems(ctx: MainNavContext): NavItem[] {
@@ -56,12 +86,7 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
         external: true,
         className: 'health-form-link',
       },
-      {
-        to: MEDIA_DOCS_DROPBOX_URL,
-        label: 'תיעוד תמונות בחסות יוסף שמסי',
-        external: true,
-        className: 'media-docs-link',
-      },
+      ...mediaDocsNavItems(),
       { to: 'mvps' in paths ? paths.mvps : '/mvps', label: 'MVPs' },
       { to: paths.home ?? '/', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות' },

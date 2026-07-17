@@ -10,6 +10,21 @@ export const DONATE_LABEL = 'תתרמו לאתר'
 /** Google Form — health declaration + parental consent (boys tournament). */
 export const HEALTH_DECLARATION_FORM_URL = 'https://forms.gle/YNVWz5JUF4BrvRyd7'
 
-/** Dropbox folder — match media / documentation (boys tournament). */
-export const MEDIA_DOCS_DROPBOX_URL =
-  'https://www.dropbox.com/scl/fo/ik6h4ns21d5ku05xecrg4/AKcHoyI4D7G8IchCNlI5BNQ?rlkey=e7i8sakzd5akwptjuxdnt1wau&st=v32ykez6&dl=0'
+/** Boys sidebar photo-docs buttons: one entry → one button; empty → none. */
+export type MediaDocsSponsor = {
+  /** Shown as: תיעוד תמונות בחסות {name} */
+  name: string
+  /** External folder / album URL (opens in a new tab). */
+  url: string
+}
+
+export const MEDIA_DOCS_SPONSORS: MediaDocsSponsor[] = [
+  {
+    name: 'יוסף שמסי',
+    url: 'https://www.dropbox.com/scl/fo/ik6h4ns21d5ku05xecrg4/AKcHoyI4D7G8IchCNlI5BNQ?rlkey=e7i8sakzd5akwptjuxdnt1wau&st=v32ykez6&dl=0',
+  },
+]
+
+export function mediaDocsNavLabel(name: string): string {
+  return `תיעוד תמונות בחסות ${name}`
+}
