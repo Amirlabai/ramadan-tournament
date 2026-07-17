@@ -37,10 +37,16 @@ interface MatchTeamsScoreProps {
   team1Winner?: boolean;
   team2Winner?: boolean;
   vsLabel?: string;
+  /**
+   * When true, team1 sits on the right under WinChanceBar fill--a (team1 / chance.a /
+   * --color-primary); team2 sits left under fill--b (chance.b / --color-secondary).
+   */
+  team1OnRight?: boolean;
 }
 
 /**
- * LTR scoreline: logo + name (left) | score VS score (center) | name + logo (right)
+ * Default LTR: team1 left | VS | team2 right.
+ * With team1OnRight: team2 left | VS | team1 right (matches RTL win-chance a/b sides).
  */
 export function MatchTeamsScore({
   team1Name,
@@ -53,9 +59,10 @@ export function MatchTeamsScore({
   team1Winner,
   team2Winner,
   vsLabel = 'VS',
+  team1OnRight = false,
 }: MatchTeamsScoreProps) {
   return (
-    <div className="match-teams-score" dir="ltr">
+    <div className="match-teams-score" dir={team1OnRight ? 'rtl' : 'ltr'}>
       <div
         className={`team-side team-side--home${team1Winner ? ' team-side--winner' : ''}`}
       >

@@ -100,7 +100,6 @@
   align-items: center;
   padding: 0.35rem 0;
   gap: 0.5rem 0.75rem;
-  direction: ltr;
 }
 
 .team-side {
@@ -144,11 +143,11 @@
 }
 
 .team-side--home .team-name {
-  text-align: left;
+  text-align: start;
 }
 
 .team-side--away .team-name {
-  text-align: right;
+  text-align: end;
 }
 
 .team-logo-slot {

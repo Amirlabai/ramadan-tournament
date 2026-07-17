@@ -213,6 +213,7 @@ const Schedule = () => {
                                 score1={match.score1}
                                 score2={match.score2}
                                 showScores={status !== 'upcoming'}
+                                team1OnRight
                                 team1Winner={match.technicalWinnerTeamId === match.team1Id}
                                 team2Winner={match.technicalWinnerTeamId === match.team2Id}
                                 team1Logo={
