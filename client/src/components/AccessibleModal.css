@@ -1,0 +1,16 @@
+.accessible-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1050;
+}
+
+.accessible-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.accessible-modal__dialog {
+  position: relative;
+  z-index: 1;
+}

@@ -7,6 +7,28 @@
 }
 
 @media (max-width: 768px) {
+  /* Above bottom nav (2300); dims a11y toolbar (2050) while open — intentional modal focus.
+     Compound selector (0,2,0) beats .accessible-modal (0,1,0) regardless of bundle order. */
+  .accessible-modal.mobile-profile-chooser-modal {
+    z-index: 2400;
+  }
+
+  .mobile-profile-chooser-modal .mobile-profile-chooser-dialog {
+    position: absolute;
+    inset-inline: 1rem;
+    bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 0.75rem);
+    width: auto;
+    max-width: 20rem;
+    margin-inline: auto;
+  }
+
+  .mobile-profile-chooser-modal .mobile-profile-chooser {
+    width: 100%;
+    max-height: calc(100vh - var(--mobile-bottom-nav-height) - 2rem);
+    max-height: calc(100dvh - var(--mobile-bottom-nav-height) - 2rem);
+    overflow-y: auto;
+  }
+
   .mobile-bottom-nav {
     display: block;
     position: fixed;

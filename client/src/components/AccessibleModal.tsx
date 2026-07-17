@@ -1,16 +1,30 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { useFocusTrap } from '../hooks/useFocusTrap';
+import './AccessibleModal.css';
 
 interface AccessibleModalProps {
     open: boolean;
     onClose: () => void;
     titleId: string;
     children: ReactNode;
+    /** Extra class on the outer shell (backdrop + dialog). */
     className?: string;
+    /** Extra class on the dialog panel — use for placement variants. */
+    dialogClassName?: string;
+    /** Bootstrap vertical centering. Default true; set false for bottom-anchored sheets. */
+    centered?: boolean;
 }
 
-const AccessibleModal = ({ open, onClose, titleId, children, className = '' }: AccessibleModalProps) => {
+const AccessibleModal = ({
+    open,
+    onClose,
+    titleId,
+    children,
+    className = '',
+    dialogClassName = '',
+    centered = true,
+}: AccessibleModalProps) => {
     const trapRef = useFocusTrap(open, onClose);
     const [mounted, setMounted] = useState(false);
 
@@ -34,17 +48,22 @@ const AccessibleModal = ({ open, onClose, titleId, children, className = '' }: A
 
     if (!open || !mounted) return null;
 
-    const backdropClass = `modal show d-block ${className}`.trim();
+    const shellClass = ['modal', 'show', 'd-block', 'accessible-modal', className]
+        .filter(Boolean)
+        .join(' ');
+    const dialogClass = [
+        'modal-dialog',
+        'accessible-modal__dialog',
+        centered ? 'modal-dialog-centered' : '',
+        dialogClassName,
+    ]
+        .filter(Boolean)
+        .join(' ');
 
     return createPortal(
-        <div className={backdropClass} style={{ position: 'fixed', inset: 0, zIndex: 1050 }}>
+        <div className={shellClass}>
             <div
-                className="modal-backdrop-layer"
-                style={{
-                    position: 'absolute',
-                    inset: 0,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                }}
+                className="modal-backdrop-layer accessible-modal__backdrop"
                 aria-hidden="true"
                 onMouseDown={(e) => {
                     if (e.target === e.currentTarget) onClose();
@@ -52,11 +71,10 @@ const AccessibleModal = ({ open, onClose, titleId, children, className = '' }: A
             />
             <div
                 ref={trapRef}
-                className="modal-dialog modal-dialog-centered"
+                className={dialogClass}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby={titleId}
-                style={{ position: 'relative', zIndex: 1 }}
                 onMouseDown={(e) => e.stopPropagation()}
             >
                 {children}

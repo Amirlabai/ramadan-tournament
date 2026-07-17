@@ -152,6 +152,8 @@ const MobileBottomNav = () => {
         onClose={() => setChooserOpen(false)}
         titleId={chooserTitleId}
         className="mobile-profile-chooser-modal"
+        dialogClassName="mobile-profile-chooser-dialog"
+        centered={false}
       >
         <div className="modal-content mobile-profile-chooser">
           <div className="modal-header">

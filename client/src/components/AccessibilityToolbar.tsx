@@ -15,16 +15,14 @@ const AccessibilityToolbar = () => {
         className={`a11y-toolbar-btn ${highContrastActive ? 'is-active' : ''}`}
         onClick={toggleHighContrast}
         aria-pressed={highContrastActive}
+        aria-label={highContrastActive ? 'כבה ניגודיות גבוהה' : 'הפעל ניגודיות גבוהה'}
         title={
           highContrastActive
             ? 'כבה ניגודיות גבוהה — לחץ שוב לצבעי ברירת מחדל'
             : 'הפעל ניגודיות גבוהה'
         }
       >
-        <span className="a11y-toolbar-icon" aria-hidden="true">
-          ◐
-        </span>
-        <span className="a11y-toolbar-label">ניגודיות גבוהה</span>
+        <i className="bi bi-circle-half a11y-toolbar-icon" aria-hidden="true" />
       </button>
     </div>
   )
