@@ -204,6 +204,39 @@ export function buildActivityLabel(row: Pick<AnalyticsEventRow, 'eventName' | 'p
     return 'team_expand';
   }
 
+  if (row.eventName === 'match_expand') {
+    const matchId = props.matchId;
+    const surface = typeof props.surface === 'string' ? props.surface : null;
+    if (typeof matchId === 'number' || typeof matchId === 'string') {
+      return surface
+        ? `match_expand (${matchId}, ${surface})`
+        : `match_expand (${matchId})`;
+    }
+    return 'match_expand';
+  }
+
+  if (row.eventName === 'share_click') {
+    const kind = typeof props.kind === 'string' ? props.kind : null;
+    return kind ? `share_click (${kind})` : 'share_click';
+  }
+
+  if (row.eventName === 'share_error') {
+    const kind = typeof props.kind === 'string' ? props.kind : null;
+    const stage = typeof props.stage === 'string' ? props.stage : null;
+    if (kind && stage) return `share_error (${kind}, ${stage})`;
+    if (kind) return `share_error (${kind})`;
+    return 'share_error';
+  }
+
+  if (row.eventName === 'share_result') {
+    const kind = typeof props.kind === 'string' ? props.kind : null;
+    const result = typeof props.result === 'string' ? props.result : null;
+    const cached =
+      typeof props.cached === 'boolean' ? (props.cached ? 'cached' : 'fresh') : null;
+    const parts = [kind, result, cached].filter((p): p is string => p != null);
+    return parts.length > 0 ? `share_result (${parts.join(', ')})` : 'share_result';
+  }
+
   return row.eventName;
 }
 

@@ -13,6 +13,7 @@ import {
   stringifyShareSnapshot,
   type ShareSnapshot,
 } from '../../utils/shareSnapshot';
+import { trackEvent } from '../../utils/analytics';
 import { ShareFrame } from './ShareFrame';
 import './share.css';
 
@@ -35,6 +36,11 @@ type ShareButtonProps<T> = {
 };
 
 type SharePhase = 'idle' | 'rendering' | 'ready' | 'error';
+
+function shareKind(snapshot: ShareSnapshot): string {
+  const kind = snapshot.kind;
+  return typeof kind === 'string' && kind.length > 0 ? kind : 'unknown';
+}
 
 export function ShareButton<T = never>({
   filename,
@@ -95,7 +101,9 @@ export function ShareButton<T = never>({
     file: File,
     fullKey: string,
     generation: number,
-    clickSnapshotJson: string
+    clickSnapshotJson: string,
+    kind: string,
+    cached: boolean
   ) => {
     if (!isUsableShareFile(file)) {
       dropCachedShareImage(fullKey);
@@ -104,6 +112,13 @@ export function ShareButton<T = never>({
     }
     const result = await sharePreparedImage(file, { filename, title, text });
     if (!isCurrent(generation, clickSnapshotJson)) return;
+    // Skip `ready` (NotAllowedError → second tap) so one intent is not two completes.
+    if (result !== 'ready') {
+      trackEvent('share_result', {
+        category: 'interaction',
+        properties: { kind, result, cached },
+      });
+    }
     if (result === 'ready' || result === 'cancelled') {
       keepFile(file, fullKey, 'ready');
       return;
@@ -115,7 +130,9 @@ export function ShareButton<T = never>({
     nextPrepared: T | null,
     fullKey: string,
     generation: number,
-    clickSnapshotJson: string
+    clickSnapshotJson: string,
+    kind: string,
+    setStage: (stage: 'render' | 'share') => void
   ) => {
     flushSync(() => {
       setPrepared(nextPrepared);
@@ -126,13 +143,15 @@ export function ShareButton<T = never>({
     const frame = frameRef.current;
     if (!frame) throw new Error('Share frame did not mount');
 
+    setStage('render');
     const file = await renderShareImage(frame, filename);
     if (!isCurrent(generation, clickSnapshotJson)) return;
     if (!isUsableShareFile(file)) {
       throw new Error('Share image render produced an empty file');
     }
 
-    await shareFile(file, fullKey, generation, clickSnapshotJson);
+    setStage('share');
+    await shareFile(file, fullKey, generation, clickSnapshotJson, kind, false);
   };
 
   const handleClick = async () => {
@@ -141,10 +160,17 @@ export function ShareButton<T = never>({
     const generation = generationRef.current;
     const clickSnapshotJson = snapshotJsonRef.current;
     const clickSnapshot = snapshot;
+    const kind = shareKind(clickSnapshot);
+
+    trackEvent('share_click', {
+      category: 'interaction',
+      properties: { kind },
+    });
 
     inFlightRef.current = true;
     setPhase('rendering');
     let fullKey: string | null = null;
+    let stage: 'cache' | 'render' | 'share' = 'render';
 
     try {
       const nextPrepared = prepare ? await prepare() : null;
@@ -155,7 +181,8 @@ export function ShareButton<T = never>({
 
       if (cached) {
         try {
-          await shareFile(cached, fullKey, generation, clickSnapshotJson);
+          stage = 'cache';
+          await shareFile(cached, fullKey, generation, clickSnapshotJson, kind, true);
           return;
         } catch (cacheShareError) {
           console.warn('Cached share failed; regenerating:', cacheShareError);
@@ -165,10 +192,23 @@ export function ShareButton<T = never>({
         }
       }
 
-      await renderAndShare(nextPrepared, fullKey, generation, clickSnapshotJson);
+      await renderAndShare(
+        nextPrepared,
+        fullKey,
+        generation,
+        clickSnapshotJson,
+        kind,
+        (next) => {
+          stage = next;
+        }
+      );
     } catch (error) {
       console.error('Share image failed:', error);
       if (!isCurrent(generation, clickSnapshotJson)) return;
+      trackEvent('share_error', {
+        category: 'interaction',
+        properties: { kind, stage },
+      });
       if (fullKey) dropCachedShareImage(fullKey);
       setFrameMounted(false);
       setPhase('error');

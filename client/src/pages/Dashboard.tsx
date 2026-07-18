@@ -274,7 +274,18 @@ const Dashboard = () => {
                         status={status}
                         commentCount={match.commentCount}
                         controlsId={expandPanelId}
-                        onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
+                        onClick={() => {
+                            if (!isExpanded) {
+                                trackEvent('match_expand', {
+                                    category: 'browse',
+                                    properties: {
+                                        matchId: match.id,
+                                        surface: 'dashboard',
+                                    },
+                                });
+                            }
+                            setExpandedMatchId(isExpanded ? null : match.id);
+                        }}
                     />
                 </div>
 

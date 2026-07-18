@@ -47,6 +47,37 @@ describe('buildActivityLabel', () => {
       buildActivityLabel({ eventName: 'login_success', path: '/login', properties: null })
     ).toBe('login_success');
   });
+
+  it('normalizes match_expand and share events', () => {
+    expect(
+      buildActivityLabel({
+        eventName: 'match_expand',
+        path: '/schedule',
+        properties: { matchId: 12, surface: 'schedule' },
+      })
+    ).toBe('match_expand (12, schedule)');
+    expect(
+      buildActivityLabel({
+        eventName: 'share_result',
+        path: '/',
+        properties: { kind: 'match', result: 'shared', cached: false },
+      })
+    ).toBe('share_result (match, shared, fresh)');
+    expect(
+      buildActivityLabel({
+        eventName: 'share_click',
+        path: '/',
+        properties: { kind: 'top-scorers' },
+      })
+    ).toBe('share_click (top-scorers)');
+    expect(
+      buildActivityLabel({
+        eventName: 'share_error',
+        path: '/',
+        properties: { kind: 'match', stage: 'render' },
+      })
+    ).toBe('share_error (match, render)');
+  });
 });
 
 describe('isAdminAnalyticsEvent', () => {

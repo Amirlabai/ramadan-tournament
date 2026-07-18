@@ -37,10 +37,22 @@ describe('sanitizeAnalyticsProperties', () => {
     ).toEqual({ division: 'boys' });
   });
 
-  it('accepts only admin or public for surface', () => {
+  it('accepts known surface values', () => {
     expect(sanitizeAnalyticsProperties({ surface: 'admin' })).toEqual({ surface: 'admin' });
     expect(sanitizeAnalyticsProperties({ surface: 'public' })).toEqual({ surface: 'public' });
+    expect(sanitizeAnalyticsProperties({ surface: 'schedule' })).toEqual({ surface: 'schedule' });
+    expect(sanitizeAnalyticsProperties({ surface: 'dashboard' })).toEqual({ surface: 'dashboard' });
     expect(sanitizeAnalyticsProperties({ surface: 'other' })).toBeUndefined();
+  });
+
+  it('keeps share property keys', () => {
+    expect(
+      sanitizeAnalyticsProperties({
+        kind: 'match',
+        result: 'shared',
+        cached: true,
+      })
+    ).toEqual({ kind: 'match', result: 'shared', cached: true });
   });
 
   it('does not block allowlisted keys that contain denied substrings', () => {
@@ -75,6 +87,13 @@ describe('isAllowedAnalyticsEvent', () => {
   it('accepts known client events', () => {
     expect(isAllowedAnalyticsEvent('page_view', 'client')).toBe(true);
     expect(CLIENT_EVENT_ALLOWLIST.has('nav_click')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('share_click')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('share_result')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('share_error')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_show')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_cta')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_dismiss')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('match_expand')).toBe(true);
   });
 
   it('rejects unknown client events', () => {

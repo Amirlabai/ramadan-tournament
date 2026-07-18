@@ -14,6 +14,7 @@ import { MatchShareCard } from '../components/share/MatchShareCard';
 import { ShareButton } from '../components/share/ShareButton';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { matchShareSnapshot } from '../utils/shareSnapshot';
+import { trackEvent } from '../utils/analytics';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
@@ -258,9 +259,20 @@ const Schedule = () => {
                                     status={status}
                                     commentCount={match.commentCount}
                                     controlsId={expandPanelId}
-                                    onClick={() =>
-                                        setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
-                                    }
+                                    onClick={() => {
+                                        if (expandedMatchId !== match.id) {
+                                            trackEvent('match_expand', {
+                                                category: 'browse',
+                                                properties: {
+                                                    matchId: match.id,
+                                                    surface: 'schedule',
+                                                },
+                                            });
+                                        }
+                                        setExpandedMatchId(
+                                            expandedMatchId === match.id ? null : match.id
+                                        );
+                                    }}
                                 />
                                 <ShareButton
                                     filename={`match-${match.id}.png`}

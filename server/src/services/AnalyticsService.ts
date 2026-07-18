@@ -40,12 +40,24 @@ const ALLOWED_PROPERTY_KEYS = new Set([
   'surface',
   'platform',
   'standalone',
+  'kind',
+  'result',
+  'cached',
+  'stage',
+]);
+
+const ALLOWED_SURFACE_VALUES = new Set([
+  'admin',
+  'public',
+  'schedule',
+  'dashboard',
 ]);
 
 export const CLIENT_EVENT_ALLOWLIST = new Set([
   'page_view',
   'nav_click',
   'team_expand',
+  'match_expand',
   'claim_banner_click',
   'claim_banner_dismiss',
   'login_submit',
@@ -64,6 +76,12 @@ export const CLIENT_EVENT_ALLOWLIST = new Set([
   'photo_upload_start',
   'vote_submit',
   'comment_submit',
+  'share_click',
+  'share_result',
+  'share_error',
+  'donation_popup_show',
+  'donation_popup_cta',
+  'donation_popup_dismiss',
 ]);
 
 export const SERVER_EVENT_ALLOWLIST = new Set([
@@ -142,7 +160,7 @@ export function sanitizeAnalyticsProperties(
     if (!ALLOWED_PROPERTY_KEYS.has(key)) continue;
     if (value === null || value === undefined) continue;
     if (key === 'surface') {
-      if (value === 'admin' || value === 'public') {
+      if (typeof value === 'string' && ALLOWED_SURFACE_VALUES.has(value)) {
         safe[key] = value;
       }
       continue;

@@ -4,6 +4,7 @@ import { isDonationPopupWindow, jerusalemDateKey } from '@ramadan-tournament/sha
 import { DONATE_PAGE_URL } from '../config/contactConfig'
 import { useCookieConsent } from '../hooks/useCookieConsent'
 import { useFocusTrap } from '../hooks/useFocusTrap'
+import { trackEvent } from '../utils/analytics'
 import './DonationPopup.css'
 
 const DATE_STORAGE_KEY = 'donationPopupShownDate'
@@ -42,7 +43,13 @@ const DonationPopup = () => {
   const { showBanner, ready } = useCookieConsent()
   const [open, setOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
-  const dialogRef = useFocusTrap(open, () => setOpen(false))
+
+  const dismiss = () => {
+    trackEvent('donation_popup_dismiss', { category: 'interaction' })
+    setOpen(false)
+  }
+
+  const dialogRef = useFocusTrap(open, dismiss)
 
   useEffect(() => {
     setMounted(true)
@@ -54,6 +61,7 @@ const DonationPopup = () => {
 
     const todayKey = jerusalemDateKey(new Date())
     markShown(todayKey)
+    trackEvent('donation_popup_show', { category: 'interaction' })
     setOpen(true)
   }, [ready, showBanner])
 
@@ -78,7 +86,7 @@ const DonationPopup = () => {
       className="donation-popup-backdrop"
       role="presentation"
       onMouseDown={(e) => {
-        if (e.target === e.currentTarget) setOpen(false)
+        if (e.target === e.currentTarget) dismiss()
       }}
     >
       <div
@@ -103,7 +111,10 @@ const DonationPopup = () => {
             href={DONATE_PAGE_URL}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              trackEvent('donation_popup_cta', { category: 'interaction' })
+              setOpen(false)
+            }}
           >
             לתרומה
           </a>
@@ -111,7 +122,7 @@ const DonationPopup = () => {
         <button
           type="button"
           className="donation-popup-close"
-          onClick={() => setOpen(false)}
+          onClick={dismiss}
           aria-label="סגור"
         >
           ×
