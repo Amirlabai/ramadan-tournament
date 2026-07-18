@@ -1122,6 +1122,159 @@ export class RegistrationWorkflowService {
     await invalidateDivisionCaches(division);
   }
 
+  /**
+   * Platform-admin only: list active roster players as captain candidates.
+   * Exposes linked-account status without returning user IDs or PII.
+   */
+  static async listCaptainCandidates(teamId: number, division: Division) {
+    const season = await SeasonService.getActiveSeasonForDivision(division);
+    const team = await prisma.team.findFirst({
+      where: { seasonId: season.id, id: teamId },
+      select: { id: true, name: true },
+    });
+    if (!team) {
+      throw new Error('הקבוצה לא נמצאה');
+    }
+
+    const players = await prisma.player.findMany({
+      where: { seasonId: season.id, teamId, active: true },
+      select: {
+        memberId: true,
+        firstName: true,
+        lastName: true,
+        nickname: true,
+        number: true,
+        isCaptain: true,
+        userId: true,
+      },
+      orderBy: { number: 'asc' },
+    });
+
+    const currentCaptain = players.find((p) => p.isCaptain) ?? null;
+
+    return {
+      teamId: team.id,
+      teamName: team.name,
+      currentCaptainMemberId: currentCaptain?.memberId ?? null,
+      candidates: players.map((p) => ({
+        memberId: p.memberId,
+        firstName: p.firstName,
+        lastName: p.lastName,
+        nickname: p.nickname,
+        number: p.number,
+        isCaptain: p.isCaptain,
+        hasLinkedUser: !!p.userId,
+      })),
+    };
+  }
+
+  /**
+   * Platform-admin only: atomically replace the team captain.
+   * Online captain powers still require a linked user account (`player.userId`).
+   */
+  static async adminSetCaptain(teamId: number, division: Division, memberId: number) {
+    const season = await SeasonService.getActiveSeasonForDivision(division);
+    const team = await prisma.team.findFirst({
+      where: { seasonId: season.id, id: teamId },
+      select: { id: true },
+    });
+    if (!team) {
+      throw new Error('הקבוצה לא נמצאה');
+    }
+
+    const target = await prisma.player.findFirst({
+      where: { seasonId: season.id, teamId, memberId, active: true },
+      select: {
+        memberId: true,
+        firstName: true,
+        lastName: true,
+        nickname: true,
+        isCaptain: true,
+        userId: true,
+      },
+    });
+    if (!target) {
+      throw new Error('השחקן לא נמצא בסגל הפעיל של הקבוצה');
+    }
+
+    const previousCaptain = await prisma.player.findFirst({
+      where: {
+        seasonId: season.id,
+        teamId,
+        active: true,
+        OR: [{ isCaptain: true }, { squadRole: SquadRole.captain }],
+        NOT: { memberId },
+      },
+      select: {
+        memberId: true,
+        firstName: true,
+        lastName: true,
+        nickname: true,
+      },
+    });
+
+    if (target.isCaptain && !previousCaptain) {
+      return {
+        teamId,
+        memberId: target.memberId,
+        hasLinkedUser: !!target.userId,
+        previousCaptainMemberId: null,
+        alreadyCaptain: true as const,
+        message: 'השחקן כבר מוגדר כקפטן',
+      };
+    }
+
+    if (season.scoringMode === ScoringMode.football) {
+      const roster = await prisma.player.findMany({
+        where: { seasonId: season.id, teamId, active: true },
+        select: { memberId: true, squadRole: true },
+      });
+      const roleMap = new Map(roster.map((p) => [p.memberId, p.squadRole]));
+      for (const [mid, role] of roleMap) {
+        if (mid !== memberId && role === SquadRole.captain) {
+          roleMap.set(mid, null);
+        }
+      }
+      roleMap.set(memberId, SquadRole.captain);
+      assertFootballLineup(
+        [...roleMap.entries()].map(([mid, squadRole]) => ({
+          memberId: mid,
+          squadRole,
+        }))
+      );
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.player.updateMany({
+        where: {
+          seasonId: season.id,
+          teamId,
+          OR: [{ isCaptain: true }, { squadRole: SquadRole.captain }],
+          NOT: { memberId },
+        },
+        data: { squadRole: null, isCaptain: false },
+      });
+
+      await tx.player.updateMany({
+        where: { seasonId: season.id, teamId, memberId, active: true },
+        data: { squadRole: SquadRole.captain, isCaptain: true },
+      });
+
+      await syncTeamJoinReviewQueue(tx, season.id, teamId);
+    });
+
+    await invalidateDivisionCaches(division);
+
+    return {
+      teamId,
+      memberId: target.memberId,
+      hasLinkedUser: !!target.userId,
+      previousCaptainMemberId: previousCaptain?.memberId ?? null,
+      alreadyCaptain: false as const,
+      message: 'הקפטן עודכן',
+    };
+  }
+
   static async addOwnerToRoster(ownerId: string, teamId: number, division: Division) {
     const season = await SeasonService.getActiveSeasonForDivision(division);
     const team = await prisma.team.findFirstOrThrow({

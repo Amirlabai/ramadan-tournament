@@ -20,6 +20,8 @@ import {
   reviewCreationRequest,
   reviewJoinRequest,
   reviewTransferRequest,
+  listCaptainCandidates,
+  setTeamCaptain,
 } from '../controllers/adminWorkflowController';
 import { searchAdminUsers, setAdminUserRole } from '../controllers/adminUserController';
 import { requirePlatformAdmin } from '../middleware/auth';
@@ -85,5 +87,9 @@ router.patch('/requests/transfer/:id', requirePlatformAdmin, reviewTransferReque
 // User role management
 router.get('/users', requirePlatformAdmin, adminSearchLimiter, searchAdminUsers);
 router.patch('/users/:id/role', requirePlatformAdmin, setAdminUserRole);
+
+// Squad captain selection (platform admin)
+router.get('/teams/:teamId/captain-candidates', requirePlatformAdmin, listCaptainCandidates);
+router.patch('/teams/:teamId/captain', requirePlatformAdmin, setTeamCaptain);
 
 export default router;

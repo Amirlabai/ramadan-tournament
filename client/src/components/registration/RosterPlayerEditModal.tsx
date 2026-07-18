@@ -1,6 +1,7 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AccessibleModal from '../AccessibleModal';
 import { teamsAPI, type TournamentSlug } from '../../api/client';
+import { resolveAssetUrl } from '../../utils/assetUrl';
 import { displayNickname, fullName } from '../../utils/playerDisplayName';
 import type { Player } from '../../types';
 
@@ -33,9 +34,27 @@ export default function RosterPlayerEditModal({
   });
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
-  const [photoBusy, setPhotoBusy] = useState(false);
+  /** File chosen in the form; uploaded only on Save. */
+  const [pendingPhoto, setPendingPhoto] = useState<File | null>(null);
+  /** Delete existing photo on Save (ignored if a new file is pending). */
+  const [pendingRemovePhoto, setPendingRemovePhoto] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const titleId = `roster-edit-${player.memberId}`;
+
+  useEffect(() => {
+    if (!pendingPhoto) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(pendingPhoto);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [pendingPhoto]);
+
+  const currentPhotoSrc =
+    previewUrl ??
+    (pendingRemovePhoto ? null : (resolveAssetUrl(player.head_photo) ?? null));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,6 +84,15 @@ export default function RosterPlayerEditModal({
         },
         slug
       );
+      // Text fields already saved above. If photo upload/delete fails, retry will
+      // re-PATCH the same text (harmless) and replay only the pending photo step.
+      if (pendingPhoto) {
+        const fd = new FormData();
+        fd.append('photo', pendingPhoto);
+        await teamsAPI.uploadManagedPlayerPhoto(teamId, player.memberId, fd, slug);
+      } else if (pendingRemovePhoto && player.head_photo) {
+        await teamsAPI.deleteManagedPlayerPhoto(teamId, player.memberId, slug);
+      }
       onSaved();
       onClose();
     } catch (err: unknown) {
@@ -75,36 +103,18 @@ export default function RosterPlayerEditModal({
     }
   };
 
-  const handlePhoto = async (file: File | null) => {
+  const handlePhotoSelect = (file: File | null) => {
     if (!file) return;
-    setPhotoBusy(true);
+    setPendingPhoto(file);
+    setPendingRemovePhoto(false);
     setError('');
-    try {
-      const fd = new FormData();
-      fd.append('photo', file);
-      await teamsAPI.uploadManagedPlayerPhoto(teamId, player.memberId, fd, slug);
-      onSaved();
-    } catch (err: unknown) {
-      const ax = err as { response?: { data?: { error?: string } } };
-      setError(ax.response?.data?.error || 'שגיאה בהעלאת תמונה');
-    } finally {
-      setPhotoBusy(false);
-      if (fileRef.current) fileRef.current.value = '';
-    }
   };
 
-  const handleDeletePhoto = async () => {
-    setPhotoBusy(true);
+  const handleMarkRemovePhoto = () => {
+    setPendingPhoto(null);
+    setPendingRemovePhoto(true);
     setError('');
-    try {
-      await teamsAPI.deleteManagedPlayerPhoto(teamId, player.memberId, slug);
-      onSaved();
-    } catch (err: unknown) {
-      const ax = err as { response?: { data?: { error?: string } } };
-      setError(ax.response?.data?.error || 'שגיאה במחיקת תמונה');
-    } finally {
-      setPhotoBusy(false);
-    }
+    if (fileRef.current) fileRef.current.value = '';
   };
 
   return (
@@ -119,6 +129,7 @@ export default function RosterPlayerEditModal({
         <form onSubmit={(e) => void handleSave(e)} className="modal-body">
           <p className="small text-muted">
             עריכת בעלים/קפטן — דורסת את פרטי השחקן בסגל (השחקן יכול לערוך שוב בפרופיל).
+            שינויי תמונה נשמרים רק בלחיצה על שמור.
           </p>
           <div className="row g-3">
             <div className="col-6">
@@ -209,23 +220,42 @@ export default function RosterPlayerEditModal({
               <label className="form-label" htmlFor={`${titleId}-photo`}>
                 תמונת ראש
               </label>
+              {currentPhotoSrc ? (
+                <div className="mb-2">
+                  <img
+                    src={currentPhotoSrc}
+                    alt=""
+                    width={72}
+                    height={72}
+                    className="rounded object-fit-cover"
+                    style={{ objectFit: 'cover' }}
+                  />
+                  {pendingPhoto ? (
+                    <span className="small text-muted ms-2">תמונה חדשה (תישמר בשמירה)</span>
+                  ) : null}
+                </div>
+              ) : pendingRemovePhoto ? (
+                <p className="small text-muted mb-2">התמונה תימחק בשמירה</p>
+              ) : null}
               <input
                 id={`${titleId}-photo`}
                 ref={fileRef}
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif"
                 className="form-control"
-                disabled={photoBusy}
-                onChange={(e) => void handlePhoto(e.target.files?.[0] ?? null)}
+                disabled={saving}
+                onChange={(e) => handlePhotoSelect(e.target.files?.[0] ?? null)}
               />
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-danger mt-2"
-                disabled={photoBusy}
-                onClick={() => void handleDeletePhoto()}
-              >
-                מחק תמונה
-              </button>
+              {(player.head_photo || pendingPhoto) && !pendingRemovePhoto ? (
+                <button
+                  type="button"
+                  className="btn btn-sm btn-outline-danger mt-2"
+                  disabled={saving}
+                  onClick={handleMarkRemovePhoto}
+                >
+                  מחק תמונה
+                </button>
+              ) : null}
             </div>
           </div>
           {error && (
@@ -237,7 +267,7 @@ export default function RosterPlayerEditModal({
             <button type="button" className="btn btn-secondary" onClick={onClose} disabled={saving}>
               ביטול
             </button>
-            <button type="submit" className="btn btn-theme-green ms-auto" disabled={saving || photoBusy}>
+            <button type="submit" className="btn btn-theme-green ms-auto" disabled={saving}>
               {saving ? 'שומר…' : 'שמור'}
             </button>
           </div>

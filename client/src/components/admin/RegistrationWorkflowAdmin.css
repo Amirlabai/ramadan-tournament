@@ -1,3 +1,35 @@
+.registration-workflow-admin .workflow-section-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    width: 100%;
+    min-height: 44px;
+    margin: 0;
+    padding: 0.25rem 0.15rem;
+    border: none;
+    background: transparent;
+    color: inherit;
+    text-align: start;
+    cursor: pointer;
+    border-radius: 6px;
+}
+
+.registration-workflow-admin .workflow-section-toggle:hover {
+    background: var(--color-primary-a05, rgba(42, 107, 17, 0.05));
+}
+
+.registration-workflow-admin .workflow-section-toggle:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-primary, 0 0 0 3px var(--color-focus, #0066cc));
+}
+
+.registration-workflow-admin .workflow-section-toggle .bi {
+    flex-shrink: 0;
+    font-size: 1rem;
+    color: var(--primary-green, var(--color-primary));
+}
+
 .registration-workflow-admin .workflow-user-card-list {
     display: flex;
     flex-direction: column;

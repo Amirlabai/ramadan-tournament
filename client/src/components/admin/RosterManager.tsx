@@ -10,6 +10,7 @@ import { PlayerHeadImg } from '../../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../../utils/assetUrl';
 import type { Team } from '../../types';
 import RegistrationWorkflowAdmin from './RegistrationWorkflowAdmin';
+import AdminCaptainPicker from './AdminCaptainPicker';
 import './RosterManager.css';
 
 interface TeamRequest {
@@ -497,6 +498,16 @@ const RosterManager = () => {
                                                 </div>
                                             </div>
                                         )}
+
+                                        {platformAdmin ? (
+                                            <AdminCaptainPicker
+                                                key={`captain-${rowKey}`}
+                                                teamId={team.id}
+                                                teamName={team.name}
+                                                slug={slug}
+                                                onSaved={() => void fetchData()}
+                                            />
+                                        ) : null}
 
                                         <div className="players-grid">
                                             {team.players.map(player => {

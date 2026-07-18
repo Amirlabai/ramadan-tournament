@@ -262,6 +262,10 @@ export const adminAPI = {
     searchUsers: (q: string) => api.get('/admin/users', { params: { q } }),
     setUserRole: (userId: string, role: 'admin' | 'user') =>
         api.patch(`/admin/users/${userId}/role`, { role }),
+    getCaptainCandidates: (teamId: number, slug: TournamentSlug = 'boys') =>
+        api.get(`/admin/teams/${teamId}/captain-candidates`, { params: { division: slug } }),
+    setTeamCaptain: (teamId: number, memberId: number, slug: TournamentSlug = 'boys') =>
+        api.patch(`/admin/teams/${teamId}/captain`, { memberId, division: slug }),
 };
 
 export const commentsAPI = {

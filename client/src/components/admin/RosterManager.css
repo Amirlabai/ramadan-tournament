@@ -223,6 +223,69 @@
     transform: scale(1.1);
 }
 
+/* ── Admin captain picker ─────────────────────────────── */
+.admin-captain-picker {
+    background: var(--color-primary-a07);
+    border: 1px solid var(--color-primary-a25);
+    border-radius: 8px;
+    padding: 0.85rem 1rem;
+}
+
+.admin-captain-picker__title {
+    color: var(--primary-green);
+    margin: 0;
+}
+
+.admin-captain-picker__select {
+    min-height: 44px;
+    flex: 1 1 220px;
+    max-width: 100%;
+}
+
+.admin-captain-picker__submit {
+    min-height: 44px;
+    min-width: 44px;
+    white-space: nowrap;
+    flex: 0 0 auto;
+}
+
+.admin-captain-picker__select:focus,
+.admin-captain-picker__submit:focus-visible {
+    outline: none;
+    box-shadow: var(--focus-ring-primary, 0 0 0 3px var(--color-focus, #0066cc));
+    border-color: var(--primary-green);
+}
+
+.admin-captain-picker__badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #92400e;
+    background: #fef3c7;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 0.15rem 0.45rem;
+}
+
+.admin-captain-picker__warning {
+    color: #92400e;
+    background: #fffbeb;
+    border: 1px solid #fcd34d;
+    border-radius: 6px;
+    padding: 0.55rem 0.75rem;
+}
+
+@media (max-width: 576px) {
+    .admin-captain-picker__controls .d-flex {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .admin-captain-picker__submit {
+        width: 100%;
+    }
+}
+
 @media (max-width: 768px) {
     .players-grid {
         grid-template-columns: 1fr;

@@ -156,6 +156,8 @@ Mount prefixes: boys routes use default division; girls mirrors use `/api/*-girl
 | PATCH | `/requests/transfer/:id` | admin | Review transfer request |
 | GET | `/users?q=` | admin | Search users (min 2 chars) |
 | PATCH | `/users/:id/role` | admin | Set platform role |
+| GET | `/teams/:teamId/captain-candidates?division=` | admin | List active roster captain candidates (`hasLinkedUser`, no user IDs) |
+| PATCH | `/teams/:teamId/captain` | admin | Set/replace squad captain (`memberId`, `division`); syncs join queue |
 
 ---
 

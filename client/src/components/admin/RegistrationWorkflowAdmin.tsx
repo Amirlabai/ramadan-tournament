@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { getRegistrationStatusLabel } from '@ramadan-tournament/shared';
 import { adminAPI } from '../../api/client';
 import { mergedIdentityQueue } from '../../utils/adminWorkflowPendingCount';
@@ -103,6 +103,9 @@ export default function RegistrationWorkflowAdmin() {
     const [searchQ, setSearchQ] = useState('');
     const [searchResults, setSearchResults] = useState<SearchUserRow[]>([]);
     const [searching, setSearching] = useState(false);
+    const [identitySectionOpen, setIdentitySectionOpen] = useState(true);
+    const identityPanelId = useId();
+    const identityHeadingId = useId();
 
     useEffect(() => {
         const loadSeasons = async () => {
@@ -156,6 +159,11 @@ export default function RegistrationWorkflowAdmin() {
     useEffect(() => {
         void load();
     }, [load]);
+
+    // Re-open identity queue when switching seasons so pending work is not hidden by accident.
+    useEffect(() => {
+        setIdentitySectionOpen(true);
+    }, [seasonId]);
 
     useEffect(() => {
         if (!seasonId || searchQ.trim().length < 2) {
@@ -424,23 +432,56 @@ export default function RegistrationWorkflowAdmin() {
                         </p>
                     )}
 
-                    <section className="mb-4 p-3 border rounded">
-                        <h5 className="h6 mb-2">רישום זהות ({data.awaitingIdentity.length})</h5>
-                        <p className="text-muted small mb-3">
-                            הזן תעודת זהות ושנת לידה מהרישום בפועל ולחץ הקצה.
-                            המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהפרטים תואמים.
-                            משתמשים שהותאמו כבר לא מופיעים כאן.
-                        </p>
-                        <div className="workflow-user-card-list" role="list" aria-label="משתמשים הממתינים לרישום זהות">
-                            {data.awaitingIdentity.map((r) => (
-                                <div key={r.user.id} role="listitem">
-                                    {renderIdentityUserCard(r)}
-                                </div>
-                            ))}
+                    <section className="mb-4 p-3 border rounded" aria-labelledby={identityHeadingId}>
+                        <h5 id={identityHeadingId} className="h6 mb-0">
+                            <button
+                                type="button"
+                                className="workflow-section-toggle"
+                                aria-expanded={identitySectionOpen}
+                                aria-controls={identityPanelId}
+                                aria-label={
+                                    identitySectionOpen
+                                        ? `כווץ רישום זהות (${data.awaitingIdentity.length})`
+                                        : `הרחב רישום זהות (${data.awaitingIdentity.length})`
+                                }
+                                onClick={() => setIdentitySectionOpen((open) => !open)}
+                            >
+                                <span aria-hidden="true">
+                                    רישום זהות ({data.awaitingIdentity.length})
+                                </span>
+                                <i
+                                    className={`bi bi-chevron-${identitySectionOpen ? 'up' : 'down'}`}
+                                    aria-hidden="true"
+                                />
+                            </button>
+                        </h5>
+                        <div
+                            id={identityPanelId}
+                            className="workflow-section-panel mt-2"
+                            hidden={!identitySectionOpen}
+                        >
+                            <p className="text-muted small mb-3">
+                                הזן תעודת זהות ושנת לידה מהרישום בפועל ולחץ הקצה.
+                                המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהפרטים תואמים.
+                                משתמשים שהותאמו כבר לא מופיעים כאן.
+                            </p>
+                            <div
+                                className="workflow-user-card-list"
+                                role="list"
+                                aria-label="משתמשים הממתינים לרישום זהות"
+                            >
+                                {data.awaitingIdentity.map((r) => (
+                                    <div key={r.user.id} role="listitem">
+                                        {renderIdentityUserCard(r)}
+                                    </div>
+                                ))}
+                            </div>
+                            {!data.awaitingIdentity.length && (
+                                <p className="text-muted small mb-0 mt-2">
+                                    אין משתמשים ברשימה — חפש למטה לפי אימייל.
+                                </p>
+                            )}
                         </div>
-                        {!data.awaitingIdentity.length && (
-                            <p className="text-muted small mb-0 mt-2">אין משתמשים ברשימה — חפש למטה לפי אימייל.</p>
-                        )}
                     </section>
 
                     <section className="mb-4 p-3 border rounded">

@@ -43,6 +43,8 @@ export class RegistrationService {
   static submitTransfer = RegistrationWorkflowService.submitTransfer;
   static adminReviewTransfer = RegistrationWorkflowService.adminReviewTransfer;
   static setSquadRoles = RegistrationWorkflowService.setSquadRoles;
+  static listCaptainCandidates = RegistrationWorkflowService.listCaptainCandidates;
+  static adminSetCaptain = RegistrationWorkflowService.adminSetCaptain;
   static addOwnerToRoster = RegistrationWorkflowService.addOwnerToRoster;
   static listPendingJoinsForOwner = RegistrationWorkflowService.listPendingJoinsForOwner;
   static listPendingWorkflows = RegistrationWorkflowService.listPendingWorkflows;
