@@ -93,6 +93,7 @@ export interface TopScorer {
     teamName: string;
     teamId: number;
     goals: number;
+    gamesPlayed?: number;
     position?: string;
     head_photo?: string;
     isCaptain?: boolean;

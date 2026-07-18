@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { matchesAPI, teamsAPI } from '../api/client';
+import { matchesAPI, matchStatsAPI, teamsAPI } from '../api/client';
 import type { Match, Team } from '../types';
 import SEO from '../components/SEO';
 import { ScheduleSkeleton } from '../components/skeleton';
@@ -10,6 +10,8 @@ import { MatchStatusBadge, MatchTeamsScore } from '../components/match/MatchCard
 import { MatchCommentsToggle } from '../components/match/MatchCommentsToggle';
 import { MatchStatsSection } from '../components/match/MatchStatsSection';
 import { UpcomingWinChance } from '../components/match/UpcomingWinChance';
+import { MatchShareCard } from '../components/share/MatchShareCard';
+import { ShareButton } from '../components/share/ShareButton';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
@@ -258,6 +260,33 @@ const Schedule = () => {
                                     onClick={() =>
                                         setExpandedMatchId(expandedMatchId === match.id ? null : match.id)
                                     }
+                                />
+                                <ShareButton
+                                    filename={`match-${match.id}.png`}
+                                    title={`${team1Name} נגד ${team2Name}`}
+                                    text={`סיכום המשחק: ${team1Name} נגד ${team2Name}`}
+                                    prepare={async () => {
+                                        if (status === 'upcoming' || match.technicalWinnerTeamId != null) {
+                                            return null;
+                                        }
+                                        try {
+                                            return (await matchStatsAPI.get(match.id)).data;
+                                        } catch {
+                                            return null;
+                                        }
+                                    }}
+                                    renderContent={(stats) => (
+                                        <MatchShareCard
+                                            match={match}
+                                            status={status}
+                                            team1Name={team1Name}
+                                            team2Name={team2Name}
+                                            team1Logo={team1Logo}
+                                            team2Logo={team2Logo}
+                                            teams={teams}
+                                            stats={stats}
+                                        />
+                                    )}
                                 />
                             </div>
 

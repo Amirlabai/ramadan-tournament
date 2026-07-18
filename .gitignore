@@ -45,3 +45,5 @@ client/.env
 !client/.env.example
 generate_message - Copy.py
 __pycache__/
+.incoming/desktop banner.psd
+.incoming/mobile banner.psd

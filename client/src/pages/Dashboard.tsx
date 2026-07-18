@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { statsAPI } from '../api/client';
+import { matchStatsAPI, statsAPI, type MatchStatsSidePair } from '../api/client';
 import { useAuth } from '../contexts/AuthContext';
 import { useTournament } from '../contexts/TournamentContext';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
@@ -18,7 +18,14 @@ import { MatchCommentsToggle } from '../components/match/MatchCommentsToggle';
 import { MatchStatsSection } from '../components/match/MatchStatsSection';
 import { UpcomingWinChance } from '../components/match/UpcomingWinChance';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
+import {
+    MatchListShareCard,
+    type MatchListWinChances,
+} from '../components/share/MatchListShareCard';
+import { ShareButton } from '../components/share/ShareButton';
+import { TopScorersShareCard } from '../components/share/TopScorersShareCard';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { enqueueMatchStatsFetch } from '../utils/matchStatsFetchQueue';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
@@ -159,21 +166,24 @@ const Dashboard = () => {
         setShowClaimModal(true);
     };
 
-    const renderTeamNameWithLogo = (
-        teamName: string,
-        logoUrl?: string,
-        logoPosition?: Match['team1LogoPosition']
-    ) => {
-        const logo = logoPosition === 'none' ? undefined : resolveAssetUrl(logoUrl);
-
-        if (!logo) return <span className="team-name">{teamName}</span>;
-
-        return (
-            <div className="d-flex align-items-center gap-2">
-                <img className="team-logo-inline" src={logo} alt={`לוגו ${teamName}`} style={{ height: '24px', width: '24px', objectFit: 'contain' }} />
-                <span className="team-name">{teamName}</span>
-            </div>
+    const prepareUpcomingWinChances = async (): Promise<MatchListWinChances> => {
+        const entries = await Promise.all(
+            upcomingMatches.map(async (match) => {
+                if (match.technicalWinnerTeamId != null) {
+                    return [match.id, null] as const;
+                }
+                try {
+                    const chance: MatchStatsSidePair | null =
+                        (
+                            await enqueueMatchStatsFetch(() => matchStatsAPI.get(match.id))
+                        ).data.winChance ?? null;
+                    return [match.id, chance] as const;
+                } catch {
+                    return [match.id, null] as const;
+                }
+            })
         );
+        return Object.fromEntries(entries);
     };
 
     const renderMatchCard = (match: Match) => {
@@ -337,7 +347,24 @@ const Dashboard = () => {
 
                 {hasNextMatches && (
                     <div className="dashboard-card next-matches-card">
-                        <h2 className="dashboard-card-title">המשחקים הבאים</h2>
+                        <div className="dashboard-card-title share-section-title">
+                            <h2>המשחקים הבאים</h2>
+                            <ShareButton
+                                filename="upcoming-matches.png"
+                                title="המשחקים הבאים"
+                                text="המשחקים הבאים בטורניר"
+                                className="share-button--on-primary"
+                                prepare={prepareUpcomingWinChances}
+                                renderContent={(winChances) => (
+                                    <MatchListShareCard
+                                        title="המשחקים הבאים"
+                                        matches={upcomingMatches}
+                                        variant="upcoming"
+                                        winChances={winChances}
+                                    />
+                                )}
+                            />
+                        </div>
                         <div className="dashboard-match-list">
                             {upcomingMatches.map(renderMatchCard)}
                         </div>
@@ -351,7 +378,18 @@ const Dashboard = () => {
                 <div className="dashboard-cards-row">
                 {hasTopScorers && (
                     <div className="dashboard-card top-scorer">
-                        <h2 className="dashboard-card-title">מלך השערים</h2>
+                        <div className="dashboard-card-title share-section-title">
+                            <h2>מלך השערים</h2>
+                            <ShareButton
+                                filename="top-scorers.png"
+                                title="מלכי השערים"
+                                text="שלושת המבקיעים המובילים בטורניר"
+                                className="share-button--on-primary"
+                                renderContent={() => (
+                                    <TopScorersShareCard scorers={topScorers} limit={3} />
+                                )}
+                            />
+                        </div>
                         <div className="scorer-info">
                             <button
                                 type="button"
@@ -407,9 +445,35 @@ const Dashboard = () => {
                 )}
                 {playedRecentMatches.length > 0 && (
                     <div className="dashboard-card recent-matches">
-                        <h2 className="dashboard-card-title">משחקים אחרונים</h2>
+                        <div className="dashboard-card-title share-section-title">
+                            <h2>משחקים אחרונים</h2>
+                            <ShareButton
+                                filename="recent-matches.png"
+                                title="משחקים אחרונים"
+                                text="תוצאות המשחקים האחרונים בטורניר"
+                                className="share-button--on-primary"
+                                renderContent={() => (
+                                    <MatchListShareCard
+                                        title="משחקים אחרונים"
+                                        matches={playedRecentMatches.slice(0, 5)}
+                                        variant="finished"
+                                    />
+                                )}
+                            />
+                        </div>
                         <div className="matches-list">
-                            {playedRecentMatches.slice(0, 5).map((match) => (
+                            {playedRecentMatches.slice(0, 5).map((match) => {
+                                const team1Name = match.team1Name || `קבוצה ${match.team1Id}`;
+                                const team2Name = match.team2Name || `קבוצה ${match.team2Id}`;
+                                const team1Logo =
+                                    match.team1LogoPosition === 'none'
+                                        ? undefined
+                                        : resolveAssetUrl(match.team1LogoUrl);
+                                const team2Logo =
+                                    match.team2LogoPosition === 'none'
+                                        ? undefined
+                                        : resolveAssetUrl(match.team2LogoUrl);
+                                return (
                                 <button
                                     type="button"
                                     key={match.id}
@@ -427,21 +491,37 @@ const Dashboard = () => {
                                             <span className="technical-tag-mini ms-2">ניצחון טכני</span>
                                         )}
                                     </span>
-                                    <div className="match-score">
-                                        <div
-                                            className={`team-home${match.technicalWinnerTeamId === match.team1Id ? ' team-winner' : ''}`}
-                                        >
-                                            {renderTeamNameWithLogo(match.team1Name || `קבוצה ${match.team1Id}`, match.team1LogoUrl, match.team1LogoPosition)}
-                                        </div>
-                                        <span className="score">{match.score1} - {match.score2}</span>
-                                        <div
-                                            className={`team-away${match.technicalWinnerTeamId === match.team2Id ? ' team-winner' : ''}`}
-                                        >
-                                            {renderTeamNameWithLogo(match.team2Name || `קבוצה ${match.team2Id}`, match.team2LogoUrl, match.team2LogoPosition)}
-                                        </div>
-                                    </div>
+                                    <MatchTeamsScore
+                                        team1Name={team1Name}
+                                        team2Name={team2Name}
+                                        score1={match.score1}
+                                        score2={match.score2}
+                                        showScores
+                                        team1OnRight
+                                        team1Winner={match.technicalWinnerTeamId === match.team1Id}
+                                        team2Winner={match.technicalWinnerTeamId === match.team2Id}
+                                        team1Logo={
+                                            team1Logo ? (
+                                                <img
+                                                    src={team1Logo}
+                                                    alt={`לוגו ${team1Name}`}
+                                                    className="team-logo-inline"
+                                                />
+                                            ) : undefined
+                                        }
+                                        team2Logo={
+                                            team2Logo ? (
+                                                <img
+                                                    src={team2Logo}
+                                                    alt={`לוגו ${team2Name}`}
+                                                    className="team-logo-inline"
+                                                />
+                                            ) : undefined
+                                        }
+                                    />
                                 </button>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )}

@@ -71,6 +71,21 @@
   scroll-margin-top: calc(4.75rem + env(safe-area-inset-top, 0px));
 }
 
+.teams-browse-header-row {
+  display: flex;
+  align-items: center;
+}
+
+.teams-browse-header-row .teams-browse-header {
+  flex: 1;
+  width: auto;
+}
+
+.teams-browse-header-row > .share-button {
+  flex: 0 0 auto;
+  margin-inline-end: 0.75rem;
+}
+
 .teams-browse-header {
   display: flex;
   align-items: center;
@@ -538,5 +553,21 @@
   .teams-browse-header,
   .roster-player-row {
     transition: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .teams-browse-header-row > .share-button {
+    margin-inline-end: 0.45rem;
+  }
+
+  .teams-browse-header-row > .share-button span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }

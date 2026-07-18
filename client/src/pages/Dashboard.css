@@ -436,43 +436,30 @@
     line-height: 1.4;
 }
 
-.dashboard-page .recent-matches .match-score {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    align-items: center;
-    gap: 0.5rem 0.75rem;
+.dashboard-page .recent-matches .match-teams-score {
     width: 100%;
-    font-weight: 500;
+    gap: 0.5rem 0.75rem;
+    padding: 0;
 }
 
-.dashboard-page .recent-matches .match-score .team-home {
-    justify-self: end;
-    text-align: right;
-    min-width: 0;
-}
-
-.dashboard-page .recent-matches .match-score .team-away {
-    justify-self: start;
-    text-align: left;
-    min-width: 0;
-}
-
-.dashboard-page .recent-matches .match-score .team-winner {
-    padding: 0.2rem 0.45rem;
-    border-radius: 6px;
-    background: color-mix(in srgb, var(--color-primary, #166534) 14%, transparent);
-    outline: 2px solid var(--color-primary, #166534);
-}
-
-.dashboard-page .recent-matches .match-score .team-winner .team-name {
-    font-weight: 800;
-    color: var(--color-primary, #166534);
-}
-
-.dashboard-page .recent-matches .match-score .team-name {
+.dashboard-page .recent-matches .team-name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+.dashboard-page .recent-matches .team-logo-slot,
+.dashboard-page .recent-matches .team-logo-slot .team-logo-inline {
+    width: 28px;
+    height: 28px;
+}
+
+.dashboard-page .recent-matches .team-score {
+    font-size: 1.15rem;
+}
+
+.dashboard-page .recent-matches .vs-divider {
+    font-size: 0.85rem;
 }
 
 .score {

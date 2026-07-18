@@ -23,6 +23,8 @@ import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tourna
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { sortRosterPlayers } from '../utils/rosterSort';
 import { displayNickname, fullName } from '../utils/playerDisplayName';
+import { ShareButton } from '../components/share/ShareButton';
+import { TeamShareCard } from '../components/share/TeamShareCard';
 import {
     computeTeamsBrowseSummary,
     filterRosterPlayers,
@@ -367,62 +369,79 @@ const Teams = () => {
                                         id={`team-row-${team.id}`}
                                         className={`teams-browse-card${isExpanded ? ' is-open' : ''}`}
                                     >
-                                        <button
-                                            type="button"
-                                            className="teams-browse-header btn border-0 bg-transparent"
-                                            aria-expanded={isExpanded}
-                                            aria-controls={`team-details-${team.id}`}
-                                            aria-label={
-                                                isExpanded
-                                                    ? `כווץ פרטי ${team.name}`
-                                                    : `הרחב פרטי ${team.name}`
-                                            }
-                                            onClick={() => toggleTeam(team.id)}
-                                        >
-                                            {logoSrc && team.logoPosition !== 'none' ? (
-                                                <img
-                                                    className="teams-browse-crest"
-                                                    src={logoSrc}
-                                                    alt=""
-                                                    width={44}
-                                                    height={44}
-                                                />
-                                            ) : null}
-                                            <span className="teams-browse-title">
-                                                <span className="teams-browse-name">{team.name}</span>
-                                                <span className="teams-browse-meta">
-                                                    <span className="teams-browse-meta-count">
-                                                        {players.length} שחקנים
-                                                    </span>
-                                                    {captainName ? (
-                                                        <>
-                                                            <span
-                                                                className="teams-browse-summary-sep"
-                                                                aria-hidden="true"
-                                                            >
-                                                                ·
-                                                            </span>
-                                                            <span className="teams-browse-meta-captain">
-                                                                <span className="teams-browse-meta-captain-label">
-                                                                    קפטן
-                                                                </span>
+                                        <div className="teams-browse-header-row">
+                                            <button
+                                                type="button"
+                                                className="teams-browse-header btn border-0 bg-transparent"
+                                                aria-expanded={isExpanded}
+                                                aria-controls={`team-details-${team.id}`}
+                                                aria-label={
+                                                    isExpanded
+                                                        ? `כווץ פרטי ${team.name}`
+                                                        : `הרחב פרטי ${team.name}`
+                                                }
+                                                onClick={() => toggleTeam(team.id)}
+                                            >
+                                                {logoSrc && team.logoPosition !== 'none' ? (
+                                                    <img
+                                                        className="teams-browse-crest"
+                                                        src={logoSrc}
+                                                        alt=""
+                                                        width={44}
+                                                        height={44}
+                                                    />
+                                                ) : null}
+                                                <span className="teams-browse-title">
+                                                    <span className="teams-browse-name">{team.name}</span>
+                                                    <span className="teams-browse-meta">
+                                                        <span className="teams-browse-meta-count">
+                                                            {players.length} שחקנים
+                                                        </span>
+                                                        {captainName ? (
+                                                            <>
                                                                 <span
-                                                                    className="teams-browse-meta-captain-name"
-                                                                    dir="auto"
+                                                                    className="teams-browse-summary-sep"
+                                                                    aria-hidden="true"
                                                                 >
-                                                                    {captainName}
+                                                                    ·
                                                                 </span>
-                                                            </span>
-                                                        </>
-                                                    ) : null}
+                                                                <span className="teams-browse-meta-captain">
+                                                                    <span className="teams-browse-meta-captain-label">
+                                                                        קפטן
+                                                                    </span>
+                                                                    <span
+                                                                        className="teams-browse-meta-captain-name"
+                                                                        dir="auto"
+                                                                    >
+                                                                        {captainName}
+                                                                    </span>
+                                                                </span>
+                                                            </>
+                                                        ) : null}
+                                                    </span>
                                                 </span>
-                                            </span>
-                                            <span className="teams-browse-chevron" aria-hidden="true">
-                                                <i
-                                                    className={`bi ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`}
-                                                />
-                                            </span>
-                                        </button>
+                                                <span className="teams-browse-chevron" aria-hidden="true">
+                                                    <i
+                                                        className={`bi ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`}
+                                                    />
+                                                </span>
+                                            </button>
+                                            <ShareButton
+                                                filename={`team-${team.id}.png`}
+                                                title={team.name}
+                                                text={`סגל קבוצת ${team.name}`}
+                                                renderContent={() => (
+                                                    <TeamShareCard
+                                                        team={team}
+                                                        logoSrc={
+                                                            team.logoPosition === 'none'
+                                                                ? undefined
+                                                                : logoSrc
+                                                        }
+                                                    />
+                                                )}
+                                            />
+                                        </div>
 
                                         {isExpanded ? (
                                             <div

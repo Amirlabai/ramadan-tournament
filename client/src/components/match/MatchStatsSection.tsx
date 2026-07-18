@@ -228,7 +228,7 @@ export function MatchStatsSection({
         { label: 'קרנות', a: stats.corners.a, b: stats.corners.b },
         { label: 'עבירות', a: stats.fouls.a, b: stats.fouls.b },
         { label: 'נבדלים', a: stats.offsides.a, b: stats.offsides.b },
-        { label: 'הצגות שוער', a: stats.saves.a, b: stats.saves.b },
+        { label: 'הצלות שוער', a: stats.saves.a, b: stats.saves.b },
       ]
     : [];
 

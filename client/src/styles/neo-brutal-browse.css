@@ -143,14 +143,6 @@
   outline: none;
 }
 
-.dashboard-page .recent-matches .match-score .team-winner {
-  border: 2px solid var(--color-primary, #2a6b11);
-  border-radius: 4px;
-  box-shadow: none;
-  outline: none;
-  background: color-mix(in srgb, var(--color-primary, #2a6b11) 10%, #fff);
-}
-
 /* WC / dashboard next-match rows (not full match-card) */
 .dashboard-page .next-matches-list {
   display: flex;

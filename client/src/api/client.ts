@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Match, TopScorer } from '../types';
+import type { DashboardData, Match, TopScorer } from '../types';
 import type { TournamentSlug } from '../utils/tournamentPaths';
 import { apiBaseUrl } from '../utils/apiBase';
 import { getAuthToken } from '../utils/authToken';
@@ -143,7 +143,7 @@ export const statsAPI = {
     getTopScorers: () => api.get<TopScorer[]>('/stats/top-scorers'),
     getPlayerStats: () => api.get('/stats/player-stats'),
     getPlayoffs: () => api.get<Match[]>('/stats/playoffs'),
-    getDashboard: () => api.get('/stats/dashboard'),
+    getDashboard: () => api.get<DashboardData>('/stats/dashboard'),
 };
 
 export const worldcupAPI = {

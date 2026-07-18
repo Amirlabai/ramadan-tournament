@@ -176,7 +176,9 @@ const Stats = () => {
                                         <span className="goals-label">שערים</span>
                                     </div>
                                     <div className="goals-avg" style={{ fontSize: '0.75rem', color: 'var(--text-light)' }}>
-                                        ממוצע: {(scorer as any).gamesPlayed > 0 ? (scorer.goals / (scorer as any).gamesPlayed).toFixed(2) : '0.00'}
+                                        ממוצע: {scorer.gamesPlayed && scorer.gamesPlayed > 0
+                                            ? (scorer.goals / scorer.gamesPlayed).toFixed(2)
+                                            : '0.00'}
                                     </div>
                                 </div>
                             </button>
