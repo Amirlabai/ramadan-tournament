@@ -12,6 +12,44 @@ const IMAGE_WIDTH = 1080;
 const IMAGE_HEIGHT = 1920;
 const IMAGE_SETTLE_MS = 4_000;
 
+/** Session cache of rendered share PNGs — survives remounts of ShareButton. */
+const shareImageCache = new Map<string, File>();
+const SHARE_CACHE_MAX = 40;
+
+export function isUsableShareFile(file: unknown): file is File {
+  return (
+    typeof File !== 'undefined' &&
+    file instanceof File &&
+    file.size > 0 &&
+    file.type === 'image/png'
+  );
+}
+
+export function getCachedShareImage(cacheKey: string): File | undefined {
+  const file = shareImageCache.get(cacheKey);
+  if (!file) return undefined;
+  if (!isUsableShareFile(file)) {
+    shareImageCache.delete(cacheKey);
+    return undefined;
+  }
+  return file;
+}
+
+export function dropCachedShareImage(cacheKey: string): void {
+  shareImageCache.delete(cacheKey);
+}
+
+export function setCachedShareImage(cacheKey: string, file: File): void {
+  if (!isUsableShareFile(file)) return;
+  if (shareImageCache.has(cacheKey)) shareImageCache.delete(cacheKey);
+  shareImageCache.set(cacheKey, file);
+  while (shareImageCache.size > SHARE_CACHE_MAX) {
+    const oldest = shareImageCache.keys().next().value;
+    if (oldest == null) break;
+    shareImageCache.delete(oldest);
+  }
+}
+
 function blobToDataUrl(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -175,8 +213,10 @@ export async function renderShareImage(
         margin: '0',
       },
     });
-    if (!blob) throw new Error('PNG rendering returned an empty image');
-    return new File([blob], filename, { type: 'image/png' });
+    if (!blob || blob.size <= 0) throw new Error('PNG rendering returned an empty image');
+    const file = new File([blob], filename, { type: 'image/png' });
+    if (!isUsableShareFile(file)) throw new Error('PNG rendering returned an unusable file');
+    return file;
   } finally {
     restoreFit();
     restoreImages();
@@ -208,7 +248,8 @@ function downloadFile(file: File): void {
   document.body.appendChild(link);
   link.click();
   link.remove();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+  // Slow downloads (mobile save sheet / large PNG) need more than 1s.
+  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 export async function sharePreparedImage(

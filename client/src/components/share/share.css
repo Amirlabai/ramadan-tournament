@@ -174,6 +174,52 @@
   font-size: 18px;
 }
 
+.share-match-list-card--finished .share-card__header h1 {
+  font-size: 58px;
+}
+
+.share-match-list-card--finished .share-match-list {
+  padding: 34px 38px 42px;
+  gap: 20px;
+}
+
+.share-match-list-card--finished .share-match-list li {
+  padding: 26px 28px;
+}
+
+.share-match-list-card--finished .share-match-list__date {
+  margin-bottom: 16px;
+  font-size: 26px;
+}
+
+.share-match-list-card--finished .share-match-list__tag {
+  font-size: 20px;
+  padding: 4px 16px;
+}
+
+.share-match-list-card--finished .share-match-list .match-teams-score {
+  gap: 18px;
+}
+
+.share-match-list-card--finished .share-match-list .team-name {
+  max-width: 280px;
+  font-size: 32px;
+}
+
+.share-match-list-card--finished .share-match-list .team-logo-slot,
+.share-match-list-card--finished .share-match-list .team-logo-slot .team-logo-inline {
+  width: 58px;
+  height: 58px;
+}
+
+.share-match-list-card--finished .share-match-list .team-score {
+  font-size: 44px;
+}
+
+.share-match-list-card--finished .share-match-list .vs-divider {
+  font-size: 26px;
+}
+
 .share-frame {
   position: fixed;
   top: 0;
@@ -233,16 +279,6 @@
   font-size: 28px;
   font-weight: 700;
   letter-spacing: 0.01em;
-}
-
-.share-frame__brand-mark {
-  min-width: 78px;
-  padding: 8px 12px;
-  border: 2px solid rgba(255, 255, 255, 0.68);
-  border-radius: 999px;
-  text-align: center;
-  font-size: 22px;
-  font-variant-numeric: tabular-nums;
 }
 
 .share-card {

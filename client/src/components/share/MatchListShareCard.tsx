@@ -1,6 +1,7 @@
 import type { MatchStatsSidePair } from '../../api/client';
 import type { Match } from '../../types';
 import { resolveAssetUrl } from '../../utils/assetUrl';
+import { formatShareDate } from '../../utils/shareSnapshot';
 import { MatchTeamsScore } from '../match/MatchCardParts';
 import { WinChanceBar } from '../match/WinChanceBar';
 
@@ -14,13 +15,12 @@ type MatchListShareCardProps = {
 };
 
 function formatDate(dateString: string, withTime: boolean): string {
-  return new Intl.DateTimeFormat('he-IL', {
+  return formatShareDate(dateString, {
     weekday: 'long',
     day: 'numeric',
     month: 'numeric',
     ...(withTime ? { hour: '2-digit' as const, minute: '2-digit' as const } : {}),
-    timeZone: 'Asia/Jerusalem',
-  }).format(new Date(dateString));
+  });
 }
 
 function teamLogoNode(url?: string, position?: Match['team1LogoPosition']) {
@@ -35,7 +35,7 @@ export function MatchListShareCard({
   winChances,
 }: MatchListShareCardProps) {
   return (
-    <article className="share-card share-match-list-card">
+    <article className={`share-card share-match-list-card share-match-list-card--${variant}`}>
       <header className="share-card__header">
         <h1>{title}</h1>
       </header>

@@ -26,6 +26,11 @@ import { ShareButton } from '../components/share/ShareButton';
 import { TopScorersShareCard } from '../components/share/TopScorersShareCard';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { enqueueMatchStatsFetch } from '../utils/matchStatsFetchQueue';
+import {
+    recentMatchesShareSnapshot,
+    topScorersShareSnapshot,
+    upcomingMatchesShareSnapshot,
+} from '../utils/shareSnapshot';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
@@ -166,9 +171,10 @@ const Dashboard = () => {
         setShowClaimModal(true);
     };
 
-    const prepareUpcomingWinChances = async (): Promise<MatchListWinChances> => {
+    const prepareUpcomingShare = async () => {
+        const matches = upcomingMatches;
         const entries = await Promise.all(
-            upcomingMatches.map(async (match) => {
+            matches.map(async (match) => {
                 if (match.technicalWinnerTeamId != null) {
                     return [match.id, null] as const;
                 }
@@ -183,7 +189,10 @@ const Dashboard = () => {
                 }
             })
         );
-        return Object.fromEntries(entries);
+        return {
+            matches,
+            winChances: Object.fromEntries(entries) as MatchListWinChances,
+        };
     };
 
     const renderMatchCard = (match: Match) => {
@@ -351,18 +360,21 @@ const Dashboard = () => {
                             <h2>המשחקים הבאים</h2>
                             <ShareButton
                                 filename="upcoming-matches.png"
+                                snapshot={upcomingMatchesShareSnapshot(upcomingMatches)}
                                 title="המשחקים הבאים"
                                 text="המשחקים הבאים בטורניר"
                                 className="share-button--on-primary"
-                                prepare={prepareUpcomingWinChances}
-                                renderContent={(winChances) => (
-                                    <MatchListShareCard
-                                        title="המשחקים הבאים"
-                                        matches={upcomingMatches}
-                                        variant="upcoming"
-                                        winChances={winChances}
-                                    />
-                                )}
+                                prepare={prepareUpcomingShare}
+                                renderContent={(prepared) =>
+                                    prepared ? (
+                                        <MatchListShareCard
+                                            title="המשחקים הבאים"
+                                            matches={prepared.matches}
+                                            variant="upcoming"
+                                            winChances={prepared.winChances}
+                                        />
+                                    ) : null
+                                }
                             />
                         </div>
                         <div className="dashboard-match-list">
@@ -382,12 +394,16 @@ const Dashboard = () => {
                             <h2>מלך השערים</h2>
                             <ShareButton
                                 filename="top-scorers.png"
+                                snapshot={topScorersShareSnapshot(topScorers, 3)}
                                 title="מלכי השערים"
                                 text="שלושת המבקיעים המובילים בטורניר"
                                 className="share-button--on-primary"
-                                renderContent={() => (
-                                    <TopScorersShareCard scorers={topScorers} limit={3} />
-                                )}
+                                prepare={async () => topScorers.slice(0, 3)}
+                                renderContent={(scorers) =>
+                                    scorers ? (
+                                        <TopScorersShareCard scorers={scorers} limit={3} />
+                                    ) : null
+                                }
                             />
                         </div>
                         <div className="scorer-info">
@@ -449,16 +465,22 @@ const Dashboard = () => {
                             <h2>משחקים אחרונים</h2>
                             <ShareButton
                                 filename="recent-matches.png"
+                                snapshot={recentMatchesShareSnapshot(
+                                    playedRecentMatches.slice(0, 5)
+                                )}
                                 title="משחקים אחרונים"
                                 text="תוצאות המשחקים האחרונים בטורניר"
                                 className="share-button--on-primary"
-                                renderContent={() => (
-                                    <MatchListShareCard
-                                        title="משחקים אחרונים"
-                                        matches={playedRecentMatches.slice(0, 5)}
-                                        variant="finished"
-                                    />
-                                )}
+                                prepare={async () => playedRecentMatches.slice(0, 5)}
+                                renderContent={(matches) =>
+                                    matches ? (
+                                        <MatchListShareCard
+                                            title="משחקים אחרונים"
+                                            matches={matches}
+                                            variant="finished"
+                                        />
+                                    ) : null
+                                }
                             />
                         </div>
                         <div className="matches-list">

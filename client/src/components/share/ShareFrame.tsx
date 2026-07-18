@@ -12,7 +12,6 @@ export const ShareFrame = forwardRef<HTMLDivElement, ShareFrameProps>(
         <div className="share-frame__wash" />
         <div className="share-frame__content">{children}</div>
         <footer className="share-frame__footer">
-          <span className="share-frame__brand-mark" aria-hidden="true">2026</span>
           <span>{siteBrandLabel()}</span>
         </footer>
       </div>

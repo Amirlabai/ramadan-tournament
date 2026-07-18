@@ -1,5 +1,6 @@
 import type { MatchStatsResponse } from '../../api/client';
 import type { Match, Player, Team } from '../../types';
+import { formatShareDate } from '../../utils/shareSnapshot';
 import { MatchTeamsScore, type MatchDisplayStatus } from '../match/MatchCardParts';
 import { SharePlayerHead } from './SharePlayerHead';
 
@@ -31,15 +32,14 @@ const STATUS_TITLES: Record<MatchDisplayStatus, string> = {
 };
 
 function formatDate(dateString: string): string {
-  return new Intl.DateTimeFormat('he-IL', {
+  return formatShareDate(dateString, {
     weekday: 'long',
     year: 'numeric',
     month: 'numeric',
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    timeZone: 'Asia/Jerusalem',
-  }).format(new Date(dateString));
+  });
 }
 
 function findPlayer(teams: Team[], memberId: number): Player | undefined {

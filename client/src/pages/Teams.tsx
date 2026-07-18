@@ -25,6 +25,7 @@ import { sortRosterPlayers } from '../utils/rosterSort';
 import { displayNickname, fullName } from '../utils/playerDisplayName';
 import { ShareButton } from '../components/share/ShareButton';
 import { TeamShareCard } from '../components/share/TeamShareCard';
+import { teamShareSnapshot } from '../utils/shareSnapshot';
 import {
     computeTeamsBrowseSummary,
     filterRosterPlayers,
@@ -428,18 +429,27 @@ const Teams = () => {
                                             </button>
                                             <ShareButton
                                                 filename={`team-${team.id}.png`}
+                                                snapshot={teamShareSnapshot(
+                                                    team,
+                                                    team.logoPosition === 'none' ? undefined : logoSrc
+                                                )}
                                                 title={team.name}
                                                 text={`סגל קבוצת ${team.name}`}
-                                                renderContent={() => (
-                                                    <TeamShareCard
-                                                        team={team}
-                                                        logoSrc={
-                                                            team.logoPosition === 'none'
-                                                                ? undefined
-                                                                : logoSrc
-                                                        }
-                                                    />
-                                                )}
+                                                prepare={async () => ({
+                                                    team,
+                                                    logoSrc:
+                                                        team.logoPosition === 'none'
+                                                            ? undefined
+                                                            : logoSrc,
+                                                })}
+                                                renderContent={(prepared) =>
+                                                    prepared ? (
+                                                        <TeamShareCard
+                                                            team={prepared.team}
+                                                            logoSrc={prepared.logoSrc}
+                                                        />
+                                                    ) : null
+                                                }
                                             />
                                         </div>
 

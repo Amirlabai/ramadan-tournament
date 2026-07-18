@@ -13,6 +13,7 @@ import { UpcomingWinChance } from '../components/match/UpcomingWinChance';
 import { MatchShareCard } from '../components/share/MatchShareCard';
 import { ShareButton } from '../components/share/ShareButton';
 import { resolveAssetUrl } from '../utils/assetUrl';
+import { matchShareSnapshot } from '../utils/shareSnapshot';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
@@ -263,30 +264,52 @@ const Schedule = () => {
                                 />
                                 <ShareButton
                                     filename={`match-${match.id}.png`}
+                                    snapshot={matchShareSnapshot(match, status, {
+                                        team1Logo,
+                                        team2Logo,
+                                        teams,
+                                    })}
                                     title={`${team1Name} נגד ${team2Name}`}
                                     text={`סיכום המשחק: ${team1Name} נגד ${team2Name}`}
                                     prepare={async () => {
+                                        // Freeze face at prepare-time so capture cannot race live props.
+                                        const face = {
+                                            match,
+                                            status,
+                                            team1Name,
+                                            team2Name,
+                                            team1Logo,
+                                            team2Logo,
+                                            teams,
+                                        };
                                         if (status === 'upcoming' || match.technicalWinnerTeamId != null) {
-                                            return null;
+                                            return { stats: null, face };
                                         }
                                         try {
-                                            return (await matchStatsAPI.get(match.id)).data;
+                                            return {
+                                                stats: (await matchStatsAPI.get(match.id)).data,
+                                                face,
+                                            };
                                         } catch {
-                                            return null;
+                                            return { stats: null, face };
                                         }
                                     }}
-                                    renderContent={(stats) => (
-                                        <MatchShareCard
-                                            match={match}
-                                            status={status}
-                                            team1Name={team1Name}
-                                            team2Name={team2Name}
-                                            team1Logo={team1Logo}
-                                            team2Logo={team2Logo}
-                                            teams={teams}
-                                            stats={stats}
-                                        />
-                                    )}
+                                    renderContent={(prepared) => {
+                                        if (!prepared) return null;
+                                        const { stats, face } = prepared;
+                                        return (
+                                            <MatchShareCard
+                                                match={face.match}
+                                                status={face.status}
+                                                team1Name={face.team1Name}
+                                                team2Name={face.team2Name}
+                                                team1Logo={face.team1Logo}
+                                                team2Logo={face.team2Logo}
+                                                teams={face.teams}
+                                                stats={stats}
+                                            />
+                                        );
+                                    }}
                                 />
                             </div>
 
