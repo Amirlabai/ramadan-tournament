@@ -69,11 +69,7 @@ const Stats = () => {
     const hasStats = standings.length > 0 || topScorers.length > 0;
     return (
         <div className="stats-page container py-4">
-            <SEO
-                title="סטטיסטיקות"
-                description="טבלאות ליגה, מלכי השערים וסטטיסטיקות מתקדמות של טורניר רמדאן 2026. עקבו אחרי המירוץ לאליפות ולתואר מלך השערים."
-                pathname="/stats"
-            />
+            <SEO pathname="/stats" />
             <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">סטטיסטיקות</h2>
 
             {!hasStats ? (

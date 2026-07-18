@@ -309,10 +309,7 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard-page">
-            <SEO 
-                title="דף הבית" 
-                description="עקבו אחרי טורניר הרמדאן בזמן אמת - תוצאות, טבלאות, סטטיסטיקות שחקנים וחדשות החוץ והבית של טורניר נצ'מאז כפר כמא 2026." 
-            />
+            <SEO pathname="/" />
             <div className="container py-4">
 
                 {needsPlayerMapping && (

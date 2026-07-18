@@ -9,6 +9,7 @@ import Terms from './pages/Terms'
 import TournamentRules from './pages/TournamentRules'
 import {
   getRouteSeo,
+  formatDocumentTitle,
   canonicalUrl,
   getSiteUrl,
   PUBLIC_SITEMAP_PATHS,
@@ -35,14 +36,12 @@ type HeadElement = { type: string; props: Record<string, string> }
 
 function buildSeoHead(pathname: string, options?: { noindex?: boolean }) {
   const meta = getRouteSeo(pathname)
-  const title =
-    meta.title.includes('טורניר') || meta.title.includes('מונדיאל')
-      ? meta.title
-      : `${meta.title} | מונדיאל קיץ 2026`
+  const title = formatDocumentTitle(meta.title, meta.branded)
   const canonical = canonicalUrl(pathname)
   const siteUrl = getSiteUrl()
   const elements = new Set<HeadElement>([
     { type: 'meta', props: { name: 'description', content: meta.description } },
+    { type: 'meta', props: { name: 'keywords', content: meta.keywords } },
     { type: 'link', props: { rel: 'canonical', href: canonical } },
     { type: 'meta', props: { property: 'og:url', content: canonical } },
     { type: 'meta', props: { property: 'og:title', content: title } },

@@ -275,11 +275,7 @@ const Teams = () => {
 
     return (
         <div className="teams-browse-page container py-4">
-            <SEO
-                title="קבוצות ושחקנים"
-                description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
-                pathname="/teams"
-            />
+            <SEO pathname="/teams" />
             <h2 className="mb-0 fw-bold tournament-page-title">קבוצות הטורניר</h2>
 
             {teams.length === 0 ? (

@@ -158,11 +158,7 @@ const Schedule = () => {
 
     return (
         <div className="schedule-page container py-4">
-            <SEO 
-                title="לוח משחקים" 
-                description="לוח המשחקים המלא של טורניר רמדאן 2026. עדכונים חיים, תוצאות וזמני משחקים של כל שלבי הטורניר." 
-                pathname="/schedule"
-            />
+            <SEO pathname="/schedule" />
             <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">לוח משחקים</h2>
 
             <div className="schedule-filters" role="group" aria-label="סינון משחקים">

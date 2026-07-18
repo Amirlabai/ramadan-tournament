@@ -17,7 +17,7 @@ if (!siteUrl || /localhost|127\.0\.0\.1/i.test(siteUrl)) {
   siteUrl = (process.env.VITE_SITE_URL || '').replace(/\/$/, '')
 }
 if (!siteUrl) {
-  siteUrl = 'https://ramadan-tournament-client.vercel.app'
+  siteUrl = 'https://kksummer-wc.vercel.app'
 }
 if (/localhost|127\.0\.0\.1/i.test(siteUrl) && process.env.ALLOW_LOCAL_SITEMAP !== '1') {
   console.error(

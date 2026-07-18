@@ -203,6 +203,11 @@ function AppShell() {
                   <h1 className="site-title fw-bold">
                     {isWorldCup ? 'מונדיאל 2026' : <>מונדיאל קיץ{'\u00A0'}2026</>}
                   </h1>
+                  {!isGirls && !isWorldCup && (
+                    <p className="tournament-subtitle mb-0">
+                      טורניר כדורגל · כפר כמא
+                    </p>
+                  )}
                   {isGirls && (
                     <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
                   )}

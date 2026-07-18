@@ -7,7 +7,9 @@ import {
   organizationJsonLd,
   webSiteJsonLd,
   webApplicationJsonLd,
+  sportsEventJsonLd,
   breadcrumbJsonLd,
+  formatDocumentTitle,
   type BreadcrumbItem,
 } from '../config/seoConfig'
 
@@ -47,16 +49,16 @@ const SEO = ({
   const siteUrl = getSiteUrl()
   const canonical = url ?? canonicalUrl(resolvedPathname)
   const ogImage = image ?? `${siteUrl}/og-image.jpg`
-  const fullTitle =
-    resolvedTitle && !resolvedTitle.includes('טורניר') && !resolvedTitle.includes('מונדיאל')
-      ? `${resolvedTitle} | מונדיאל קיץ 2026`
-      : resolvedTitle || 'מונדיאל קיץ 2026'
+  const fullTitle = formatDocumentTitle(resolvedTitle, routeMeta.branded)
 
   const jsonLdBlocks: object[] = [
     organizationJsonLd(),
     webSiteJsonLd(),
     webApplicationJsonLd(),
   ]
+  if (resolvedPathname === '/') {
+    jsonLdBlocks.push(sportsEventJsonLd())
+  }
   if (breadcrumbs && breadcrumbs.length > 0) {
     jsonLdBlocks.push(breadcrumbJsonLd(breadcrumbs))
   }

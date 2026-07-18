@@ -64,11 +64,7 @@ const Archive: React.FC = () => {
 
   return (
     <div className="archive-page container py-4 animate-fade-in">
-      <SEO
-        title="היסטוריית הטורניר"
-        description="צפו בתוצאות, בסטטיסטיקות וברגעי השיא מכל העונות הקודמות של טורניר הרמדאן."
-        pathname="/archive"
-      />
+      <SEO pathname="/archive" />
 
       <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">ארכיון הטורניר</h2>
 

@@ -94,11 +94,7 @@ const MVPs = () => {
 
     return (
         <div className="dashboard-page mvps-page">
-            <SEO
-                title="מצטיינים"
-                description="מלכי השערים ומירוץ ה-MVP של טורניר נצ'מאז כפר כמא 2026."
-                pathname="/mvps"
-            />
+            <SEO pathname="/mvps" />
             <div className="container py-4">
                 <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">מצטייני הטורניר</h2>
 

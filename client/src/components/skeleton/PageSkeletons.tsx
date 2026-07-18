@@ -21,11 +21,7 @@ interface PageSkeletonProps {
 export function DashboardSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="dashboard-page">
-      <SEO
-        title="דף הבית"
-        description="עקבו אחרי טורניר הרמדאן בזמן אמת - תוצאות, טבלאות, סטטיסטיקות שחקנים וחדשות החוץ והבית של טורניר נצ'מאז כפר כמא 2026."
-        pathname="/"
-      />
+      <SEO pathname="/" />
       <div className="container py-4">
         <SkeletonPageTitle />
         <SkeletonDashboardSection variant="next" titleWidth="7rem" count={3} />
@@ -59,11 +55,7 @@ export function WorldCupDashboardSkeleton({ label }: PageSkeletonProps) {
 export function ScheduleSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="schedule-page container py-4">
-      <SEO
-        title="לוח משחקים"
-        description="לוח המשחקים המלא של טורניר רמדאן 2026. עדכונים חיים, תוצאות וזמני משחקים של כל שלבי הטורניר."
-        pathname="/schedule"
-      />
+      <SEO pathname="/schedule" />
       <SkeletonPageTitle />
       <SkeletonScheduleFilters />
       <SkeletonScheduleMatchList count={4} />
@@ -89,11 +81,7 @@ export function WorldCupScheduleSkeleton({ label }: PageSkeletonProps) {
 export function StatsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="stats-page container py-4">
-      <SEO
-        title="סטטיסטיקות"
-        description="טבלאות ליגה, מלכי השערים וסטטיסטיקות מתקדמות של טורניר רמדאן 2026. עקבו אחרי המירוץ לאליפות ולתואר מלך השערים."
-        pathname="/stats"
-      />
+      <SEO pathname="/stats" />
       <SkeletonPageTitle />
       <SkeletonStatsLayout />
     </PageSkeletonStatus>
@@ -117,11 +105,7 @@ export function WorldCupStatsSkeleton({ label }: PageSkeletonProps) {
 export function TeamsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="teams-browse-page container py-4">
-      <SEO
-        title="קבוצות ושחקנים"
-        description="רשימת הקבוצות והסגלים המלאים של טורניר נצ'מאז 2026. הכירו את השחקנים, הקפטנים והסטטיסטיקות האישיות של כל קבוצה."
-        pathname="/teams"
-      />
+      <SEO pathname="/teams" />
       <SkeletonPageTitle />
       <SkeletonTeamsBrowseList count={6} />
     </PageSkeletonStatus>
@@ -173,11 +157,7 @@ export function GirlsNewsSkeleton({ label }: PageSkeletonProps) {
 export function MvpsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="dashboard-page mvps-page">
-      <SEO
-        title="מצטיינים"
-        description="מלכי השערים ומירוץ ה-MVP של טורניר נצ'מאז כפר כמא 2026."
-        pathname="/mvps"
-      />
+      <SEO pathname="/mvps" />
       <div className="container py-4">
         <SkeletonPageTitle />
         <SkeletonMvpPanels />
@@ -205,11 +185,7 @@ export function ProfileSkeleton({ label }: PageSkeletonProps) {
 export function ArchiveSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="archive-page container py-4">
-      <SEO
-        title="היסטוריית הטורניר"
-        description="צפו בתוצאות, בסטטיסטיקות וברגעי השיא מכל העונות הקודמות של טורניר הרמדאן."
-        pathname="/archive"
-      />
+      <SEO pathname="/archive" />
       <SkeletonPageTitle />
       <SkeletonArchiveLayout />
     </PageSkeletonStatus>
