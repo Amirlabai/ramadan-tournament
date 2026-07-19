@@ -47,3 +47,9 @@ generate_message - Copy.py
 __pycache__/
 .incoming/desktop banner.psd
 .incoming/mobile banner.psd
+
+# Upload compress / sync stage files (never commit)
+server/uploads/**/*.compressing
+server/uploads/**/*.rt-compress-tmp
+server/uploads/**/*.rt-compress-bak
+server/uploads/**/*.rt-sync-tmp

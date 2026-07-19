@@ -30,6 +30,7 @@ import {
     uploadWriteDir,
     UPLOADS_DISK_MISCONFIG_MESSAGE,
 } from '../utils/uploadPaths';
+import { writeCompressedUpload } from '../utils/imageCompress';
 import { safeImageExt } from '../utils/safeImageExt';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
@@ -394,11 +395,15 @@ export const uploadTeamLogo = async (req: AuthRequest, res: Response): Promise<v
         const fileName = `team_${teamId}_${Date.now()}${safeImageExt(file.originalname)}`;
         const filePath = path.join(uploadDir, fileName);
 
-        // Move file from temp to final location.
-        // fs.renameSync fails on Render (EXDEV) because /tmp and /uploads are on different
-        // file systems. copyFileSync works across devices; unlink cleans up the temp file.
-        fs.copyFileSync(file.path, filePath);
-        fs.unlinkSync(file.path);
+        try {
+            await writeCompressedUpload(file.path, filePath);
+        } finally {
+            try {
+                fs.unlinkSync(file.path);
+            } catch {
+                /* multer temp already gone */
+            }
+        }
 
         const previousLogo = team.logoUrl;
         team.logoUrl = publicUploadUrl('logos', fileName);
@@ -689,8 +694,15 @@ export const uploadManagedPlayerPhoto = async (req: AuthRequest, res: Response):
         const ext = safeImageExt(req.file.originalname);
         const filename = `player_${teamId}_${memberId}_${Date.now()}${ext}`;
         finalPath = path.join(uploadsDir, filename);
-        fs.copyFileSync(req.file.path, finalPath);
-        fs.unlinkSync(req.file.path);
+        try {
+            await writeCompressedUpload(req.file.path, finalPath);
+        } finally {
+            try {
+                fs.unlinkSync(req.file.path);
+            } catch {
+                /* multer temp already gone */
+            }
+        }
 
         const publicUrl = publicUploadUrl('players', filename);
         const result = await PlayerService.setManagedPlayerPhoto(

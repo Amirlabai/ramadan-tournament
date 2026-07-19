@@ -18,6 +18,7 @@ import {
   uploadWriteDir,
   UPLOADS_DISK_MISCONFIG_MESSAGE,
 } from '../utils/uploadPaths';
+import { writeCompressedUpload } from '../utils/imageCompress';
 import { safeImageExt } from '../utils/safeImageExt';
 
 const logPlayerZoneEvent = (
@@ -179,10 +180,15 @@ export const uploadPhoto = async (req: AuthRequest, res: Response): Promise<void
         const fileName = `player_${player.memberId}_${Date.now()}${fileExt}`;
         const finalPath = path.join(uploadsDir, fileName);
 
-        // Use copyFileSync + unlinkSync instead of renameSync.
-        // renameSync fails with EXDEV on Render because /tmp and /uploads are on different file systems.
-        fs.copyFileSync(req.file.path, finalPath);
-        fs.unlinkSync(req.file.path);
+        try {
+            await writeCompressedUpload(req.file.path, finalPath);
+        } finally {
+            try {
+                fs.unlinkSync(req.file.path);
+            } catch {
+                /* multer temp already gone */
+            }
+        }
 
         const publicUrl = publicUploadUrl('players', fileName);
         const previousHead = player.head_photo;

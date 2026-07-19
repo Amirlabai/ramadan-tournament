@@ -58,4 +58,44 @@ describe('serveNonEmptyUploads', () => {
     expect(res.sendFile).toHaveBeenCalledWith(file);
     expect(next).not.toHaveBeenCalled();
   });
+
+  it('falls through while a .compressing lock exists so disk can serve', () => {
+    const file = path.join(tmpRoot, 'logos', 'busy.jpg');
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, 'jpeg-bytes');
+    fs.writeFileSync(`${file}.compressing`, '1');
+    const next = vi.fn();
+    const res = mockRes();
+    const mw = serveNonEmptyUploads(tmpRoot);
+    mw({ path: '/logos/busy.jpg' } as Request, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.sendFile).not.toHaveBeenCalled();
+  });
+
+  it('falls through for compress sidecar paths', () => {
+    const file = path.join(tmpRoot, 'logos', 'ok.jpg.rt-compress-tmp');
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, 'tmp-bytes');
+    const next = vi.fn();
+    const res = mockRes();
+    const mw = serveNonEmptyUploads(tmpRoot);
+    mw({ path: '/logos/ok.jpg.rt-compress-tmp' } as Request, res, next);
+    expect(next).toHaveBeenCalled();
+    expect(res.sendFile).not.toHaveBeenCalled();
+  });
+
+  it('heals orphan .rt-compress-bak then serves', () => {
+    const file = path.join(tmpRoot, 'logos', 'healed.jpg');
+    const bak = `${file}.rt-compress-bak`;
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(bak, 'jpeg-from-bak');
+    const next = vi.fn();
+    const res = mockRes();
+    const mw = serveNonEmptyUploads(tmpRoot);
+    mw({ path: '/logos/healed.jpg' } as Request, res, next);
+    expect(fs.existsSync(file)).toBe(true);
+    expect(fs.existsSync(bak)).toBe(false);
+    expect(res.sendFile).toHaveBeenCalledWith(file);
+    expect(next).not.toHaveBeenCalled();
+  });
 });

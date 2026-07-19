@@ -22,6 +22,7 @@
         "import:roster": "tsx src/scripts/import-adiga-form-roster.ts",
         "migrate:personal-ids": "tsx src/scripts/migrate-personal-id-encryption.ts",
         "migrate:user-emails": "tsx src/scripts/migrate-normalize-user-emails.ts",
+        "uploads:compress": "tsx src/scripts/compress-uploads.ts",
         "db:sync-banned-words": "tsx src/scripts/syncBannedWords.ts",
         "wc:locale": "tsx scripts/buildWorldCupPlayerLocale.ts",
         "analytics:explorer": "tsx src/scripts/analytics-explorer-server.ts",
@@ -33,9 +34,9 @@
         "seed": "tsx prisma/seed.ts"
     },
     "dependencies": {
-        "@ramadan-tournament/shared": "*",
         "@google/generative-ai": "^0.24.1",
         "@prisma/client": "^6.5.0",
+        "@ramadan-tournament/shared": "*",
         "@types/bcrypt": "^5.0.2",
         "@types/bcryptjs": "^2.4.6",
         "@types/cookie-parser": "^1.4.10",
@@ -60,6 +61,7 @@
         "multer": "^2.0.2",
         "nodemailer": "^8.0.1",
         "prisma": "^6.5.0",
+        "sharp": "^0.34.5",
         "tsx": "^4.7.0",
         "typescript": "^5.3.3",
         "zod": "^3.22.4"
