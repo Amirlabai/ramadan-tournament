@@ -369,7 +369,7 @@ const Profile = () => {
 
     const handleLeaveTeam = async () => {
         if (ownsTeam) {
-            alert('בעל קבוצה לא יכול לעזוב — פנה למנהל');
+            alert('בעל קבוצה לא יכול לעזוב. פנה למנהל');
             return;
         }
         if (!confirm('האם אתה בטוח שברצונך לעזוב את הקבוצה? פעולה זו תסיר את שיוכך כשחקן.')) return;
@@ -440,7 +440,7 @@ const Profile = () => {
         <div className="profile-page">
             <SEO
                 title="פרופיל אישי"
-                description="עריכת פרופיל, תמונה ושיוך שחקן — מונדיאל קיץ 2026."
+                description="עריכת פרופיל, תמונה ושיוך שחקן. מונדיאל קיץ 2026."
                 pathname="/profile"
                 noindex
             />
@@ -546,7 +546,7 @@ const Profile = () => {
                     <div className="card mb-4 p-4">
                         <h2 className="h5 mb-3">בקשה לפתיחת קבוצה חדשה</h2>
                         <p className="text-muted small mb-0">
-                            הרישום פעיל — מלא שם קבוצה ושלח לאישור מנהל. בקשה אחת בלבד (הצטרפות או הקמה).
+                            הרישום פעיל. מלא שם קבוצה ושלח לאישור מנהל. בקשה אחת בלבד (הצטרפות או הקמה).
                         </p>
                         {teamRequestMsg && <div className={`alert ${teamRequestMsg.includes('שגיאה') ? 'alert-danger' : 'alert-success'} py-2`}>{teamRequestMsg}</div>}
                         {pendingCreation?.status === 'rejected' && (
@@ -668,7 +668,7 @@ const Profile = () => {
                     <div className="card mb-4 p-4 profile-stats-card">
                         <h2 className="h5 mb-4 d-flex align-items-center">
                             <i className="bi bi-bar-chart-fill me-2 text-primary" />
-                            סטטיסטיקות טורניר — {rosterTeamName ?? `קבוצה #${onRoster?.teamId}`}
+                            סטטיסטיקות טורניר: {rosterTeamName ?? `קבוצה #${onRoster?.teamId}`}
                         </h2>
 
                         <div className="row g-3 text-center">
@@ -754,7 +754,7 @@ const Profile = () => {
                         <div className="card mb-4 p-4">
                             <h2 className="h5 mb-3 d-flex align-items-center">
                                 <i className="bi bi-shield-check me-2" />
-                                ניהול בקשות הצטרפות — {manageableTeamLabel}
+                                ניהול בקשות הצטרפות: {manageableTeamLabel}
                             </h2>
                             <TeamRegistrationActions
                                 teamId={manageableTeamId}

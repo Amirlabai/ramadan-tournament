@@ -201,7 +201,7 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
 
             {reg.awaitingAdminIdentity && (
                 <div className="alert alert-info py-2 small mb-3" role="status">
-                    הזנת את פרטי הזהות. ממתין שהמנהל ירשום את אותם פרטים — לאחר התאמה תוכל לבקש הצטרפות
+                    הזנת את פרטי הזהות. ממתין שהמנהל ירשום את אותם פרטים. לאחר התאמה תוכל לבקש הצטרפות
                     {SHOW_PROFILE_TEAM_CREATION ? ' או הקמת קבוצה' : ''}.
                     טעית? עדכן למטה לפני שהמנהל רושם, או פנה למנהל.
                 </div>
@@ -228,16 +228,16 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
                 <p className="small text-warning mb-2">
                     בקשת הצטרפות לקבוצה #{reg.pendingJoin.teamId}
                     {reg.pendingJoin.status === 'owner_approved'
-                        ? ' — ממתין לאישור מנהל'
-                        : ' — ממתין לאישור קפטן'}
+                        ? ' (ממתין לאישור מנהל)'
+                        : ' (ממתין לאישור קפטן)'}
                     .
                 </p>
             )}
             {hasPendingRequest && !reg.pendingTransfer && (
                 <p className="small text-muted mb-2">
                     {SHOW_PROFILE_TEAM_CREATION
-                        ? 'ניתן להחזיק בקשה אחת בלבד (הצטרפות או הקמת קבוצה). לשינוי — בטל את הבקשה הנוכחית.'
-                        : 'ניתן להחזיק בקשה אחת בלבד. לשינוי — בטל את הבקשה הנוכחית.'}
+                        ? 'ניתן להחזיק בקשה אחת בלבד (הצטרפות או הקמת קבוצה). לשינוי, בטל את הבקשה הנוכחית.'
+                        : 'ניתן להחזיק בקשה אחת בלבד. לשינוי, בטל את הבקשה הנוכחית.'}
                 </p>
             )}
             {hasPendingRequest && (
@@ -278,7 +278,7 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
                     {isCompactLayout ? (
                         <>
                             <Link to={teamsPath} className="registration-card__teams-link">
-                                בקשת הצטרפות — עמוד קבוצות
+                                בקשת הצטרפות: עמוד קבוצות
                             </Link>
                             {SHOW_PROFILE_TEAM_CREATION && (
                                 <span className="registration-card__cta-hint text-muted">
@@ -305,10 +305,10 @@ export default function TournamentRegistrationCard({ slug, title, hideJoinCta = 
                         {reg.invoiceAlert
                             ? 'עדכן את פרטי הזהות ושלח שוב, או פנה למנהל.'
                             : reg.awaitingAdminIdentity
-                              ? 'ניתן לעדכן אם טעית. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים.'
+                              ? 'ניתן לעדכן אם טעית. המנהל ירשום את אותם פרטים. הרישום מופעל רק כששני הצדדים תואמים.'
                               : reg.status === 'identity_assigned'
                                 ? 'המנהל רשם את פרטיך. הזן בדיוק את אותם פרטים כדי להפעיל את הרישום. מוגבל ל־3 ניסיונות ביום.'
-                                : 'הזן תעודת זהות ושנת לידה. המנהל ירשום את אותם פרטים — הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
+                                : 'הזן תעודת זהות ושנת לידה. המנהל ירשום את אותם פרטים. הרישום מופעל רק כששני הצדדים תואמים. מוגבל ל־3 ניסיונות ביום.'}
                     </p>
                     <p className="small text-muted mb-2">
                         שליחת הפרטים מהווה הסכמה לעיבוד לפי{' '}

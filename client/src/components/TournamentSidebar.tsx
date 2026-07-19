@@ -112,7 +112,7 @@ const TournamentSidebar = ({
         <button
           type="button"
           className="tournament-sidebar-backdrop"
-          aria-label="סגור תפריט — הקש על הרקע"
+          aria-label="סגור תפריט. הקש על הרקע"
           onClick={close}
         />
       )}

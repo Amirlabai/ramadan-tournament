@@ -209,7 +209,7 @@ export class PlayerService {
     });
     if (byLink) return byLink;
 
-    throw new Error('לא נמצא שחקן פעיל — הצטרף לקבוצה או המתן לאישור');
+    throw new Error('לא נמצא שחקן פעיל. הצטרף לקבוצה או המתן לאישור');
   }
 
   static async updateOwnProfile(userId: string, raw: PlayerProfileUpdateInput) {
@@ -575,7 +575,7 @@ export class PlayerService {
     if (ownedOnSeason) {
       throw new PlayerServiceError(
         'TEAM_OWNER',
-        'בעל קבוצה לא יכול לעזוב — פנה למנהל',
+        'בעל קבוצה לא יכול לעזוב. פנה למנהל',
         400
       );
     }

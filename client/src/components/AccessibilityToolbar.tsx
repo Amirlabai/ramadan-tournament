@@ -18,7 +18,7 @@ const AccessibilityToolbar = () => {
         aria-label={highContrastActive ? 'כבה ניגודיות גבוהה' : 'הפעל ניגודיות גבוהה'}
         title={
           highContrastActive
-            ? 'כבה ניגודיות גבוהה — לחץ שוב לצבעי ברירת מחדל'
+            ? 'כבה ניגודיות גבוהה. לחץ שוב לצבעי ברירת מחדל'
             : 'הפעל ניגודיות גבוהה'
         }
       >

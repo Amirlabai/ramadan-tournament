@@ -77,7 +77,7 @@ export default defineConfig({
       manifest: {
         name: 'מונדיאל קיץ 2026',
         short_name: 'טורניר כפר כמא',
-        description: 'טורניר כפר כמא — תוצאות, טבלאות וסטטיסטיקות בזמן אמת',
+        description: 'טורניר כפר כמא. תוצאות, טבלאות וסטטיסטיקות בזמן אמת',
         lang: 'he',
         dir: 'rtl',
         theme_color: '#509238',

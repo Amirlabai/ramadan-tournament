@@ -209,7 +209,7 @@ function AppShell() {
                     </p>
                   )}
                   {isGirls && (
-                    <p className="tournament-subtitle mb-0">טורניר בנות — נקודות</p>
+                    <p className="tournament-subtitle mb-0">טורניר בנות: נקודות</p>
                   )}
                   {isWorldCup && (
                     <p className="tournament-subtitle mb-0">

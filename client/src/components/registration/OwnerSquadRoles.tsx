@@ -87,7 +87,7 @@ export default function OwnerSquadRoles({ teamId, players, slug, onSaved }: Prop
                             <span className="text-muted small ms-1">#{p.number}</span>
                         </span>
                         <label className="visually-hidden" htmlFor={`squad-role-${teamId}-${p.memberId}`}>
-                            תפקיד — {p.firstName} {p.lastName}
+                            תפקיד: {p.firstName} {p.lastName}
                         </label>
                         <select
                             id={`squad-role-${teamId}-${p.memberId}`}

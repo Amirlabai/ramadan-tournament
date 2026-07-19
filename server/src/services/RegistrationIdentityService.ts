@@ -335,10 +335,10 @@ export async function assignAdminIdentity(
 
   let adminMessage: string;
   if (activated) {
-    adminMessage = 'תעודת הזהות תואמת — הרישום הופעל.';
+    adminMessage = 'תעודת הזהות תואמת. הרישום הופעל.';
   } else if (invoiceAlert) {
     adminMessage =
-      'תעודת הזהות נרשמה. המשתמש יראה התראה בפרופיל — הפרטים לא תואמים למה שהזין.';
+      'תעודת הזהות נרשמה. המשתמש יראה התראה בפרופיל. הפרטים לא תואמים למה שהזין.';
   } else if (hadAdmin) {
     adminMessage = 'תעודת הזהות עודכנה. המשתמש מזין את אותם פרטים בפרופיל.';
   } else {
@@ -534,7 +534,7 @@ export async function submitUserIdentity(
   const adminYear = reg?.adminBirthYear ?? null;
 
   if (!adminEnc || adminYear == null) {
-    throw new Error('ממתין שהמנהל ירשום את תעודת הזהות — פנה למנהל');
+    throw new Error('ממתין שהמנהל ירשום את תעודת הזהות. פנה למנהל');
   }
 
   const matches = identitiesMatch(personalIdEnc, birthYear, adminEnc, adminYear);

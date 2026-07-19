@@ -582,7 +582,7 @@ const RosterManager = () => {
                                                                         }}
                                                                         title="העבר לקבוצה אחרת"
                                                                     >
-                                                                        <option value="">— העבר לקבוצה —</option>
+                                                                        <option value="">העבר לקבוצה</option>
                                                                         {teams.filter(r => r.slug === slug && r.team.id !== team.id).map(r => (
                                                                             <option key={teamRowKey(r.slug, r.team.id)} value={r.team.id}>{r.team.name}</option>
                                                                         ))}

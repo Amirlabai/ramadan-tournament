@@ -212,7 +212,7 @@ const CommentSection = ({ matchId }: CommentSectionProps) => {
                     </div>
                 )}
                 <p className="comment-form__terms">
-                    תגובות ציבוריות — ראו{' '}
+                    תגובות ציבוריות. ראו{' '}
                     <Link to="/terms#user-content">תנאי שימוש</Link>.
                 </p>
                 <button

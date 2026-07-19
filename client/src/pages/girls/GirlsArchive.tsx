@@ -3,7 +3,7 @@ import SEO from '../../components/SEO';
 const GirlsArchive = () => (
   <div className="container py-4">
     <SEO
-      title="ארכיון — טורניר בנות"
+      title="ארכיון: טורניר בנות"
       description="ארכיון עונות קודמות של טורניר בנות רמדאן."
       pathname="/archive-girls"
     />

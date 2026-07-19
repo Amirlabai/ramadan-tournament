@@ -37,8 +37,8 @@ export function WorldCupDashboardSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="dashboard-page">
       <SEO
-        title="מונדיאל 2026 — דף הבית"
-        description="תוצאות, משחקים קרובים ומלכי השערים — מונדיאל 2026."
+        title="מונדיאל 2026: דף הבית"
+        description="תוצאות, משחקים קרובים ומלכי השערים למונדיאל 2026."
         pathname="/world-cup"
       />
       <div className="container py-4">
@@ -67,8 +67,8 @@ export function WorldCupScheduleSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="schedule-page container py-4">
       <SEO
-        title="מונדיאל 2026 — משחקים"
-        description="לוח משחקים מלא למונדיאל 2026 — תוצאות, זמנים ומיקומים."
+        title="מונדיאל 2026: משחקים"
+        description="לוח משחקים מלא למונדיאל 2026. תוצאות, זמנים ומיקומים."
         pathname="/world-cup/schedule"
       />
       <SkeletonPageTitle />
@@ -92,8 +92,8 @@ export function WorldCupStatsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="stats-page wc-stats-page container py-3">
       <SEO
-        title="מונדיאל 2026 — סטטיסטיקות"
-        description="טבלאות בתים, מלכי השערים ושלב הנוקאאוט — מונדיאל 2026."
+        title="מונדיאל 2026: סטטיסטיקות"
+        description="טבלאות בתים, מלכי השערים ושלב הנוקאאוט למונדיאל 2026."
         pathname="/world-cup/stats"
       />
       <SkeletonPageTitle />
@@ -116,7 +116,7 @@ export function GirlsTeamsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="teams-browse-page browse-page container py-4">
       <SEO
-        title="קבוצות — טורניר בנות"
+        title="קבוצות: טורניר בנות"
         description="רשימת הקבוצות והסגלים בטורניר בנות רמדאן 2026, כולל סך נקודות לכל קבוצה."
         pathname="/teams-girls"
       />
@@ -130,7 +130,7 @@ export function GirlsHomeSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="stats-page browse-page container py-4">
       <SEO
-        title="טורניר בנות — נקודות"
+        title="טורניר בנות: נקודות"
         description="טבלת נקודות לטורניר בנות רמדאן 2026. הקבוצה עם הכי הרבה נקודות מובילה."
         pathname="/girls"
       />
@@ -144,7 +144,7 @@ export function GirlsNewsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="browse-page container py-4">
       <SEO
-        title="חדשות — טורניר בנות"
+        title="חדשות: טורניר בנות"
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."
         pathname="/news-girls"
       />
@@ -171,7 +171,7 @@ export function ProfileSkeleton({ label }: PageSkeletonProps) {
     <PageSkeletonStatus label={label} className="profile-page">
       <SEO
         title="פרופיל אישי"
-        description="עריכת פרופיל, תמונה ושיוך שחקן — מונדיאל קיץ 2026."
+        description="עריכת פרופיל, תמונה ושיוך שחקן. מונדיאל קיץ 2026."
         pathname="/profile"
         noindex
       />
@@ -196,8 +196,8 @@ export function WorldCupTeamsSkeleton({ label }: PageSkeletonProps) {
   return (
     <PageSkeletonStatus label={label} className="container py-4 wc-teams-page">
       <SEO
-        title="מונדיאל 2026 — נבחרות"
-        description="רשימת נבחרות ושחקנים — מונדיאל 2026."
+        title="מונדיאל 2026: נבחרות"
+        description="רשימת נבחרות ושחקנים במונדיאל 2026."
         pathname="/world-cup/teams"
       />
       <SkeletonPageTitle />

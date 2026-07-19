@@ -107,8 +107,8 @@ const WorldCupDashboard = () => {
   return (
     <div className="dashboard-page">
       <SEO
-        title="מונדיאל 2026 — דף הבית"
-        description="תוצאות, משחקים קרובים ומלכי השערים — מונדיאל 2026."
+        title="מונדיאל 2026: דף הבית"
+        description="תוצאות, משחקים קרובים ומלכי השערים למונדיאל 2026."
         pathname="/world-cup"
       />
       <div className="container py-4">

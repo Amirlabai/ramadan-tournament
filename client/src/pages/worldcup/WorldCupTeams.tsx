@@ -90,8 +90,8 @@ const WorldCupTeams = () => {
   return (
     <div className="container py-4 wc-teams-page">
       <SEO
-        title="מונדיאל 2026 — נבחרות"
-        description="רשימת נבחרות ושחקנים — מונדיאל 2026."
+        title="מונדיאל 2026: נבחרות"
+        description="רשימת נבחרות ושחקנים במונדיאל 2026."
         pathname="/world-cup/teams"
       />
       <h2 className="mb-3 fw-bold tournament-page-title border-bottom pb-2">נבחרות</h2>

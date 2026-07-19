@@ -106,8 +106,8 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                         {success
                             ? 'השער נוסף בהצלחה'
                             : step === 'team'
-                                ? 'הוסף שער — בחר קבוצה'
-                                : `הוסף שער — ${getTeamName(selectedTeamId!)}`}
+                                ? 'הוסף שער: בחר קבוצה'
+                                : `הוסף שער: ${getTeamName(selectedTeamId!)}`}
                     </h2>
                     <button type="button" className="btn-close" onClick={handleClose} aria-label="סגור" />
                 </div>
@@ -169,7 +169,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
                                 </div>
                                 {players.length === 0 ? (
                                     <div className="col-12">
-                                        <p className="text-muted mb-0">אין שחקנים רשומים בקבוצה זו — ניתן לבחור גול עצמי בלבד.</p>
+                                        <p className="text-muted mb-0">אין שחקנים רשומים בקבוצה זו. ניתן לבחור גול עצמי בלבד.</p>
                                     </div>
                                 ) : (
                                     players.map(p => {

@@ -30,7 +30,7 @@ const GirlsSeasonAdmin = () => {
   const [error, setError] = useState('');
 
   const [newYearMonth, setNewYearMonth] = useState('2026-02');
-  const [newDisplayName, setNewDisplayName] = useState('טורניר בנות — נקודות 2026');
+  const [newDisplayName, setNewDisplayName] = useState('טורניר בנות: נקודות 2026');
   const [newTeamName, setNewTeamName] = useState('');
   const [pointsTeamId, setPointsTeamId] = useState<number | ''>('');
   const [pointsDelta, setPointsDelta] = useState<number | ''>('');
@@ -278,7 +278,7 @@ const GirlsSeasonAdmin = () => {
                   <ul className="list-group list-group-flush">
                     {season.teams.map((t) => (
                       <li key={t.id} className="list-group-item px-0">
-                        #{t.id} — {t.name}
+                        #{t.id}: {t.name}
                       </li>
                     ))}
                   </ul>

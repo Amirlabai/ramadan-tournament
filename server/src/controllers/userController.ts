@@ -53,7 +53,7 @@ export const cancelPlayerMapping = async (req: AuthRequest, res: Response): Prom
         }
         const { status, memberId } = user.mappedPlayerInfo;
         if (status === 'approved' && memberId > 0) {
-            res.status(400).json({ error: 'לא ניתן לבטל שיוך מאושר — השתמש ב"עזוב קבוצה"' });
+            res.status(400).json({ error: 'לא ניתן לבטל שיוך מאושר. השתמש ב"עזוב קבוצה"' });
             return;
         }
         user.mappedPlayerInfo = undefined;

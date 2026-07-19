@@ -260,7 +260,7 @@ const Dashboard = () => {
                         to="/schedule"
                         state={{ filter: 'live', matchId: match.id }}
                         className="match-card-nav-link"
-                        aria-label={`עבור ללוח משחקים לייב — ${team1Name} נגד ${team2Name}`}
+                        aria-label={`עבור ללוח משחקים לייב: ${team1Name} נגד ${team2Name}`}
                     >
                         {cardBody}
                     </Link>

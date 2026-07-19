@@ -113,7 +113,7 @@ export default function AdminCaptainPicker({ teamId, teamName, slug, onSaved }: 
         <div
             className="admin-captain-picker mb-3"
             role="region"
-            aria-label={`ניהול קפטן — ${teamName}`}
+            aria-label={`ניהול קפטן: ${teamName}`}
         >
             <h4 className="admin-captain-picker__title h6 fw-bold mb-2">ניהול קפטן</h4>
 
@@ -155,7 +155,7 @@ export default function AdminCaptainPicker({ teamId, teamName, slug, onSaved }: 
                                     setMsg('');
                                 }}
                             >
-                                <option value="">— בחר שחקן —</option>
+                                <option value="">בחר שחקן</option>
                                 {candidates.map((c) => (
                                     <option key={c.memberId} value={c.memberId}>
                                         {playerLabel(c)}

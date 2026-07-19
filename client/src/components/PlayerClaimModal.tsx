@@ -143,9 +143,9 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h2 id={modalTitleId} className="modal-title fw-bold h5">
-                                {step === 'team' && 'שיוך שחקן — בחר קבוצה'}
-                                {step === 'player' && `שיוך שחקן — ${selectedTeamName}`}
-                                {step === 'custom' && `פרופיל שחקן חדש — ${selectedTeamName}`}
+                                {step === 'team' && 'שיוך שחקן: בחר קבוצה'}
+                                {step === 'player' && `שיוך שחקן: ${selectedTeamName}`}
+                                {step === 'custom' && `פרופיל שחקן חדש: ${selectedTeamName}`}
                             </h2>
                             <button type="button" className="btn-close" onClick={onClose} aria-label="סגור"></button>
                         </div>
@@ -217,7 +217,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                                 setStep('custom');
                                             }}
                                         >
-                                            <i className="bi bi-plus-circle me-1" />אני לא ברשימה — צור פרופיל חדש
+                                            <i className="bi bi-plus-circle me-1" />אני לא ברשימה. צור פרופיל חדש
                                         </button>
                                     </div>
                                     {error && <div className="alert alert-danger py-2">{error}</div>}

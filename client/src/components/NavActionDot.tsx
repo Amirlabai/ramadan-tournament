@@ -7,7 +7,7 @@ export default function NavActionDot() {
 }
 
 export function withPendingActionLabel(label: string, hasAction: boolean): string {
-    return hasAction ? `${label} — יש פעולות ממתינות` : label;
+    return hasAction ? `${label}. יש פעולות ממתינות` : label;
 }
 
 export function navLinkWithDotClass(baseClass: string, showActionDot: boolean, extra = ''): string {

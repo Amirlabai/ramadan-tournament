@@ -293,7 +293,7 @@ const MatchTableRow = ({
     // ── Read-only row ──────────────────────────────────────────────────────────
     if (!isEditing) {
         const goalSummary = match.technicalWinnerTeamId != null
-            ? `ניצחון טכני — ${getTeamName(match.technicalWinnerTeamId)}`
+            ? `ניצחון טכני: ${getTeamName(match.technicalWinnerTeamId)}`
             : (match.goals ?? []).length > 0
                 ? (match.goals ?? []).map(g => goalLabel(g)).join(', ')
                 : '—';

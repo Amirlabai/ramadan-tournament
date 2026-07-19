@@ -135,7 +135,7 @@ const PlayerZone = () => {
                     <div className="card-body p-4">
                         <h4 className="card-title text-center mb-2">הזדהות</h4>
                         <p className="small text-muted text-center mb-4">
-                            כניסה באמצעות תעודת זהות ושנת לידה — ראה{' '}
+                            כניסה באמצעות תעודת זהות ושנת לידה. ראה{' '}
                             <Link to="/privacy#identity">מדיניות הפרטיות</Link>.
                         </p>
                         <form onSubmit={handleLogin}>

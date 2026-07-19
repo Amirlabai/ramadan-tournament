@@ -172,7 +172,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
     if (!user) return null;
 
     return (
-        <div className="mb-3" role="region" aria-label={`פעולות רישום — ${teamName}`}>
+        <div className="mb-3" role="region" aria-label={`פעולות רישום: ${teamName}`}>
             {canJoin && (
                 <div>
                     {joinStep === 'pick-slot' ? (
@@ -196,7 +196,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                                                 onChange={() => setSelectedMemberId(player.memberId)}
                                             />
                                             <span>
-                                                {player.nickname} ({player.firstName} {player.lastName}) — #{player.number}
+                                                {player.nickname} ({player.firstName} {player.lastName}), #{player.number}
                                                 {player.position ? ` · ${player.position}` : ''}
                                             </span>
                                         </label>
@@ -377,7 +377,7 @@ export default function TeamRegistrationActions({ teamId, teamName, slug }: Prop
                                             <ul className="mb-0 ps-3">
                                                 {row.priorClaims.map((prior) => (
                                                     <li key={prior.id}>
-                                                        {prior.displayName} — {priorClaimStatusHe(prior.status)}
+                                                        {prior.displayName}: {priorClaimStatusHe(prior.status)}
                                                         {prior.createdAt
                                                             ? ` · ${new Date(prior.createdAt).toLocaleDateString('he-IL')}`
                                                             : ''}

@@ -143,7 +143,7 @@ export default function RegistrationWorkflowAdmin() {
                 code?: string;
             };
             if (!ax.response) {
-                setMsg('לא ניתן להתחבר לשרת — ודא שהשרת רץ ונסה שוב.');
+                setMsg('לא ניתן להתחבר לשרת. ודא שהשרת רץ ונסה שוב.');
             } else {
                 setMsg(ax.response.data?.error || 'לא ניתן לטעון תורי רישום');
             }
@@ -220,7 +220,7 @@ export default function RegistrationWorkflowAdmin() {
                 message?: string;
             };
             if (!ax.response) {
-                setMsg('לא ניתן להתחבר לשרת — ייתכן שהוא מתעדכן. המתן רגע ונסה שוב.');
+                setMsg('לא ניתן להתחבר לשרת. ייתכן שהוא מתעדכן. המתן רגע ונסה שוב.');
             } else {
                 setMsg(ax.response.data?.error || 'שגיאה ברישום זהות');
             }
@@ -405,7 +405,7 @@ export default function RegistrationWorkflowAdmin() {
                         {seasons.map((s) => (
                             <option key={s.id} value={s.id}>
                                 {s.displayName} ({s.division === 'girls' ? 'בנות' : 'בנים'})
-                                {s.isActive ? ' — פעילה' : ''}
+                                {s.isActive ? ' (פעילה)' : ''}
                             </option>
                         ))}
                     </select>
@@ -418,13 +418,13 @@ export default function RegistrationWorkflowAdmin() {
             {loading && <p className="text-muted">טוען תורים…</p>}
             {!loading && !data && (
                 <p className="text-danger" role="alert">
-                    {msg || (seasons.length === 0 ? 'אין עונות במערכת — הרץ seed או בחר עונה.' : 'לא ניתן לטעון תורי רישום')}
+                    {msg || (seasons.length === 0 ? 'אין עונות במערכת. הרץ seed או בחר עונה.' : 'לא ניתן לטעון תורי רישום')}
                 </p>
             )}
 
             {!loading && data && (
                 <>
-                    <h4 className="mb-3">רישום ותשלום — {data.season.displayName}</h4>
+                    <h4 className="mb-3">רישום ותשלום: {data.season.displayName}</h4>
 
                     {msg && (
                         <p className="alert alert-info py-2 small" role="status">
@@ -462,7 +462,7 @@ export default function RegistrationWorkflowAdmin() {
                         >
                             <p className="text-muted small mb-3">
                                 הזן תעודת זהות ושנת לידה מהרישום בפועל ולחץ הקצה.
-                                המשתמש יכול להזין בפרופיל לפני או אחרי — הרישום מופעל רק כשהפרטים תואמים.
+                                המשתמש יכול להזין בפרופיל לפני או אחרי. הרישום מופעל רק כשהפרטים תואמים.
                                 משתמשים שהותאמו כבר לא מופיעים כאן.
                             </p>
                             <div
@@ -478,7 +478,7 @@ export default function RegistrationWorkflowAdmin() {
                             </div>
                             {!data.awaitingIdentity.length && (
                                 <p className="text-muted small mb-0 mt-2">
-                                    אין משתמשים ברשימה — חפש למטה לפי אימייל.
+                                    אין משתמשים ברשימה. חפש למטה לפי אימייל.
                                 </p>
                             )}
                         </div>
@@ -490,7 +490,7 @@ export default function RegistrationWorkflowAdmin() {
                             id="workflow-user-search"
                             type="search"
                             className="form-control mb-2"
-                            placeholder="לפחות 2 תווים — למשל חלק מהאימייל"
+                            placeholder="לפחות 2 תווים, למשל חלק מהאימייל"
                             value={searchQ}
                             onChange={(e) => setSearchQ(e.target.value)}
                         />
@@ -534,7 +534,7 @@ export default function RegistrationWorkflowAdmin() {
                             </span>
                         </div>
                         <p className="small text-muted mb-2">
-                            אישור כאן יוצר קבוצה חדשה בטורניר וממנה את המבקש כבעלים — לא הצטרפות לסגל
+                            אישור כאן יוצר קבוצה חדשה בטורניר וממנה את המבקש כבעלים. לא הצטרפות לסגל
                             קיים.
                         </p>
                         <div className="table-responsive">
@@ -590,7 +590,7 @@ export default function RegistrationWorkflowAdmin() {
                                                             // Create-reject and join approve/reject stay one-click.
                                                             const who = c.user.displayName || 'המשתמש';
                                                             const ok = window.confirm(
-                                                                `לאשר הקמת קבוצה חדשה "${c.teamName}" עבור ${who}?\n\nפעולה זו יוצרת קבוצה חדשה — לא מוסיפה שחקן לסגל קיים.`
+                                                                `לאשר הקמת קבוצה חדשה "${c.teamName}" עבור ${who}?\n\nפעולה זו יוצרת קבוצה חדשה. לא מוסיפה שחקן לסגל קיים.`
                                                             );
                                                             if (!ok) return;
                                                             setMsg('');
@@ -657,7 +657,7 @@ export default function RegistrationWorkflowAdmin() {
                             <span className="badge text-bg-success">הצטרפות לסגל</span>
                         </div>
                         <p className="small text-muted mb-2">
-                            אישור כאן מוסיף שחקן לסגל של קבוצה קיימת — לא יוצר קבוצה חדשה.
+                            אישור כאן מוסיף שחקן לסגל של קבוצה קיימת. לא יוצר קבוצה חדשה.
                         </p>
                         <div className="table-responsive">
                             <table className="table table-sm table-hover align-middle mb-0">

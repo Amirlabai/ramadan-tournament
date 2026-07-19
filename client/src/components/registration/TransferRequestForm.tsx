@@ -101,7 +101,7 @@ export default function TransferRequestForm({ slug, currentTeamId, onSubmitted }
                         value={targetId}
                         onChange={(e) => setTargetId(e.target.value)}
                     >
-                        <option value="">— בחר קבוצה —</option>
+                        <option value="">בחר קבוצה</option>
                         {teams.map((t) => (
                             <option key={t.id} value={t.id}>
                                 {t.name}

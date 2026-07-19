@@ -33,7 +33,7 @@ interface Props {
 
 type StatusMsg = { type: 'success' | 'error'; text: string };
 
-const REFRESH_FAILED_MSG = 'העדכון נשמר, אך לא ניתן לרענן את התצוגה — רענן את העמוד';
+const REFRESH_FAILED_MSG = 'העדכון נשמר, אך לא ניתן לרענן את התצוגה. רענן את העמוד';
 
 function snapshotToMeta(snapshot: TeamOwnerSnapshot): TeamMeta {
     return {
@@ -243,10 +243,10 @@ export default function TeamOwnerSettings({
     const inputId = `team-logo-${teamId}-${slug}`;
 
     return (
-        <div className={wrapperClass} role="region" aria-label={`הגדרות קבוצה — ${team.name}`}>
+        <div className={wrapperClass} role="region" aria-label={`הגדרות קבוצה: ${team.name}`}>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h3 className={variant === 'card' ? 'h4 mb-0' : 'h6 fw-bold mb-0'}>
-                    הגדרות קבוצה — {team.name}
+                    הגדרות קבוצה: {team.name}
                 </h3>
                 {!editing && (
                     <button type="button" className="btn btn-success btn-sm" onClick={startEdit}>

@@ -50,6 +50,6 @@ export async function lockActiveDivision(userId: string, division: Division): Pr
 export async function assertDivisionAccess(userId: string, division: Division): Promise<void> {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
   if (user.activeDivision && user.activeDivision !== division) {
-    throw new Error('אין גישה לטורניר זה — נרשמת לצד השני.');
+    throw new Error('אין גישה לטורניר זה. נרשמת לצד השני.');
   }
 }

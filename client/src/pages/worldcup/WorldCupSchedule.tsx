@@ -128,8 +128,8 @@ const WorldCupSchedule = () => {
   return (
     <div className="schedule-page container py-4">
       <SEO
-        title="מונדיאל 2026 — משחקים"
-        description="לוח משחקים מלא למונדיאל 2026 — תוצאות, זמנים ומיקומים."
+        title="מונדיאל 2026: משחקים"
+        description="לוח משחקים מלא למונדיאל 2026. תוצאות, זמנים ומיקומים."
         pathname="/world-cup/schedule"
       />
       <h2 className="mb-4 fw-bold tournament-page-title border-bottom pb-2">לוח משחקים</h2>

@@ -183,7 +183,7 @@ const Archive: React.FC = () => {
                     </div>
                     <div className="table-responsive">
                       <table className="table table-hover mb-0">
-                        <caption className="visually-hidden">טבלת ליגה — עונה {selectedSeason.year}</caption>
+                        <caption className="visually-hidden">טבלת ליגה: עונה {selectedSeason.year}</caption>
                         <thead>
                           <tr>
                             <th scope="col">מיקום</th>

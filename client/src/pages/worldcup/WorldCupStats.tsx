@@ -87,8 +87,8 @@ const WorldCupStats = () => {
   return (
     <div className="stats-page wc-stats-page container py-3">
       <SEO
-        title="מונדיאל 2026 — סטטיסטיקות"
-        description="טבלאות בתים, מלכי השערים ושלב הנוקאאוט — מונדיאל 2026."
+        title="מונדיאל 2026: סטטיסטיקות"
+        description="טבלאות בתים, מלכי השערים ושלב הנוקאאוט למונדיאל 2026."
         pathname="/world-cup/stats"
       />
       <h2 className="mb-3 fw-bold tournament-page-title border-bottom pb-2">סטטיסטיקות</h2>

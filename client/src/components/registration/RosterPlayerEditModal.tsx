@@ -122,13 +122,13 @@ export default function RosterPlayerEditModal({
       <div className="modal-content">
         <div className="modal-header">
           <h2 id={titleId} className="modal-title h5">
-            עריכת שחקן — {displayNickname(player) || fullName(player)}
+            עריכת שחקן: {displayNickname(player) || fullName(player)}
           </h2>
           <button type="button" className="btn-close" onClick={onClose} aria-label="סגור" />
         </div>
         <form onSubmit={(e) => void handleSave(e)} className="modal-body">
           <p className="small text-muted">
-            עריכת בעלים/קפטן — דורסת את פרטי השחקן בסגל (השחקן יכול לערוך שוב בפרופיל).
+            עריכת בעלים/קפטן. דורסת את פרטי השחקן בסגל (השחקן יכול לערוך שוב בפרופיל).
             שינויי תמונה נשמרים רק בלחיצה על שמור.
           </p>
           <div className="row g-3">

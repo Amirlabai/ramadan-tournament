@@ -147,7 +147,7 @@ export const sendVerificationEmail = async (
         await getTransporter().sendMail({
             from: config.email.user,
             to: email,
-            subject: `קוד אימות — ${tournamentBranding.displayNameHe}`,
+            subject: `קוד אימות: ${tournamentBranding.displayNameHe}`,
             html: emailWrapperHtml(`
                 <h2 style="color: #2A6B11; text-align: center;">ברוך הבא ל${tournamentBranding.displayNameHe}!</h2>
                 <p>שלום ${displayName},</p>
@@ -179,7 +179,7 @@ export const sendPasswordResetEmail = async (
         await getTransporter().sendMail({
             from: config.email.user,
             to: email,
-            subject: `איפוס סיסמה — ${tournamentBranding.displayNameHe}`,
+            subject: `איפוס סיסמה: ${tournamentBranding.displayNameHe}`,
             html: buildPasswordResetEmailHtml(resetUrl, displayName),
         });
         console.log(`[email] Password reset email sent to ${email}`);
@@ -238,7 +238,7 @@ export const sendPreregIdentityAlertEmail = async (
   let body: string;
 
   if (alert.type === 'admin_missing') {
-    subject = `השלמת רישום — חסר ${fieldLabel} בצד הניהול`;
+    subject = `השלמת רישום: חסר ${fieldLabel} בצד הניהול`;
     body = `
       <h2 style="color: #2A6B11;">שלום ${displayName},</h2>
       <p>ברישום <strong>${tournamentBranding.displayNameHe}</strong> בצד הניהול חסר/ה ${fieldLabel} בטופס ההרשמה.</p>
@@ -246,7 +246,7 @@ export const sendPreregIdentityAlertEmail = async (
       <p>תודה.</p>
     `;
   } else {
-    subject = `השלמת רישום — ${fieldLabel} לא תואם לטופס`;
+    subject = `השלמת רישום: ${fieldLabel} לא תואם לטופס`;
     body = `
       <h2 style="color: #2A6B11;">שלום ${displayName},</h2>
       <p>ברישום <strong>${tournamentBranding.displayNameHe}</strong> אחד הפרטים ששלחת תואם לטופס ההרשמה ואחד לא.</p>

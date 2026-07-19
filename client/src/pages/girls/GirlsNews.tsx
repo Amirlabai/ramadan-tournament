@@ -47,7 +47,7 @@ const GirlsNews = () => {
   return (
     <div className="browse-page container py-4">
       <SEO
-        title="חדשות — טורניר בנות"
+        title="חדשות: טורניר בנות"
         description="עדכונים וחדשות לטורניר בנות רמדאן 2026."
         pathname="/news-girls"
       />

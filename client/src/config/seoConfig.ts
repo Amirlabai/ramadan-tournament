@@ -68,85 +68,85 @@ export const routeSeo: Record<string, RouteSeo> = {
   '/': {
     title: SITE_BRAND_TITLE,
     description:
-      'מונדיאל קיץ 2026 — טורניר כדורגל (כדור רגל) בכפר כמא / כפר קמא. תוצאות בזמן אמת, לוח משחקים, טבלאות וסטטיסטיקות.',
+      'מונדיאל קיץ 2026: טורניר כדורגל (כדור רגל) בכפר כמא / כפר קמא. תוצאות בזמן אמת, לוח משחקים, טבלאות וסטטיסטיקות.',
     keywords: `${BASE_KEYWORDS}, סטטיסטיקות`,
   },
   '/teams': {
-    title: 'קבוצות — מונדיאל קיץ כפר כמא',
+    title: 'קבוצות: מונדיאל קיץ כפר כמא',
     description:
       'קבוצות ושחקנים בטורניר הכדורגל מונדיאל קיץ 2026 בכפר כמא (כפר קמא).',
     keywords: `${BASE_KEYWORDS}, קבוצות`,
   },
   '/schedule': {
-    title: 'לוח משחקים — מונדיאל קיץ כפר כמא',
+    title: 'לוח משחקים: מונדיאל קיץ כפר כמא',
     description:
-      'לוח משחקים ותוצאות — טורניר כדורגל קיץ בכפר כמא / כפר קמא.',
+      'לוח משחקים ותוצאות לטורניר כדורגל קיץ בכפר כמא / כפר קמא.',
     keywords: BASE_KEYWORDS,
   },
   '/stats': {
-    title: 'סטטיסטיקות — מונדיאל קיץ כפר כמא',
+    title: 'סטטיסטיקות: מונדיאל קיץ כפר כמא',
     description:
-      'טבלאות, מלכי שערים וסטטיסטיקות — מונדיאל קיץ כדורגל כפר כמא.',
+      'טבלאות, מלכי שערים וסטטיסטיקות למונדיאל קיץ כדורגל כפר כמא.',
     keywords: `${BASE_KEYWORDS}, סטטיסטיקות, שערים`,
   },
   '/mvps': {
-    title: 'שחקני העונה — מונדיאל קיץ כפר כמא',
-    description: 'שחקני העונה (MVPs) — טורניר כדורגל קיץ בכפר כמא / כפר קמא.',
+    title: 'שחקני העונה: מונדיאל קיץ כפר כמא',
+    description: 'שחקני העונה (MVPs) בטורניר כדורגל קיץ בכפר כמא / כפר קמא.',
     keywords: `${BASE_KEYWORDS}, MVP`,
   },
   '/archive': {
-    title: 'ארכיון — מונדיאל קיץ כפר כמא',
+    title: 'ארכיון: מונדיאל קיץ כפר כמא',
     description: 'ארכיון עונות קודמות של טורניר הכדורגל בכפר כמא.',
     keywords: `${BASE_KEYWORDS}, ארכיון`,
   },
   '/girls': {
-    title: 'טורניר בנות — דף הבית',
-    description: 'טורניר בנות (נקודות) בכפר כמא — טבלאות וחדשות.',
+    title: 'טורניר בנות: דף הבית',
+    description: 'טורניר בנות (נקודות) בכפר כמא. טבלאות וחדשות.',
     keywords: `${BASE_KEYWORDS}, טורניר בנות, נקודות`,
   },
   '/teams-girls': {
-    title: 'קבוצות — טורניר בנות',
+    title: 'קבוצות: טורניר בנות',
     description: 'קבוצות טורניר הבנות בכפר כמא.',
     keywords: `${BASE_KEYWORDS}, טורניר בנות`,
   },
   '/news-girls': {
-    title: 'חדשות — טורניר בנות',
+    title: 'חדשות: טורניר בנות',
     description: 'חדשות ועדכונים מטורניר הבנות בכפר כמא.',
     keywords: `${BASE_KEYWORDS}, חדשות`,
   },
   '/archive-girls': {
-    title: 'ארכיון — טורניר בנות',
+    title: 'ארכיון: טורניר בנות',
     description: 'ארכיון עונות טורניר הבנות בכפר כמא.',
     keywords: `${BASE_KEYWORDS}, ארכיון`,
   },
   '/world-cup': {
-    title: 'מונדיאל 2026 — דף הבית',
-    description: 'תוצאות, משחקים קרובים ומלכי השערים — מונדיאל 2026.',
+    title: 'מונדיאל 2026: דף הבית',
+    description: 'תוצאות, משחקים קרובים ומלכי השערים למונדיאל 2026.',
     keywords: `${BASE_KEYWORDS}, World Cup`,
     branded: true,
   },
   '/world-cup/teams': {
-    title: 'מונדיאל 2026 — נבחרות',
-    description: 'נבחרות ושחקנים — מונדיאל 2026.',
+    title: 'מונדיאל 2026: נבחרות',
+    description: 'נבחרות ושחקנים במונדיאל 2026.',
     keywords: `${BASE_KEYWORDS}, נבחרות`,
     branded: true,
   },
   '/world-cup/schedule': {
-    title: 'מונדיאל 2026 — משחקים',
-    description: 'לוח משחקים מלא — מונדיאל 2026.',
+    title: 'מונדיאל 2026: משחקים',
+    description: 'לוח משחקים מלא למונדיאל 2026.',
     keywords: BASE_KEYWORDS,
     branded: true,
   },
   '/world-cup/stats': {
-    title: 'מונדיאל 2026 — סטטיסטיקות',
-    description: 'טבלאות בתים, מלכי השערים ונוקאאוט — מונדיאל 2026.',
+    title: 'מונדיאל 2026: סטטיסטיקות',
+    description: 'טבלאות בתים, מלכי השערים ונוקאאוט למונדיאל 2026.',
     keywords: `${BASE_KEYWORDS}, סטטיסטיקות`,
     branded: true,
   },
   '/about': {
-    title: 'אודות — מונדיאל קיץ כפר כמא',
+    title: 'אודות: מונדיאל קיץ כפר כמא',
     description:
-      'אודות מונדיאל קיץ 2026 — טורניר כדורגל בכפר כמא / כפר קמא, בחסות מרכז הצעירים.',
+      'אודות מונדיאל קיץ 2026. טורניר כדורגל בכפר כמא / כפר קמא, בחסות מרכז הצעירים.',
     keywords: `${BASE_KEYWORDS}, אודות`,
   },
   '/accessibility': {
@@ -158,19 +158,19 @@ export const routeSeo: Record<string, RouteSeo> = {
   '/privacy': {
     title: 'מדיניות פרטיות',
     description:
-      'מדיניות פרטיות, עוגיות ופרטי זהות לרישום לטורניר — מונדיאל קיץ 2026 כפר כמא.',
+      'מדיניות פרטיות, עוגיות ופרטי זהות לרישום לטורניר. מונדיאל קיץ 2026 כפר כמא.',
     keywords: `${BASE_KEYWORDS}, פרטיות, privacy`,
   },
   '/terms': {
     title: 'תנאי שימוש',
     description:
-      'תנאי שימוש באתר הטורניר — רישום, תוכן משתמש והצבעות.',
+      'תנאי שימוש באתר הטורניר: רישום, תוכן משתמש והצבעות.',
     keywords: `${BASE_KEYWORDS}, תנאים`,
   },
   '/rules': {
     title: TOURNAMENT_RULES_TITLE,
     description:
-      'תקנון חוקי מונדיאל הצ\'רקסי 2026 — שלב בתים, פלייאוף עליון ותחתון, ניקוד, לוח זמנים ומועדי מחזורים.',
+      'תקנון חוקי מונדיאל הצ\'רקסי 2026: שלב בתים, פלייאוף עליון ותחתון, ניקוד, לוח זמנים ומועדי מחזורים.',
     keywords: `${BASE_KEYWORDS}, תקנון, חוקים`,
   },
 }
@@ -181,7 +181,7 @@ export function getRouteSeo(pathname: string): RouteSeo {
     routeSeo[normalized] ?? {
       title: SITE_BRAND_TITLE,
       description:
-        'טורניר כדורגל קיץ בכפר כמא / כפר קמא — תוצאות, טבלאות וסטטיסטיקות.',
+        'טורניר כדורגל קיץ בכפר כמא / כפר קמא. תוצאות, טבלאות וסטטיסטיקות.',
       keywords: BASE_KEYWORDS,
     }
   )
@@ -209,7 +209,7 @@ export function organizationJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'Organization',
-    name: 'מונדיאל קיץ 2026 — כפר כמא',
+    name: 'מונדיאל קיץ 2026 כפר כמא',
     alternateName: TOURNAMENT_ALTERNATE_NAMES,
     url,
     email: PRIVACY_CONTACT_EMAIL,
@@ -256,7 +256,7 @@ export function sportsEventJsonLd() {
     name: 'מונדיאל קיץ 2026 כפר כמא',
     alternateName: TOURNAMENT_ALTERNATE_NAMES,
     description:
-      'טורניר כדורגל (כדור רגל) קיץ בכפר כמא / כפר קמא — תוצאות, לוח משחקים וסטטיסטיקות.',
+      'טורניר כדורגל (כדור רגל) קיץ בכפר כמא / כפר קמא. תוצאות, לוח משחקים וסטטיסטיקות.',
     url,
     startDate: TOURNAMENT_START_ISO,
     endDate: TOURNAMENT_END_ISO,

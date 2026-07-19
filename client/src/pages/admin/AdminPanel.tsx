@@ -255,7 +255,7 @@ const AdminPanel = () => {
                 throw new Error('ניצחון טכני חייב להיות לאחת מקבוצות המשחק');
             }
             if ((match.goals ?? []).length > 0) {
-                throw new Error('לא ניתן לרשום ניצחון טכני למשחק עם שערים — מחק שערים תחילה');
+                throw new Error('לא ניתן לרשום ניצחון טכני למשחק עם שערים. מחק שערים תחילה');
             }
         }
 
@@ -499,7 +499,7 @@ const AdminPanel = () => {
         <div className="admin-panel">
             <SEO
                 title="פאנל ניהול"
-                description="ניהול משחקים, חדשות, שחקנים ותגובות — מונדיאל קיץ 2026."
+                description="ניהול משחקים, חדשות, שחקנים ותגובות. מונדיאל קיץ 2026."
                 pathname="/admin"
                 noindex
             />
