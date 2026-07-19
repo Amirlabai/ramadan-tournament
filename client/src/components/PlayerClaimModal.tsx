@@ -264,7 +264,7 @@ const PlayerClaimModal = ({ onClose }: PlayerClaimModalProps) => {
                                             <label className="form-label">עמדה</label>
                                             <select className="form-select" value={customProfile.position}
                                                 onChange={e => setCustomProfile(p => ({ ...p, position: e.target.value }))}>
-                                                <option value="">—</option>
+                                                <option value="">-</option>
                                                 {POSITIONS.map(pos => <option key={pos} value={pos}>{pos}</option>)}
                                             </select>
                                         </div>

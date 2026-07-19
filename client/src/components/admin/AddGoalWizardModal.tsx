@@ -88,7 +88,7 @@ const AddGoalWizardModal = ({ match, teams, onClose, onSubmit }: AddGoalWizardMo
     };
 
     const modalTitleId = 'add-goal-modal-title';
-    const scoreDisplay = `${match.score1 ?? '—'} : ${match.score2 ?? '—'}`;
+    const scoreDisplay = `${match.score1 ?? '-'} : ${match.score2 ?? '-'}`;
     const canSubmit = ownGoalSelected || (selectedMemberId != null && players.length > 0);
     const showPlayerFooter = !success && step === 'player';
 

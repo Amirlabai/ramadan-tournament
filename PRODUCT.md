@@ -27,7 +27,8 @@ Community, local pride, energetic but trustworthy — **not** generic SaaS sport
 1. **IS 5568 / WCAG 2.1 AA** — legal requirement; contrast, keyboard, labels non-negotiable.
 2. **Task-first product UI** — earned familiarity over decoration; motion conveys state only.
 3. **Three tournament themes** — boys (green/gold), girls (rose/lavender), World Cup (navy/gold) via `data-tournament`; shared components repaint through `--color-*` tokens.
-4. **Hebrew RTL** — `lang="he"`, `dir="rtl"`, Jerusalem timezone for matches.
+4. **Hebrew RTL** - `lang="he"`, `dir="rtl"`, Jerusalem timezone for matches.
+5. **No em dashes** - never `—` in user-facing copy (UI, SEO, emails, errors). Prefer period, colon, or line break. Empty cells: ASCII `-` via `displayOrDash` (`shared/emptyDisplay.ts`). En dashes in ranges (`1–7`) are fine.
 
 ## Key surfaces
 

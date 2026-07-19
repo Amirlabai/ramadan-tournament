@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { isEmptyDisplayValue } from '@ramadan-tournament/shared';
 import { transliterateLatinName } from './latinToHebrew';
 
 export interface WorldCupLocaleData {
@@ -98,13 +99,13 @@ export function wcPlayerName(name: string | undefined | null, id?: number | null
 }
 
 export function wcVenue(venue: string | undefined | null): string {
-  if (!venue?.trim() || venue === '—') return venue || '—';
-  return loadLocale().venues[venue] || venue;
+  if (isEmptyDisplayValue(venue)) return '-';
+  return loadLocale().venues[venue!] || venue!;
 }
 
 export function wcPosition(position: string | undefined | null): string {
-  if (!position?.trim() || position === '—') return position || '—';
-  return loadLocale().positions[position] || position;
+  if (isEmptyDisplayValue(position)) return '-';
+  return loadLocale().positions[position!] || position!;
 }
 
 export function wcStage(stage: string | undefined | null): string {

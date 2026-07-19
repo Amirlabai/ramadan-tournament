@@ -9,6 +9,7 @@ Canonical documentation for this monorepo. **If docs disagree with code, code wi
 | Code | `client/src`, `server/src`, `shared/`, `server/prisma/schema.prisma` | Ultimate behavior |
 | **This tree** | `docs/` | Architecture, API, product intent, QA traceability |
 | Session | [`context.md`](../context.md), [`status.md`](../status.md) | Overview + milestones (pointers only) |
+| Agent rules | [`.cursor/rules/`](../.cursor/rules/) | Always-on / scoped conventions (a11y, mobile, **no em dashes** in product copy) |
 | Quick start | Root [`README.md`](../README.md), [`client/README.md`](../client/README.md), [`server/README.md`](../server/README.md) | Setup and scripts |
 
 ## Directories

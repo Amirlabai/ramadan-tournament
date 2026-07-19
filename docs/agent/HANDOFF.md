@@ -17,6 +17,7 @@ Compact implementation guide for Cursor agents and contributors.
 | [`docs/review/phase-2-rtm-qa-may-2026.md`](../review/phase-2-rtm-qa-may-2026.md) | QA traceability (may lag code) |
 | [`status.md`](../../status.md) | Milestones, open QA, deploy checklist |
 | [`context.md`](../../context.md) | Env vars, deploy, architecture overview |
+| [`.cursor/rules/no-em-dashes-product-copy.mdc`](../../.cursor/rules/no-em-dashes-product-copy.mdc) | No `—` in UI/SEO/emails; empty cells via `displayOrDash` |
 
 ---
 
@@ -98,6 +99,7 @@ npm run dev:mock
 4. **Identity before roster** — join/creation approval requires `season_registrations.status = active` + matched identity.
 5. **Platform admin vs captain** — roster mutations admin-only; captains approve joins on Profile/Teams only.
 6. **IS 5568** — all `client/**` UI changes must comply; see [`.cursor/rules/israeli-accessibility-is5568.mdc`](../../.cursor/rules/israeli-accessibility-is5568.mdc).
+7. **No em dashes in product copy** — never `—` in UI/SEO/emails/API errors; empty cells use `-` via `displayOrDash`; see [`.cursor/rules/no-em-dashes-product-copy.mdc`](../../.cursor/rules/no-em-dashes-product-copy.mdc).
 
 ---
 

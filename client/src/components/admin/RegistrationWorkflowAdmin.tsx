@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useState } from 'react';
-import { getRegistrationStatusLabel } from '@ramadan-tournament/shared';
+import { getRegistrationStatusLabel, displayOrDash } from '@ramadan-tournament/shared';
 import { adminAPI } from '../../api/client';
 import { mergedIdentityQueue } from '../../utils/adminWorkflowPendingCount';
 import { useNavActionIndicators } from '../../contexts/NavActionIndicatorsContext';
@@ -235,11 +235,11 @@ export default function RegistrationWorkflowAdmin() {
     ) => {
         const masked = submittedIdentityMasked?.trim();
         if (!masked && submittedBirthYear == null) {
-            return <span className="text-muted">—</span>;
+            return <span className="text-muted">-</span>;
         }
         return (
             <span dir="ltr" className="workflow-monospace font-monospace">
-                {masked ?? '—'}
+                {displayOrDash(masked)}
                 {submittedBirthYear != null && (
                     <span className="text-muted"> · {submittedBirthYear}</span>
                 )}

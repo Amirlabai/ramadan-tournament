@@ -195,7 +195,7 @@ export default function RosterPlayerEditModal({
                 value={form.position}
                 onChange={(e) => setForm((p) => ({ ...p, position: e.target.value }))}
               >
-                <option value="">—</option>
+                <option value="">-</option>
                 {POSITIONS.map((pos) => (
                   <option key={pos} value={pos}>
                     {pos}

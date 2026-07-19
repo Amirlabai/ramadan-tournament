@@ -72,11 +72,11 @@ export function MatchTeamsScore({
 
       <div className="match-scoreline" aria-hidden={!showScores}>
         {showScores ? (
-          <span className="team-score">{score1 ?? '—'}</span>
+          <span className="team-score">{score1 ?? '-'}</span>
         ) : null}
         <span className="vs-divider">{vsLabel}</span>
         {showScores ? (
-          <span className="team-score">{score2 ?? '—'}</span>
+          <span className="team-score">{score2 ?? '-'}</span>
         ) : null}
       </div>
 

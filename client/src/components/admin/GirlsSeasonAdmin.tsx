@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { displayOrDash } from '@ramadan-tournament/shared';
 import { adminAPI } from '../../api/client';
 import type { PointsStandingsEntry } from '../../types/girls';
 
@@ -413,8 +414,8 @@ const GirlsSeasonAdmin = () => {
                         <td>
                           <strong>{e.points > 0 ? `+${e.points}` : e.points}</strong>
                         </td>
-                        <td>{e.note || '—'}</td>
-                        <td>{e.recordedBy?.displayName || '—'}</td>
+                        <td>{displayOrDash(e.note)}</td>
+                        <td>{displayOrDash(e.recordedBy?.displayName)}</td>
                       </tr>
                     ))}
                   </tbody>

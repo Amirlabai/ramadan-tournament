@@ -1,6 +1,7 @@
 import { PlayerHeadImg } from '../PlayerHeadImg';
 import type { Player } from '../../types';
 import { displayNickname, fullName } from '../../utils/playerDisplayName';
+import { displayOrDash } from '@ramadan-tournament/shared';
 
 interface RosterPlayerRowProps {
   player: Player;
@@ -41,6 +42,8 @@ export default function RosterPlayerRow({
   const isCaptain = !!player.isCaptain;
   const isOwner = !!player.isTeamOwner;
   const hasNumber = player.number > 0;
+  const positionDisplay = displayOrDash(player.position);
+  const positionLabel = positionDisplay === '-' ? undefined : positionDisplay;
   const mainClass = `roster-player-row-main${clickable ? '' : ' roster-player-row-main--static'}`;
   const rowClass = [
     'roster-player-row',
@@ -82,8 +85,8 @@ export default function RosterPlayerRow({
         <span className="roster-player-row-fullname" dir="auto">
           {fullName(player)}
         </span>
-        {player.position ? (
-          <span className="roster-player-row-pos-inline">{player.position}</span>
+        {positionLabel ? (
+          <span className="roster-player-row-pos-inline">{positionLabel}</span>
         ) : null}
         {roleText ? (
           <span id={rolesId} className="visually-hidden">
@@ -124,7 +127,7 @@ export default function RosterPlayerRow({
         className="roster-player-row-num"
         aria-label={hasNumber ? `מספר ${player.number}` : 'ללא מספר'}
       >
-        {hasNumber ? player.number : '—'}
+        {hasNumber ? player.number : '-'}
       </span>
 
       {clickable ? (
@@ -141,8 +144,8 @@ export default function RosterPlayerRow({
         <div className={mainClass}>{identity}</div>
       )}
 
-      <span className="roster-player-row-pos" title={player.position || undefined}>
-        {player.position || '—'}
+      <span className="roster-player-row-pos" title={positionLabel}>
+        {positionDisplay}
       </span>
 
       <div className="roster-player-row-stats">

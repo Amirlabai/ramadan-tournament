@@ -3,6 +3,7 @@
  * Two cards produce the same PNG iff their snapshots stringify equal.
  */
 
+import { displayOrDash } from '@ramadan-tournament/shared';
 import type { Match, Team, TopScorer } from '../types';
 
 export type ShareSnapshot = Record<string, unknown>;
@@ -193,7 +194,7 @@ export function formatShareDate(
   options: Intl.DateTimeFormatOptions
 ): string {
   const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) return dateString || '—';
+  if (Number.isNaN(date.getTime())) return displayOrDash(dateString);
   return new Intl.DateTimeFormat('he-IL', {
     ...options,
     timeZone: 'Asia/Jerusalem',

@@ -11,7 +11,7 @@ describe('mergeProfilePosition', () => {
     expect(mergeProfilePosition('   ', 'בלם')).toBe('בלם');
   });
 
-  it('keeps existing when raw is em-dash sentinel', () => {
+  it('keeps existing when raw is empty sentinel', () => {
     expect(mergeProfilePosition('—', 'בלם')).toBe('בלם');
     expect(mergeProfilePosition('-', 'בלם')).toBe('בלם');
   });

@@ -1,3 +1,5 @@
+import { isEmptyDisplayValue } from '@ramadan-tournament/shared';
+
 export type RosterAuditEvent =
   | 'player_profile_position_changed'
   | 'roster_member_deactivate_start'
@@ -23,12 +25,6 @@ export function rosterAudit(
   );
 }
 
-const EMPTY_POSITION_SENTINELS = new Set(['—', '-']);
-
-function isEmptyPositionValue(trimmed: string): boolean {
-  return !trimmed || EMPTY_POSITION_SENTINELS.has(trimmed);
-}
-
 /** Empty string means "unchanged" — do not wipe an existing profile/roster value. */
 export function mergeProfilePosition(
   raw: string | undefined,
@@ -37,6 +33,6 @@ export function mergeProfilePosition(
 ): string {
   if (raw === undefined) return existing;
   const trimmed = String(raw).trim();
-  if (isEmptyPositionValue(trimmed)) return existing;
+  if (isEmptyDisplayValue(trimmed)) return existing;
   return trimmed.slice(0, maxLen);
 }

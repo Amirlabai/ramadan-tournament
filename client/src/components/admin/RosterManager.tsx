@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { displayOrDash } from '@ramadan-tournament/shared';
 import { adminAPI, teamsAPI } from '../../api/client';
 import { useAuth } from '../../contexts/AuthContext';
 import {
@@ -272,7 +273,7 @@ const RosterManager = () => {
                                             </div>
                                         </td>
                                         <td className="fw-bold text-theme-green">{req.pendingTeamRequest.teamName}</td>
-                                        <td className="small text-muted">{req.pendingTeamRequest.description || '—'}</td>
+                                        <td className="small text-muted">{displayOrDash(req.pendingTeamRequest.description)}</td>
                                         <td>
                                             <div className="d-flex gap-2">
                                                 <button className="btn btn-theme-green btn-sm" disabled={!!actionLoading} onClick={() => handleTeamRequest(req.id, 'approved')}>אשר</button>

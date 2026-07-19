@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { STANDINGS_PLAYOFF_ZONE_SIZE } from '@ramadan-tournament/shared';
+import { STANDINGS_PLAYOFF_ZONE_SIZE, displayOrDash } from '@ramadan-tournament/shared';
 import { archiveAPI } from '../api/client';
 import SEO from '../components/SEO';
 import { ArchiveSkeleton } from '../components/skeleton';
@@ -239,7 +239,7 @@ const Archive: React.FC = () => {
                             <tr key={scorer.memberId}>
                               <td className="scorer-rank">{index + 1}</td>
                               <td className="team-name text-end fw-bold">{scorer.playerName || scorer.name}</td>
-                              <td className="text-end text-muted small">{scorer.nickname || '—'}</td>
+                              <td className="text-end text-muted small">{displayOrDash(scorer.nickname)}</td>
                               <td className="text-end">{scorer.teamName}</td>
                               <td className="points">{scorer.goals}</td>
                             </tr>

@@ -171,7 +171,7 @@ const WorldCupTeams = () => {
                           {players.map((p) => (
                             <li key={p.memberId} className="wc-player-chip">
                               <span className="wc-player-num">
-                                {p.number > 0 ? p.number : '—'}
+                                {p.number > 0 ? p.number : '-'}
                               </span>
                               <span className="wc-player-name">{p.nickname}</span>
                             </li>

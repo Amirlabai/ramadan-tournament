@@ -55,6 +55,8 @@ Product UI for a Hebrew RTL tournament site. Boys theme is default (`data-tourna
 
 **Accessibility:** IS 5568 / WCAG 2.1 AA. Minimum contrast 4.5:1 body text. Use `AccessibleModal`, skeleton loaders with `role="status"`, visible `:focus-visible`.
 
+**Product copy:** No em dashes (`—`) in UI, SEO, emails, or API error strings. Prefer period, colon, or line break. Empty/N/A cells use ASCII `-` (`displayOrDash` in `shared/emptyDisplay.ts`). En dashes in ranges only.
+
 ## Colors
 
 - **Primary green** `#509238` — actions, nav active, card headers (solid, not gradient).

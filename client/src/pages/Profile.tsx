@@ -19,7 +19,7 @@ import {
     showLegacyCaptainPanel,
 } from '../utils/tournamentUser';
 import { useHasClaimablePlayers } from '../hooks/useHasClaimablePlayers';
-import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
+import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN, displayOrDash } from '@ramadan-tournament/shared';
 import { tournamentPaths } from '../utils/tournamentPaths';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { SHOW_PROFILE_TEAM_CREATION } from '../config/registrationUi';
@@ -613,7 +613,7 @@ const Profile = () => {
                                         <label htmlFor="profile-player-position" className="form-label">עמדה</label>
                                         <select id="profile-player-position" className="form-select" value={playerForm.position}
                                             onChange={e => setPlayerForm(p => ({ ...p, position: e.target.value }))}>
-                                            <option value="">—</option>
+                                            <option value="">-</option>
                                             {['שוער', 'בלם', 'מגן', 'קשר', 'חלוץ'].map(pos => <option key={pos} value={pos}>{pos}</option>)}
                                         </select>
                                     </div>
@@ -644,12 +644,12 @@ const Profile = () => {
                             </form>
                         ) : playerProfile ? (
                             <div className="row g-2 text-end">
-                                <div className="col-6"><span className="text-muted small">שם פרטי</span><div className="fw-semibold">{playerProfile.firstName || '—'}</div></div>
-                                <div className="col-6"><span className="text-muted small">שם משפחה</span><div className="fw-semibold">{playerProfile.lastName || '—'}</div></div>
-                                <div className="col-6"><span className="text-muted small">כינוי / תג</span><div className="fw-semibold">{playerProfile.nickname || '—'}</div></div>
-                                <div className="col-3"><span className="text-muted small">מספר</span><div className="fw-semibold">{playerProfile.number ?? '—'}</div></div>
-                                <div className="col-3"><span className="text-muted small">עמדה</span><div className="fw-semibold">{playerProfile.position || '—'}</div></div>
-                                <div className="col-12 mt-3"><span className="text-muted small">אודות</span><div className="fw-semibold" style={{ whiteSpace: 'pre-line' }}>{playerProfile.bio || '—'}</div></div>
+                                <div className="col-6"><span className="text-muted small">שם פרטי</span><div className="fw-semibold">{displayOrDash(playerProfile.firstName)}</div></div>
+                                <div className="col-6"><span className="text-muted small">שם משפחה</span><div className="fw-semibold">{displayOrDash(playerProfile.lastName)}</div></div>
+                                <div className="col-6"><span className="text-muted small">כינוי / תג</span><div className="fw-semibold">{displayOrDash(playerProfile.nickname)}</div></div>
+                                <div className="col-3"><span className="text-muted small">מספר</span><div className="fw-semibold">{playerProfile.number ?? '-'}</div></div>
+                                <div className="col-3"><span className="text-muted small">עמדה</span><div className="fw-semibold">{displayOrDash(playerProfile.position)}</div></div>
+                                <div className="col-12 mt-3"><span className="text-muted small">אודות</span><div className="fw-semibold" style={{ whiteSpace: 'pre-line' }}>{displayOrDash(playerProfile.bio)}</div></div>
                             </div>
                         ) : (
                             <div className="text-center py-3 text-muted">

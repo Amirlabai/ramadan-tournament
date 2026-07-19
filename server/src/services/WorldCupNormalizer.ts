@@ -128,7 +128,7 @@ export function normalizeMatch(raw: FdMatch): NormalizedMatch {
   return {
     id: raw.id,
     date: raw.utcDate,
-    location: wcVenue(raw.venue) || '—',
+    location: wcVenue(raw.venue) || '-',
     phase,
     team1Id: raw.homeTeam.id,
     team2Id: raw.awayTeam.id,
@@ -306,7 +306,7 @@ export function normalizeTeamsResponse(data: {
         lastName,
         nickname: displayName,
         number: p.shirtNumber ?? 0,
-        position: wcPosition(p.position) || '—',
+        position: wcPosition(p.position) || '-',
         isCaptain: false,
       };
     });

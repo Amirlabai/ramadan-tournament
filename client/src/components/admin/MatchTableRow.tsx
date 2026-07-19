@@ -296,7 +296,7 @@ const MatchTableRow = ({
             ? `ניצחון טכני: ${getTeamName(match.technicalWinnerTeamId)}`
             : (match.goals ?? []).length > 0
                 ? (match.goals ?? []).map(g => goalLabel(g)).join(', ')
-                : '—';
+                : '-';
 
         return (
             <>
@@ -314,7 +314,7 @@ const MatchTableRow = ({
                     <td data-label="קבוצה 1" className="team-cell">{getTeamName(match.team1Id)}</td>
                     <td data-label="תוצאה" className="score-cell text-center">
                         <span className="score-display">
-                            {match.score1 ?? '—'} : {match.score2 ?? '—'}
+                            {match.score1 ?? '-'} : {match.score2 ?? '-'}
                         </span>
                         {match.technicalWinnerTeamId != null && (
                             <span className="badge bg-secondary d-block mt-1" style={{ fontSize: '0.65rem' }}>טכני</span>
