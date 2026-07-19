@@ -200,14 +200,15 @@ export async function verifyCompressedImage(
     return { ok: false, reason: 'compressed missing dimensions' };
   }
 
-  let srcMeta: sharp.Metadata;
+  let srcW = 0;
+  let srcH = 0;
   try {
-    srcMeta = await sharp(sourcePath).rotate().metadata();
+    const srcMeta = await sharp(sourcePath).rotate().metadata();
+    srcW = srcMeta.width ?? 0;
+    srcH = srcMeta.height ?? 0;
   } catch {
-    srcMeta = {};
+    /* source unreadable after compress; still accept output dimension check */
   }
-  const srcW = srcMeta.width ?? 0;
-  const srcH = srcMeta.height ?? 0;
   if (srcW && srcH && shortEdge(srcW, srcH) > SHORT_EDGE_MAX) {
     if (shortEdge(w, h) > SHORT_EDGE_MAX) {
       return { ok: false, reason: `short edge still ${shortEdge(w, h)}` };
