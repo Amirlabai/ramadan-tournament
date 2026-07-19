@@ -82,6 +82,12 @@ export const CLIENT_EVENT_ALLOWLIST = new Set([
   'donation_popup_show',
   'donation_popup_cta',
   'donation_popup_dismiss',
+  'albums_discover_show',
+  'albums_discover_cta',
+  'albums_discover_dismiss',
+  'stats_discover_show',
+  'stats_discover_cta',
+  'stats_discover_dismiss',
 ]);
 
 export const SERVER_EVENT_ALLOWLIST = new Set([

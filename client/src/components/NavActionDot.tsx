@@ -28,6 +28,8 @@ interface NavActionLinkProps {
     onClick?: () => void;
     trackNav?: boolean;
     external?: boolean;
+    /** Stable selector for discover-tip highlights. */
+    dataNavTarget?: string;
 }
 
 export function NavActionLink({
@@ -40,6 +42,7 @@ export function NavActionLink({
     onClick,
     trackNav = false,
     external = false,
+    dataNavTarget,
 }: NavActionLinkProps) {
     const handleClick = () => {
         if (trackNav) {
@@ -55,6 +58,9 @@ export function NavActionLink({
     const ariaLabel = external
         ? `${withPendingActionLabel(label, showActionDot)} (נפתח בחלון חדש)`
         : navLinkActionAriaLabel(label, showActionDot);
+    const dataAttrs = dataNavTarget
+        ? { 'data-nav-target': dataNavTarget }
+        : undefined;
 
     if (external) {
         return (
@@ -65,6 +71,7 @@ export function NavActionLink({
                 className={linkClass}
                 aria-label={ariaLabel}
                 onClick={handleClick}
+                {...dataAttrs}
             >
                 {label}
                 {showActionDot && <NavActionDot />}
@@ -79,6 +86,7 @@ export function NavActionLink({
             aria-current={active ? 'page' : undefined}
             aria-label={ariaLabel}
             onClick={handleClick}
+            {...dataAttrs}
         >
             {label}
             {showActionDot && <NavActionDot />}

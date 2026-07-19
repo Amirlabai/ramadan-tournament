@@ -49,7 +49,7 @@ import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
 import RouteErrorBoundary from './components/RouteErrorBoundary'
 import CookieNotice from './components/CookieNotice'
-import DonationPopup from './components/DonationPopup'
+import EngagementNudgeHost from './components/EngagementNudgeHost'
 import AccessibilityToolbar from './components/AccessibilityToolbar'
 import { useCookieConsent } from './hooks/useCookieConsent'
 import { useSidebarDrawer } from './hooks/useSidebarDrawer'
@@ -246,7 +246,13 @@ function AppShell() {
         </div>
         <Footer />
         {isMobile && <MobileBottomNav />}
-        {!isGirls && !isWorldCup && <DonationPopup />}
+        {!isGirls && !isWorldCup && (
+          <EngagementNudgeHost
+            openMobileDrawer={openDrawer}
+            isMobile={isMobile}
+            mobileDrawerOpen={drawerOpen}
+          />
+        )}
         <ScrollToTop />
         {consent === 'accepted' && <Analytics />}
       </div>

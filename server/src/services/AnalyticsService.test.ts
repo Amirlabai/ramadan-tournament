@@ -93,6 +93,12 @@ describe('isAllowedAnalyticsEvent', () => {
     expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_show')).toBe(true);
     expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_cta')).toBe(true);
     expect(CLIENT_EVENT_ALLOWLIST.has('donation_popup_dismiss')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('albums_discover_show')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('albums_discover_cta')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('albums_discover_dismiss')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('stats_discover_show')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('stats_discover_cta')).toBe(true);
+    expect(CLIENT_EVENT_ALLOWLIST.has('stats_discover_dismiss')).toBe(true);
     expect(CLIENT_EVENT_ALLOWLIST.has('match_expand')).toBe(true);
   });
 

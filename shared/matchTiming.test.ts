@@ -3,7 +3,9 @@ import { jerusalemDateTime } from './jerusalemDate';
 import {
   getMatchDisplayStatus,
   hasMatchOnJerusalemDate,
+  isAlbumsDiscoverWeekday,
   isDonationPopupWindow,
+  isStatsDiscoverWeekend,
   isTournamentPollingWindow,
   needsMatchStatusClockTick,
   shouldCountMatchInStats,
@@ -148,6 +150,42 @@ describe('isDonationPopupWindow', () => {
   it('is false on Tuesday after 17:00', () => {
     const now = jerusalemDateTime('2026-07-14', '18:00');
     expect(isDonationPopupWindow(now)).toBe(false);
+  });
+});
+
+describe('isAlbumsDiscoverWeekday', () => {
+  it('is true on Sunday', () => {
+    expect(isAlbumsDiscoverWeekday(jerusalemDateTime('2026-07-12', '10:00'))).toBe(true);
+  });
+
+  it('is true on Thursday evening', () => {
+    expect(isAlbumsDiscoverWeekday(jerusalemDateTime('2026-07-09', '22:00'))).toBe(true);
+  });
+
+  it('is false on Friday morning', () => {
+    expect(isAlbumsDiscoverWeekday(jerusalemDateTime('2026-07-10', '09:00'))).toBe(false);
+  });
+
+  it('is false on Saturday', () => {
+    expect(isAlbumsDiscoverWeekday(jerusalemDateTime('2026-07-11', '18:00'))).toBe(false);
+  });
+});
+
+describe('isStatsDiscoverWeekend', () => {
+  it('is true on Friday before donate hour', () => {
+    expect(isStatsDiscoverWeekend(jerusalemDateTime('2026-07-10', '10:00'))).toBe(true);
+  });
+
+  it('is true on Saturday evening', () => {
+    expect(isStatsDiscoverWeekend(jerusalemDateTime('2026-07-11', '20:00'))).toBe(true);
+  });
+
+  it('is false on Sunday', () => {
+    expect(isStatsDiscoverWeekend(jerusalemDateTime('2026-07-12', '18:00'))).toBe(false);
+  });
+
+  it('is false on Thursday', () => {
+    expect(isStatsDiscoverWeekend(jerusalemDateTime('2026-07-09', '18:00'))).toBe(false);
   });
 });
 

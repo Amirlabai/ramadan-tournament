@@ -71,6 +71,7 @@ const TournamentSidebar = ({
               showActionDot={item.showActionDot}
               external={item.external}
               trackNav
+              dataNavTarget={item.navTarget}
               onClick={isMobile ? close : undefined}
             />
           </li>

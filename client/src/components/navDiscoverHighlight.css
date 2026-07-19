@@ -1,0 +1,31 @@
+.nav-discover-pulse {
+  outline: 3px solid var(--color-secondary-yellow, #e8b923) !important;
+  outline-offset: 2px;
+  z-index: 2;
+  position: relative;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .nav-discover-pulse {
+    animation: nav-discover-pulse-glow 0.85s ease-in-out 3;
+  }
+}
+
+@keyframes nav-discover-pulse-glow {
+  0%,
+  100% {
+    outline-color: var(--color-secondary-yellow, #e8b923);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-secondary-yellow, #e8b923) 45%, transparent);
+  }
+  50% {
+    outline-color: var(--color-primary, #509238);
+    box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-secondary-yellow, #e8b923) 35%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-discover-pulse {
+    animation: none;
+    outline: 3px solid var(--color-primary, #509238) !important;
+  }
+}

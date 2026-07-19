@@ -1,0 +1,162 @@
+.discover-coachmark-root {
+  position: fixed;
+  inset: 0;
+  z-index: 2550;
+  pointer-events: none;
+}
+
+.discover-coachmark {
+  pointer-events: auto;
+  position: fixed;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: min(17.5rem, calc(100vw - 1.5rem));
+  padding: 1rem 2.75rem 1.1rem;
+  border-radius: 12px;
+  text-align: center;
+  color: var(--color-text, #333);
+  background: linear-gradient(
+    160deg,
+    var(--color-highlight-bg-start, #fff8dc) 0%,
+    var(--color-gold-light, #ffe285) 45%,
+    var(--color-highlight-bg-end, #ffe4b5) 100%
+  );
+  border: 3px solid var(--color-primary, #509238);
+  box-shadow: var(--shadow-lg, 0 10px 25px rgba(0, 0, 0, 0.25));
+}
+
+.discover-coachmark-pointer {
+  position: absolute;
+  top: 1.35rem;
+  inset-inline-end: -10px;
+  width: 0;
+  height: 0;
+  border-block: 10px solid transparent;
+  border-inline-start: 10px solid var(--color-primary, #509238);
+}
+
+.discover-coachmark-pointer--down {
+  top: auto;
+  bottom: -10px;
+  inset-inline-end: auto;
+  inset-inline-start: 50%;
+  transform: translateX(-50%);
+  border-inline-start: 10px solid transparent;
+  border-inline-end: 10px solid transparent;
+  border-block: 0;
+  border-block-start: 10px solid var(--color-primary, #509238);
+}
+
+.discover-coachmark-close {
+  position: absolute;
+  top: 0.15rem;
+  left: 0.15rem;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-primary-dark, #296912);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.discover-coachmark-close:focus-visible {
+  outline: 2px solid var(--color-primary, #509238);
+  outline-offset: 2px;
+}
+
+.discover-coachmark-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  margin: 0 0 0.4rem;
+  width: 100%;
+  color: var(--color-primary-dark, #296912);
+  text-align: center;
+  text-wrap: balance;
+}
+
+.discover-coachmark-text {
+  margin: 0 0 0.75rem;
+  width: 100%;
+  line-height: 1.45;
+  font-size: 0.98rem;
+  color: var(--color-text, #333);
+  text-align: center;
+  text-wrap: pretty;
+  white-space: pre-line;
+}
+
+.discover-coachmark-cta {
+  min-height: 44px;
+  min-width: 7rem;
+  margin-inline: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  text-align: center;
+}
+
+.discover-coachmark--mobile {
+  inset-inline: 0.75rem;
+  bottom: calc(
+    var(--mobile-bottom-nav-height, 3.5rem) + env(safe-area-inset-bottom, 0px) + 0.75rem
+  );
+  top: auto;
+  left: auto;
+  right: auto;
+  width: auto;
+  max-width: none;
+  padding: 1rem 2.75rem 1.1rem;
+  border-radius: 14px 14px 10px 10px;
+}
+
+.discover-coachmark--mobile .discover-coachmark-close {
+  left: auto;
+  right: 0.15rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .discover-coachmark--desktop {
+    animation: discover-coachmark-in 0.28s ease-out;
+  }
+
+  .discover-coachmark--mobile {
+    animation: discover-coachmark-up 0.28s ease-out;
+  }
+}
+
+@keyframes discover-coachmark-in {
+  from {
+    opacity: 0;
+    transform: translateX(0.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes discover-coachmark-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.75rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

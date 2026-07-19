@@ -1,52 +1,24 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { isDonationPopupWindow, jerusalemDateKey } from '@ramadan-tournament/shared'
 import { DONATE_PAGE_URL } from '../config/contactConfig'
-import { useCookieConsent } from '../hooks/useCookieConsent'
 import { useFocusTrap } from '../hooks/useFocusTrap'
 import { trackEvent } from '../utils/analytics'
 import './DonationPopup.css'
 
-const DATE_STORAGE_KEY = 'donationPopupShownDate'
-const SESSION_STORAGE_KEY = 'donationPopupShownSession'
+export type DonationPopupCloseReason = 'dismiss' | 'cta'
 
-function readStorage(storage: Storage, key: string): string | null {
-  try {
-    return storage.getItem(key)
-  } catch {
-    return null
-  }
+type DonationPopupProps = {
+  open: boolean
+  onClose: (reason: DonationPopupCloseReason) => void
 }
 
-function writeStorage(storage: Storage, key: string, value: string): void {
-  try {
-    storage.setItem(key, value)
-  } catch {
-    /* ignore quota / private mode */
-  }
-}
-
-function markShown(todayKey: string): void {
-  writeStorage(localStorage, DATE_STORAGE_KEY, todayKey)
-  writeStorage(sessionStorage, SESSION_STORAGE_KEY, '1')
-}
-
-function shouldOfferPopup(now: Date = new Date()): boolean {
-  if (!isDonationPopupWindow(now)) return false
-  if (readStorage(sessionStorage, SESSION_STORAGE_KEY) === '1') return false
-  const todayKey = jerusalemDateKey(now)
-  if (readStorage(localStorage, DATE_STORAGE_KEY) === todayKey) return false
-  return true
-}
-
-const DonationPopup = () => {
-  const { showBanner, ready } = useCookieConsent()
-  const [open, setOpen] = useState(false)
+/** Presentational donate dialog — timing/storage owned by EngagementNudgeHost. */
+const DonationPopup = ({ open, onClose }: DonationPopupProps) => {
   const [mounted, setMounted] = useState(false)
 
   const dismiss = () => {
     trackEvent('donation_popup_dismiss', { category: 'interaction' })
-    setOpen(false)
+    onClose('dismiss')
   }
 
   const dialogRef = useFocusTrap(open, dismiss)
@@ -54,16 +26,6 @@ const DonationPopup = () => {
   useEffect(() => {
     setMounted(true)
   }, [])
-
-  useEffect(() => {
-    if (!ready || showBanner) return
-    if (!shouldOfferPopup()) return
-
-    const todayKey = jerusalemDateKey(new Date())
-    markShown(todayKey)
-    trackEvent('donation_popup_show', { category: 'interaction' })
-    setOpen(true)
-  }, [ready, showBanner])
 
   useEffect(() => {
     if (!open) return
@@ -113,7 +75,7 @@ const DonationPopup = () => {
             rel="noopener noreferrer"
             onClick={() => {
               trackEvent('donation_popup_cta', { category: 'interaction' })
-              setOpen(false)
+              onClose('cta')
             }}
           >
             לתרומה

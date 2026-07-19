@@ -82,6 +82,18 @@ export function isDonationPopupWindow(now: Date = new Date()): boolean {
   return (DONATION_POPUP_WEEKDAYS as readonly number[]).includes(weekday);
 }
 
+/** True Sun–Thu Jerusalem (albums discover tip; no hour gate). */
+export function isAlbumsDiscoverWeekday(now: Date = new Date()): boolean {
+  const weekday = getWeekdayFromDateString(jerusalemDateKey(now));
+  return weekday >= 0 && weekday <= 4;
+}
+
+/** True Fri/Sat Jerusalem (stats discover tip; no hour gate). */
+export function isStatsDiscoverWeekend(now: Date = new Date()): boolean {
+  const weekday = getWeekdayFromDateString(jerusalemDateKey(now));
+  return (DONATION_POPUP_WEEKDAYS as readonly number[]).includes(weekday);
+}
+
 export function hasMatchOnJerusalemDate(
   matches: { date: string }[],
   now: Date = new Date()

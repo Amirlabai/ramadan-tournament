@@ -104,6 +104,7 @@ const MobileBottomNav = () => {
                   aria-current={active ? 'page' : undefined}
                   aria-label={item.label}
                   title={item.label}
+                  data-nav-target={item.navTarget}
                   onClick={(event) => onPrimaryClick(event, item.to)}
                 >
                   <i className={`bi ${item.icon} mobile-bottom-nav-icon`} aria-hidden="true" />

@@ -15,7 +15,10 @@ export interface NavItem {
   showActionDot?: boolean
   actionIndicator?: NavActionIndicator
   external?: boolean
+  /** Stable discover-coachmark highlight key (not Hebrew label). */
+  navTarget?: 'media-docs' | 'stats'
 }
+
 
 /** Primary bottom-tab item (profile slot is handled separately in MobileBottomNav). */
 export interface MobilePrimaryNavItem extends NavItem {
@@ -51,6 +54,7 @@ function mediaDocsNavItems(): NavItem[] {
         label: mediaDocsNavLabel(name),
         external: true,
         className: 'media-docs-link',
+        navTarget: 'media-docs',
       },
     ]
   })
@@ -65,7 +69,11 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
       { to: paths.home ?? '/world-cup', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/world-cup/teams', label: 'נבחרות' },
       { to: 'schedule' in paths ? paths.schedule : '/world-cup/schedule', label: 'משחקים' },
-      { to: 'stats' in paths ? paths.stats : '/world-cup/stats', label: 'סטטיסטיקות' }
+      {
+        to: 'stats' in paths ? paths.stats : '/world-cup/stats',
+        label: 'סטטיסטיקות',
+        navTarget: 'stats',
+      }
     )
   } else if (isGirls) {
     items.push(
@@ -91,7 +99,11 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
       { to: paths.home ?? '/', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות' },
       { to: 'schedule' in paths ? paths.schedule : '/schedule', label: 'משחקים' },
-      { to: 'stats' in paths ? paths.stats : '/stats', label: 'סטטיסטיקות' },
+      {
+        to: 'stats' in paths ? paths.stats : '/stats',
+        label: 'סטטיסטיקות',
+        navTarget: 'stats',
+      },
       { to: 'archive' in paths ? paths.archive : '/archive', label: 'ארכיון' }
     )
   }
@@ -163,6 +175,7 @@ export function getMobilePrimaryNavItems(
         to: 'stats' in paths ? paths.stats : '/world-cup/stats',
         label: 'סטטיסטיקות',
         icon: 'bi-bar-chart',
+        navTarget: 'stats',
       },
     ]
   }
@@ -182,7 +195,12 @@ export function getMobilePrimaryNavItems(
     { to: paths.home ?? '/', label: 'דף הבית', icon: 'bi-house' },
     { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות', icon: 'bi-people' },
     { to: 'schedule' in paths ? paths.schedule : '/schedule', label: 'משחקים', icon: 'bi-calendar3' },
-    { to: 'stats' in paths ? paths.stats : '/stats', label: 'סטטיסטיקות', icon: 'bi-bar-chart' },
+    {
+      to: 'stats' in paths ? paths.stats : '/stats',
+      label: 'סטטיסטיקות',
+      icon: 'bi-bar-chart',
+      navTarget: 'stats',
+    },
   ]
 }
 
