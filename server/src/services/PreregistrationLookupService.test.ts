@@ -37,7 +37,7 @@ describe('PreregistrationLookupService', () => {
         name: 'סאו בושנק',
         personalId: '305088411',
         adminMissing: 'birth_year',
-        teamName: 'מרוקו',
+        teamName: 'big boss',
         role: 'player',
       },
     ]);

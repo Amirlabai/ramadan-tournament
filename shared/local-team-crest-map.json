@@ -42,10 +42,11 @@
         },
         {
           "localTeamId": 6,
-          "localNameHe": "מרוקו",
+          "localNameHe": "big boss",
           "worldCupNameEn": "Morocco",
           "localAssetPath": "assets/images/teams/wc-morocco.svg",
-          "sourceCrestUrl": "https://crests.football-data.org/morocco.svg"
+          "sourceCrestUrl": "https://crests.football-data.org/morocco.svg",
+          "note": "בחסות הבלעדית של טייקון כפר כמא (כי מישהו צריך לממן את זה 💸)"
         },
         {
           "localTeamId": 7,
