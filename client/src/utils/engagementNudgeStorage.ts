@@ -10,6 +10,7 @@ const DONATION_DATE_KEY = 'donationPopupShownDate'
 const DONATION_SESSION_KEY = 'donationPopupShownSession'
 const ALBUMS_DATE_KEY = 'albumsDiscoverShownDate'
 const ALBUMS_SESSION_KEY = 'albumsDiscoverShownSession'
+export const ALBUMS_NEVER_SHOW_KEY = 'albumsDiscoverNeverShow'
 const STATS_DATE_KEY = 'statsDiscoverShownDate'
 const STATS_SESSION_KEY = 'statsDiscoverShownSession'
 
@@ -58,6 +59,7 @@ export function hasMediaDocsSponsors(): boolean {
 }
 
 export function shouldOfferAlbumsDiscover(now: Date = new Date()): boolean {
+  if (readStorage(localStorage, ALBUMS_NEVER_SHOW_KEY) === '1') return false
   if (!isAlbumsDiscoverWeekday(now)) return false
   if (!hasMediaDocsSponsors()) return false
   return !alreadyShown(ALBUMS_DATE_KEY, ALBUMS_SESSION_KEY, now)
@@ -65,6 +67,10 @@ export function shouldOfferAlbumsDiscover(now: Date = new Date()): boolean {
 
 export function markAlbumsDiscoverShown(now: Date = new Date()): void {
   markShown(ALBUMS_DATE_KEY, ALBUMS_SESSION_KEY, now)
+}
+
+export function markAlbumsDiscoverNeverShow(): void {
+  writeStorage(localStorage, ALBUMS_NEVER_SHOW_KEY, '1')
 }
 
 export function shouldOfferStatsDiscover(

@@ -110,6 +110,27 @@
   text-align: center;
 }
 
+.discover-coachmark-dont-show {
+  margin-top: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted, #555);
+}
+
+.discover-coachmark-dont-show label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.discover-coachmark-dont-show input[type="checkbox"] {
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+  accent-color: var(--color-primary, #509238);
+}
+
 .discover-coachmark--mobile {
   inset-inline: 0.75rem;
   bottom: calc(

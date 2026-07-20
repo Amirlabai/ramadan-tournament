@@ -25,7 +25,7 @@ type NavDiscoverCoachmarkProps = {
   onShown: () => void
   /** No target / failed settle — do not mark storage. */
   onAbort: () => void
-  onClose: (reason: NavDiscoverCloseReason) => void
+  onClose: (reason: NavDiscoverCloseReason, dontShowAgain?: boolean) => void
 }
 
 type AnchorPos = { top: number; left: number }
@@ -89,6 +89,10 @@ const NavDiscoverCoachmark = ({
   const targetClickedRef = useRef(false)
   const shownRef = useRef(false)
   const closedRef = useRef(false)
+  const [dontShowAgain, setDontShowAgain] = useState(false)
+  const dontShowAgainRef = useRef(dontShowAgain)
+  dontShowAgainRef.current = dontShowAgain
+
   const onShownRef = useRef(onShown)
   const onAbortRef = useRef(onAbort)
   const onCloseRef = useRef(onClose)
@@ -99,7 +103,7 @@ const NavDiscoverCoachmark = ({
   const closeOnce = (reason: NavDiscoverCloseReason) => {
     if (closedRef.current) return
     closedRef.current = true
-    onCloseRef.current(reason)
+    onCloseRef.current(reason, dontShowAgainRef.current)
   }
 
   useEffect(() => {
@@ -263,6 +267,18 @@ const NavDiscoverCoachmark = ({
         >
           הבנתי
         </button>
+        {kind === 'albums' && (
+          <div className="discover-coachmark-dont-show">
+            <label>
+              <input
+                type="checkbox"
+                checked={dontShowAgain}
+                onChange={(e) => setDontShowAgain(e.target.checked)}
+              />
+              אל תציג שוב
+            </label>
+          </div>
+        )}
       </div>
     </div>,
     document.body

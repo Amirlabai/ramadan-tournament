@@ -8,6 +8,7 @@ import { useCookieConsent } from '../hooks/useCookieConsent'
 import { trackEvent } from '../utils/analytics'
 import {
   markAlbumsDiscoverShown,
+  markAlbumsDiscoverNeverShow,
   markDonationPopupShown,
   markStatsDiscoverShown,
   shouldOfferAlbumsDiscover,
@@ -113,11 +114,14 @@ const EngagementNudgeHost = ({
     setPhase(null)
   }, [])
 
-  const onAlbumsClose = useCallback((reason: 'dismiss' | 'cta') => {
+  const onAlbumsClose = useCallback((reason: 'dismiss' | 'cta', dontShowAgain?: boolean) => {
     trackEvent(
       reason === 'cta' ? 'albums_discover_cta' : 'albums_discover_dismiss',
       { category: 'interaction' }
     )
+    if (dontShowAgain) {
+      markAlbumsDiscoverNeverShow()
+    }
     setPhase(null)
   }, [])
 
