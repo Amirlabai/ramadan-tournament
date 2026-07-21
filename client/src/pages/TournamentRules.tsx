@@ -5,6 +5,7 @@ import {
 } from '../content/circassianTournamentRules'
 import { siteHomePath } from '../utils/tournamentPaths'
 import './TournamentRules.css'
+import BigBossLegalNote from '../components/BigBossLegalNote'
 
 const TournamentRules = () => (
   <LegalPageLayout
@@ -14,6 +15,10 @@ const TournamentRules = () => (
     ]}
   >
     <h2>{TOURNAMENT_RULES_TITLE}</h2>
+    <BigBossLegalNote>
+      לשכת הבוס מאשרת בזאת את קיום המשחקים, כל עוד התוצאות מחמיאות לחזונו.
+      חוקי המשחק המחייבים נשארים הכללים המפורטים להלן.
+    </BigBossLegalNote>
 
     <section className="mb-4">
       <h3>חוקי משחק וכללים בסיסיים</h3>

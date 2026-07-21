@@ -51,6 +51,8 @@ import RouteErrorBoundary from './components/RouteErrorBoundary'
 import CookieNotice from './components/CookieNotice'
 import EngagementNudgeHost from './components/EngagementNudgeHost'
 import AccessibilityToolbar from './components/AccessibilityToolbar'
+import BigBossName from './components/BigBossName'
+import BigBossPermissionGate from './components/BigBossPermissionGate'
 import { useCookieConsent } from './hooks/useCookieConsent'
 import { useSidebarDrawer } from './hooks/useSidebarDrawer'
 import { useSwipeOpenDrawer } from './hooks/useSwipeOpenDrawer'
@@ -58,9 +60,11 @@ import { NavActionIndicatorsProvider } from './contexts/NavActionIndicatorsConte
 import './App.css'
 import './styles/neo-brutal-browse.css'
 import './styles/teams-browse.css'
+import './styles/big-boss-roleplay.css'
 import { Analytics } from '@vercel/analytics/react'
 import { useEffect } from 'react'
 import { useAnalyticsTracking } from './hooks/usePageTracking'
+import { isBigBossPublicPath } from './utils/bigBossRoleplay'
 
 function AppRoutes() {
   const location = useLocation()
@@ -107,6 +111,7 @@ function AppRoutes() {
 
 function AppShell() {
   const { isGirls, isWorldCup } = useTournament()
+  const location = useLocation()
   const { consent } = useCookieConsent()
   useAnalyticsTracking(consent)
   const mainRef = useRef<HTMLElement>(null)
@@ -119,6 +124,7 @@ function AppShell() {
   } = useSidebarDrawer()
 
   const tournamentTheme = isWorldCup ? 'worldcup' : isGirls ? 'girls' : 'boys'
+  const roleplayEnabled = !isGirls && !isWorldCup && isBigBossPublicPath(location.pathname)
 
   useSwipeOpenDrawer(mainRef, {
     onOpen: openDrawer,
@@ -139,6 +145,7 @@ function AppShell() {
         className={`app${isMobile ? ' has-mobile-bottom-nav' : ''}`}
         dir="rtl"
         data-tournament={tournamentTheme}
+        data-roleplay={roleplayEnabled ? 'big-boss' : undefined}
       >
         <a href="#main-content" className="skip-link">
           דלג לתוכן הראשי
@@ -205,7 +212,14 @@ function AppShell() {
                   </h1>
                   {!isGirls && !isWorldCup && (
                     <p className="tournament-subtitle mb-0">
-                      טורניר כדורגל · כפר כמא
+                      {roleplayEnabled ? (
+                        <>
+                          <span>טורניר כדורגל בכפר כמא תחת פיקוחו של</span>
+                          <BigBossName />
+                        </>
+                      ) : (
+                        'טורניר כדורגל · כפר כמא'
+                      )}
                     </p>
                   )}
                   {isGirls && (
@@ -229,11 +243,25 @@ function AppShell() {
               )}
             </header>
           </div>
-          {!isWorldCup && <NewsBanner />}
+          {roleplayEnabled && (
+            <div className="big-boss-surveillance" role="status">
+              <span className="big-boss-surveillance__dot" aria-hidden="true" />
+              כל פעולה באתר מתועדת בתיק הכפר. אישור הבוס נדרש לפני כל לחיצה.
+            </div>
+          )}
+          {!isWorldCup && <NewsBanner roleplay={roleplayEnabled} />}
         </div>
         <div className="container-fluid app-shell-container">
           <div className="app-body">
             <main id="main-content" ref={mainRef} tabIndex={-1}>
+              {roleplayEnabled && (
+                <div className="big-boss-authority">
+                  <span className="big-boss-authority__decree">צו מס׳ 88</span>
+                  עמוד זה אושר לעיון באדיבות
+                  <br />
+                  <BigBossName />
+                </div>
+              )}
               <AppRoutes />
             </main>
             <TournamentSidebar
@@ -246,13 +274,17 @@ function AppShell() {
         </div>
         <Footer />
         {isMobile && <MobileBottomNav />}
-        {!isGirls && !isWorldCup && (
+        {roleplayEnabled && (
           <EngagementNudgeHost
             openMobileDrawer={openDrawer}
             isMobile={isMobile}
             mobileDrawerOpen={drawerOpen}
           />
         )}
+        <BigBossPermissionGate
+          key={roleplayEnabled ? 'roleplay-on' : 'roleplay-off'}
+          enabled={roleplayEnabled}
+        />
         <ScrollToTop />
         {consent === 'accepted' && <Analytics />}
       </div>

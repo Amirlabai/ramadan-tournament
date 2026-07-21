@@ -68,6 +68,17 @@ Product UI for a Hebrew RTL tournament site. Boys theme is default (`data-tourna
 
 Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227`.
 
+### Big Boss role-play override
+
+On boys public routes only, `[data-roleplay="big-boss"]` overrides the normal green/gold theme with an institutional ash palette:
+
+- Primary `#454d42`, primary dark `#242923`
+- Muted brass `#6a5a32`
+- Background `#c9cac3`, surface `#e9e9e3`
+- Ink `#1b1e1a`, warning red `#71242a`
+
+The role-play shell keeps thin even borders, mobile-safe fixed layers, and 44px actions. Permission and daily-decree dialogs are bottom sheets at mobile widths and centered dialogs on desktop. Mixed-language **Big Boss טייקון הכפר** copy uses isolated text directions and separate visual lines when embedded in Hebrew.
+
 ## Typography
 
 - **Body:** Roboto 400/700 — UI labels, tables, forms.
