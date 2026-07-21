@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { ContactDonateNote } from '../components/BitDonateLink'
 import { PRIVACY_CONTACT_EMAIL } from '../config/contactConfig'
+import BigBossLegalNote from '../components/BigBossLegalNote'
 
 const Terms = () => (
   <LegalPageLayout
@@ -12,6 +13,10 @@ const Terms = () => (
   >
     <h2>תנאי שימוש</h2>
     <p>עודכן: יולי 2026</p>
+    <BigBossLegalNote>
+      לשכת הבוס מכנה מסמך זה בשם צו השימוש הגדול. הכינוי הוא חלק ממשחק התפקידים
+      בלבד, והתנאים המחייבים הם התנאים המפורטים בעמוד זה.
+    </BigBossLegalNote>
 
     <h3>שימוש באתר</h3>
     <p>

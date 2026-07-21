@@ -31,9 +31,10 @@ interface MainNavContext {
   paths: (typeof tournamentPaths)[TournamentSlug]
   user: User | null
   showAdminNav: boolean
+  roleplayEnabled?: boolean
 }
 
-function mediaDocsNavItems(): NavItem[] {
+function mediaDocsNavItems(roleplayEnabled: boolean): NavItem[] {
   return MEDIA_DOCS_SPONSORS.flatMap((sponsor) => {
     const name = sponsor.name.trim()
     const url = sponsor.url.trim()
@@ -51,7 +52,7 @@ function mediaDocsNavItems(): NavItem[] {
     return [
       {
         to: url,
-        label: mediaDocsNavLabel(name),
+        label: mediaDocsNavLabel(name, roleplayEnabled),
         external: true,
         className: 'media-docs-link',
         navTarget: 'media-docs',
@@ -61,7 +62,7 @@ function mediaDocsNavItems(): NavItem[] {
 }
 
 export function getMainNavItems(ctx: MainNavContext): NavItem[] {
-  const { isGirls, isWorldCup, paths, user, showAdminNav } = ctx
+  const { isGirls, isWorldCup, paths, user, showAdminNav, roleplayEnabled = false } = ctx
   const items: NavItem[] = []
 
   if (isWorldCup) {
@@ -94,7 +95,7 @@ export function getMainNavItems(ctx: MainNavContext): NavItem[] {
         external: true,
         className: 'health-form-link',
       },
-      ...mediaDocsNavItems(),
+      ...mediaDocsNavItems(roleplayEnabled),
       { to: 'mvps' in paths ? paths.mvps : '/mvps', label: 'MVPs' },
       { to: paths.home ?? '/', label: 'דף הבית' },
       { to: 'teams' in paths ? paths.teams : '/teams', label: 'קבוצות' },

@@ -16,7 +16,7 @@ const CookieNotice = () => {
   if (!showBanner) return null
 
   return (
-    <div className="cookie-notice-backdrop" role="presentation">
+    <div className="cookie-notice-backdrop" role="presentation" data-roleplay-bypass>
       <div
         ref={dialogRef}
         className="cookie-notice"
