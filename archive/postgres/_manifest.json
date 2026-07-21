@@ -1,9 +1,7 @@
 {
-  "exported_at": "2026-07-20T08:32:53+03:00",
+  "exported_at": "2026-07-21T08:14:32+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
-    "players.csv",
-    "votes.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -84,7 +82,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 18258,
+      "rows": 18494,
       "file": "analytics_events.csv"
     }
   },
