@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  BIG_BOSS_ACTIVITY_THRESHOLD,
   isBigBossPublicPath,
   normalizePathname,
+  recordBigBossActivity,
   roleplayAuthorizationNumber,
 } from './bigBossRoleplay'
 import { isPlatformAdmin } from './tournamentUser'
@@ -31,6 +33,48 @@ describe('big boss role-play routing', () => {
     expect(roleplayAuthorizationNumber('פתיחת קבוצות')).not.toBe(
       roleplayAuthorizationNumber('שליחת תגובה')
     )
+  })
+
+  it('requests permission on every fifth recorded activity', () => {
+    const values = new Map<string, string>()
+    const storage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    }
+
+    const firstCycle = Array.from({ length: BIG_BOSS_ACTIVITY_THRESHOLD }, () =>
+      recordBigBossActivity(storage)
+    )
+    const secondCycle = Array.from({ length: BIG_BOSS_ACTIVITY_THRESHOLD }, () =>
+      recordBigBossActivity(storage)
+    )
+
+    expect(firstCycle).toEqual([false, false, false, false, true])
+    expect(secondCycle).toEqual(firstCycle)
+  })
+
+  it('recovers safely from malformed or unavailable session storage', () => {
+    const values = new Map([['bigBossActivityCount', 'not-a-number']])
+    const malformedStorage = {
+      getItem: (key: string) => values.get(key) ?? null,
+      setItem: (key: string, value: string) => values.set(key, value),
+    }
+    const unavailableStorage = {
+      getItem: () => {
+        throw new Error('blocked')
+      },
+      setItem: () => {
+        throw new Error('blocked')
+      },
+    }
+
+    expect(recordBigBossActivity(malformedStorage)).toBe(false)
+    expect(values.get('bigBossActivityCount')).toBe('1')
+    expect(
+      Array.from({ length: BIG_BOSS_ACTIVITY_THRESHOLD }, () =>
+        recordBigBossActivity(unavailableStorage)
+      )
+    ).toEqual([false, false, false, false, true])
   })
 
   it('recognizes platform administrators for the gate bypass', () => {

@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import { isPlatformAdmin } from '../utils/tournamentUser'
 import {
   describeRoleplayAction,
+  recordBigBossActivity,
   roleplayAuthorizationNumber,
 } from '../utils/bigBossRoleplay'
 
@@ -30,14 +31,15 @@ type BigBossPermissionGateProps = {
 }
 
 const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
-  const { user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
   const [pending, setPending] = useState<PendingAction | null>(null)
   const replayClickRef = useRef(new WeakSet<HTMLElement>())
   const replaySubmitRef = useRef(new WeakSet<HTMLFormElement>())
+  const countedSubmitRef = useRef(new WeakSet<HTMLFormElement>())
   const exempt = isPlatformAdmin(user)
 
   useEffect(() => {
-    if (!enabled || exempt) return
+    if (!enabled || authLoading || exempt) return
 
     const onClick = (event: MouseEvent) => {
       if (event.defaultPrevented || event.button !== 0) return
@@ -49,7 +51,21 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
       if (!target || target.hasAttribute('disabled') || target.getAttribute('aria-disabled') === 'true') {
         return
       }
+      if (target instanceof HTMLSelectElement && typeof target.showPicker !== 'function') return
       if (replayClickRef.current.delete(target)) return
+
+      if (!recordBigBossActivity()) {
+        const submitControl =
+          target instanceof HTMLButtonElement || target instanceof HTMLInputElement
+            ? target
+            : null
+        if (submitControl?.form && submitControl.type === 'submit') {
+          const form = submitControl.form
+          countedSubmitRef.current.add(form)
+          queueMicrotask(() => countedSubmitRef.current.delete(form))
+        }
+        return
+      }
 
       event.preventDefault()
       event.stopPropagation()
@@ -62,6 +78,8 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
       if (!(form instanceof HTMLFormElement)) return
       if (form.closest('[data-roleplay-bypass], .big-boss-modal')) return
       if (replaySubmitRef.current.delete(form)) return
+      if (countedSubmitRef.current.delete(form)) return
+      if (!recordBigBossActivity()) return
 
       event.preventDefault()
       event.stopPropagation()
@@ -81,7 +99,7 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
       document.removeEventListener('click', onClick, true)
       document.removeEventListener('submit', onSubmit, true)
     }
-  }, [enabled, exempt])
+  }, [authLoading, enabled, exempt])
 
   const authorizationNumber = useMemo(
     () => roleplayAuthorizationNumber(pending?.label ?? ''),
@@ -166,7 +184,7 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
 
   return (
     <AccessibleModal
-      open={pending !== null && !exempt}
+      open={pending !== null && !authLoading && !exempt}
       onClose={() => setPending(null)}
       titleId="big-boss-permission-title"
       className="big-boss-modal"
@@ -174,14 +192,14 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
       centered={false}
     >
       <div className="big-boss-dialog__panel" data-roleplay-bypass>
-        <p className="big-boss-dialog__eyebrow">תיק הרשאה {authorizationNumber}</p>
-        <h2 id="big-boss-permission-title">הפעולה נעצרה לבדיקה</h2>
+        <p className="big-boss-dialog__eyebrow">תיק פעילות חריגה {authorizationNumber}</p>
+        <h2 id="big-boss-permission-title">זוהתה פעילות חשודה</h2>
         <p className="big-boss-dialog__action">
           הפעולה המבוקשת:
           <br />
           <strong>{pending?.label}</strong>
         </p>
-        <p>האם קיבלת אישור מאת</p>
+        <p>האם הפעילות הזאת מוכרת ומאושרת על ידי</p>
         <BigBossName stacked />
         <div className="big-boss-dialog__actions">
           <button
@@ -190,7 +208,7 @@ const BigBossPermissionGate = ({ enabled }: BigBossPermissionGateProps) => {
             onClick={approve}
             data-roleplay-bypass
           >
-            כן, קיבלתי אישור
+            כן, הפעילות מאושרת
           </button>
           <button
             type="button"
