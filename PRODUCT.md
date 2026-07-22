@@ -30,14 +30,6 @@ Community, local pride, energetic but trustworthy — **not** generic SaaS sport
 4. **Hebrew RTL** - `lang="he"`, `dir="rtl"`, Jerusalem timezone for matches.
 5. **No em dashes** - never `—` in user-facing copy (UI, SEO, emails, errors). Prefer period, colon, or line break. Empty cells: ASCII `-` via `displayOrDash` (`shared/emptyDisplay.ts`). En dashes in ranges (`1–7`) are fine.
 
-## Temporary Big Boss role-play
-
-- Boys public routes use a satirical authoritarian takeover led by **Big Boss טייקון הכפר**.
-- Every non-admin clickable action asks for permission. Platform admins are exempt.
-- The primary design target is mobile Safari, followed by Chrome and Instagram in-app.
-- Privacy, accessibility, and legal rights remain factual. Role-play notices are explicitly fictional.
-- Girls, World Cup, login, profile, and admin surfaces retain their normal product themes.
-
 ## Key surfaces
 
 | Surface | Routes |

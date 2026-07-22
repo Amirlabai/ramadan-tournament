@@ -12,7 +12,7 @@ export const HEALTH_DECLARATION_FORM_URL = 'https://forms.gle/YNVWz5JUF4BrvRyd7'
 
 /** Boys sidebar photo-docs buttons: one entry → one button; empty → none. */
 export type MediaDocsSponsor = {
-  /** Shown with sponsor credit followed by the role-play approval line. */
+  /** Shown as: תיעוד תמונות בחסות {name} */
   name: string
   /** External folder / album URL (opens in a new tab). */
   url: string
@@ -29,9 +29,6 @@ export const MEDIA_DOCS_SPONSORS: MediaDocsSponsor[] = [
   },
 ]
 
-export function mediaDocsNavLabel(name: string, roleplayEnabled = false): string {
-  const sponsorCredit = `תיעוד תמונות בחסות ${name}`
-  return roleplayEnabled
-    ? `${sponsorCredit}\nבאישור Big Boss טייקון הכפר`
-    : sponsorCredit
+export function mediaDocsNavLabel(name: string): string {
+  return `תיעוד תמונות בחסות ${name}`
 }

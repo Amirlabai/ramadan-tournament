@@ -176,7 +176,6 @@
   background-color: #eaf3ff;
   background: color-mix(in srgb, #0061ff 10%, #fff);
   color: #0061ff;
-  white-space: pre-line;
 }
 
 .tournament-sidebar-link.media-docs-link::before {

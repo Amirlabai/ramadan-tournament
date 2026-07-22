@@ -5,7 +5,6 @@ import { ContactDonateNote } from '../components/BitDonateLink'
 import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig'
 import { siteHomePath } from '../utils/tournamentPaths'
 import './Accessibility.css'
-import BigBossLegalNote from '../components/BigBossLegalNote'
 
 const Accessibility = () => {
   const [submitted, setSubmitted] = useState(false)
@@ -29,10 +28,6 @@ const Accessibility = () => {
       ]}
     >
       <h2 className="mb-4 fw-bold">הצהרת נגישות</h2>
-      <BigBossLegalNote>
-        אפילו צווי הבוס כפופים לנגישות. משחק התפקידים אינו משנה את מחויבות האתר
-        לתקן הישראלי ולשימוש שוויוני.
-      </BigBossLegalNote>
 
       <section className="mb-4">
         <h3>רמת התאמה</h3>

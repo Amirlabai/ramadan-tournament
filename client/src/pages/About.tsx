@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom'
 import LegalPageLayout from '../components/LegalPageLayout'
 import { ContactDonateNote } from '../components/BitDonateLink'
 import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig'
-import BigBossLegalNote from '../components/BigBossLegalNote'
 
 const About = () => (
   <LegalPageLayout
@@ -13,10 +12,6 @@ const About = () => (
   >
     <h2>אודות הטורניר</h2>
     <p>עודכן: יולי 2026</p>
-    <BigBossLegalNote>
-      לפי הגרסה הרשמית של לשכת הבוס, הטורניר מתקיים הודות לחזונו, נדיבותו
-      והסכמתו לכך שכדור ינוע ברחבי הכפר.
-    </BigBossLegalNote>
     <p>
       מונדיאל קיץ 2026 הוא טורניר כדורגל (כדור רגל) בקיץ בכפר כמא (הידוע גם ככפר קמא),
       בחסות מרכז הצעירים. האתר מציג תוצאות בזמן אמת, לוח משחקים, סטטיסטיקות, ארכיון

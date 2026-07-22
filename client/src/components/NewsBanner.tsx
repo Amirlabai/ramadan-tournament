@@ -2,13 +2,8 @@ import { useEffect, useState } from 'react';
 import { newsAPI } from '../api/client';
 import { useTournament } from '../contexts/TournamentContext';
 import type { News } from '../types';
-import BigBossName from './BigBossName';
 
-type NewsBannerProps = {
-    roleplay?: boolean;
-};
-
-const NewsBanner = ({ roleplay = false }: NewsBannerProps) => {
+const NewsBanner = () => {
     const { slug } = useTournament();
     const [newsItem, setNewsItem] = useState<News | null>(null);
     const [isCollapsed, setIsCollapsed] = useState(() =>
@@ -30,7 +25,6 @@ const NewsBanner = ({ roleplay = false }: NewsBannerProps) => {
     }, [hasAutoCollapsed]);
 
     useEffect(() => {
-        if (roleplay) return;
         const fetchNews = async () => {
             try {
                 const response = await newsAPI.getAll(slug);
@@ -54,29 +48,7 @@ const NewsBanner = ({ roleplay = false }: NewsBannerProps) => {
         };
 
         fetchNews();
-    }, [slug, roleplay]);
-
-    if (roleplay) {
-        return (
-            <section className="news-banner news-banner--big-boss" aria-labelledby="big-boss-news-title">
-                <h2 id="big-boss-news-title" className="h4 mb-0">
-                    הודעה קבועה מטעם לשכת
-                    <br />
-                    <BigBossName />
-                </h2>
-                <div className="news-content">
-                    <p>
-                        תודה ל
-                        <br />
-                        <BigBossName />
-                        <br />
-                        על נדיבותו ועל זה שאפשר לשחקן ביברס להצטרף,
-                         ולהפוך את הטורניר למה שהוא היום. בלעדיו הטורניר היה כישלון גדול.
-                    </p>
-                </div>
-            </section>
-        );
-    }
+    }, [slug]);
 
     if (!newsItem) return null;
 

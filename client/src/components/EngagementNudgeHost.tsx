@@ -8,22 +8,17 @@ import { useCookieConsent } from '../hooks/useCookieConsent'
 import { trackEvent } from '../utils/analytics'
 import {
   markAlbumsDiscoverShown,
-  markBigBossDecreeShown,
   markDonationPopupShown,
   markStatsDiscoverShown,
   shouldOfferAlbumsDiscover,
-  shouldOfferBigBossDecree,
   shouldOfferDonationPopup,
   shouldOfferStatsDiscover,
 } from '../utils/engagementNudgeStorage'
 import NavDiscoverCoachmark from './NavDiscoverCoachmark'
 import DonationPopup, { type DonationPopupCloseReason } from './DonationPopup'
-import BigBossDailyDecree from './BigBossDailyDecree'
-import { useAuth } from '../contexts/AuthContext'
-import { isPlatformAdmin } from '../utils/tournamentUser'
 import './navDiscoverHighlight.css'
 
-type Phase = 'decree' | 'donate' | 'albums' | 'stats' | null
+type Phase = 'donate' | 'albums' | 'stats' | null
 
 type EngagementNudgeHostProps = {
   openMobileDrawer: () => void
@@ -41,7 +36,6 @@ const EngagementNudgeHost = ({
   mobileDrawerOpen,
 }: EngagementNudgeHostProps) => {
   const { showBanner, ready } = useCookieConsent()
-  const { user, loading: authLoading } = useAuth()
   const { pathname } = useLocation()
   const [phase, setPhase] = useState<Phase>(null)
   const pendingStatsAfterDonateRef = useRef(false)
@@ -51,16 +45,10 @@ const EngagementNudgeHost = ({
   pathnameRef.current = pathname
 
   useEffect(() => {
-    if (!ready || showBanner || authLoading) return
+    if (!ready || showBanner) return
     if (phase !== null) return
 
     const now = new Date()
-
-    if (!isPlatformAdmin(user) && shouldOfferBigBossDecree(now)) {
-      markBigBossDecreeShown(now)
-      setPhase('decree')
-      return
-    }
 
     if (
       isAlbumsDiscoverWeekday(now) &&
@@ -87,7 +75,7 @@ const EngagementNudgeHost = ({
     ) {
       setPhase('stats')
     }
-  }, [ready, showBanner, authLoading, user, pathname, phase])
+  }, [ready, showBanner, pathname, phase])
 
   const tryOpenStatsTip = useCallback(() => {
     const now = new Date()
@@ -143,10 +131,6 @@ const EngagementNudgeHost = ({
 
   return (
     <>
-      <BigBossDailyDecree
-        open={phase === 'decree'}
-        onAcknowledge={() => setPhase(null)}
-      />
       <DonationPopup open={phase === 'donate'} onClose={onDonateClose} />
       <NavDiscoverCoachmark
         open={phase === 'albums'}

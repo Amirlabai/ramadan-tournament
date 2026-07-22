@@ -12,7 +12,6 @@ const ALBUMS_DATE_KEY = 'albumsDiscoverShownDate'
 const ALBUMS_SESSION_KEY = 'albumsDiscoverShownSession'
 const STATS_DATE_KEY = 'statsDiscoverShownDate'
 const STATS_SESSION_KEY = 'statsDiscoverShownSession'
-const BIG_BOSS_DECREE_DATE_KEY = 'bigBossDecreeShownDate'
 
 export function readStorage(storage: Storage, key: string): string | null {
   try {
@@ -80,20 +79,4 @@ export function shouldOfferStatsDiscover(
 
 export function markStatsDiscoverShown(now: Date = new Date()): void {
   markShown(STATS_DATE_KEY, STATS_SESSION_KEY, now)
-}
-
-export function wasShownOnJerusalemDate(
-  storage: Storage,
-  key: string,
-  now: Date = new Date()
-): boolean {
-  return readStorage(storage, key) === jerusalemDateKey(now)
-}
-
-export function shouldOfferBigBossDecree(now: Date = new Date()): boolean {
-  return !wasShownOnJerusalemDate(localStorage, BIG_BOSS_DECREE_DATE_KEY, now)
-}
-
-export function markBigBossDecreeShown(now: Date = new Date()): void {
-  writeStorage(localStorage, BIG_BOSS_DECREE_DATE_KEY, jerusalemDateKey(now))
 }

@@ -13,7 +13,6 @@ import { canAccessAdminPanel } from '../utils/tournamentUser'
 import { showBoysTournamentRulesNav } from '../utils/tournamentRulesNav'
 import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext'
 import { NavActionLink } from './NavActionDot'
-import { isBigBossPublicPath } from '../utils/bigBossRoleplay'
 import './TournamentSidebar.css'
 
 interface TournamentSidebarProps {
@@ -31,17 +30,16 @@ const TournamentSidebar = ({
 }: TournamentSidebarProps) => {
   const { user } = useAuth()
   const { paths, isGirls, isWorldCup } = useTournament()
-  const location = useLocation()
   const { profileActionRequired, adminActionRequired } = useNavActionIndicators()
   const showAdminNav = canAccessAdminPanel(user)
-  const roleplayEnabled = !isGirls && !isWorldCup && isBigBossPublicPath(location.pathname)
   const allItems = applyNavActionDots(
-    getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav, roleplayEnabled }),
+    getMainNavItems({ isGirls, isWorldCup, paths, user, showAdminNav }),
     { profile: profileActionRequired, admin: adminActionRequired }
   )
   const items = isMobile
     ? filterMobileOverflowNavItems(allItems, { isGirls, isWorldCup, paths })
     : allItems
+  const location = useLocation()
   const activeIndex = getNavIndex(location.pathname, items)
   const panelRef = useFocusTrap(isMobile && open, () => onOpenChange(false))
   const close = () => onOpenChange(false)

@@ -1,4 +1,4 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { BitDonateLink } from './BitDonateLink';
 import { PRIVACY_CONTACT_EMAIL, SITE_OPERATOR_NAME } from '../config/contactConfig';
 import { useAuth } from '../contexts/AuthContext';
@@ -7,16 +7,12 @@ import { canAccessAdminPanel } from '../utils/tournamentUser';
 import { showBoysTournamentRulesNav } from '../utils/tournamentRulesNav';
 import { useNavActionIndicators } from '../contexts/NavActionIndicatorsContext';
 import { NavActionLink } from './NavActionDot';
-import BigBossName from './BigBossName';
-import { isBigBossPublicPath } from '../utils/bigBossRoleplay';
 
 const Footer = () => {
     const { user } = useAuth();
-    const { pathname } = useLocation();
     const { isGirls, isWorldCup, paths } = useTournament();
     const { profileActionRequired, adminActionRequired } = useNavActionIndicators();
     const showAdminNav = canAccessAdminPanel(user);
-    const showBigBossNote = !isGirls && !isWorldCup && isBigBossPublicPath(pathname);
 
     const brandTitle = isWorldCup
         ? 'מונדיאל 2026'
@@ -62,15 +58,9 @@ const Footer = () => {
                                 <>נתוני משחקים מ-football-data.org</>
                             ) : (
                                 <>
-                                    מונדיאל קיץ: טורניר כדורגל בכפר כמא
-                                    {showBigBossNote && (
-                                        <>
-                                            <br />
-                                            בחסותו העליונה של
-                                            <br />
-                                            <BigBossName />
-                                        </>
-                                    )}
+                                    מונדיאל קיץ: טורניר כדורגל בכפר כמא (כפר קמא)
+                                    <br />
+                                    בחסות מרכז צעירים ומחלקת נוער
                                 </>
                             )}
                         </p>
@@ -142,13 +132,6 @@ const Footer = () => {
                 <div className="footer-bottom">
                     <p className="mb-0">{SITE_OPERATOR_NAME}</p>
                 </div>
-                {showBigBossNote && (
-                    <div className="big-boss-footer-note">
-                        פורסם ברשותו הנדיבה של
-                        <br />
-                        <BigBossName />
-                    </div>
-                )}
             </div>
         </footer>
     );

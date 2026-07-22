@@ -15,7 +15,6 @@ import './styles/tournament-worldcup.css'
 import './styles/a11y-high-contrast.css'
 import './styles/btn-gated.css'
 import App from './App.tsx'
-import { installPwaUpdateRefresh } from './utils/pwaUpdateRefresh'
 
 const GOOGLE_CLIENT_ID = import.meta.env.VITE_GOOGLE_CLIENT_ID
   || (import.meta.env.DEV ? '1234567890-mock.apps.googleusercontent.com' : '');
@@ -40,8 +39,6 @@ window.addEventListener('vite:preloadError', (event) => {
     window.location.reload()
   }
 })
-
-installPwaUpdateRefresh()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
