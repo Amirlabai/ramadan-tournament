@@ -1,9 +1,10 @@
 {
-  "exported_at": "2026-07-22T08:13:15+03:00",
+  "exported_at": "2026-07-23T08:18:48+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "teams.csv",
-    "votes.csv",
+    "matches.csv",
+    "comments.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -48,7 +49,7 @@
       "file": "news.csv"
     },
     "comments": {
-      "rows": 25,
+      "rows": 27,
       "file": "comments.csv"
     },
     "votes": {
@@ -84,7 +85,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 18845,
+      "rows": 19218,
       "file": "analytics_events.csv"
     }
   },
