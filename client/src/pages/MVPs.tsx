@@ -5,7 +5,6 @@ import { useAuth } from '../contexts/AuthContext';
 import type { DashboardData } from '../types';
 import SEO from '../components/SEO';
 import { MvpsSkeleton } from '../components/skeleton';
-import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
@@ -87,10 +86,9 @@ const MVPs = () => {
         fetchMyVote();
     }, [user, authLoading]);
 
-    const loadPhase = useMinSkeletonTime(loading, { error });
+    const showSkeleton = useMinSkeletonTime(loading, { error });
 
-    if (loadPhase === 'spinner') return <PageLoading label="טוען מצטיינים..." />;
-    if (loadPhase === 'skeleton') return <MvpsSkeleton label="טוען מצטיינים..." />;
+    if (showSkeleton) return <MvpsSkeleton label="טוען מצטיינים..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 

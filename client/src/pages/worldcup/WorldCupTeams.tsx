@@ -3,7 +3,6 @@ import { worldcupAPI } from '../../api/client';
 import type { Team } from '../../types';
 import SEO from '../../components/SEO';
 import { WorldCupTeamsSkeleton } from '../../components/skeleton';
-import PageLoading from '../../components/PageLoading';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 
 const POSITION_SECTIONS: { keys: string[]; label: string }[] = [
@@ -74,12 +73,9 @@ const WorldCupTeams = () => {
     return sorted.filter((t) => t.name.toLowerCase().includes(q));
   }, [teams, query]);
 
-  const loadPhase = useMinSkeletonTime(loading, { error });
+  const showSkeleton = useMinSkeletonTime(loading, { error });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען נבחרות..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <WorldCupTeamsSkeleton label="טוען נבחרות..." />;
   }
 

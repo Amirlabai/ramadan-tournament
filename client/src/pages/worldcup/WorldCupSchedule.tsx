@@ -4,7 +4,6 @@ import { worldcupAPI } from '../../api/client';
 import type { Match } from '../../types';
 import SEO from '../../components/SEO';
 import { WorldCupScheduleSkeleton } from '../../components/skeleton';
-import PageLoading from '../../components/PageLoading';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { MatchTeamsScore } from '../../components/match/MatchCardParts';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
@@ -86,12 +85,9 @@ const WorldCupSchedule = () => {
     return () => clearInterval(interval);
   }, [matches.length]);
 
-  const loadPhase = useMinSkeletonTime(loading, { error });
+  const showSkeleton = useMinSkeletonTime(loading, { error });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען לוח משחקים..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <WorldCupScheduleSkeleton label="טוען לוח משחקים..." />;
   }
   if (error) return <div className="error" role="alert">{error}</div>;

@@ -1,27 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 
-/** Forced skeleton flash before content (also min hold once skeleton is shown). */
+/** Minimum skeleton visibility so shimmer is perceptible on fast responses. */
 export const SKELETON_MIN_MS = 200;
 
-/** Loading circle stage before layout skeleton (while still fetching). */
-export const SPINNER_MS = 1000;
-
-export type PageLoadPhase = false | 'spinner' | 'skeleton';
-
 export interface UseMinSkeletonTimeOptions {
-  /** When set, preload/skeleton hide immediately (no min-hold). */
+  /** When set, skeleton hides immediately (no min-hold). */
   error?: boolean | string | null;
   minMs?: number;
-  spinnerMs?: number;
-}
-
-/** Pure stage picker from session elapsed ms. Exported for tests. */
-export function phaseForElapsed(
-  elapsed: number,
-  spinnerMs: number,
-): Exclude<PageLoadPhase, false> {
-  if (elapsed < spinnerMs) return 'spinner';
-  return 'skeleton';
 }
 
 /** Ms left to hold skeleton before content. Exported for tests. */
@@ -34,101 +19,66 @@ export function remainingSkeletonHoldMs(
 }
 
 /**
- * Staged initial load UI: spinner → skeleton while loading.
- * When data arrives, always force skeleton for minMs before content
- * (even if the fetch finished during the spinner).
- * Error skips immediately. Reduced motion still forces skeleton (shimmer off in CSS).
+ * Shows layout skeleton while loading; holds at least minMs after load finishes
+ * so the (slow) shimmer is visible. Error skips hold. Reduced motion skips hold
+ * (shimmer already off in CSS).
  */
 export function useMinSkeletonTime(
   loading: boolean,
   options: UseMinSkeletonTimeOptions = {},
-): PageLoadPhase {
-  const {
-    error = false,
-    minMs = SKELETON_MIN_MS,
-    spinnerMs = SPINNER_MS,
-  } = options;
+): boolean {
+  const { error = false, minMs = SKELETON_MIN_MS } = options;
   const hasError = Boolean(error);
-  const wantLoad = loading && !hasError;
+  const wantSkeleton = loading && !hasError;
 
-  const [phase, setPhase] = useState<PageLoadPhase>(() =>
-    wantLoad ? 'spinner' : false,
-  );
-
-  const phaseRef = useRef(phase);
-  phaseRef.current = phase;
-
-  /** Wall-clock start of the current load session (survives Strict Mode effect re-runs). */
-  const sessionStartRef = useRef<number | null>(wantLoad ? Date.now() : null);
-  const skeletonShownAtRef = useRef<number | null>(null);
+  const [visible, setVisible] = useState(wantSkeleton);
+  const shownAtRef = useRef<number | null>(wantSkeleton ? Date.now() : null);
+  const prevWantRef = useRef(wantSkeleton);
   const hideTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
+    const prevWant = prevWantRef.current;
+    prevWantRef.current = wantSkeleton;
+
     if (hideTimerRef.current !== null) {
       window.clearTimeout(hideTimerRef.current);
       hideTimerRef.current = null;
     }
 
-    if (hasError) {
-      sessionStartRef.current = null;
-      skeletonShownAtRef.current = null;
-      phaseRef.current = false;
-      setPhase(false);
+    if (wantSkeleton) {
+      if (!prevWant) {
+        shownAtRef.current = Date.now();
+      }
+      setVisible(true);
       return;
     }
 
-    if (wantLoad) {
-      if (sessionStartRef.current === null) {
-        sessionStartRef.current = Date.now();
-        skeletonShownAtRef.current = null;
-      }
-
-      const start = sessionStartRef.current;
-      let cancelled = false;
-      const timers: number[] = [];
-
-      const apply = () => {
-        if (cancelled) return;
-        const next = phaseForElapsed(Date.now() - start, spinnerMs);
-        if (next === 'skeleton' && skeletonShownAtRef.current === null) {
-          skeletonShownAtRef.current = Date.now();
-        }
-        if (phaseRef.current !== next) {
-          phaseRef.current = next;
-          setPhase(next);
-        }
-      };
-
-      apply();
-      const toSkeleton = Math.max(0, spinnerMs - (Date.now() - start));
-      timers.push(window.setTimeout(apply, toSkeleton));
-
-      return () => {
-        cancelled = true;
-        for (const id of timers) window.clearTimeout(id);
-      };
+    if (hasError) {
+      shownAtRef.current = null;
+      setVisible(false);
+      return;
     }
 
-    // Loading finished: end the fetch session
-    sessionStartRef.current = null;
-
-    // Force skeleton before content (even if fetch finished during spinner).
-    // Reduced motion: still show static skeleton; CSS disables shimmer.
-    if (phaseRef.current !== 'skeleton') {
-      skeletonShownAtRef.current = Date.now();
-      phaseRef.current = 'skeleton';
-      setPhase('skeleton');
+    if (
+      typeof window !== 'undefined' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      shownAtRef.current = null;
+      setVisible(false);
+      return;
     }
 
-    const shownAt = skeletonShownAtRef.current ?? Date.now();
-    skeletonShownAtRef.current = shownAt;
+    const shownAt = shownAtRef.current;
+    if (shownAt === null) {
+      setVisible(false);
+      return;
+    }
 
     const remaining = remainingSkeletonHoldMs(shownAt, Date.now(), minMs);
     hideTimerRef.current = window.setTimeout(() => {
       hideTimerRef.current = null;
-      skeletonShownAtRef.current = null;
-      phaseRef.current = false;
-      setPhase(false);
+      shownAtRef.current = null;
+      setVisible(false);
     }, remaining);
 
     return () => {
@@ -137,7 +87,7 @@ export function useMinSkeletonTime(
         hideTimerRef.current = null;
       }
     };
-  }, [wantLoad, hasError, minMs, spinnerMs]);
+  }, [wantSkeleton, hasError, minMs]);
 
-  return phase;
+  return visible;
 }

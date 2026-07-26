@@ -9,7 +9,6 @@ import TeamOwnerSettings from '../components/registration/TeamOwnerSettings';
 import TournamentRegistrationCard from '../components/profile/TournamentRegistrationCard';
 import SEO from '../components/SEO';
 import { ProfileSkeleton } from '../components/skeleton';
-import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import TournamentRoleStar from '../components/TournamentRoleStar';
 import {
@@ -280,12 +279,9 @@ const Profile = () => {
         }
     }, [user]);
 
-    const loadPhase = useMinSkeletonTime(loading);
+    const showSkeleton = useMinSkeletonTime(loading);
 
-    if (loadPhase === 'spinner') {
-        return <PageLoading label="טוען פרופיל..." />;
-    }
-    if (loadPhase === 'skeleton') {
+    if (showSkeleton) {
         return <ProfileSkeleton label="טוען פרופיל..." />;
     }
 

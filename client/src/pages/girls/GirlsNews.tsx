@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { newsAPI } from '../../api/client';
 import SEO from '../../components/SEO';
 import { GirlsNewsSkeleton } from '../../components/skeleton';
-import PageLoading from '../../components/PageLoading';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useTournament } from '../../contexts/TournamentContext';
 import type { News } from '../../types';
@@ -29,14 +28,11 @@ const GirlsNews = () => {
     void load();
   }, []);
 
-  const loadPhase = useMinSkeletonTime(seasonLoading || loading, {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
     error: seasonError || error,
   });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען חדשות..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <GirlsNewsSkeleton label="טוען חדשות..." />;
   }
 

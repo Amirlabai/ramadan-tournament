@@ -6,7 +6,6 @@ import OwnerSquadRoles from '../../components/registration/OwnerSquadRoles';
 import RosterPlayerRow from '../../components/roster/RosterPlayerRow';
 import SEO from '../../components/SEO';
 import { GirlsTeamsSkeleton } from '../../components/skeleton';
-import PageLoading from '../../components/PageLoading';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTournament } from '../../contexts/TournamentContext';
@@ -127,14 +126,11 @@ const GirlsTeams = () => {
     });
   }, [query, filteredTeams]);
 
-  const loadPhase = useMinSkeletonTime(seasonLoading || loading, {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
     error: seasonError || error,
   });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען קבוצות..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <GirlsTeamsSkeleton label="טוען קבוצות..." />;
   }
 

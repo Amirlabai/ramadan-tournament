@@ -3,7 +3,6 @@ import { STANDINGS_PLAYOFF_ZONE_SIZE, displayOrDash } from '@ramadan-tournament/
 import { archiveAPI } from '../api/client';
 import SEO from '../components/SEO';
 import { ArchiveSkeleton } from '../components/skeleton';
-import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import './Archive.css';
 
@@ -57,12 +56,9 @@ const Archive: React.FC = () => {
     }
   };
 
-  const loadPhase = useMinSkeletonTime(loading && !selectedSeason, { error });
+  const showSkeleton = useMinSkeletonTime(loading && !selectedSeason, { error });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען ארכיון..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <ArchiveSkeleton label="טוען ארכיון..." />;
   }
 

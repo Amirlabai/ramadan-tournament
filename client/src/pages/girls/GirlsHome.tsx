@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { statsGirlsAPI } from '../../api/client';
 import SEO from '../../components/SEO';
 import { GirlsHomeSkeleton } from '../../components/skeleton';
-import PageLoading from '../../components/PageLoading';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { useTournament } from '../../contexts/TournamentContext';
 import StandingsTable from '../../components/standings/StandingsTable';
@@ -37,14 +36,11 @@ const GirlsHome = () => {
     void load();
   }, []);
 
-  const loadPhase = useMinSkeletonTime(seasonLoading || loading, {
+  const showSkeleton = useMinSkeletonTime(seasonLoading || loading, {
     error: seasonError || error,
   });
 
-  if (loadPhase === 'spinner') {
-    return <PageLoading label="טוען טבלת נקודות..." />;
-  }
-  if (loadPhase === 'skeleton') {
+  if (showSkeleton) {
     return <GirlsHomeSkeleton label="טוען טבלת נקודות..." />;
   }
 

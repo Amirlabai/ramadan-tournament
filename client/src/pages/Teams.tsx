@@ -20,7 +20,6 @@ import { getRoleStarVariant, isPlatformAdmin } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
-import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { sortRosterPlayers } from '../utils/rosterSort';
 import { displayNickname, fullName } from '../utils/playerDisplayName';
@@ -77,11 +76,11 @@ const Teams = () => {
         }
     }, [location.state]);
 
-    const loadPhase = useMinSkeletonTime(loading, { error });
+    const showSkeleton = useMinSkeletonTime(loading, { error });
 
     useEffect(() => {
         // Wait until real list is painted — scroll while skeleton mounts misses team-row-*.
-        if (loadPhase || !shouldScroll || expandedTeam == null) return;
+        if (showSkeleton || !shouldScroll || expandedTeam == null) return;
 
         let cancelled = false;
         let activeTimer: number | undefined;
@@ -123,7 +122,7 @@ const Teams = () => {
             cancelled = true;
             if (activeTimer != null) window.clearTimeout(activeTimer);
         };
-    }, [loadPhase, shouldScroll, expandedTeam, selectedPlayerId]);
+    }, [showSkeleton, shouldScroll, expandedTeam, selectedPlayerId]);
 
     const fetchTeams = async (isBackground = false) => {
         try {
@@ -251,8 +250,7 @@ const Teams = () => {
         }
     };
 
-    if (loadPhase === 'spinner') return <PageLoading label="טוען קבוצות..." />;
-    if (loadPhase === 'skeleton') return <TeamsSkeleton label="טוען קבוצות..." />;
+    if (showSkeleton) return <TeamsSkeleton label="טוען קבוצות..." />;
     if (error) return <div className="alert alert-danger m-3">{error}</div>;
 
     const selectedPlayerRoleStar = selectedPlayer

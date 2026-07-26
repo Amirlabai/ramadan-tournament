@@ -1,22 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
-  phaseForElapsed,
   remainingSkeletonHoldMs,
   SKELETON_MIN_MS,
-  SPINNER_MS,
 } from './useMinSkeletonTime';
-
-describe('phaseForElapsed', () => {
-  it('returns spinner before spinnerMs', () => {
-    expect(phaseForElapsed(0, SPINNER_MS)).toBe('spinner');
-    expect(phaseForElapsed(SPINNER_MS - 1, SPINNER_MS)).toBe('spinner');
-  });
-
-  it('returns skeleton at and after spinnerMs', () => {
-    expect(phaseForElapsed(SPINNER_MS, SPINNER_MS)).toBe('skeleton');
-    expect(phaseForElapsed(SPINNER_MS + 500, SPINNER_MS)).toBe('skeleton');
-  });
-});
 
 describe('remainingSkeletonHoldMs', () => {
   it('holds full minMs when skeleton just shown', () => {
@@ -43,7 +29,7 @@ describe('remainingSkeletonHoldMs', () => {
     ).toBe(0);
   });
 
-  it('defaults match forced 200ms flash', () => {
+  it('defaults to 200ms min hold', () => {
     expect(SKELETON_MIN_MS).toBe(200);
   });
 });
