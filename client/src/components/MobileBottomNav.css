@@ -65,13 +65,15 @@
     align-items: center;
     justify-content: center;
     min-height: 44px;
-    padding: 0.35rem 0.2rem;
+    padding: 0.35rem 0.2rem 0.5rem;
     border: none;
+    border-radius: 10px;
     background: transparent;
     color: var(--color-text-muted, #4b5563);
     text-decoration: none;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+    transition: color 0.15s ease, background-color 0.15s ease;
   }
 
   .mobile-bottom-nav-link:hover,
@@ -82,11 +84,25 @@
 
   .mobile-bottom-nav-link:focus-visible {
     box-shadow: inset 0 0 0 3px var(--color-focus, #0066cc);
-    border-radius: 8px;
   }
 
   .mobile-bottom-nav-link.is-active {
     color: var(--color-primary-dark, #296912);
+    /* Token: color-mix when supported; boys-green rgba fallback otherwise. */
+    background: var(--color-primary-a12);
+  }
+
+  /* Decorative underline on active only (profile/dot slots have no ::after). */
+  .mobile-bottom-nav-link.is-active::after {
+    content: '';
+    position: absolute;
+    bottom: 0.2rem;
+    left: 50%;
+    width: 1.25rem;
+    height: 3px;
+    border-radius: 999px;
+    background: currentColor;
+    transform: translateX(-50%);
   }
 
   .mobile-bottom-nav-icon {
@@ -123,10 +139,26 @@
     color: var(--color-primary, #9b4d72);
   }
 
+  /* Restate 12% mix: token rgba fallback is boys green, not girls primary. */
+  [data-tournament='girls'] .mobile-bottom-nav-link.is-active {
+    background: color-mix(in srgb, var(--color-primary, #9b4d72) 12%, transparent);
+  }
+
   [data-tournament='worldcup'] .mobile-bottom-nav-link.is-active,
   [data-tournament='worldcup'] .mobile-bottom-nav-link:hover,
   [data-tournament='worldcup'] .mobile-bottom-nav-link:focus-visible {
     color: var(--color-primary, #1a3a6e);
+  }
+
+  /* Same as girls: avoid boys-green token fallback for worldcup primary. */
+  [data-tournament='worldcup'] .mobile-bottom-nav-link.is-active {
+    background: color-mix(in srgb, var(--color-primary, #1a3a6e) 12%, transparent);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .mobile-bottom-nav-link {
+      transition: none;
+    }
   }
 }
 

@@ -6,6 +6,9 @@ import './BannerCropModal.css';
 
 const ASPECT = 4;
 const TITLE_ID = 'banner-crop-title';
+/** Allow zooming out past cover so small images can sit inset in the 4:1 frame. */
+const MIN_ZOOM = 0.4;
+const MAX_ZOOM = 3;
 
 interface Props {
   open: boolean;
@@ -67,18 +70,22 @@ export default function BannerCropModal({ open, imageSrc, onClose, onConfirm }: 
         </div>
         <div className="modal-body">
           <p className="small text-muted mb-2">
-            גררו למרכז והתקרבו עם המחוון. יחס קבוע 4:1.
+            גררו למרכז והתקרבו או התרחקו עם המחוון. יחס קבוע 4:1.
           </p>
           <div className="banner-crop-modal__stage">
             <Cropper
               image={imageSrc}
               crop={crop}
               zoom={zoom}
+              minZoom={MIN_ZOOM}
+              maxZoom={MAX_ZOOM}
               aspect={ASPECT}
               onCropChange={setCrop}
               onZoomChange={setZoom}
               onCropComplete={onCropComplete}
-              objectFit="horizontal-cover"
+              objectFit="contain"
+              // Needed with minZoom < 1 so letterbox inset reaches croppedAreaPixels.
+              restrictPosition={false}
             />
           </div>
           <label className="form-label mt-3 mb-1" htmlFor="banner-crop-zoom">
@@ -88,8 +95,8 @@ export default function BannerCropModal({ open, imageSrc, onClose, onConfirm }: 
             id="banner-crop-zoom"
             type="range"
             className="form-range banner-crop-modal__zoom"
-            min={1}
-            max={3}
+            min={MIN_ZOOM}
+            max={MAX_ZOOM}
             step={0.05}
             value={zoom}
             onChange={(e) => setZoom(Number(e.target.value))}

@@ -18,17 +18,34 @@ export async function getCroppedImg(
   if (!ctx) {
     throw new Error('Canvas unsupported');
   }
-  ctx.drawImage(
-    image,
-    pixelCrop.x,
-    pixelCrop.y,
-    pixelCrop.width,
-    pixelCrop.height,
-    0,
-    0,
-    outW,
-    outH
-  );
+
+  // With Cropper restrictPosition={false} + zoom < 1, crop can leave the media.
+  // Fill letterbox margins, then draw only the overlapping source rect.
+  ctx.fillStyle = '#111111';
+  ctx.fillRect(0, 0, outW, outH);
+
+  const scaleX = outW / pixelCrop.width;
+  const scaleY = outH / pixelCrop.height;
+  const sx = Math.max(0, pixelCrop.x);
+  const sy = Math.max(0, pixelCrop.y);
+  const ex = Math.min(image.naturalWidth, pixelCrop.x + pixelCrop.width);
+  const ey = Math.min(image.naturalHeight, pixelCrop.y + pixelCrop.height);
+  if (ex > sx && ey > sy) {
+    const sw = ex - sx;
+    const sh = ey - sy;
+    ctx.drawImage(
+      image,
+      sx,
+      sy,
+      sw,
+      sh,
+      (sx - pixelCrop.x) * scaleX,
+      (sy - pixelCrop.y) * scaleY,
+      sw * scaleX,
+      sh * scaleY
+    );
+  }
+
   return new Promise((resolve, reject) => {
     canvas.toBlob(
       (blob) => {
