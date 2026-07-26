@@ -477,7 +477,7 @@ const AdminPanel = () => {
 
 
     const handleSyncPlayoffs = async () => {
-        if (!confirm('פעולה זו תעדכן את משחקי הפלייאוף לפי הטבלה הנוכחית. להמשיך?')) return;
+        if (!confirm('פעולה זו תעדכן את משחקי הפלייאוף לפי הטבלה הנוכחית. משחקים שכבר הסתיימו לא יידרסו. להמשיך?')) return;
         setPlayoffSyncLoading(true);
         try {
             await matchesAPI.syncPlayoffs();
