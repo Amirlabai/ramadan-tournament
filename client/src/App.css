@@ -90,6 +90,11 @@
   height: 2.5rem;
 }
 
+/* Survive global reduced-motion animation kill (see index.css exemptions) */
+.page-loading__spinner.spinner-border {
+  animation: 1s linear infinite spinner-border;
+}
+
 .page-loading__label {
   margin: 0;
   color: var(--text-light);

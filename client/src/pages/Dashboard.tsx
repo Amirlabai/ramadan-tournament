@@ -34,6 +34,7 @@ import {
 import { toHeadPlayer } from '../utils/toHeadPlayer';
 import { trackEvent } from '../utils/analytics';
 import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
+import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Dashboard.css';
@@ -92,9 +93,10 @@ const Dashboard = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const showSkeleton = useMinSkeletonTime(loading, { error });
+    const loadPhase = useMinSkeletonTime(loading, { error });
 
-    if (showSkeleton) return <DashboardSkeleton label="טוען לוח בקרה..." />;
+    if (loadPhase === 'spinner') return <PageLoading label="טוען לוח בקרה..." />;
+    if (loadPhase === 'skeleton') return <DashboardSkeleton label="טוען לוח בקרה..." />;
     if (error) return <div className="error">{error}</div>;
     if (!data) return <div className="error">אין נתונים</div>;
 

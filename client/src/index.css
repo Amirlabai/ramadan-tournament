@@ -121,11 +121,11 @@ h2 {
   align-items: center;
 }
 
-/* Reduced motion */
+/* Reduced motion — keep intentional page-load spinner animating */
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *:not(.page-loading__spinner),
+  *:not(.page-loading__spinner)::before,
+  *:not(.page-loading__spinner)::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

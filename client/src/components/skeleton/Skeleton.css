@@ -54,7 +54,7 @@
     var(--skeleton-sweep-highlight) 50%,
     transparent 58%
   );
-  animation: skeleton-page-sweep 2.2s ease-in-out infinite;
+  animation: skeleton-page-sweep 4s linear infinite;
 }
 
 .page-skeleton-loading > * {

@@ -17,6 +17,7 @@ import { matchShareSnapshot } from '../utils/shareSnapshot';
 import { trackEvent } from '../utils/analytics';
 import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
+import PageLoading from '../components/PageLoading';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Schedule.css';
@@ -79,10 +80,10 @@ const Schedule = () => {
         return () => clearInterval(interval);
     }, []);
 
-    const showSkeleton = useMinSkeletonTime(loading, { error });
+    const loadPhase = useMinSkeletonTime(loading, { error });
 
     useEffect(() => {
-        if (showSkeleton || scrollMatchId == null) return;
+        if (loadPhase || scrollMatchId == null) return;
 
         const target = matches.find((m) => m.id === scrollMatchId);
         if (target) {
@@ -108,9 +109,10 @@ const Schedule = () => {
             setScrollMatchId(null);
         }, 100);
         return () => clearTimeout(timer);
-    }, [showSkeleton, scrollMatchId, matches, activeFilter, now]);
+    }, [loadPhase, scrollMatchId, matches, activeFilter, now]);
 
-    if (showSkeleton) return <ScheduleSkeleton label="טוען לוח משחקים..." />;
+    if (loadPhase === 'spinner') return <PageLoading label="טוען לוח משחקים..." />;
+    if (loadPhase === 'skeleton') return <ScheduleSkeleton label="טוען לוח משחקים..." />;
     if (error) return <div className="error" role="alert">{error}</div>;
 
     const getTeamName = (teamId: number) => {
