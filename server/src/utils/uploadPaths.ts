@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-export type UploadSubdir = 'logos' | 'players';
+export type UploadSubdir = 'logos' | 'players' | 'banners';
 
 export const UPLOADS_DISK_MISCONFIG_MESSAGE =
   'UPLOADS_DISK_PATH is required in production (Render persistent disk). Uploads are disabled until it is set.';

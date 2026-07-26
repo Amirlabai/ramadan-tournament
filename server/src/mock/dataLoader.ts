@@ -159,6 +159,7 @@ export function formatTeamForApi(team: MockTeam, statsMap: Map<number, { goals: 
     logoUrl: effectiveTeamLogoUrl(team.id, team.logoUrl, MOCK_SEASON_ID),
     customLogoUrl,
     logoPosition: team.logoPosition,
+    bannerUrl: undefined as string | undefined,
     players: team.players.map((p) => {
       const stats = statsMap.get(p.memberId);
       return {

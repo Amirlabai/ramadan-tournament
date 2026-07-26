@@ -33,6 +33,7 @@ import {
     sortTeamsById,
     teamHasPlayerMatch,
 } from '../utils/teamsBrowse';
+import { TEAM_BANNER_BY_ID } from '../config/teamBanners';
 
 const Teams = () => {
     const [teams, setTeams] = useState<Team[]>([]);
@@ -349,7 +350,8 @@ const Teams = () => {
                                 const isOwner = ownedTeamId === team.id;
                                 const isCaptain =
                                     rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
-                                const canManageBranding = isOwner || isCaptain;
+                                const canManageBranding =
+                                    isOwner || isCaptain || isPlatformAdmin(user);
                                 const canEditSquadRoles = isOwner || isCaptain;
                                 const captainName = captain
                                     ? `${captain.firstName} ${captain.lastName}`
@@ -454,6 +456,23 @@ const Teams = () => {
                                                 className="teams-browse-squad"
                                                 id={`team-details-${team.id}`}
                                             >
+                                                {(() => {
+                                                    const bannerPath =
+                                                        team.bannerUrl || TEAM_BANNER_BY_ID[team.id];
+                                                    if (!bannerPath) return null;
+                                                    return (
+                                                        <img
+                                                            className="teams-browse-banner"
+                                                            src={
+                                                                resolveAssetUrl(bannerPath) ??
+                                                                bannerPath
+                                                            }
+                                                            alt={team.name}
+                                                            width={1080}
+                                                            height={270}
+                                                        />
+                                                    );
+                                                })()}
                                                 {team.description && !canManageBranding ? (
                                                     <p className="text-muted small mb-3">{team.description}</p>
                                                 ) : null}
@@ -469,6 +488,7 @@ const Teams = () => {
                                                             logoUrl: team.logoUrl,
                                                             customLogoUrl: team.customLogoUrl,
                                                             logoPosition: team.logoPosition,
+                                                            bannerUrl: team.bannerUrl,
                                                         }}
                                                         onEditingChange={handleOwnerSettingsEditingChange}
                                                         onUpdated={() => void fetchTeams(true)}

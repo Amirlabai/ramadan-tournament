@@ -203,6 +203,16 @@
   background: color-mix(in srgb, var(--color-primary, #509238) 3%, #fff);
 }
 
+.teams-browse-banner {
+  display: block;
+  width: 100%;
+  max-width: 1080px;
+  aspect-ratio: 4 / 1;
+  height: auto;
+  object-fit: cover;
+  margin: 0 auto 0.75rem;
+}
+
 .teams-browse-card.is-open .teams-browse-header {
   background: color-mix(in srgb, var(--color-primary, #509238) 6%, #fff);
 }

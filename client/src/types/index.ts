@@ -26,6 +26,7 @@ export interface Team {
     logoUrl?: string;
     customLogoUrl?: string;
     logoPosition?: 'left' | 'right' | 'none';
+    bannerUrl?: string;
     createdAt: string;
 }
 

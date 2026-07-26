@@ -30,7 +30,7 @@ import {
     uploadWriteDir,
     UPLOADS_DISK_MISCONFIG_MESSAGE,
 } from '../utils/uploadPaths';
-import { writeCompressedUpload } from '../utils/imageCompress';
+import { BannerCompressError, writeCompressedBannerUpload, writeCompressedUpload } from '../utils/imageCompress';
 import { safeImageExt } from '../utils/safeImageExt';
 
 const requestDivision = (req: Request) => getRequestDivision(req as TournamentRequest);
@@ -52,6 +52,7 @@ function formatTeamBrandingForApi(team: ITeam, division: Division) {
                 : customLogoUrl,
         customLogoUrl,
         logoPosition: team.logoPosition || 'right',
+        bannerUrl: team.bannerUrl || undefined,
     };
 }
 
@@ -456,6 +457,101 @@ export const deleteTeamLogo = async (req: AuthRequest, res: Response): Promise<v
     } catch (error) {
         console.error('Delete team logo error:', error);
         res.status(500).json({ error: 'שגיאה במחיקת הלוגו' });
+    }
+};
+
+// Owner/captain/admin branding: Upload team banner (4:1)
+export const uploadTeamBanner = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id);
+        const file = req.file;
+
+        if (!file) {
+            res.status(400).json({ error: 'לא נבחר קובץ' });
+            return;
+        }
+
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
+        if (!team) {
+            respondNotFound(res);
+            return;
+        }
+
+        if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
+            respondNotFound(res);
+            return;
+        }
+
+        const uploadDir = uploadWriteDir('banners');
+        // Always JPEG: banner compressor re-encodes (incl. GIF first frame).
+        const fileName = `team_${teamId}_${Date.now()}.jpg`;
+        const filePath = path.join(uploadDir, fileName);
+
+        try {
+            await writeCompressedBannerUpload(file.path, filePath);
+        } finally {
+            try {
+                fs.unlinkSync(file.path);
+            } catch {
+                /* multer temp already gone */
+            }
+        }
+
+        const previousBanner = team.bannerUrl;
+        team.bannerUrl = publicUploadUrl('banners', fileName);
+        await TeamRosterService.saveTeam(team);
+
+        if (previousBanner?.startsWith('/uploads/')) {
+            unlinkUpload(previousBanner);
+        }
+
+        res.json({
+            message: 'באנר הקבוצה הועלה בהצלחה',
+            bannerUrl: team.bannerUrl,
+        });
+    } catch (error) {
+        console.error('Upload team banner error:', error);
+        if (error instanceof BannerCompressError) {
+            res.status(400).json({
+                error: 'התמונה אינה מתאימה לבאנר (יחס 4:1, עד 1080×270)',
+            });
+            return;
+        }
+        if (error instanceof Error && error.message === UPLOADS_DISK_MISCONFIG_MESSAGE) {
+            res.status(503).json({ error: UPLOADS_DISK_MISCONFIG_MESSAGE });
+            return;
+        }
+        res.status(500).json({ error: 'שגיאה בהעלאת באנר' });
+    }
+};
+
+// Owner/captain/admin branding: Delete team banner
+export const deleteTeamBanner = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const teamId = parseInt(req.params.id);
+
+        const team = await TeamRosterService.findTeamWithPlayers(teamId, slugToDivision(requestDivision(req)));
+        if (!team) {
+            respondNotFound(res);
+            return;
+        }
+
+        if (!(await canManageTeamBranding(req.userId!, teamId, requestDivision(req)))) {
+            respondNotFound(res);
+            return;
+        }
+
+        if (team.bannerUrl) {
+            unlinkUpload(team.bannerUrl);
+        }
+
+        team.bannerUrl = undefined;
+        await TeamRosterService.saveTeam(team);
+
+        res.json({ message: 'הבאנר נמחק בהצלחה' });
+    } catch (error) {
+        console.error('Delete team banner error:', error);
+        res.status(500).json({ error: 'שגיאה במחיקת הבאנר' });
     }
 };
 

@@ -48,6 +48,7 @@ function formatTeam(
     logoUrl,
     customLogoUrl,
     logoPosition: team.logoPosition || 'right',
+    bannerUrl: team.bannerUrl || undefined,
     ...(pointsTotal !== undefined ? { totalPoints: pointsTotal } : {}),
     players: team.players
       .filter((p: any) => p.active)

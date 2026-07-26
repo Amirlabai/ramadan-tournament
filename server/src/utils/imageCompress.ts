@@ -5,6 +5,11 @@ import sharp from 'sharp';
 /** Max length of the shorter image edge after resize (no upscale). */
 export const SHORT_EDGE_MAX = 1080;
 
+/** Team banner target: 4:1 at most 1080px wide. */
+export const BANNER_ASPECT = 4;
+export const BANNER_MAX_WIDTH = 1080;
+export const BANNER_MAX_HEIGHT = Math.round(BANNER_MAX_WIDTH / BANNER_ASPECT);
+
 export const COMPRESS_LOCK_SUFFIX = '.compressing';
 export const COMPRESS_TMP_SUFFIX = '.rt-compress-tmp';
 export const COMPRESS_BAK_SUFFIX = '.rt-compress-bak';
@@ -219,6 +224,101 @@ export async function verifyCompressedImage(
 }
 
 /**
+ * Cover-crop to 4:1 and scale so width ≤ 1080 (height ≤ 270). No upscale.
+ * Always writes JPEG (first frame only for GIF). Safety net when client crop drifts.
+ */
+export async function compressBannerImageToFile(
+  sourcePath: string,
+  destPath: string
+): Promise<{ width: number; height: number; bytes: number }> {
+  const meta = await sharp(sourcePath).rotate().metadata();
+  const width = meta.width ?? 0;
+  const height = meta.height ?? 0;
+  if (!width || !height) {
+    throw new Error('Could not read image dimensions');
+  }
+
+  const format = (meta.format || path.extname(sourcePath).slice(1).toLowerCase()) as string;
+  const isGif = format === 'gif' || (await isAnimatedGif(sourcePath));
+  const aspect = width / height;
+  if (
+    !isGif &&
+    width <= BANNER_MAX_WIDTH &&
+    height <= BANNER_MAX_HEIGHT &&
+    Math.abs(aspect - BANNER_ASPECT) <= 0.08
+  ) {
+    return copyWithMeta(sourcePath, destPath);
+  }
+
+  // First frame for multi-page GIF; always JPEG for a stable banner contract.
+  await sharp(sourcePath, isGif ? { pages: 1 } : undefined)
+    .rotate()
+    .resize({
+      width: BANNER_MAX_WIDTH,
+      height: BANNER_MAX_HEIGHT,
+      fit: 'cover',
+      position: 'centre',
+      withoutEnlargement: true,
+    })
+    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
+    .toFile(destPath);
+
+  const outMeta = await sharp(destPath).metadata();
+  const st = fs.statSync(destPath);
+  return {
+    width: outMeta.width ?? 0,
+    height: outMeta.height ?? 0,
+    bytes: st.size,
+  };
+}
+
+export class BannerCompressError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'BannerCompressError';
+  }
+}
+
+export async function verifyCompressedBanner(
+  sourcePath: string,
+  compressedPath: string
+): Promise<VerifyCompressResult> {
+  if (!fs.existsSync(compressedPath)) {
+    return { ok: false, reason: 'compressed file missing' };
+  }
+  const outStat = fs.statSync(compressedPath);
+  if (!outStat.isFile() || outStat.size <= 0) {
+    return { ok: false, reason: 'compressed file empty' };
+  }
+
+  let outMeta: sharp.Metadata;
+  try {
+    outMeta = await sharp(compressedPath).metadata();
+  } catch (err) {
+    return {
+      ok: false,
+      reason: `compressed not decodable: ${err instanceof Error ? err.message : String(err)}`,
+    };
+  }
+
+  const w = outMeta.width ?? 0;
+  const h = outMeta.height ?? 0;
+  if (!w || !h) {
+    return { ok: false, reason: 'compressed missing dimensions' };
+  }
+  if (w > BANNER_MAX_WIDTH || h > BANNER_MAX_HEIGHT) {
+    return { ok: false, reason: `banner too large ${w}x${h}` };
+  }
+  const aspect = w / h;
+  if (Math.abs(aspect - BANNER_ASPECT) > 0.08) {
+    return { ok: false, reason: `banner aspect ${aspect.toFixed(2)} not ~4:1` };
+  }
+
+  void sourcePath;
+  return { ok: true };
+}
+
+/**
  * Compress `sourcePath` into `finalPath`. On verify failure, publishes the
  * original bytes so the upload still succeeds. Multer temp is left for caller.
  * `compress` is injectable for tests (same-module stub).
@@ -236,6 +336,29 @@ export async function writeCompressedUpload(
     if (!check.ok) {
       fs.copyFileSync(sourcePath, finalPath);
       return;
+    }
+    fs.copyFileSync(tmpPath, finalPath);
+  } finally {
+    unlinkQuiet(tmpPath);
+  }
+}
+
+/**
+ * Banner upload: 4:1 cover + max 1080 wide.
+ * On verify fail, rejects (does not publish raw bytes).
+ */
+export async function writeCompressedBannerUpload(
+  sourcePath: string,
+  finalPath: string,
+  compress: typeof compressBannerImageToFile = compressBannerImageToFile
+): Promise<void> {
+  const tmpPath = `${finalPath}${COMPRESS_TMP_SUFFIX}`;
+  unlinkQuiet(tmpPath);
+  try {
+    await compress(sourcePath, tmpPath);
+    const check = await verifyCompressedBanner(sourcePath, tmpPath);
+    if (!check.ok) {
+      throw new BannerCompressError(check.reason);
     }
     fs.copyFileSync(tmpPath, finalPath);
   } finally {

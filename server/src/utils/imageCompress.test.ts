@@ -5,10 +5,15 @@ import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import sharp from 'sharp';
 import {
   SHORT_EDGE_MAX,
+  BANNER_ASPECT,
+  BANNER_MAX_WIDTH,
+  BANNER_MAX_HEIGHT,
   compressExistingUpload,
   compressImageToFile,
+  compressBannerImageToFile,
   verifyCompressedImage,
   writeCompressedUpload,
+  writeCompressedBannerUpload,
 } from './imageCompress';
 
 describe('imageCompress', () => {
@@ -19,7 +24,11 @@ describe('imageCompress', () => {
   });
 
   afterEach(() => {
-    fs.rmSync(tmpDir, { recursive: true, force: true });
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {
+      /* Windows may still hold a sharp handle briefly */
+    }
   });
 
   async function makeJpeg(name: string, width: number, height: number): Promise<string> {
@@ -126,5 +135,57 @@ describe('imageCompress', () => {
     expect(Math.min(meta.width!, meta.height!)).toBeLessThanOrEqual(SHORT_EDGE_MAX);
     expect(Math.max(meta.width!, meta.height!)).toBeGreaterThan(SHORT_EDGE_MAX);
     expect(fs.existsSync(`${src}.compressing`)).toBe(false);
+  });
+
+  it('compressBannerImageToFile cover-crops to 4:1 within 1080×270', async () => {
+    const src = await makeJpeg('portrait-banner.jpg', 2000, 3000);
+    const dest = path.join(tmpDir, 'banner-out.jpg');
+    const result = await compressBannerImageToFile(src, dest);
+    expect(result.width).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
+    expect(result.height).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
+    expect(result.width / result.height).toBeCloseTo(BANNER_ASPECT, 1);
+  });
+
+  it('writeCompressedBannerUpload writes 4:1 banner', async () => {
+    const src = await makeJpeg('wide-banner.jpg', 4000, 1000);
+    const finalPath = path.join(tmpDir, 'banner-final.jpg');
+    await writeCompressedBannerUpload(src, finalPath);
+    const meta = await sharp(finalPath).metadata();
+    expect(meta.width!).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
+    expect(meta.height!).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
+    expect(meta.width! / meta.height!).toBeCloseTo(BANNER_ASPECT, 1);
+  });
+
+  it('writeCompressedBannerUpload rejects when verify fails (no raw publish)', async () => {
+    const src = await makeJpeg('reject-src.jpg', 400, 300);
+    const finalPath = path.join(tmpDir, 'reject-final.jpg');
+    const { BannerCompressError } = await import('./imageCompress');
+    await expect(
+      writeCompressedBannerUpload(src, finalPath, async (_source, dest) => {
+        await sharp({
+          create: { width: 2000, height: 2000, channels: 3, background: { r: 1, g: 2, b: 3 } },
+        })
+          .jpeg()
+          .toFile(dest);
+        return { width: 2000, height: 2000, bytes: fs.statSync(dest).size };
+      })
+    ).rejects.toBeInstanceOf(BannerCompressError);
+    expect(fs.existsSync(finalPath)).toBe(false);
+  });
+
+  it('compressBannerImageToFile re-encodes GIF to JPEG within banner bounds', async () => {
+    const src = path.join(tmpDir, 'banner.gif');
+    await sharp({
+      create: { width: 1600, height: 1200, channels: 3, background: { r: 10, g: 20, b: 30 } },
+    })
+      .gif()
+      .toFile(src);
+    const dest = path.join(tmpDir, 'banner-from-gif.jpg');
+    const result = await compressBannerImageToFile(src, dest);
+    expect(result.width).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
+    expect(result.height).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
+    expect(result.width / result.height).toBeCloseTo(BANNER_ASPECT, 1);
+    const meta = await sharp(dest).metadata();
+    expect(meta.format).toBe('jpeg');
   });
 });

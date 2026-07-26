@@ -1,6 +1,6 @@
 """
-Download missing production upload files (team logos, player photos, user avatars)
-to server/uploads/ for local dev or repo backup.
+Download missing production upload files (team logos, team banners, player photos,
+user avatars) to server/uploads/ for local dev or repo backup.
 
 Data sources:
   - GET /api/teams and /api/teams-girls (public)
@@ -36,6 +36,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 PLAYERS_DIR = REPO_ROOT / "server" / "uploads" / "players"
 LOGOS_DIR = REPO_ROOT / "server" / "uploads" / "logos"
+BANNERS_DIR = REPO_ROOT / "server" / "uploads" / "banners"
 
 # Remote must be under this fraction of local size to force overwrite (compressed replace).
 REPLACE_IF_REMOTE_SMALLER_RATIO = 0.85
@@ -252,6 +253,19 @@ def sync_team_assets(
                 )
                 counts[action] = counts.get(action, 0) + 1
 
+        banner_path = team.get("bannerUrl") or team.get("banner_url")
+        if banner_path and str(banner_path).startswith("/uploads/"):
+            filename = banner_path.split("/")[-1]
+            if not is_compress_sidecar(filename):
+                local_path = BANNERS_DIR / filename
+                action = sync_one(
+                    f"{API_BASE_URL}{banner_path}",
+                    local_path,
+                    "BANNER",
+                    f"{filename} ({team.get('name', '?')})",
+                )
+                counts[action] = counts.get(action, 0) + 1
+
         for player in team.get("players") or []:
             for field in ("head_photo", "pending_head_photo", "headPhoto", "pendingHeadPhoto"):
                 photo_path = player.get(field)
@@ -273,6 +287,7 @@ def sync_team_assets(
 def sync_photos() -> None:
     PLAYERS_DIR.mkdir(parents=True, exist_ok=True)
     LOGOS_DIR.mkdir(parents=True, exist_ok=True)
+    BANNERS_DIR.mkdir(parents=True, exist_ok=True)
 
     print(f"Syncing photos to: {PLAYERS_DIR.parent}")
     print(f"Pulling from: {API_BASE_URL}\n")

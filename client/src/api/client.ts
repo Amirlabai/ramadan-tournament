@@ -57,6 +57,12 @@ export const teamsAPI = {
             headers: { 'Content-Type': 'multipart/form-data' }
         }),
     deleteLogo: (id: number, slug: TournamentSlug = 'boys') => api.delete(`${teamsPath(slug)}/${id}/logo`),
+    uploadBanner: (id: number, formData: FormData, slug: TournamentSlug = 'boys') =>
+        api.post(`${teamsPath(slug)}/${id}/banner`, formData, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        }),
+    deleteBanner: (id: number, slug: TournamentSlug = 'boys') =>
+        api.delete(`${teamsPath(slug)}/${id}/banner`),
     addPlayer: (teamId: number, data: {
         firstName: string; lastName?: string; nickname?: string;
         number: number; position?: string; isCaptain?: boolean; birthYear?: number;

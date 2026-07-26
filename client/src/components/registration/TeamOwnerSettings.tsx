@@ -1,9 +1,19 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { TEAM_DESC_MAX_LEN, TEAM_NAME_MAX_LEN } from '@ramadan-tournament/shared';
 import { teamsAPI, type TournamentSlug } from '../../api/client';
+import { useAuth } from '../../contexts/AuthContext';
 import { resolveAssetUrl } from '../../utils/assetUrl';
+import { isPlatformAdmin } from '../../utils/tournamentUser';
+import BannerCropModal from './BannerCropModal';
 
 type LogoPosition = 'left' | 'right' | 'none';
+type ManagerKind = 'admin' | 'owner' | 'captain';
+
+const MANAGER_ROLE_LABEL: Record<ManagerKind, string> = {
+    admin: 'מנהל מערכת',
+    owner: 'בעלים',
+    captain: 'קפטן',
+};
 
 interface TeamMeta {
     name: string;
@@ -11,6 +21,7 @@ interface TeamMeta {
     logoUrl?: string;
     customLogoUrl?: string;
     logoPosition: LogoPosition;
+    bannerUrl?: string;
 }
 
 export interface TeamOwnerSnapshot {
@@ -19,6 +30,7 @@ export interface TeamOwnerSnapshot {
     logoUrl?: string;
     customLogoUrl?: string;
     logoPosition?: LogoPosition;
+    bannerUrl?: string;
 }
 
 interface Props {
@@ -42,6 +54,7 @@ function snapshotToMeta(snapshot: TeamOwnerSnapshot): TeamMeta {
         logoUrl: snapshot.logoUrl,
         customLogoUrl: snapshot.customLogoUrl,
         logoPosition: snapshot.logoPosition || 'right',
+        bannerUrl: snapshot.bannerUrl,
     };
 }
 
@@ -53,6 +66,18 @@ export default function TeamOwnerSettings({
     onUpdated,
     onEditingChange,
 }: Props) {
+    const { user } = useAuth();
+    const managerKind = useMemo((): ManagerKind => {
+        if (isPlatformAdmin(user)) return 'admin';
+        if (slug === 'boys' || slug === 'girls') {
+            const reg = user?.tournamentRegistration?.[slug];
+            if (reg?.ownedTeamId === teamId) return 'owner';
+            if (reg?.onRoster?.isCaptain === true && reg.onRoster.teamId === teamId) return 'captain';
+        }
+        return 'owner';
+    }, [user, slug, teamId]);
+    const managerLabel = MANAGER_ROLE_LABEL[managerKind];
+
     const [team, setTeam] = useState<TeamMeta | null>(() =>
         initialTeam ? snapshotToMeta(initialTeam) : null
     );
@@ -61,11 +86,26 @@ export default function TeamOwnerSettings({
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [logoLoading, setLogoLoading] = useState(false);
+    const [bannerLoading, setBannerLoading] = useState(false);
+    const [cropSrc, setCropSrc] = useState<string | null>(null);
     const [status, setStatus] = useState<StatusMsg | null>(null);
     const [form, setForm] = useState({ name: '', description: '', logoPosition: 'right' as LogoPosition });
 
     const editingRef = useRef(editing);
     editingRef.current = editing;
+
+    const closeCrop = useCallback(() => {
+        setCropSrc((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            if (cropSrc) URL.revokeObjectURL(cropSrc);
+        };
+    }, [cropSrc]);
 
     useEffect(() => {
         onEditingChange?.(editing);
@@ -129,6 +169,7 @@ export default function TeamOwnerSettings({
     }, [teamId, slug, applyMeta, loadTeam]);
 
     const logoSrc = resolveAssetUrl(team?.logoUrl);
+    const bannerSrc = resolveAssetUrl(team?.bannerUrl);
     const hasCustomLogo = Boolean(team?.customLogoUrl?.trim());
 
     const handleSave = async (e: React.FormEvent) => {
@@ -208,6 +249,69 @@ export default function TeamOwnerSettings({
         }
     };
 
+    const handleBannerFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        e.target.value = '';
+        if (!file) return;
+        setStatus(null);
+        const url = URL.createObjectURL(file);
+        setCropSrc((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return url;
+        });
+    };
+
+    const handleBannerCropConfirm = async (blob: Blob) => {
+        setBannerLoading(true);
+        setStatus(null);
+        try {
+            const formData = new FormData();
+            formData.append('banner', blob, `team_${teamId}_banner.jpg`);
+            await teamsAPI.uploadBanner(teamId, formData, slug);
+            const snapshot = await refreshTeam();
+            closeCrop();
+            if (snapshot) {
+                setStatus({ type: 'success', text: 'הבאנר הועלה בהצלחה' });
+                onUpdated?.(snapshot);
+            } else {
+                setStatus({ type: 'error', text: REFRESH_FAILED_MSG });
+            }
+        } catch (err: unknown) {
+            const ax = err as { response?: { data?: { error?: string } } };
+            setStatus({
+                type: 'error',
+                text: ax.response?.data?.error || 'שגיאה בהעלאת הבאנר',
+            });
+            throw err;
+        } finally {
+            setBannerLoading(false);
+        }
+    };
+
+    const handleDeleteBanner = async () => {
+        if (!confirm('האם למחוק את באנר הקבוצה?')) return;
+        setBannerLoading(true);
+        setStatus(null);
+        try {
+            await teamsAPI.deleteBanner(teamId, slug);
+            const snapshot = await refreshTeam();
+            if (snapshot) {
+                setStatus({ type: 'success', text: 'הבאנר נמחק בהצלחה' });
+                onUpdated?.(snapshot);
+            } else {
+                setStatus({ type: 'error', text: REFRESH_FAILED_MSG });
+            }
+        } catch (err: unknown) {
+            const ax = err as { response?: { data?: { error?: string } } };
+            setStatus({
+                type: 'error',
+                text: ax.response?.data?.error || 'שגיאה במחיקת הבאנר',
+            });
+        } finally {
+            setBannerLoading(false);
+        }
+    };
+
     const startEdit = () => {
         if (!team) return;
         setForm({
@@ -241,15 +345,30 @@ export default function TeamOwnerSettings({
 
     const wrapperClass = variant === 'card' ? 'card mb-4 p-4' : 'border rounded p-3 bg-white mb-3';
     const inputId = `team-logo-${teamId}-${slug}`;
+    const bannerInputId = `team-banner-${teamId}-${slug}`;
+    const regionLabel = `ניהול קבוצה (${managerLabel}): ${team.name}`;
 
     return (
-        <div className={wrapperClass} role="region" aria-label={`הגדרות קבוצה: ${team.name}`}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-                <h3 className={variant === 'card' ? 'h4 mb-0' : 'h6 fw-bold mb-0'}>
-                    הגדרות קבוצה: {team.name}
-                </h3>
+        <div className={wrapperClass} role="region" aria-label={regionLabel}>
+            {cropSrc ? (
+                <BannerCropModal
+                    open
+                    imageSrc={cropSrc}
+                    onClose={closeCrop}
+                    onConfirm={handleBannerCropConfirm}
+                />
+            ) : null}
+            <div className="d-flex justify-content-between align-items-start gap-2 mb-3">
+                <div>
+                    <h3 className={variant === 'card' ? 'h4 mb-1' : 'h6 fw-bold mb-1'}>
+                        ניהול קבוצה: {team.name}
+                    </h3>
+                    <p className="text-muted small mb-0">
+                        תצוגת {managerLabel}. לא מוצג למשתמשים רגילים.
+                    </p>
+                </div>
                 {!editing && (
-                    <button type="button" className="btn btn-success btn-sm" onClick={startEdit}>
+                    <button type="button" className="btn btn-success btn-sm flex-shrink-0" onClick={startEdit}>
                         <i className="bi bi-pencil-fill me-1" aria-hidden="true" />
                         עריכה
                     </button>
@@ -365,6 +484,50 @@ export default function TeamOwnerSettings({
                         </div>
                     </div>
 
+                    <div className="mb-3">
+                        <span className="form-label d-block">באנר הקבוצה</span>
+                        {bannerSrc ? (
+                            <div className="position-relative mb-2">
+                                <img
+                                    src={bannerSrc}
+                                    alt={`באנר ${team.name}`}
+                                    className="teams-browse-banner"
+                                />
+                                <button
+                                    type="button"
+                                    className="btn btn-danger btn-sm mt-2"
+                                    onClick={() => void handleDeleteBanner()}
+                                    disabled={bannerLoading}
+                                >
+                                    מחק באנר
+                                </button>
+                            </div>
+                        ) : null}
+                        <input
+                            type="file"
+                            id={bannerInputId}
+                            accept="image/*"
+                            className="d-none"
+                            disabled={bannerLoading}
+                            onChange={handleBannerFilePick}
+                        />
+                        <label
+                            htmlFor={bannerInputId}
+                            className={`btn btn-outline-success btn-sm ${bannerLoading ? 'disabled' : ''}`}
+                        >
+                            {bannerLoading ? (
+                                <span className="spinner-border spinner-border-sm me-1" aria-hidden="true" />
+                            ) : (
+                                <i className="bi bi-image me-1" aria-hidden="true" />
+                            )}
+                            {bannerSrc ? 'החלף באנר' : 'העלה באנר'}
+                        </label>
+                        <p className="text-muted small mt-2 mb-0">
+                            יחס 4:1. לאחר בחירת קובץ תוכלו למרכז ולקרב את התמונה. הקובץ יידחס עד
+                            1080×270.
+                        </p>
+                    </div>
+
                     {status && (
                         <div
                             className={`alert py-2 ${status.type === 'error' ? 'alert-danger' : 'alert-success'}`}
@@ -416,6 +579,13 @@ export default function TeamOwnerSettings({
                             )}
                         </div>
                     </div>
+                    {bannerSrc ? (
+                        <img
+                            src={bannerSrc}
+                            alt={`באנר ${team.name}`}
+                            className="teams-browse-banner mt-3"
+                        />
+                    ) : null}
                     {status && (
                         <div
                             className={`alert py-2 mt-3 mb-0 ${status.type === 'error' ? 'alert-danger' : 'alert-success'}`}

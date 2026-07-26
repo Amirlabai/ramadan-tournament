@@ -1,0 +1,16 @@
+.banner-crop-modal__dialog {
+  max-width: min(960px, 100vw - 1.5rem);
+}
+
+.banner-crop-modal__stage {
+  position: relative;
+  width: 100%;
+  height: min(42vh, 280px);
+  background: #111;
+  overflow: hidden;
+  border-radius: 0.35rem;
+}
+
+.banner-crop-modal__zoom {
+  min-height: 44px;
+}

@@ -187,6 +187,7 @@ model Team {
   description  String     @default("")
   logoUrl      String?    @map("logo_url")
   logoPosition String?    @default("right") @map("logo_position")
+  bannerUrl    String?    @map("banner_url")
   status       TeamStatus @default(active)
   ownerUserId  String?    @map("owner_user_id")
   createdAt    DateTime   @default(now()) @map("created_at")

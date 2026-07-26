@@ -43,6 +43,7 @@ export interface ITeam {
   players: IPlayer[];
   logoUrl?: string;
   logoPosition?: string;
+  bannerUrl?: string;
   description?: string;
   seasonId?: string;
 }
@@ -89,6 +90,7 @@ function mapTeam(row: {
   name: string;
   logoUrl?: string | null;
   logoPosition?: string | null;
+  bannerUrl?: string | null;
   description?: string | null;
   seasonId: string;
 }, players: Parameters<typeof mapPlayer>[0][]): ITeam {
@@ -97,6 +99,7 @@ function mapTeam(row: {
     name: row.name,
     logoUrl: row.logoUrl || '',
     logoPosition: row.logoPosition || 'right',
+    bannerUrl: row.bannerUrl || undefined,
     description: row.description || '',
     seasonId: row.seasonId,
     players: players.map(mapPlayer),
@@ -342,6 +345,7 @@ export class TeamRosterService {
           description: team.description ?? '',
           logoUrl: team.logoUrl,
           logoPosition: team.logoPosition,
+          bannerUrl: team.bannerUrl || null,
         },
       });
     });

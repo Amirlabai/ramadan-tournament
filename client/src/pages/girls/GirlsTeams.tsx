@@ -12,6 +12,7 @@ import { useTournament } from '../../contexts/TournamentContext';
 import type { Team } from '../../types';
 import { trackEvent } from '../../utils/analytics';
 import { resolveAssetUrl } from '../../utils/assetUrl';
+import { isPlatformAdmin } from '../../utils/tournamentUser';
 import { sortRosterPlayers } from '../../utils/rosterSort';
 import {
   computeTeamsBrowseSummary,
@@ -205,7 +206,7 @@ const GirlsTeams = () => {
                 const rosterReg = user?.tournamentRegistration?.girls?.onRoster;
                 const isOwner = ownedTeamId === team.id;
                 const isCaptain = rosterReg?.isCaptain === true && rosterReg.teamId === team.id;
-                const canManageBranding = isOwner || isCaptain;
+                const canManageBranding = isOwner || isCaptain || isPlatformAdmin(user);
                 const canEditSquadRoles = isOwner || isCaptain;
                 const captainName = captain
                   ? `${captain.firstName} ${captain.lastName}`
@@ -314,6 +315,15 @@ const GirlsTeams = () => {
 
                     {isExpanded ? (
                       <div className="teams-browse-squad" id={`team-details-${team.id}`}>
+                        {team.bannerUrl ? (
+                          <img
+                            className="teams-browse-banner"
+                            src={resolveAssetUrl(team.bannerUrl) ?? team.bannerUrl}
+                            alt={team.name}
+                            width={1080}
+                            height={270}
+                          />
+                        ) : null}
                         {team.description && !canManageBranding ? (
                           <p className="text-muted small mb-3">{team.description}</p>
                         ) : null}
@@ -329,6 +339,7 @@ const GirlsTeams = () => {
                               logoUrl: team.logoUrl,
                               customLogoUrl: team.customLogoUrl,
                               logoPosition: team.logoPosition,
+                              bannerUrl: team.bannerUrl,
                             }}
                             onUpdated={() => void loadTeams()}
                           />

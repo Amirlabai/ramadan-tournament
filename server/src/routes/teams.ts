@@ -11,6 +11,8 @@ import {
     updateTeamMetadata,
     uploadTeamLogo,
     deleteTeamLogo,
+    uploadTeamBanner,
+    deleteTeamBanner,
     addPlayer,
     deletePlayer,
     movePlayer,
@@ -55,6 +57,8 @@ router.post('/:id/requests', authenticate, approveTeamRequest);
 router.patch('/:id/metadata', authenticate, updateTeamMetadata);
 router.post('/:id/logo', authenticate, upload.single('logo'), uploadTeamLogo);
 router.delete('/:id/logo', authenticate, deleteTeamLogo);
+router.post('/:id/banner', authenticate, upload.single('banner'), uploadTeamBanner);
+router.delete('/:id/banner', authenticate, deleteTeamBanner);
 
 // Owner/captain/admin: post-edit roster player fields & photo
 router.patch('/:id/players/:memberId', authenticate, updateManagedPlayer);
