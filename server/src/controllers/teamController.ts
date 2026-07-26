@@ -483,8 +483,8 @@ export const uploadTeamBanner = async (req: AuthRequest, res: Response): Promise
         }
 
         const uploadDir = uploadWriteDir('banners');
-        // Always JPEG: banner compressor re-encodes (incl. GIF first frame).
-        const fileName = `team_${teamId}_${Date.now()}.jpg`;
+        // PNG: preserves zoom-out letterbox alpha (JPEG cannot).
+        const fileName = `team_${teamId}_${Date.now()}.png`;
         const filePath = path.join(uploadDir, fileName);
 
         try {

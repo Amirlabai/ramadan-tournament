@@ -1,6 +1,6 @@
 import type { Area } from 'react-easy-crop';
 
-/** Export cropped region as JPEG blob, scaled to at most maxWidth × maxHeight. */
+/** Export cropped region as PNG blob, scaled to at most maxWidth × maxHeight. */
 export async function getCroppedImg(
   imageSrc: string,
   pixelCrop: Area,
@@ -19,10 +19,8 @@ export async function getCroppedImg(
     throw new Error('Canvas unsupported');
   }
 
-  // With Cropper restrictPosition={false} + zoom < 1, crop can leave the media.
-  // Fill letterbox margins, then draw only the overlapping source rect.
-  ctx.fillStyle = '#111111';
-  ctx.fillRect(0, 0, outW, outH);
+  // Leave unset pixels transparent (JPEG cannot). Zoom-out letterbox stays clear.
+  ctx.clearRect(0, 0, outW, outH);
 
   const scaleX = outW / pixelCrop.width;
   const scaleY = outH / pixelCrop.height;
@@ -55,8 +53,7 @@ export async function getCroppedImg(
         }
         resolve(blob);
       },
-      'image/jpeg',
-      0.92
+      'image/png'
     );
   });
 }

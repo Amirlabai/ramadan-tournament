@@ -139,26 +139,28 @@ describe('imageCompress', () => {
 
   it('compressBannerImageToFile cover-crops to 4:1 within 1080×270', async () => {
     const src = await makeJpeg('portrait-banner.jpg', 2000, 3000);
-    const dest = path.join(tmpDir, 'banner-out.jpg');
+    const dest = path.join(tmpDir, 'banner-out.png');
     const result = await compressBannerImageToFile(src, dest);
     expect(result.width).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
     expect(result.height).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
     expect(result.width / result.height).toBeCloseTo(BANNER_ASPECT, 1);
+    expect((await sharp(dest).metadata()).format).toBe('png');
   });
 
   it('writeCompressedBannerUpload writes 4:1 banner', async () => {
     const src = await makeJpeg('wide-banner.jpg', 4000, 1000);
-    const finalPath = path.join(tmpDir, 'banner-final.jpg');
+    const finalPath = path.join(tmpDir, 'banner-final.png');
     await writeCompressedBannerUpload(src, finalPath);
     const meta = await sharp(finalPath).metadata();
     expect(meta.width!).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
     expect(meta.height!).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
     expect(meta.width! / meta.height!).toBeCloseTo(BANNER_ASPECT, 1);
+    expect(meta.format).toBe('png');
   });
 
   it('writeCompressedBannerUpload rejects when verify fails (no raw publish)', async () => {
     const src = await makeJpeg('reject-src.jpg', 400, 300);
-    const finalPath = path.join(tmpDir, 'reject-final.jpg');
+    const finalPath = path.join(tmpDir, 'reject-final.png');
     const { BannerCompressError } = await import('./imageCompress');
     await expect(
       writeCompressedBannerUpload(src, finalPath, async (_source, dest) => {
@@ -173,19 +175,55 @@ describe('imageCompress', () => {
     expect(fs.existsSync(finalPath)).toBe(false);
   });
 
-  it('compressBannerImageToFile re-encodes GIF to JPEG within banner bounds', async () => {
+  it('compressBannerImageToFile re-encodes GIF to PNG within banner bounds', async () => {
     const src = path.join(tmpDir, 'banner.gif');
     await sharp({
       create: { width: 1600, height: 1200, channels: 3, background: { r: 10, g: 20, b: 30 } },
     })
       .gif()
       .toFile(src);
-    const dest = path.join(tmpDir, 'banner-from-gif.jpg');
+    const dest = path.join(tmpDir, 'banner-from-gif.png');
     const result = await compressBannerImageToFile(src, dest);
     expect(result.width).toBeLessThanOrEqual(BANNER_MAX_WIDTH);
     expect(result.height).toBeLessThanOrEqual(BANNER_MAX_HEIGHT);
     expect(result.width / result.height).toBeCloseTo(BANNER_ASPECT, 1);
     const meta = await sharp(dest).metadata();
-    expect(meta.format).toBe('jpeg');
+    expect(meta.format).toBe('png');
+  });
+
+  it('compressBannerImageToFile keeps PNG alpha on in-bounds copy', async () => {
+    const src = path.join(tmpDir, 'inset-banner.png');
+    await sharp({
+      create: {
+        width: 800,
+        height: 200,
+        channels: 4,
+        background: { r: 0, g: 0, b: 0, alpha: 0 },
+      },
+    })
+      .composite([
+        {
+          input: await sharp({
+            create: {
+              width: 200,
+              height: 100,
+              channels: 3,
+              background: { r: 40, g: 120, b: 80 },
+            },
+          })
+            .png()
+            .toBuffer(),
+          left: 300,
+          top: 50,
+        },
+      ])
+      .png()
+      .toFile(src);
+    const dest = path.join(tmpDir, 'inset-out.png');
+    await compressBannerImageToFile(src, dest);
+    expect((await sharp(dest).metadata()).format).toBe('png');
+    const { data } = await sharp(dest).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+    // Corner pixel should stay fully transparent.
+    expect(data[3]).toBe(0);
   });
 });

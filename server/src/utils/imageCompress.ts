@@ -225,7 +225,7 @@ export async function verifyCompressedImage(
 
 /**
  * Cover-crop to 4:1 and scale so width ≤ 1080 (height ≤ 270). No upscale.
- * Always writes JPEG (first frame only for GIF). Safety net when client crop drifts.
+ * Writes PNG so letterbox / GIF transparency survives (JPEG cannot).
  */
 export async function compressBannerImageToFile(
   sourcePath: string,
@@ -247,10 +247,16 @@ export async function compressBannerImageToFile(
     height <= BANNER_MAX_HEIGHT &&
     Math.abs(aspect - BANNER_ASPECT) <= 0.08
   ) {
-    return copyWithMeta(sourcePath, destPath);
+    // Already in bounds: keep source bytes (PNG alpha intact). Re-encode only if
+    // dest extension differs from source (e.g. jpeg → png upload path).
+    const srcExt = path.extname(sourcePath).toLowerCase();
+    const destExt = path.extname(destPath).toLowerCase();
+    if (srcExt === destExt || (srcExt === '.jpeg' && destExt === '.jpg')) {
+      return copyWithMeta(sourcePath, destPath);
+    }
   }
 
-  // First frame for multi-page GIF; always JPEG for a stable banner contract.
+  // First frame for multi-page GIF; PNG keeps alpha for inset crops.
   await sharp(sourcePath, isGif ? { pages: 1 } : undefined)
     .rotate()
     .resize({
@@ -260,7 +266,7 @@ export async function compressBannerImageToFile(
       position: 'centre',
       withoutEnlargement: true,
     })
-    .jpeg({ quality: JPEG_QUALITY, mozjpeg: true })
+    .png({ compressionLevel: 9 })
     .toFile(destPath);
 
   const outMeta = await sharp(destPath).metadata();

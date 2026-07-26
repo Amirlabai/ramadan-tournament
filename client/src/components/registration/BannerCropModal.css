@@ -6,7 +6,15 @@
   position: relative;
   width: 100%;
   height: min(42vh, 280px);
-  background: #111;
+  /* Checkerboard: letterbox outside the photo exports as transparent. */
+  background-color: #c8c8c8;
+  background-image:
+    linear-gradient(45deg, #aeaeae 25%, transparent 25%),
+    linear-gradient(-45deg, #aeaeae 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #aeaeae 75%),
+    linear-gradient(-45deg, transparent 75%, #aeaeae 75%);
+  background-size: 16px 16px;
+  background-position: 0 0, 0 8px, 8px -8px, -8px 0;
   overflow: hidden;
   border-radius: 0.35rem;
 }

@@ -266,7 +266,7 @@ export default function TeamOwnerSettings({
         setStatus(null);
         try {
             const formData = new FormData();
-            formData.append('banner', blob, `team_${teamId}_banner.jpg`);
+            formData.append('banner', blob, `team_${teamId}_banner.png`);
             await teamsAPI.uploadBanner(teamId, formData, slug);
             const snapshot = await refreshTeam();
             closeCrop();
