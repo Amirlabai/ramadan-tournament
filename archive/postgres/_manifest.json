@@ -1,10 +1,10 @@
 {
-  "exported_at": "2026-07-29T08:14:39+03:00",
+  "exported_at": "2026-07-30T07:51:31+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "users.csv",
-    "players.csv",
     "votes.csv",
+    "team_join_requests.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -13,7 +13,7 @@
       "file": "seasons.csv"
     },
     "users": {
-      "rows": 82,
+      "rows": 83,
       "file": "users.csv"
     },
     "season_registrations": {
@@ -53,7 +53,7 @@
       "file": "comments.csv"
     },
     "votes": {
-      "rows": 31,
+      "rows": 33,
       "file": "votes.csv"
     },
     "stats_snapshots": {
@@ -85,7 +85,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 26400,
+      "rows": 26619,
       "file": "analytics_events.csv"
     }
   },
