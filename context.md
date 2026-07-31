@@ -1,206 +1,82 @@
 # Project Context: Ramadan Tournament
 
-## Tech Stack
-- **Frontend**: React 19, Vite 7, TypeScript, Bootstrap 5, PWA (`vite-plugin-pwa`), `react-helmet-async`.
-- **Backend**: Node.js, Express, **PostgreSQL (Prisma)**, **Redis (ioredis)**, TypeScript.
-- **Data**: JSON in `data/` for bootstrap seed; Postgres for runtime.
-- **DevOps**: Render (API + Postgres + Redis), Vercel (Frontend).
+Hebrew RTL tournament site for כפר כמא / summer 2026 (boys football, girls points, optional FIFA WC proxy).
+
+## Tech stack
+
+- **Client:** React 19, Vite 7, TypeScript, Bootstrap 5, PWA, `react-helmet-async`
+- **Server:** Node/Express, PostgreSQL (Prisma), Redis (ioredis), TypeScript
+- **Shared:** `@ramadan-tournament/shared` (ID/birth-year, match timing, empty display, etc.)
+- **Host:** Render (API + Postgres + Redis), Vercel (client)
+- **Peripheral Python:** `scripts/` (photo sync, Postgres backup, alarms, analytics dashboard) via repo `.venv` + `scripts/requirements.txt`
 
 ## Architecture
-- **Monorepo**: `client`, `server`, `shared/` (`@ramadan-tournament/shared` — birth-year bounds + Israeli ID validation), `data/`, `docs/` (canonical documentation), `.incoming/` (new doc drops).
-- **Data Layer**: Prisma ORM; boys/girls as separate seasons (`division`). Redis caches hot reads (`rt:` keys). Registration split: `RegistrationQueryService`, `RegistrationWorkflowService`, `RegistrationIdentityService`; admin roster reads/writes via `TeamRosterService` + `PlayerService.deactivateRosterMember` (soft-delete); public reads via `TeamDataService` (120s Redis cache; `saveTeam` invalidates `rt:doc:{division}:*`). Legacy `models/User.ts` Mongoose shim remains for auth/profile.
-- **Bootstrap**: No Mongo migration — `npm run db:migrate` and `npm run db:seed` in `server/` after `DATABASE_URL` is set. Production seeded May 2026 (boys season, teams/matches from `data/*.json`). For a **clean tournament start** (no teams/players/matches), use `npm run db:fresh` instead of `db:seed`.
-- **Automation**: Core tournament automation (stats calculations, AI summarizations, CSV imports) is handled natively within the Node.js API processes. Python remains strictly for peripheral tasks under `scripts/` — photo sync, Postgres CSV backup, and external alarm fetch — driven by `.github/workflows/`. See `scripts/README.md`. Treat `archive/postgres/` as sensitive (PII in user/player exports); do not publish or share publicly without redaction.
-- **Python:** `scripts/requirements.txt` + local `.venv/` at repo root (gitignored). First time: `python -m venv .venv` then `.\.venv\Scripts\python.exe -m pip install -r scripts/requirements.txt`. Run with `.\.venv\Scripts\python.exe scripts/<name>.py`. Legacy `invoice_codes` CSV exports omit `code_hash` and `code_normalized`; identity is stored encrypted on `season_registrations` (not exported in plaintext).
-- **Tests:** Vitest in `shared/` and `server/`. Root `npm run test` builds shared then runs both workspaces. Server integration tests use `createTestApp()` (mock JSON API, no Postgres). CI: `.github/workflows/test.yml`.
 
-## Environment variables (who needs what)
+- Monorepo: `client/`, `server/`, `shared/`, `data/`, `docs/`, `.incoming/`
+- Seasons by `division` (boys/girls). Redis `rt:` caches; `TeamDataService` ~120s; `saveTeam` invalidates `rt:doc:{division}:*`
+- Registration: `RegistrationQueryService` / `RegistrationWorkflowService` / `RegistrationIdentityService`; roster via `TeamRosterService` + soft-delete `PlayerService.deactivateRosterMember`
+- Bootstrap: `db:migrate` + `db:seed`; clean start `db:fresh` (not seed for live schedules)
+- Tests: Vitest `shared/` + `server/`; root `npm run test`; CI `.github/workflows/test.yml`
+- Docs: [`docs/README.md`](docs/README.md); handoff [`.cursor/agent-rtm.md`](.cursor/agent-rtm.md) → [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md)
 
-| Variable | Render API | Vercel / client | Notes |
-|----------|------------|-----------------|--------|
-| `DATABASE_URL` | Yes (internal URL) | No | Postgres only on server |
-| `REDIS_URL` | Yes (internal) | No | |
-| `JWT_SECRET`, `ADMIN_*` | Yes | No | |
-| `PERSONAL_ID_KEY` | Yes (prod) | No | 32-byte base64; AES-256-GCM for `personal_id_enc` |
-| `PERSONAL_ID_MIGRATION_DONE` | Yes (after migrate) | No | Set `=1` after `npm run migrate:personal-ids` so lookups use v1 ciphertext only |
-| `CORS_ORIGINS` | Yes (optional) | No | Omit to use [`DEFAULT_CORS_ORIGINS`](server/src/config/corsOrigins.ts); if set, must list **every** live origin (replaces defaults) |
-| `GEMINI_API_KEY`, SMTP | Yes (optional) | No | Automation / email |
-| `SITE_PUBLIC_URL` | Yes (optional) | No | Public site base URL for password-reset emails (falls back to first HTTPS `CORS_ORIGINS` entry) |
-| `GOOGLE_CLIENT_ID` | Yes (if Google login) | Optional `VITE_GOOGLE_CLIENT_ID` | Same OAuth client ID for browser button |
-| `VITE_API_URL` | No | Optional | Direct API host when not using same-origin proxy; dev proxy target in [`vite.config.ts`](client/vite.config.ts) |
-| `VITE_API_SAME_ORIGIN` | No | Yes (prod) | `true` — axios uses relative `/api` (Vercel rewrite → Render); set in [`client/.env.production`](client/.env.production) |
-| `COOKIE_SAME_SITE` | Yes (when proxied) | No | Set `lax` on Render when `VITE_API_SAME_ORIGIN` is live so Safari keeps `rt_session` |
-| `VITE_SITE_URL` | No | Yes | Canonical URL for SEO, sitemap, OG (no trailing slash) |
-| `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Yes (optional) | No | Temporary WC proxy; see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
-| `WORLD_CUP_ONLY` | Yes (optional) | No | Ignored when `DATABASE_URL` is set (Jun 2026 dual-mode fix) |
-| `VITE_WORLD_CUP_ENABLED`, `VITE_DUAL_TOURNAMENT` | No | Yes (optional) | `VITE_DUAL_TOURNAMENT=true` in [`client/.env.production`](client/.env.production) forces boys+girls+WC switcher even if Vercel still has stale `VITE_WORLD_CUP_ONLY` |
-| `ANALYTICS_RETENTION_DAYS` | Yes (optional) | No | Default 90; prunes `analytics_events` on ingest |
-| `ANALYTICS_EXPLORER_HOST` / `ANALYTICS_EXPLORER_PORT` | No (local only) | No | Analytics explorer dev tool (`npm run analytics:explorer`); default `127.0.0.1:3847` |
-| `UPLOADS_DISK_PATH` | Yes (prod) | No | Render persistent disk mount (e.g. `/var/data/uploads`). Required in production — uploads return 503 if unset. Local/dev: leave unset (writes to `server/uploads`) |
+## Environment
 
-Local dev: [`server/.env`](server/.env) for backend (copy from [`server/.env.example`](server/.env.example)); [`client/.env`](client/.env) for `VITE_*` (copy from [`client/.env.example`](client/.env.example)). **Do not use a repo-root `.env`** — the server loads only `server/.env`. In dev, the client uses Vite `/api` proxy and `withCredentials` for httpOnly session cookies (`rt_session` / `rt_player` on the API host).
+| Variable | Where | Notes |
+|----------|--------|--------|
+| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `ADMIN_*` | Render | Required API |
+| `PERSONAL_ID_KEY` | Render | AES-256-GCM; set `PERSONAL_ID_MIGRATION_DONE=1` after migrate |
+| `UPLOADS_DISK_PATH` | Render | e.g. `/var/data/uploads`; prod 503 if unset |
+| `COOKIE_SAME_SITE` | Render | `lax` when Vercel proxies `/api` |
+| `SITE_PUBLIC_URL` | Render | Password-reset links |
+| `CORS_ORIGINS` | Render | Omit for defaults, or list **every** live origin |
+| `VITE_API_SAME_ORIGIN` | Vercel | `true` → relative `/api` rewrite to Render |
+| `VITE_SITE_URL` | Vercel | Canonical SEO (no trailing slash) |
+| `VITE_WORLD_CUP_ENABLED`, `VITE_DUAL_TOURNAMENT` | Vercel | WC switcher; dual keeps boys+girls+WC |
+| `WORLD_CUP_ENABLED`, `FOOTBALL_DATA_API_KEY` | Render | Optional WC proxy |
+| `ANALYTICS_RETENTION_DAYS` | Render | Default 90 |
 
-**Uploads (Jul 2026):** Hybrid persistence — prefer non-empty files under deploy/`server/uploads` (git via [`scripts/sync_photos.py`](scripts/sync_photos.py)); new captain logos / player photos / avatars write to `UPLOADS_DISK_PATH` (Render disk) until sync commits them. Serve order: repo (size > 0) then disk. Never commit empty placeholders under `server/uploads/`. Already-404 prod URLs cannot be recovered by sync — re-upload after disk is live, or commit the local file then deploy. `render.yaml` declares starter + disk, but an **existing free service may not auto-upgrade** — confirm plan, mount, and `UPLOADS_DISK_PATH` in the Render dashboard before relying on the prod 503 upload guard. **Image size:** upload handlers compress with sharp so the short edge is at most 1080px (verify before replace); backfill via `npm run uploads:compress --workspace=server`. Compress locks (`.compressing`) make `/uploads` 404 until done; sync overwrites local when remote Content-Length is meaningfully smaller.
+Local: `server/.env` + `client/.env` only (no repo-root `.env`). Mock without Postgres: `npm run dev:mock`.
 
-**Production auth (Jul 2026):** Vercel [`client/vercel.json`](client/vercel.json) rewrites `/api/*` and `/uploads/*` to Render (`RENDER_API_ORIGIN` in [`client/src/config/deploy.ts`](client/src/config/deploy.ts) — keep in sync with both `vercel.json` files; checked by `server/src/config/deploySync.test.ts`). Client sets `VITE_API_SAME_ORIGIN=true`. **Render deploy:** `COOKIE_SAME_SITE=lax`. For `CORS_ORIGINS`, either omit the env var (uses [`DEFAULT_CORS_ORIGINS`](server/src/config/corsOrigins.ts)) or set the **full** comma-separated list of every live site origin — a partial list replaces defaults and drops other hosts. Bearer token in `sessionStorage` (`rt_auth_token`) is a fallback when cookies fail (Safari / in-app browsers). Auth diagnostics (`auth_session_probe`, `auth_session_lost`, `google_login_failed`) are sent without analytics cookie consent for login troubleshooting; see Privacy § cookies.
+**Uploads:** Prefer non-empty `server/uploads` (git sync); new writes to disk until sync. Sharp compress (short edge ≤1080; banners 4:1 max 1080×270 PNG). Confirm Render disk mount in dashboard.
 
-**Password reset (Jul 2026):** `POST /api/auth/forgot-password` (email → generic 200; sends link only for email/password accounts) and `POST /api/auth/reset-password` (token + new password). Reset links use `SITE_PUBLIC_URL` → `/reset-password?token=…` (1h expiry; token stored hashed). Google-only accounts get the same generic response without email. Successful reset increments `users.token_version` (invalidates existing JWTs) and clears session cookie. Client routes `/forgot-password`, `/reset-password` (noindex).
+**Auth:** Vercel rewrites `/api` + `/uploads` → Render; Bearer `sessionStorage` fallback for Safari/IG. Diagnostics may fire without cookie consent.
 
-**Local dev without Postgres (Render paused):** `npm run dev:mock` from repo root (or `server/`). Sets `MOCK_DEV_DATA=1` via `server/env.mock` and serves read-only API from `data/*.json` (teams, matches, news, computed stats). Admin login: `admin` / `admin123` (see `server/env.mock`). Writes and girls season return 404/503 until Postgres is back.
+## Client shell
 
-## Client shell and navigation (May 2026)
+- App routes: header + news + sidebar + footer. Legal: `LegalPageLayout` (prerendered). `/rules` boys only in sidebar legal/footer.
+- **Mobile ≤768px:** bottom nav (Home → Teams → Schedule → Stats → Profile); header = switcher \| title \| hamburger; drawer overflow. Active tab: tint pill + underline. `dir` from device lang (`en*` → LTR).
+- Verify mobile on **Safari first**, then Chrome, then Instagram WebView ([`.cursor/rules/mobile-safari-instagram.mdc`](.cursor/rules/mobile-safari-instagram.mdc)).
+- Themes: `data-tournament` boys (green/yellow `tokens.css`) / girls (`tournament-girls.css`) / worldcup (`tournament-worldcup.css`).
+- Browse: 2px status border + tint ([`neo-brutal-browse.css`](client/src/styles/neo-brutal-browse.css)); no spectator L-frame. Teams: accordion browse + dense roster.
+- Match expand: fabricated stats + win-chance (upcoming bar always; comments on boys). Share: 1080×1920 PNG via `ShareButton` (dashboard lists, match cards, teams, playoff bracket).
+- Skeletons immediate on public fetch ([`useMinSkeletonTime`](client/src/hooks/useMinSkeletonTime.ts)); `PageLoading` for Suspense/admin only.
+- Product copy: no em dashes (`—`); empty cells ASCII `-` via `displayOrDash` ([`.cursor/rules/no-em-dashes-product-copy.mdc`](.cursor/rules/no-em-dashes-product-copy.mdc)).
+- Engagement: donation popup Fri/Sat ≥17:00 Jerusalem; albums tip Sun–Thu; stats tip Fri/Sat (`EngagementNudgeHost`).
 
-- **Main app routes** (`/`, `/teams`, …): `AppShell` with header, news banner, `app-body` grid (main + right sidebar), footer.
-- **Legal routes** (`/about`, `/privacy`, `/terms`, `/accessibility`, `/rules`): standalone `LegalPageLayout` (no tournament chrome); prerendered at build. `/rules` — תקנון חוקי מונדיאל הצ'רקסי 2026 (boys tournament regulations); linked from footer, legal chrome, and the boys sidebar legal block (`showBoysTournamentRulesNav`) — not in primary main-nav items. `/privacy` covers data controller, identity (encrypted), votes, comments, third parties (Google, Vercel, Render, football-data.org), analytics retention (~90d), cross-season retention, minors, and email removal; collection points (login, identity form, player zone, comments, a11y form) link to policy. Contact email centralized in `contactConfig.ts`.
-- **Nav**: [`TournamentSidebar`](client/src/components/TournamentSidebar.tsx) + [`mainNavItems.ts`](client/src/utils/mainNavItems.ts). Desktop: sticky sidebar on the right (RTL). **Mobile (≤768px):** permanent bottom bar ([`MobileBottomNav`](client/src/components/MobileBottomNav.tsx)) — Home → Teams → Schedule/Archive → Stats (boys/WC) → Profile; compact header band is tournament switcher | title | hamburger; drawer holds overflow only (MVPs, health form, archive on boys, admin, legal, girls news link). Boys photo-docs CTA(s) come from [`MEDIA_DOCS_SPONSORS`](client/src/config/contactConfig.ts) — edit `name` + `url` there; 0/1/n entries → matching blue `media-docs-link` buttons labeled `תיעוד תמונות בחסות {name}`. Desktop header uses `py-2` + compact news strip. Desktop header side art: [`leftSideBanner.webp`](client/public/assets/images/banner/leftSideBanner.webp) / [`rightSideBanner.webp`](client/public/assets/images/banner/rightSideBanner.webp) inside `.tournament-header-banners` (clips art; header stays `overflow: visible` so the tournament switcher menu is not cut off); desaturated + brand color overlay on that layer. **Mobile header band** uses full-bleed [`mobileBanner.webp`](client/public/assets/images/banner/mobileBanner.webp) (`.banner-foreground--mobile`) under a stronger brand multiply wash + title `text-shadow` so AA holds on busy sticker art. News stays in [`NewsBanner`](client/src/components/NewsBanner.tsx). Profile tab uses `user.avatarUrl`; admins get a compact Profile/Admin chooser centered immediately above the bottom nav, safe-area aware and layered above the floating accessibility control. The accessibility contrast control is icon-only with a 44×44px target and dynamic Hebrew accessible name. Swipe left on `#main-content` still opens the drawer.
-- **Mobile browser mix (Jul 2026 analytics):** ~**41% mobile Safari**; remainder **top-heavy Chrome** and **Instagram in-app browser** (WebView). Agents editing mobile UI/CSS must treat **Safari as the primary verify target**, then Chrome, then open-from-Instagram. Known pitfalls: fixed header/bottom nav vs compositor stacking (`overflow-x` on `.app` → no sticky; use fixed + keep decorations from painting over chrome), `env(safe-area-inset-*)`, cookie/ITP and OAuth in IG WebView (Bearer fallback). Rule: [`.cursor/rules/mobile-safari-instagram.mdc`](.cursor/rules/mobile-safari-instagram.mdc).
-- **Boys home (Dashboard):** Live matches first, then upcoming, then playoff bracket, then recent results. Match-day query includes the live window (`kickoff` within last `MATCH_DURATION_MS`) so in-progress games stay on the home feed (tomorrow’s slate waits until today’s live window ends — intentional). Technical wins (`technicalWinnerTeamId`) always display as finished (never live/upcoming), count in standings immediately, and show a ניצחון טכני badge — 0–0 is not treated as a draw.
-- **Fabricated match stats (Jul 2026):** Schedule/Dashboard cards load seeded stats from [`shared/matchStatistics.ts`](shared/matchStatistics.ts) via `GET /api/match-stats/:id` (possession, shots, corners, fouls, offsides, saves; no cards). Full RNG template is score-stable; live score only reclamps identity. Prior form/GD uses matches with `date <` kickoff ([`matchFormBias.ts`](server/src/services/matchFormBias.ts)) server-side only — public payload omits `form`/`bias`. **Upcoming** cards always show the win-chance bar ([`UpcomingWinChance`](client/src/components/match/UpcomingWinChance.tsx), lazy in-view fetch; error ≠ painted 50/50) and skip [`MatchStatsSection`](client/src/components/match/MatchStatsSection.tsx) on expand (comments only). API still returns `winChance` + empty stats (`status: 'upcoming'`). Kickoff timer flips live expand to stats without waiting for parent poll. **Live** expand shows win-chance + fabricated stats; **finished** expand shows stats without the win-chance bar. Win-chance bar stays RTL (green team1 right / yellow team2 left); Schedule/Dashboard [`MatchTeamsScore`](client/src/components/match/MatchCardParts.tsx) uses `team1OnRight` so names sit above matching colors; World Cup schedule keeps default LTR. Redis regen salt via shared [`matchStatsSalt.ts`](server/src/services/matchStatsSalt.ts) (read-after-write; 503 on fail in real + mock routes). Admin **חדש סטטיסטיקה**; draft rows keep Edit/בטל in the ⋮ menu. World Cup routes have no comments and no local fabricated match-stats UI.
-- **Match comments (Jul 2026):** Flat tokenized [`CommentSection`](client/src/components/CommentSection.tsx) under match expand (boys); count, skeleton, submit success, fetch retry, `Anonymous` → אנונימי. Not mounted on `/world-cup/*`. Dashboard section chrome uses `.dashboard-card-title` only — do not style nested `h2`/`h3` inside next/live/recent cards or expand headings inherit the green banner. Expand-open logs `match_expand` (see donation/analytics note).
-- **Browse cards (Jul 2026):** Shared 2px status border + tint + no soft shadow in [`neo-brutal-browse.css`](client/src/styles/neo-brutal-browse.css). Spectator L-frame (6px start+bottom) was tried and **regretted** — do not revive ([DESIGN.md](DESIGN.md) «Regretted experiments»). Admin workflow queues unchanged. Covers Dashboard/Schedule/MVPs, Archive, Stats, WC upcoming rows + teams, Girls teams/news (`browse-page`), and boys/girls teams browse (`teams-browse-page` / `.teams-browse-card`). Boys/girls teams: WC-style accordion + player search + summary strip (`N קבוצות · M שחקנים · goals/points`) in [`teams-browse.css`](client/src/styles/teams-browse.css); dense roster table via [`RosterPlayerRow`](client/src/components/roster/RosterPlayerRow.tsx); `TeamRegistrationActions` stays in expand. Public team ID hidden. Deep-link from Stats/Dashboard (`expandTeamId` / `selectPlayerId`) scrolls after skeleton dismiss (`scroll-margin-top` for fixed header). Base [`match-card.css`](client/src/styles/match-card.css) owns layout only. Face win-chance: lazy in-view fetch capped at 3 concurrent ([`matchStatsFetchQueue.ts`](client/src/utils/matchStatsFetchQueue.ts)); copy «הערכה לפי נתונים» / fail «לא זמינה כרגע». Scorers live under `פרטים`, not on the schedule face. Schedule deep-link with `matchId` alone infers filter from match status so finished/live cards are not hidden by the default `upcoming` filter.
-- **Share cards as images (Jul 2026):** [`ShareButton`](client/src/components/share/ShareButton.tsx) mounts an off-screen fixed 1080×1920 RTL [`ShareFrame`](client/src/components/share/ShareFrame.tsx), then [`shareImage.ts`](client/src/utils/shareImage.ts) inlines logos/player heads and renders a PNG with `html-to-image`. Mobile file sharing uses Web Share API Level 2 (`navigator.canShare({ files })`); an iOS transient-activation rejection keeps the generated file for an immediate second tap. Desktop/unsupported browsers download the PNG. Dedicated compositions exclude live-card controls/comments/status/AI footnote and any outer frame title above the white card: Schedule shares per match (with stats when available); Dashboard shares whole sections — top 3 scorers, upcoming list (includes win-chance bias bars via `enqueueMatchStatsFetch`), recent-results list via [`MatchListShareCard`](client/src/components/share/MatchListShareCard.tsx) (no per-row/per-card buttons; Stats page has no share); Teams shares crest/captain/squad. Share trees use [`SharePlayerHead`](client/src/components/share/SharePlayerHead.tsx) (in-place src fallbacks) plus a settle loop + CORS fetch retry before capture; tall cards scale to fit 1080×1920. Cache keys are canonical JSON [`shareSnapshot`](client/src/utils/shareSnapshot.ts) metadata (match face + scorer roster faces + prepare payload). `prepare()` freezes the face props used by `renderContent` so mid-capture score/roster edits cannot paint under an old key; generation id + `inFlightRef` drop stale/`parallel` captures. `AbortError`/`NotAllowedError` keep the session `Map` PNG for a second tap. Dashboard recent rows use the same [`MatchTeamsScore`](client/src/components/match/MatchCardParts.tsx) layout as other match cards. Button icon: paper plane (`bi-send`) on mobile, `bi-share` on desktop. Saves stat label is «הצלות שוער» everywhere. Consent-gated analytics: `share_click` / `share_result` / `share_error` (`kind`; `result` = `shared`\|`downloaded`\|`cancelled` — not intermediate `ready`; `cached`; error `stage` = `cache`\|`render`\|`share`). Real iPhone Safari and Instagram in-app native-sheet QA remains required.
-- **Own goals / technical wins (Jul 2026):** Admin `הוסף שער` supports anonymous **גול עצמי** (`isOwnGoal` + `creditedTeamId`, nullable `memberId`). Its narrow/tablet full-screen modal is constrained to `100dvh`; the player list scrolls while Back/Add Goal remain visible above the safe area. Admin **ניצחון טכני** sets `technicalWinnerTeamId` with empty goals and 0–0; standings award 3/0 from the flag before score comparison.
-- **SEO**: [`seoConfig.ts`](client/src/config/seoConfig.ts), per-route meta via [`SEO.tsx`](client/src/components/SEO.tsx) (`pathname` + `useLocation` fallback; `noindex` on `/login`, `/forgot-password`, `/reset-password`, `/admin`, `/profile`, `/player-zone`). Brand title `מונדיאל קיץ 2026 כפר כמא`; short `BASE_KEYWORDS` (~9 terms); `formatDocumentTitle` / `branded` for WC vs village suffix; homepage `SportsEvent` JSON-LD with `startDate`/`endDate` from `SCHEDULE_ROUNDS`. `PUBLIC_SITEMAP_PATHS` matches `generate-sitemap.mjs` (no `/player-zone`). Prebuild regenerates `public/sitemap.xml`, `public/robots.txt`, and PWA icons; social preview uses static `public/og-image.jpg`. Prerender bakes canonical/OG/keywords head for sitemap paths and `noindex` for auth routes. Canonical host: `VITE_SITE_URL` → `https://kksummer-wc.vercel.app` (legacy `ramadan-tournament-client.vercel.app` still listed in CORS defaults). **Product copy (Jul 2026):** no em dashes (`—`) in user-facing Hebrew/English; prefer colon, period, or line break. Empty/N/A cells use ASCII `-` via [`displayOrDash`](shared/emptyDisplay.ts) (maps `''` / `—` / `-`; en dashes in ranges stay). Agent rule: [`.cursor/rules/no-em-dashes-product-copy.mdc`](.cursor/rules/no-em-dashes-product-copy.mdc).
-- **Cookies**: [`CookieConsentProvider`](client/src/contexts/CookieConsentContext.tsx); analytics only after accept (Vercel Analytics + first-party `analytics_events` via `POST /api/analytics/events`).
-- **Donation popup (Jul 2026):** Boys-only dialog ([`DonationPopup`](client/src/components/DonationPopup.tsx)) sequenced by [`EngagementNudgeHost`](client/src/components/EngagementNudgeHost.tsx) on Jerusalem Fri/Sat from **17:00** until end of that day (`isDonationPopupWindow`). Once per Jerusalem calendar day + tab session; marked when shown. Deferred until cookie notice is dismissed. CTA → `/donate.html`. Footer/legal label is `תתרמו לאתר` ([`DONATE_LABEL`](client/src/config/contactConfig.ts)). Analytics: `donation_popup_show` / `donation_popup_cta` / `donation_popup_dismiss`.
-- **Discover tips (Jul 2026):** Same host, all boys visitors (no auth). **Sun–Thu** / **Fri–Sat** use [`NavDiscoverCoachmark`](client/src/components/NavDiscoverCoachmark.tsx): tip sits beside the nav control (desktop) or as a bottom statement (mobile); target stays highlighted and clickable — no forced navigate. Albums (`media-docs`): mobile opens hamburger drawer first. Stats: mobile highlights the bottom-bar Stats tab (pointer down). Storage: `albumsDiscoverShown*` / `statsDiscoverShown*`. Analytics: `albums_discover_*` / `stats_discover_*`. Match card expand logs `match_expand` with `matchId` + `surface`.
-- **Donate page bit QR:** On desktop (`min-width: 769px`), «תרומה ב-bit» opens a QR modal (`/donate-bit-qr.png`) instead of the mobile deep link; ≤768px keeps `BIT_DONATE_URL`.
-- **Analytics explorer (Jul 2026):** Local dev tool only — `npm run analytics:explorer` / `analytics:explorer:dev` from repo root. Queries Postgres `analytics_events`; process map (DFG), variants, event log, session inspector, dwell-time performance. See [`server/README.md`](server/README.md#analytics-explorer-local-dev-tool).
-- **Offline analytics dashboard (Jul 2026):** [`scripts/analytics_dashboard.py`](scripts/analytics_dashboard.py) reads `archive/postgres/analytics_events.csv` (or `--csv`) and writes a self-contained Plotly HTML report to `artifacts/analytics-dashboard/` (gitignored) plus `metrics.json`. Streams chunks automatically when the CSV is ≥5 MiB (`--chunksize` / `--force-chunked`). Optional `--correlate-deploys` compares `auth_session_lost` bursts to git commit times. Rerun after each Postgres backup; no `DATABASE_URL` required. See [`scripts/README.md`](scripts/README.md).
-- **Initial load (Jul 2026):** Public data pages show layout-matched skeletons immediately ([`client/src/components/skeleton/`](client/src/components/skeleton/)) via [`useMinSkeletonTime`](client/src/hooks/useMinSkeletonTime.ts); holds ~200ms (`SKELETON_MIN_MS`) after success so shimmer is visible. Skipped on error and `prefers-reduced-motion`. Page-level shimmer starts immediately on mount with a slow ~4s linear sweep. `PageLoading` remains for lazy route chunks and inline actions. Background poll refreshes do not re-show skeletons. Girls/World Cup home routes also gate on `TournamentContext.seasonLoading`; boys main nav hits division-default APIs without that gate.
+## Accessibility
 
-## Client production build (Vercel)
+IS 5568 / WCAG 2.1 AA required for `client/**`. Rule: [`.cursor/rules/israeli-accessibility-is5568.mdc`](.cursor/rules/israeli-accessibility-is5568.mdc). Statement: `/accessibility`.
 
-- Default: full build with prerender (legal pages + public SEO head + auth `noindex` baked to `dist/*/index.html`). `vite-prerender-plugin` + `vite-plugin-pwa` can leave open handles; [`client/vite.config.ts`](client/vite.config.ts) uses `force-exit-after-build` so `npm run build` exits (same iron-sight workaround).
-- Fast path: `$env:PRERENDER='0'; npm run build` — SPA only, ~3s, no legal static HTML.
-- Vercel [`client/vercel.json`](client/vercel.json): no `PRERENDER=0` — production gets baked legal routes. Deploy adds ~5–15s vs fast path, not minutes, if force-exit is present.
-- **Chunk recovery (Jun 2026):** Lazy routes use [`lazyWithRetry`](client/src/utils/lazyWithRetry.ts) (retry + one-time reload). `main.tsx` handles `vite:preloadError`. `RouteErrorBoundary` shows Hebrew reload prompt for stale chunks. Vercel: `/assets/*` immutable cache; HTML `no-cache`.
+## Design / agent continuity
 
-## Dual tournament UI themes
+- [`PRODUCT.md`](PRODUCT.md), [`DESIGN.md`](DESIGN.md) — tokens, themes, regretted experiments
+- Knockout match cards: inline `.playoff-badge` in `.match-card-badges` (not absolute float). Bracket titles use Roboto; do not load Outfit for Hebrew.
+- code-review-graph: tool venv under `code-review-graph` repo; DB `.code-review-graph/` (gitignored)
 
-| Branch | Activation | Styles |
-|--------|------------|--------|
-| Boys (football) | `data-tournament="boys"` on `.app` (default) | Green/yellow — primitives in [`client/src/styles/tokens.css`](client/src/styles/tokens.css) |
-| Girls (points) | `data-tournament="girls"` when pathname is `/girls` or `*-girls` | Pastel rose/lavender — [`client/src/styles/tournament-girls.css`](client/src/styles/tournament-girls.css) overrides `--color-*` on `[data-tournament="girls"]` |
-| World Cup (temporary) | `data-tournament="worldcup"` on `/world-cup/*` when `VITE_WORLD_CUP_ENABLED=true` | Blue/gold — [`client/src/styles/tournament-worldcup.css`](client/src/styles/tournament-worldcup.css). Read-only proxy to football-data.org; reversion guide: [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md) |
+## Current focus
 
-**Local team crests (Jul 2026):** Static SVG files in [`client/public/assets/images/teams/`](client/public/assets/images/teams/). Canonical map keyed by season: [`shared/local-team-crest-map.json`](shared/local-team-crest-map.json) (`bySeasonId`, `primaryBoysSeasonId`), loaded via [`shared/teamDefaultLogos.ts`](shared/teamDefaultLogos.ts). Update map when rotating boys season (see Fresh tournament start §6). Defaults apply when `teams.logo_url` is empty; API exposes `customLogoUrl` for owner upload UI.
+- Phase 2 registration (encrypted personal ID + birth year, join/create/transfer, owner/captain review) — deploy + PO QA
+- Phase 1.5 girls scaffold (archive UI still placeholder; history in `archive/postgres/` CI)
+- Playoffs / banners / uploads disk: see open items in [`status.md`](status.md)
 
-**Team photo banners (Jul 2026):** Static webp fallbacks in [`client/src/config/teamBanners.ts`](client/src/config/teamBanners.ts) (boys ids **1 / 3 / 7**). Owners/captains/admins upload via [`BannerCropModal`](client/src/components/registration/BannerCropModal.tsx) (4:1 pan/zoom; `objectFit="contain"` + `restrictPosition={false}` for zoom-out letterbox; PNG export with transparent margins in [`cropImage.ts`](client/src/utils/cropImage.ts)) → `POST /api/teams/:id/banner` → sharp cover-crop + PNG max **1080×270** into `server/uploads/banners/` (rejects non-conforming output; GIF first frame re-encoded; alpha kept). Display: `team.bannerUrl` then static map. [`scripts/sync_photos.py`](scripts/sync_photos.py) syncs `bannerUrl` under `uploads/banners/` (GitHub Action commits `server/uploads/**`).
+## Fresh tournament start
 
-- **Palette (boys):** edit `--color-primary`, `--color-secondary`, etc. in `tokens.css` only. Legacy names (`--primary`, `--primary-green`, `--bg`, …) alias those primitives for existing CSS.
-- Import order in [`client/src/main.tsx`](client/src/main.tsx): `tokens.css` → `index.css` → `tournament-girls.css` → `tournament-worldcup.css`.
-- Layout/utilities (`.app`, `.card`, `.btn-primary`, `.loading`) live in [`client/src/App.css`](client/src/App.css) (no `:root` there).
-- Girls theme overrides `--color-*` primitives under `[data-tournament="girls"]` so shared components (tables, `.btn-theme-green`, header) repaint without duplicate rules.
-- Profile: girls registration card only uses `.registration-card--girls` ([`TournamentRegistrationCard.css`](client/src/components/profile/TournamentRegistrationCard.css)); Profile shell stays boys-green.
-- New UI tokens: `.tournament-page-title`, `.tournament-badge`, `.btn-tournament-primary`, `.text-tournament-primary` — prefer these over Bootstrap `text-success` on girls pages.
+1. `npm run db:fresh` (remote needs `--yes`)
+2. Promote admins (UI משתמשים; re-login)
+3. Identity on Profile → join/create workflows
+4. `npm run fixtures:generate -- --start-date …` (Fri/Sat, times, `--replace` / `--yes` as needed) — not `db:seed` for prod schedules
+5. Admin edit kickoffs; update [`shared/local-team-crest-map.json`](shared/local-team-crest-map.json) if season UUID changed
 
-## Accessibility (Israeli Standard IS 5568)
+**Playoff sync:** Admin **סנכרן פלייאוף**. Semis Sat 01/08/2026 (17:00 lower / 18:00 upper, צפוני+דרומי); finals Sat 08/08 (17:30 / 18:30 צפוני). No fake finalists; lock teams after kickoff or `shouldCountMatchInStats`.
 
-**All UI and frontend changes must comply with Israeli Standard ת"י 5568 (WCAG 2.1 Level AA).** This is a legal requirement in Israel, not optional polish.
-
-| Resource | Purpose |
-|----------|---------|
-| [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc) | Persistent rule for Cursor agents editing `client/**` |
-| [docs/review/is-5568-wcag-aa-pass-may-2026.md](docs/review/is-5568-wcag-aa-pass-may-2026.md) | May 2026 review (mostly resolved; coordinator contact still open) |
-| [status.md](status.md) | Checklist and completion status |
-| [client/src/pages/Accessibility.tsx](client/src/pages/Accessibility.tsx) | Public accessibility statement (נגישות) |
-
-When fixing or adding UI: use native buttons/links, labels, focus, keyboard, contrast, Hebrew `lang`, and keep `/accessibility` accurate (real coordinator contact before production).
-
-## Agent continuity
-
-**Design context (Jul 2026):** [`PRODUCT.md`](PRODUCT.md) and [`DESIGN.md`](DESIGN.md) at repo root — tokens, themes, IS 5568 rules for UI agents. UI elevation work on branch `ui/skills-elevation` (base `dev`).
-
-**Canonical documentation:** [`docs/README.md`](docs/README.md) — client/server architecture, API, PRD, QA reviews.
-
-**Start here for implementation handoff:** [.cursor/agent-rtm.md](.cursor/agent-rtm.md) → [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md). Business rules: [`docs/server/BUSINESS_LOGIC.md`](docs/server/BUSINESS_LOGIC.md). Frontend: [`docs/client/ARCHITECTURE.md`](docs/client/ARCHITECTURE.md). Formal stakeholder RTM: [`docs/review/phase-1.5-rtm-qa-may-2026.md`](docs/review/phase-1.5-rtm-qa-may-2026.md) (may lag code).
-
-**Code-review graph (Jul 2026):** Local `code-review-graph` CLI from tool venv `C:\Users\amirl\OneDrive\Documents\GitHub\code-review-graph\.venv` (never install into this repo). Graph DB under `.code-review-graph/` (gitignored). Last update 2026-07-26T13:35:11: ~2483 nodes, ~20254 edges, ~427 files (js/tsx/ts/python/sql); branch `main` @ `6b59c81`. Prefer graph/MCP for blast-radius and review context when available (`build` / `update` / `status`).
-
-## Current Focus
-- **Phase 2 (Jun 2026):** Tournament registration via `RegistrationService` + `RegistrationIdentityService` — `season_registrations` (encrypted personal ID + birth year on user/admin columns), `team_*_requests`, `active_division`, owner join review. **Form preregistration (Jun 2026):** Google Form CSV → `form_prereg_entries` via `npm run import:prereg` (replace-all per season); optional `parse:prereg` for local debug JSON (gitignored). `PreregistrationLookupService.evaluate(seasonId, …)` auto-activates on double ID+year match; partial/mismatch → Hebrew alert to logged-in user. User-facing emails use `TOURNAMENT_DISPLAY_NAME_HE` (default גביע העולם אדיגה 2026).
-- **Registration identity (threat model):** User and admin personal IDs are stored as AES-256-GCM ciphertext (`userPersonalIdEnc`, `adminPersonalIdEnc`) with birth years in plain `Int` columns. Legacy plaintext rows (written before `PERSONAL_ID_KEY` was set) are migrated via `npm run migrate:personal-ids`; then set `PERSONAL_ID_MIGRATION_DONE=1` on Render. Admin workflow APIs return **masked** user ID (last 4 digits) and birth year only; full admin PID is never returned in JSON.
-- **Phase 1.5:** Girls read/write scaffold; division-scoped news/teams/archive.
-- **Legacy (shrinking):** `mappedPlayerInfo` still hydrated in `/auth/me` for display; admin user-mapping routes removed (PR5); use `RegistrationWorkflowAdmin`. Roster hydration merges Prisma `players` into `/auth/me`.
-- **Deploy:** Push API + client for Phase 2; run `prisma migrate deploy` on Render; ensure `REDIS_URL` and `PERSONAL_ID_KEY` on Render for identity lockout and encryption.
-
-## Fresh tournament start (June 2026)
-
-Operational workflow when resetting for a new season:
-
-1. **`npm run db:fresh`** (from `server/`) — wipes all data; creates active boys season + env admin only. Remote Postgres requires `--yes`.
-2. **Promote admins** — Admin → **משתמשים**: search by email/name, grant `admin`. Changed user must **re-login** for JWT role to update.
-3. **Teams** — admin or user verifies identity (personal ID + birth year) on Profile → registration workflow (join / team creation + admin approval).
-4. **`npm run fixtures:generate -- --start-date YYYY-MM-DD`** — single round-robin group schedule from all **active** teams (writes to Postgres `matches` via Prisma). Example Jul 2026 group stage (Fri/Sat, 4 games/day — 2×17:00 + 2×19:00 Jerusalem, venue **מתנס**):
-
-   ```powershell
-   npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 4 --times 17:00,17:00,19:00,19:00 --match-days fri,sat --dry-run
-   ```
-
-   Use `--replace` to regenerate; `--yes` when `DATABASE_URL` is not localhost. Do **not** use `db:seed` for production schedules.
-5. **Fix schedule** — Admin → ניהול משחקים: edit date/time per match if needed.
-6. **Default team crests** — If the new boys season UUID changed, update [`shared/local-team-crest-map.json`](../shared/local-team-crest-map.json): set `primaryBoysSeasonId`, ensure a matching `bySeasonId` entry, and keep `mockDevSeasonId` aligned with the mock inherit key. Rebuild shared (`npm run build:shared`) before deploy.
-
-Scripts: [`server/prisma/seed-empty.ts`](server/prisma/seed-empty.ts), [`server/src/scripts/generate-group-fixtures.ts`](server/src/scripts/generate-group-fixtures.ts). Demo data still available via `npm run db:seed` (loads `data/*.json`). Full CLI reference: [`server/README.md`](server/README.md#database-scripts).
-
-**Admin role API** (also available in UI → משתמשים):
-- `GET /api/admin/users?q=` — search users (min 2 chars)
-- `PATCH /api/admin/users/:id/role` — `{ "role": "admin" | "user" }`
-
-**Fixture CLI flags:** `--start-date` (required), `--division`, `--matches-per-day`, `--times`, `--location` (default **מתנס**), `--match-days`, `--replace`, `--dry-run`, `--yes`, `--help`.
-
-## Recent Changes
-- **July 2026 — Admin captain selection:** Platform admins set/replace squad captain from Admin → סגל ורישום (`AdminCaptainPicker` in `RosterManager`). APIs: `GET /api/admin/teams/:teamId/captain-candidates?division=`, `PATCH /api/admin/teams/:teamId/captain` (`memberId` + `division`) via `RegistrationWorkflowService.listCaptainCandidates` / `adminSetCaptain` — demotes prior captain, sets `squadRole=captain` + `isCaptain`, syncs join-review queue, invalidates caches. Candidates expose `hasLinkedUser` only (no user IDs). Unlinked roster players may be selected; title saves, but online captain powers (branding, joins, squad roles) require a claimed profile (`player.userId`). Owner/captain lineup editor (`OwnerSquadRoles` / `setSquadRoles`) unchanged.
-- **July 2026 — Mobile browser mix:** Analytics show ~41% mobile Safari; remaining mobile is mainly Chrome + Instagram in-app. Mobile edits should verify Safari first. Cursor rule: [`.cursor/rules/mobile-safari-instagram.mdc`](.cursor/rules/mobile-safari-instagram.mdc).
-- **July 2026 — Mobile stars / profile create gate / admin queues / bottom-nav LTR:** Roster cards use `isolation: isolate` and low local z-index for vote/role stars so they do not paint over the fixed mobile header. Profile “בקשה לפתיחת קבוצה” is hidden via `SHOW_PROFILE_TEAM_CREATION` in [`client/src/config/registrationUi.ts`](client/src/config/registrationUi.ts) (set `true` to show again; API create stays open by design). Admin create vs join queues in `RegistrationWorkflowAdmin` use distinct cards/badges/labels; confirm only on create **approve** (reject/join stay one-click). Mobile bottom nav `dir` from primary `navigator.language` / `languages[0]` via [`prefersEnglishUi()`](client/src/utils/localeDirection.ts) — `en*` → LTR (Home left); otherwise RTL.
-- **July 2026 — Team roster best-scorer badge:** Teams roster top-scorer ⚽ badge sits outside the photo crop (no clip), larger on desktop; best-scorer avatar ring + badge rim use theme yellow (`--secondary-yellow`); other players keep green rings.
-- **July 2026 — Owner/captain final claims + roster post-edit:** Joins route to `pending` when the team has `ownerUserId` or a claimed captain; their approve links/creates the roster row (`approved`) without admin. No reviewer → admin `owner_approved` queue. Review UI shows prior claims for the same slot. Claimed players keep Profile self-edit; owner/captain may override any teammate’s name/nickname/photo (last write wins). Names require first+last; empty nickname stores/displays as last name.
-- **July 2026 — Join approval jersey allocation hardening:** `RegistrationWorkflowService.adminReviewJoin` now allocates the first free active jersey number per team/season (1..99) when creating a new player, instead of relying on a fixed fallback (`99`). Added a user-safe conflict message for Prisma unique collisions (`P2002`) so admin UI does not surface raw `tx.player.create()` internals.
-- **July 2026 — Team claim review routing:** PRD join requests route by **claimed captain** coverage in `RegistrationWorkflowService`: claimed captain (`isCaptain` + `userId`) → `pending` for captain review then admin; no claimed captain → `owner_approved` admin queue. Team owner alone does not hold joins in `pending`. `syncTeamJoinReviewQueue` promotes stuck pendings to admin when no captain remains, and reopens auto-skips to `pending` when a captain is claimed later (write paths + admin list/count reconcile). Claimed captains only review joins (`canActorReviewPendingJoin` / Teams join panel). Tests: `RegistrationWorkflowService.joinRouting.test.ts`, `syncTeamJoinReviewQueue.test.ts`.
-- **July 2026 — Admin add goal wizard:** Read-only match rows expose `הוסף שער` → `AddGoalWizardModal` (team pick → scorer pick, mobile fullscreen). Scores auto-increment for the scoring team. `PUT /api/matches/:id` now persists `goals` via `Match.findOneAndUpdate` → `save()`. Inline edit/delete unchanged.
-- **June 2026 — Girls profile card:** When no active girls season exists, `TournamentRegistrationCard` hides (404 / Hebrew no-season message) instead of showing a load error; `GET /api/seasons/active?division=girls` uses `getActiveGirlsSeason()` (points season), aligned with registration.
-- **June 2026 — Nav action indicators:** Red dots on Profile/Admin links via `GET /admin/workflows/pending-count`, `ownerPendingJoinCount` on `/auth/me`, and `GET /teams/has-claimable-players` for conditional claim banners.
-- **June 2026 — Captain scope:** Team **owners** (`ownedTeamId`) edit branding via `TeamOwnerSettings`. Squad **captains** (`isCaptain`) edit lineup roles via `OwnerSquadRoles`, and **claimed** captains may also edit branding (logo/metadata) and **review joins** (captain-only join queue — not owner-alone). Profile + Teams use `TournamentRoleStar` (gold / gold+blue-outline / blue). Roster add/delete and admin panel remain platform-admin only.
-- **June 2026 — Personal ID registration:** Replaced payment-receipt gate with personal ID + birth year verification (same symmetric user-first / admin-first flow). Encrypted storage on `season_registrations`; admin sees masked ID only.
-- **June 2026 — PR5 server cleanup:** Removed legacy route aliases (`/redeem-invoice`, `/map-player`, `/admin/users/invoice`, `/admin/user-mappings`). Canonical identity + workflow APIs only. Service ownership table in [`server/README.md`](server/README.md).
-- **June 2026 — Security hardening:** httpOnly JWT cookies (`rt_session`, `rt_player`); Origin CSRF guard; auth rate limits; lazy admin bundle; Vercel security headers; `/player-zone` noindex; AES-256-GCM `personal_id` encryption; admin role guard.
-- **July 2026 — API concealment:** Platform-admin routes return **404 Not found** (`requirePlatformAdmin`, `respondNotFound`) when the caller is unauthenticated or lacks role — probes cannot distinguish forbidden from missing. Branding mutations (`PATCH/POST/DELETE …/logo`) use the same generic 404 for missing team and permission denial (public `GET` still exposes teams). Covers `/api/admin/*`, match mutations, news/archive/team-roster admin. Session endpoints (`/api/auth/me`, login) keep **401**; owner/captain routes (`/metadata`, `/requests`) keep **401** when logged out (SPA session, not admin concealment). Unverified-email login keeps **403** with `needsVerification`. Origin CSRF rejections return 404; cookie mutating requests without `Origin`/`Referer` are blocked (Bearer clients unaffected).
-- **July 2026 — Auth account linking:** Shared `normalizeEmail` (Gmail dots, `+tag`, `googlemail.com` → `gmail.com`); Google login links only to **verified** email accounts (unverified squats removed); requires `email_verified` from Google; backfill via `npm run migrate:user-emails`.
-- **June 2026 — World Cup UI polish:** Tournament-aware footer/legal chrome (`siteHomePath`, `siteBrandLabel`); WC a11y/UX fixes (Hebrew labels, filter `aria-pressed`, empty states, schedule `matchId` scroll, bracket on stats only). Reversion unchanged — see [docs/review/world-cup-phase.md](docs/review/world-cup-phase.md).
-- **May 2026 — Girls UI theme:** Dreamy pink/lavender scoped theme via `data-tournament="girls"`; girls routes + Profile girls registration card.
-- **May 2026 — Phase 1.5:** Girls `-girls` client routes, tournament switcher, `PointsStatsService`, `/api/teams-girls`, `/api/stats-girls`, `/api/news-girls`; division-aware news CRUD, team mutations, archive queries; admin news division selector.
-- **May 2026 — Postgres + Redis rebuild:** Greenfield Prisma schema, Render deploy, successful `db:migrate` + `db:seed`. Legacy Mongo scripts and Iftar API removed (Jun 2026). Bracket seed uses `matchId` only when match exists (playoff placeholders 201+ unlinked until sync).
-- **Career Documentation**: Updated `resume.md` to showcase the Ramadan Tournament project as a premier full-stack achievement, highlighting MERN stack mastery, AI integration (Gemini), and advanced RTL/security implementations.
-- Consolidated Admin mappings, registrations, and player management into a unified Roster view.
-- Added `bio` field to Player records and user profile editing flow.
-- Implemented real-time Avatar synchronization to official Team records.
-- Refactored player profile data flow (backend hydration maps directly from Team database).
-- Aligned UI button and table styles between user mapping panels and matches management.
-- **Database Integrity**: Global `memberId` via `registrationHelpers.getNextMemberId()` (admin `addPlayer` + registration workflows). `TeamRosterService.saveTeam` upsert updates `teamId`/`active` and invalidates division caches.
-- **Navigation**: Implemented session-aware links in the footer and extended smart polling to all main data pages (Teams, Stats, Schedule, Dashboard). Fixed expanded team scrolling in `Teams.tsx` using top-aligned manual calculation (100px offset). Improved Iftar widget visibility with `z-index: 2000` and removed programmatic sticky tabs behavior to resolve mobile horizontal scroll issues.
-- **UI Enhancements**: Added a centered `top-scorer.svg` badge above the 1st place scorer in `MVPs.tsx` with a refined 5px spacing.
-- **Voting Reliability**: Resolved a race condition where voting status was checked before auth state was ready; implemented `authLoading` synchronization in `MVPs.tsx` and `Teams.tsx`.
-- **Security & Registration**: Built an Email Verification (OTP) system. New registrants must verify a 6-digit code sent via SMTP to activate their accounts. `Login.tsx` now handles the verification flow and blocks unverified logins.
-- **Playoff Automation**: Admin **סנכרן פלייאוף** (`POST /api/matches/sync-playoffs` → `PlayoffService`) fills knockout from current standings. Semis Sat **01/08/2026**: lower 5v8 + 6v7 at 17:00, upper 2v3 + 1v4 at 18:00 — each pair split across מגרש כדורגל צפוני / דרומי (arbitrary). Finals Sat **08/08/2026**: sequential on מגרש כדורגל צפוני — lower 17:30, upper 18:30. Uses `jerusalemDateTime`. Re-sync locks teams once kickoff has passed **or** `shouldCountMatchInStats` (tech win / scored live-finished); placeholder `0-0` before kickoff does not freeze. Open slots clear scores/goals only when seeding or reseeding (`teamsChanged` / `!existing`); unchanged teams keep admin early scores. `winnerTeamId` promotes on decisive score or tech win without waiting for kickoff. Finals filled only after both related semis have winners; if winners are not ready, existing final rows (incl. legacy `teamId: 0` placeholders) are deleted so the bracket stays empty. If a final already has a result and semi winners later diverge, sync keeps the finalists and `console.warn`s the match id.
-- **Stats Automation**: Migrated from GitHub Actions to a server-side `AutomationService`. Admins can manually trigger a news update via the Admin Panel, which calculates stats, detects changes via `stats_snapshots`, and generates an AI summary in Hebrew using Gemini 1.5 Flash.
-- Player head photos: live on upload (Player Zone / profile `/uploads/` avatar sync); no approval queue. Admin or claimed captain can delete via managed photo APIs. Google OAuth picture is stored for opt-in profile use only — never auto-applied to Teams `head_photo`.
-- Match time support with Jerusalem timezone.
-- Iftar countdown timer widget.
-- UI refinements with mirrored foregrounds and Adygea flag.
-- Fixed 404 error on `/api/stats` endpoint.
-- Clarified Admin authentication flow for external tools.
-- **CSS Cleanup**: Removed stale match styles from `index.css`. Scoped conflicting class names in `Dashboard.css` under `.dashboard-page` parent, and `.team-name` in `Stats.css` under `.stats-page`, to prevent global CSS bleed in Vite's bundled output.
-- **Bug Fix**: Resolved syntax error in `Teams.tsx` (identifier following numeric literal).
-- **Bug Fix**: Fixed a syntax error in `IftarTimer.css` and removed a global `pointer-events: auto` wildcard selector in both widget CSS files that was causing mobile UI (like navigation tabs) to be unclickable when the widgets were minimized.
-- **Bug Fix**: Fixed moon illumination percentage staying identical across days; `IftarTimer` now computes fractional days for real-time moon phase tracking.
-- **Polling Refinement**: Restricted smart polling logic (30s background refresh) to **Friday/Saturday 16:00–21:00 Jerusalem** on pages with match lists (Dashboard, Schedule) only when a match is scheduled that day; Stats and Teams poll in the same Fri/Sat window. Match **live/finished/upcoming** status is **time-only** (kickoff + 60 minutes) via `shared/matchTiming.ts` — scores and goal entry do not affect status. Standings/scorers/roster totals use `shouldCountMatchInStats`: scores required and match has started (`live` or `finished`); upcoming matches are excluded even with placeholder scores. Match update invalidates `rt:doc:boys:*` so Teams `totalGoals` refresh with the edit.
-- **SEO & Accessibility**: Implemented a comprehensive SEO engine using `react-helmet-async`. Every main view (Dashboard, Teams, Schedule, Stats, Player Zone) now has unique, localized metadata, Open Graph tags, and canonical links. Updated `sitemap.xml` and `robots.txt`. Added descriptive `alt` tags to branding images for improved accessibility and search indexing.
-- **IS 5568 / WCAG 2.1 AA (May 2026)**: Pass 1 + pass 2 code fixes (modal portal, inert scope, MVPs guard, admin tabs, Dashboard/Login). Coordinator name/phone placeholders — update at deploy. See [status.md](status.md) and [docs/review/is-5568-wcag-aa-pass-may-2026.md](docs/review/is-5568-wcag-aa-pass-may-2026.md). Agent rule: [.cursor/rules/israeli-accessibility-is5568.mdc](.cursor/rules/israeli-accessibility-is5568.mdc).
-- **Archive UI Polish & Data Fixes (Mar 2026)**:
-  - Harmonized Archive styling with the rest of the application using standard project CSS variables.
-  - Fixed data mapping mismatches (e.g., `wins` vs `won`) in the historical standings table.
-  - Relocated top scorers to a full-width table and converted knockout matches to card format for consistency.
-- **Model Integrity**: Resolved Mongoose schema type conflicts in `SeasonArchive.ts` by relaxing mixed-field interfaces.
-- **Post-Ramadan Cleanup**: Transitioned the Iftar countdown widget to an inactive state in `App.tsx`.
-- **Workspace Chroma skill**: Personal Cursor skill at `~/.cursor/skills/workspace-chroma/` indexes this repo into `.chroma/` (gitignored) for explicit `/index-workspace` and `/search-context` queries. Local embeddings via `all-MiniLM-L6-v2`; verified index (128 files, 926 chunks).
+**Team banners:** Upload overrides [`teamBanners.ts`](client/src/config/teamBanners.ts) fallbacks (ids 1/3/7).

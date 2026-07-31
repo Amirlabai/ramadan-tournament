@@ -13,13 +13,13 @@
 .top-scorers-list h2,
 .standings-table__title {
     /* Prefer .dashboard-card-title; keep color fallback if class missing */
-    border-radius: 0;
+    border-radius: var(--browse-card-title-radius, 0.375rem) var(--browse-card-title-radius, 0.375rem) 0 0;
 }
 
 .stats-page .standings-table > .dashboard-card-title,
 .stats-page .top-scorers-list > .dashboard-card-title,
 .stats-page .playoff-bracket-card > .dashboard-card-title {
-    border-radius: 0;
+    border-radius: var(--browse-card-title-radius, 0.375rem) var(--browse-card-title-radius, 0.375rem) 0 0;
 }
 
 .stats-standings-caption {

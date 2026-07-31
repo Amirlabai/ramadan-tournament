@@ -27,9 +27,6 @@ typography:
     fontSize: "2.25rem"
     fontWeight: 700
     lineHeight: 1.2
-  bracket:
-    fontFamily: "Outfit, Roboto, sans-serif"
-    fontWeight: 700
 rounded:
   sm: "4px"
   md: "8px"
@@ -47,7 +44,10 @@ components:
     backgroundColor: "{colors.primary}"
     textColor: "{colors.surface}"
     rounded: "{rounded.lg}"
+
 ---
+
+
 
 ## Overview
 
@@ -72,9 +72,11 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 
 - **Body:** Roboto 400/700 — UI labels, tables, forms.
 - **Site title:** `.site-title` / `.tournament-page-title` — fixed rem scale, not Bootstrap `display-4`.
-- **Bracket:** Outfit — playoff bracket only.
+- **Bracket titles:** Same Roboto stack as body (Hebrew-capable). Do not use Latin-only faces like Outfit for Hebrew headings.
 - **Data:** `font-variant-numeric: tabular-nums` on scores, standings, dates.
 - **Do not load Inter** — unused third font.
+
+
 
 ## Elevation
 
@@ -82,19 +84,25 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 - Primary-tinted shadows: `--shadow-primary-sm/md`.
 - Flat card headers preferred over gradient title bars.
 
+
+
 ## Components
 
-- **`.dashboard-card-title`** — solid `--color-primary` background, white text, centered.
-- **`.match-card`** — status via badge + tinted fill + 2px status-colored border from [`neo-brutal-browse.css`](client/src/styles/neo-brutal-browse.css); shared `match-card.css` for inner layout.
+- `.dashboard-card-title` — solid `--color-primary` background, white text, centered.
+- `.match-card` — status via badge + tinted fill + 2px status-colored border from `[neo-brutal-browse.css](client/src/styles/neo-brutal-browse.css)`; shared `match-card.css` for inner layout. Knockout phase uses inline `.playoff-badge` in `.match-card-badges` next to status (never absolute-float).
 - **Browse cards** — 2px border, status tint, no soft shadow. Same language for match cards, team/news browse cards, and section shells. No thick L-frame / side+bottom accent on spectator UI (admin workflow queues may keep their own chrome).
-- **Teams browse** — `.teams-browse-page` / `.teams-browse-card` accordion (WC pattern) + dense `.roster-player-row` in [`teams-browse.css`](client/src/styles/teams-browse.css). Search toolbar; public team ID omitted. Join/request actions stay inside expand.
-- **`.standings-table`** — responsive table with `caption`, `scope`, playoff row class `qualified`.
-- **`.tournament-sidebar-link.active`** — primary color + subtle bg + start border.
+- **Teams browse** — `.teams-browse-page` / `.teams-browse-card` accordion (WC pattern) + dense `.roster-player-row` in `[teams-browse.css](client/src/styles/teams-browse.css)`. Search toolbar; public team ID omitted. Join/request actions stay inside expand.
+- `.standings-table` — responsive table with `caption`, `scope`, playoff row class `qualified`.
+- `.tournament-sidebar-link.active` — primary color + subtle bg + start border.
 - **Claim banners** — tinted border, no heavy multi-stop gradients.
+
+
 
 ## Regretted experiments (do not revive)
 
 - **Spectator L-frame (Jul 2026)** — Tried matching admin workflow-queue chrome: 6px `border-inline-start` + `border-bottom` on browse match/section/team cards (`--browse-card-accent-w`). Looked loud, erased hierarchy (every box shouted equally), and fought the design-system ban on thick side accents. **Regretted and removed.** Keep spectator browse at uniform ≤2px borders + badge/tint. Do not reintroduce L-frames on Dashboard/Schedule/Archive/Stats/Teams/Girls/WC browse surfaces. Admin create/join queue L chrome is separate and may stay.
+
+
 
 ## Do's and Don'ts
 
@@ -112,3 +120,4 @@ Girls: rose `#9b4d72`, lavender accent. World Cup: navy `#1a3a6e`, gold `#c9a227
 - Mix Bootstrap Icons and Font Awesome without loading both CDNs.
 - Thick L-frames or arbitrary side stripes on spectator browse cards (2px even border max). **Already tried; see Regretted experiments.**
 - Bootstrap `text-success` on girls pages — use `.text-tournament-primary`.
+

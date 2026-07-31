@@ -809,6 +809,73 @@
   }
 }
 
+/* Playoff flowchart share: stack brackets for portrait 1080×1920 (fitShareContent scales if still tall) */
+.share-frame .share-playoff-card .brackets-wrapper {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+  padding: 20px 28px 24px;
+}
+
+.share-frame .share-playoff-card .bracket {
+  padding: 16px;
+  max-width: none;
+}
+
+.share-frame .share-playoff-card .bracket-title {
+  font-size: 28px;
+  margin-bottom: 16px;
+  padding-bottom: 8px;
+}
+
+.share-frame .share-playoff-card .bracket-column {
+  gap: 16px;
+}
+
+.share-frame .share-playoff-card .bracket-match {
+  width: 100%;
+  max-width: 420px;
+  margin: 0;
+  border-width: 2px;
+  border-radius: 14px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+}
+
+.share-frame .share-playoff-card .match-label {
+  font-size: 18px;
+  padding: 8px 12px;
+}
+
+.share-frame .share-playoff-card .team-row {
+  padding: 10px 18px;
+  font-size: 24px;
+}
+
+.share-frame .share-playoff-card .team-name {
+  font-size: 24px;
+}
+
+.share-frame .share-playoff-card .team-score {
+  font-size: 28px;
+  min-width: 36px;
+}
+
+.share-frame .share-playoff-card .bracket-connector {
+  width: 40px;
+  height: 140px;
+  margin-inline-start: 15px;
+  transform: none;
+}
+
+.share-frame .share-playoff-card .bracket-connector .line {
+  border-width: 3px;
+}
+
+.share-frame .share-playoff-card .bracket-connector::after {
+  height: 3px;
+  width: 15px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .share-button,
   .share-button__spinner {

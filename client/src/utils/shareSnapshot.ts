@@ -109,14 +109,15 @@ export function matchShareSnapshot(
   };
 }
 
-type MatchListKind = 'upcoming-list' | 'recent-list';
+type MatchListKind = 'upcoming-list' | 'recent-list' | 'playoff-list';
 
 export function matchListShareSnapshot(
   kind: MatchListKind,
   matches: Match[],
   options?: { includeScores?: boolean; includeLocation?: boolean }
 ): ShareSnapshot {
-  const includeScores = options?.includeScores ?? kind === 'recent-list';
+  const includeScores =
+    options?.includeScores ?? (kind === 'recent-list' || kind === 'playoff-list');
   const includeLocation = options?.includeLocation ?? kind === 'upcoming-list';
   return {
     kind,
@@ -146,6 +147,13 @@ export function upcomingMatchesShareSnapshot(matches: Match[]): ShareSnapshot {
 
 export function recentMatchesShareSnapshot(matches: Match[]): ShareSnapshot {
   return matchListShareSnapshot('recent-list', matches, {
+    includeLocation: false,
+    includeScores: true,
+  });
+}
+
+export function playoffMatchesShareSnapshot(matches: Match[]): ShareSnapshot {
+  return matchListShareSnapshot('playoff-list', matches, {
     includeLocation: false,
     includeScores: true,
   });

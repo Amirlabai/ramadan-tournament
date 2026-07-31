@@ -612,7 +612,7 @@ h2 {
   transition: box-shadow var(--transition-speed);
 }
 
-.dashboard-card:not(.next-matches-card):not(.recent-matches):not(.top-scorer):not(.mvp-race-card):hover {
+.dashboard-card:not(.next-matches-card):not(.recent-matches):not(.top-scorer):not(.mvp-race-card):not(.playoff-bracket-card):hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }

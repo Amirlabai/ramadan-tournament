@@ -198,14 +198,15 @@ const Schedule = () => {
                     const expandPanelId = `match-expand-${match.id}`;
                     return (
                         <div key={match.id} id={`match-${match.id}`} className={`match-card card ${status}${match.technicalWinnerTeamId != null ? ' technical' : ''}`}>
-                            <MatchStatusBadge
-                                status={status}
-                                technical={match.technicalWinnerTeamId != null}
-                            />
-                            
-                            {match.phase === 'knockout' && (
-                                <div className="playoff-badge-floating">משחק פלייאוף</div>
-                            )}
+                            <div className="match-card-badges">
+                                <MatchStatusBadge
+                                    status={status}
+                                    technical={match.technicalWinnerTeamId != null}
+                                />
+                                {match.phase === 'knockout' && (
+                                    <span className="playoff-badge">פלייאוף</span>
+                                )}
+                            </div>
 
                             <MatchTeamsScore
                                 team1Name={team1Name}

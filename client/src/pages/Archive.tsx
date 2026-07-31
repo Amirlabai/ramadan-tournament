@@ -141,10 +141,12 @@ const Archive: React.FC = () => {
                     {selectedSeason.playoffs.map((match: any) => (
                       <div key={match.id} className="col-md-6 col-lg-4">
                         <div className="match-card finished card shadow-sm border-0 h-100">
-                          {match.phase === 'knockout' && (
-                            <div className="playoff-badge-floating">PLAYOFF</div>
-                          )}
                           <div className="card-body p-3">
+                            {match.phase === 'knockout' && (
+                              <div className="match-card-badges justify-content-center">
+                                <span className="playoff-badge">פלייאוף</span>
+                              </div>
+                            )}
                             <div className="match-meta justify-content-center mb-3">
                               <span className="match-date">
                                 {new Date(match.date).toLocaleDateString('he-IL')}

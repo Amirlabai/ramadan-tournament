@@ -1,4 +1,11 @@
-import { getMatchDisplayStatus, shouldCountMatchInStats } from '@ramadan-tournament/shared';
+import {
+  getMatchDisplayStatus,
+  shouldCountMatchInStats,
+  LOWER_SEMI_IDS,
+  UPPER_SEMI_IDS,
+  LOWER_FINAL_ID,
+  UPPER_FINAL_ID,
+} from '@ramadan-tournament/shared';
 import { jerusalemDateTime } from '../utils/jerusalemDate';
 import { Match, type IMatch } from '../models/Match';
 import { StatsService } from './StatsService';
@@ -8,10 +15,7 @@ export const FINAL_DATE = '2026-08-08';
 export const VENUE_NORTH = 'מגרש כדורגל צפוני';
 export const VENUE_SOUTH = 'מגרש כדורגל דרומי';
 
-export const LOWER_SEMI_IDS = { fifthVsEighth: 1001, sixthVsSeventh: 1002 } as const;
-export const UPPER_SEMI_IDS = { secondVsThird: 1003, firstVsFourth: 1004 } as const;
-export const LOWER_FINAL_ID = 2001;
-export const UPPER_FINAL_ID = 2002;
+export { LOWER_SEMI_IDS, UPPER_SEMI_IDS, LOWER_FINAL_ID, UPPER_FINAL_ID };
 
 type MatchResultFields = Pick<
   IMatch,

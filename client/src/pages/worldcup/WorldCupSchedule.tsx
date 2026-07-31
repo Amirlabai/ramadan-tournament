@@ -167,13 +167,14 @@ const WorldCupSchedule = () => {
                 id={`wc-match-${match.id}`}
                 className={`match-card card ${status}`}
               >
-                <span className={`match-status ${status}`}>
-                  {statusLabel(status)}
-                </span>
-
-                {match.phase === 'knockout' && (
-                  <div className="playoff-badge-floating">נוקאאוט</div>
-                )}
+                <div className="match-card-badges">
+                  <span className={`match-status ${status}`}>
+                    {statusLabel(status)}
+                  </span>
+                  {match.phase === 'knockout' && (
+                    <span className="playoff-badge">נוקאאוט</span>
+                  )}
+                </div>
 
                 <MatchTeamsScore
                   team1Name={match.team1Name || `קבוצה ${match.team1Id}`}

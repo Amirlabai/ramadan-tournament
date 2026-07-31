@@ -1,5 +1,11 @@
 export { STANDINGS_PLAYOFF_ZONE_SIZE } from './standingsConstants';
 export {
+  LOWER_SEMI_IDS,
+  UPPER_SEMI_IDS,
+  LOWER_FINAL_ID,
+  UPPER_FINAL_ID,
+} from './playoffMatchIds';
+export {
   getMatchDisplayStatus,
   hasMatchOnJerusalemDate,
   isAlbumsDiscoverWeekday,
