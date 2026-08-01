@@ -33,7 +33,11 @@ import {
 } from '../utils/shareSnapshot';
 import { toHeadPlayer } from '../utils/toHeadPlayer';
 import { trackEvent } from '../utils/analytics';
-import { shouldPollTournamentData, getMatchDisplayStatus } from '@ramadan-tournament/shared';
+import {
+    shouldPollTournamentData,
+    getMatchDisplayStatus,
+    TOURNAMENT_POLL_INTERVAL_MS,
+} from '@ramadan-tournament/shared';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
 import './Dashboard.css';
@@ -87,7 +91,7 @@ const Dashboard = () => {
             if (shouldPollTournamentData(pollMatches)) {
                 fetchDashboard(true);
             }
-        }, 30000);
+        }, TOURNAMENT_POLL_INTERVAL_MS);
 
         return () => clearInterval(interval);
     }, []);

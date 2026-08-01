@@ -18,7 +18,7 @@ import { PlayerHeadImg } from '../components/PlayerHeadImg';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { getRoleStarVariant, isPlatformAdmin } from '../utils/tournamentUser';
 import { trackEvent } from '../utils/analytics';
-import { shouldPollTournamentData } from '@ramadan-tournament/shared';
+import { shouldPollTournamentData, TOURNAMENT_POLL_INTERVAL_MS } from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { sortRosterPlayers } from '../utils/rosterSort';
@@ -171,7 +171,7 @@ const Teams = () => {
                     fetchTeams(true);
                 }
             })();
-        }, 30000);
+        }, TOURNAMENT_POLL_INTERVAL_MS);
 
         return () => clearInterval(interval);
     }, [slug]);

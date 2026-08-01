@@ -52,6 +52,7 @@ Local: `server/.env` + `client/.env` only (no repo-root `.env`). Mock without Po
 - Skeletons immediate on public fetch ([`useMinSkeletonTime`](client/src/hooks/useMinSkeletonTime.ts)); `PageLoading` for Suspense/admin only.
 - Product copy: no em dashes (`—`); empty cells ASCII `-` via `displayOrDash` ([`.cursor/rules/no-em-dashes-product-copy.mdc`](.cursor/rules/no-em-dashes-product-copy.mdc)).
 - Engagement: donation popup Fri/Sat ≥17:00 Jerusalem; albums tip Sun–Thu; stats tip Fri/Sat (`EngagementNudgeHost`).
+- Live poll cadence: `TOURNAMENT_POLL_INTERVAL_MS` (2 min). Circassian: Fri/Sat 17:00–20:00 Jerusalem when a match is that day (`shouldPollTournamentData`). World Cup: while LIVE/IN_PLAY. Status badges + live match-stats expand: same interval.
 
 ## Accessibility
 

@@ -5,9 +5,11 @@ import {
 } from './jerusalemDate';
 
 export const MATCH_DURATION_MS = 60 * 60 * 1000;
+/** Shared live-data / status tick cadence (Circassian pages, WC, useMatchStatusNow, MatchStatsSection). */
+export const TOURNAMENT_POLL_INTERVAL_MS = 2 * 60 * 1000;
 const TOURNAMENT_POLL_WEEKDAYS = [5, 6] as const; // Fri, Sat
-const TOURNAMENT_POLL_START_HOUR = 16;
-const TOURNAMENT_POLL_END_HOUR = 21; // exclusive upper bound
+const TOURNAMENT_POLL_START_HOUR = 17;
+const TOURNAMENT_POLL_END_HOUR = 20; // exclusive upper bound
 /** Fri/Sat donation popup: from 17:00 Jerusalem until end of that calendar day. */
 const DONATION_POPUP_WEEKDAYS = [5, 6] as const; // Fri, Sat
 const DONATION_POPUP_START_HOUR = 17;

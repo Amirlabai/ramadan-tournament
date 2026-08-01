@@ -13,6 +13,7 @@ export {
   isStatsDiscoverWeekend,
   isTournamentPollingWindow,
   MATCH_DURATION_MS,
+  TOURNAMENT_POLL_INTERVAL_MS,
   needsMatchStatusClockTick,
   shouldCountMatchInStats,
   shouldPollTournamentData,

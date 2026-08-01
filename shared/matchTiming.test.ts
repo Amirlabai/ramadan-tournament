@@ -85,28 +85,28 @@ describe('isTournamentPollingWindow', () => {
     expect(isTournamentPollingWindow(now)).toBe(false);
   });
 
-  it('is false on Friday before 16:00', () => {
-    const now = jerusalemDateTime('2026-07-10', '15:59');
+  it('is false on Friday before 17:00', () => {
+    const now = jerusalemDateTime('2026-07-10', '16:59');
     expect(isTournamentPollingWindow(now)).toBe(false);
   });
 
-  it('is true on Friday at exactly 16:00', () => {
-    const now = jerusalemDateTime('2026-07-10', '16:00');
-    expect(isTournamentPollingWindow(now)).toBe(true);
-  });
-
-  it('is true on Friday during the window', () => {
+  it('is true on Friday at exactly 17:00', () => {
     const now = jerusalemDateTime('2026-07-10', '17:00');
     expect(isTournamentPollingWindow(now)).toBe(true);
   });
 
-  it('is true on Friday at 20:30', () => {
-    const now = jerusalemDateTime('2026-07-10', '20:30');
+  it('is true on Friday during the window', () => {
+    const now = jerusalemDateTime('2026-07-10', '18:30');
     expect(isTournamentPollingWindow(now)).toBe(true);
   });
 
-  it('is false at or after 21:00', () => {
-    const now = jerusalemDateTime('2026-07-10', '21:00');
+  it('is false on Friday at 20:00', () => {
+    const now = jerusalemDateTime('2026-07-10', '20:00');
+    expect(isTournamentPollingWindow(now)).toBe(false);
+  });
+
+  it('is false on Friday at 20:30', () => {
+    const now = jerusalemDateTime('2026-07-10', '20:30');
     expect(isTournamentPollingWindow(now)).toBe(false);
   });
 

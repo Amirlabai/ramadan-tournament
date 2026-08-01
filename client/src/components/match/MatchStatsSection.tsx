@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getMatchDisplayStatus } from '@ramadan-tournament/shared';
+import { getMatchDisplayStatus, TOURNAMENT_POLL_INTERVAL_MS } from '@ramadan-tournament/shared';
 import { matchStatsAPI, type MatchStatsResponse } from '../../api/client';
 import type { Goal, Match, Player, Team } from '../../types';
 import { PlayerHeadImg } from '../PlayerHeadImg';
@@ -174,7 +174,7 @@ export function MatchStatsSection({
     if (status === 'live') {
       const timer = window.setInterval(() => {
         void load(true);
-      }, 30_000);
+      }, TOURNAMENT_POLL_INTERVAL_MS);
       return () => {
         cancelled = true;
         window.clearInterval(timer);

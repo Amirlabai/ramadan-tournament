@@ -72,8 +72,8 @@ After teams exist and are **active**, generate group-stage fixtures (single roun
 
 ```powershell
 npm run fixtures:generate -- --help
-npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
-npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 16:00,16:00,17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --replace
+npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --dry-run
+npm run fixtures:generate -- --start-date 2026-07-10 --matches-per-day 8 --times 17:00,17:00,18:00,18:00,19:00,19:00 --match-days fri,sat --replace
 npm run fixtures:generate -- --start-date 2026-07-01 --replace --yes
 ```
 

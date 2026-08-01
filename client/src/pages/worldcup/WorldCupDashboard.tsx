@@ -7,6 +7,7 @@ import { WorldCupDashboardSkeleton } from '../../components/skeleton';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { filterDisplayableKnockoutMatches } from '../../utils/worldCupKnockout';
 import { useTournament } from '../../contexts/TournamentContext';
+import { TOURNAMENT_POLL_INTERVAL_MS } from '@ramadan-tournament/shared';
 import '../../pages/Dashboard.css';
 
 const WorldCupDashboard = () => {
@@ -43,7 +44,7 @@ const WorldCupDashboard = () => {
       if (hasLive || hasRecentLive) {
         fetchDashboard(true);
       }
-    }, 30000);
+    }, TOURNAMENT_POLL_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [data?.nextMatches?.length]);

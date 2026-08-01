@@ -7,6 +7,7 @@ import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import WorldCupBracket from '../../components/WorldCupBracket';
 import { filterDisplayableKnockoutMatches } from '../../utils/worldCupKnockout';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
+import { TOURNAMENT_POLL_INTERVAL_MS } from '@ramadan-tournament/shared';
 import '../../pages/Stats.css';
 
 const GROUP_ORDER = [
@@ -58,7 +59,7 @@ const WorldCupStats = () => {
         (m) => m.status === 'LIVE' || m.status === 'IN_PLAY'
       );
       if (hasLive) fetchStats(true);
-    }, 30000);
+    }, TOURNAMENT_POLL_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, []);

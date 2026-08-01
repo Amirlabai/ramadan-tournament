@@ -7,6 +7,7 @@ import { WorldCupScheduleSkeleton } from '../../components/skeleton';
 import { useMinSkeletonTime } from '../../hooks/useMinSkeletonTime';
 import { MatchTeamsScore } from '../../components/match/MatchCardParts';
 import { wcGroupLabel } from '../../utils/worldCupLocale';
+import { TOURNAMENT_POLL_INTERVAL_MS } from '@ramadan-tournament/shared';
 import '../../pages/Schedule.css';
 
 const LIVE_STATUSES = new Set(['LIVE', 'IN_PLAY', 'PAUSED']);
@@ -80,7 +81,7 @@ const WorldCupSchedule = () => {
     const interval = setInterval(() => {
       const hasLive = matches.some((m) => getMatchStatus(m) === 'live');
       if (hasLive) fetchData(true);
-    }, 30000);
+    }, TOURNAMENT_POLL_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [matches.length]);

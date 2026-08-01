@@ -6,7 +6,11 @@ import SEO from '../components/SEO';
 import { StatsSkeleton } from '../components/skeleton';
 import EmptyState from '../components/EmptyState';
 import PlayoffBracket from '../components/PlayoffBracket';
-import { STANDINGS_PLAYOFF_ZONE_SIZE, shouldPollTournamentData } from '@ramadan-tournament/shared';
+import {
+    STANDINGS_PLAYOFF_ZONE_SIZE,
+    shouldPollTournamentData,
+    TOURNAMENT_POLL_INTERVAL_MS,
+} from '@ramadan-tournament/shared';
 import { refreshPollMatchesRef, shouldRefreshPollMatches } from '../utils/tournamentPollMatches';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import StandingsTable from '../components/standings/StandingsTable';
@@ -56,7 +60,7 @@ const Stats = () => {
                     fetchStats(true);
                 }
             })();
-        }, 30000);
+        }, TOURNAMENT_POLL_INTERVAL_MS);
 
         return () => clearInterval(interval);
     }, []);

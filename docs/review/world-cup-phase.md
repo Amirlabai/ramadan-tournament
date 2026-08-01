@@ -163,7 +163,7 @@ These helpers read the same env flags as the WC phase; disabling WC (section 6) 
 ## 5. Runtime behavior
 
 - **Caching:** Redis keys `rt:wc:{resource}:{season}`; TTL 60s when live matches exist, else 120s.
-- **Polling:** WC pages poll every 30s when any match is `LIVE` or `IN_PLAY`.
+- **Polling:** WC pages poll every 2 min when any match is `LIVE` or `IN_PLAY`.
 - **Fallback:** If FD API fails, serve stale Redis cache; else read `data/worldcup/*.json`.
 - **Disabled:** Comments, MVP, admin matches, registration, archive on WC routes.
 

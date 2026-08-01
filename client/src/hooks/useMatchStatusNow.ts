@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { needsMatchStatusClockTick } from '@ramadan-tournament/shared';
-
-const STATUS_TICK_MS = 30_000;
+import {
+  needsMatchStatusClockTick,
+  TOURNAMENT_POLL_INTERVAL_MS,
+} from '@ramadan-tournament/shared';
 
 /** Re-render on a schedule when matches are near kickoff or full-time. */
 export function useMatchStatusNow(matches: { date: string }[]) {
@@ -31,7 +32,7 @@ export function useMatchStatusNow(matches: { date: string }[]) {
       if (needsMatchStatusClockTick(matchesRef.current)) {
         tick();
       }
-    }, STATUS_TICK_MS);
+    }, TOURNAMENT_POLL_INTERVAL_MS);
 
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {

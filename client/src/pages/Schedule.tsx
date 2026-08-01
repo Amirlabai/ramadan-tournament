@@ -15,7 +15,11 @@ import { ShareButton } from '../components/share/ShareButton';
 import { resolveAssetUrl } from '../utils/assetUrl';
 import { matchShareSnapshot } from '../utils/shareSnapshot';
 import { trackEvent } from '../utils/analytics';
-import { getMatchDisplayStatus, shouldPollTournamentData } from '@ramadan-tournament/shared';
+import {
+    getMatchDisplayStatus,
+    shouldPollTournamentData,
+    TOURNAMENT_POLL_INTERVAL_MS,
+} from '@ramadan-tournament/shared';
 import { useMatchStatusNow } from '../hooks/useMatchStatusNow';
 import { useMinSkeletonTime } from '../hooks/useMinSkeletonTime';
 import { compareMatchesByKickoff } from '../utils/compareMatchesByKickoff';
@@ -74,7 +78,7 @@ const Schedule = () => {
             if (shouldPollTournamentData(matchesRef.current)) {
                 fetchData(true);
             }
-        }, 30000);
+        }, TOURNAMENT_POLL_INTERVAL_MS);
 
         return () => clearInterval(interval);
     }, []);
