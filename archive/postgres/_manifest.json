@@ -1,9 +1,8 @@
 {
-  "exported_at": "2026-08-03T08:34:45+03:00",
+  "exported_at": "2026-08-04T07:56:55+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "comments.csv",
-    "stats_snapshots.csv",
     "analytics_events.csv"
   ],
   "tables": {
@@ -48,7 +47,7 @@
       "file": "news.csv"
     },
     "comments": {
-      "rows": 45,
+      "rows": 46,
       "file": "comments.csv"
     },
     "votes": {
@@ -84,7 +83,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 32209,
+      "rows": 32367,
       "file": "analytics_events.csv"
     }
   },
