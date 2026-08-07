@@ -261,6 +261,9 @@ export function sportsEventJsonLd() {
     startDate: TOURNAMENT_START_ISO,
     endDate: TOURNAMENT_END_ISO,
     sport: 'Soccer',
+    image: [`${url}/og-image.png`],
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',
       name: 'כפר כמא',
