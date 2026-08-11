@@ -174,6 +174,29 @@ export function topScorersShareSnapshot(scorers: TopScorer[], limit: number): Sh
   };
 }
 
+export function mvpLeaderboardShareSnapshot(
+  entries: Array<{
+    memberId: number;
+    playerName: string;
+    teamName: string;
+    votes: number;
+    head_photo?: string | null;
+  }>,
+  limit: number,
+): ShareSnapshot {
+  return {
+    kind: 'mvp-leaderboard',
+    limit,
+    entries: entries.slice(0, limit).map((e) => ({
+      memberId: e.memberId,
+      playerName: e.playerName,
+      teamName: e.teamName,
+      votes: e.votes,
+      head_photo: e.head_photo ?? null,
+    })),
+  };
+}
+
 export function teamShareSnapshot(team: Team, logoSrc?: string | null): ShareSnapshot {
   return {
     kind: 'team',
