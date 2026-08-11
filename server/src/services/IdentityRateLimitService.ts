@@ -1,5 +1,9 @@
-import { getRedis } from '../config/redis';
-import { config } from '../config/env';
+import { disableRedis, getRedis, incrWithExpireOnCreate } from '../config/redis';
+import {
+  createAttemptMemoryStore,
+  isRedisDegraded,
+  useMemoryCache,
+} from './memoryCache';
 
 export const MAX_IDENTITY_ATTEMPTS = 3;
 
@@ -7,6 +11,7 @@ export const MAX_IDENTITY_ATTEMPTS = 3;
 export const MAX_INVOICE_ATTEMPTS = MAX_IDENTITY_ATTEMPTS;
 
 const PREFIX = 'rt:identity:attempts:';
+const memory = createAttemptMemoryStore();
 
 function secondsUntilJerusalemMidnight(): number {
   const now = new Date();
@@ -24,8 +29,6 @@ function secondsUntilJerusalemMidnight(): number {
   return Math.max(60, 86400 - elapsed);
 }
 
-const memoryAttempts = new Map<string, { count: number; expiresAt: number }>();
-
 export class IdentityRateLimitService {
   static key(userId: string, seasonId: string): string {
     return `${PREFIX}${userId}:${seasonId}`;
@@ -38,56 +41,91 @@ export class IdentityRateLimitService {
 
   static async getAttemptCount(userId: string, seasonId: string): Promise<number> {
     const key = this.key(userId, seasonId);
-    if (!config.redisUrl) {
-      const entry = memoryAttempts.get(key);
-      if (!entry || entry.expiresAt < Date.now()) return 0;
-      return entry.count;
+    const ttl = secondsUntilJerusalemMidnight();
+
+    // Reads never fail-closed: degraded + no seed → 0 (never-attempted stay unlocked).
+    if (useMemoryCache()) {
+      return memory.getCount(key);
     }
-    const raw = await getRedis().get(key);
-    return raw ? parseInt(raw, 10) : 0;
+    try {
+      const raw = await getRedis().get(key);
+      const count = raw ? parseInt(raw, 10) : 0;
+      if (count > 0) {
+        memory.setCount(key, count, ttl);
+      }
+      return count;
+    } catch (err) {
+      disableRedis(err);
+      return memory.getCount(key);
+    }
   }
 
   static async recordFailedAttempt(userId: string, seasonId: string): Promise<number> {
     const key = this.key(userId, seasonId);
     const ttl = secondsUntilJerusalemMidnight();
 
-    if (!config.redisUrl) {
-      const entry = memoryAttempts.get(key);
-      const count = (entry && entry.expiresAt > Date.now() ? entry.count : 0) + 1;
-      memoryAttempts.set(key, { count, expiresAt: Date.now() + ttl * 1000 });
-      return count;
+    if (useMemoryCache()) {
+      if (isRedisDegraded()) {
+        // Cleared or already seeded: continue in memory. No seed: fail closed on write only.
+        if (memory.hasEntry(key)) {
+          return memory.record(key, ttl);
+        }
+        memory.setCount(key, MAX_IDENTITY_ATTEMPTS, ttl);
+        return MAX_IDENTITY_ATTEMPTS;
+      }
+      return memory.record(key, ttl);
     }
 
-    const count = await getRedis().incr(key);
-    if (count === 1) {
-      await getRedis().expire(key, ttl);
+    try {
+      const count = await incrWithExpireOnCreate(key, ttl);
+      memory.setCount(key, count, ttl);
+      return count;
+    } catch (err) {
+      disableRedis(err);
+      if (memory.hasEntry(key)) {
+        return memory.record(key, ttl);
+      }
+      memory.setCount(key, MAX_IDENTITY_ATTEMPTS, ttl);
+      return MAX_IDENTITY_ATTEMPTS;
     }
-    return count;
   }
 
   static async clearAttempts(userId: string, seasonId: string): Promise<void> {
     const key = this.key(userId, seasonId);
-    if (!config.redisUrl) {
-      memoryAttempts.delete(key);
+    const ttl = secondsUntilJerusalemMidnight();
+    if (useMemoryCache()) {
+      memory.markCleared(key, ttl);
       return;
     }
-    await getRedis().del(key);
+    try {
+      await getRedis().del(key);
+      memory.markCleared(key, ttl);
+    } catch (err) {
+      disableRedis(err);
+      memory.markCleared(key, ttl);
+    }
   }
 
   /** Wipe all identity attempt counters (e.g. after db:fresh). */
   static async clearAllAttempts(): Promise<void> {
-    if (!config.redisUrl) {
-      memoryAttempts.clear();
+    if (useMemoryCache()) {
+      memory.clearAll();
       return;
     }
-    const redis = getRedis();
-    let cursor = '0';
-    do {
-      const [next, keys] = await redis.scan(cursor, 'MATCH', `${PREFIX}*`, 'COUNT', 200);
-      cursor = next;
-      if (keys.length > 0) {
-        await redis.del(...keys);
-      }
-    } while (cursor !== '0');
+    try {
+      const redis = getRedis();
+      let cursor = '0';
+      do {
+        const [next, keys] = await redis.scan(cursor, 'MATCH', `${PREFIX}*`, 'COUNT', 200);
+        cursor = next;
+        if (keys.length > 0) {
+          await redis.del(...keys);
+        }
+      } while (cursor !== '0');
+      memory.clearAll();
+    } catch (err) {
+      disableRedis(err);
+      memory.clearAll();
+    }
   }
 }

@@ -1,8 +1,15 @@
-import { getRedis } from '../config/redis';
-import { config } from '../config/env';
+import { disableRedis, incrWithExpireOnCreate } from '../config/redis';
+import {
+  createAttemptMemoryStore,
+  isRedisDegraded,
+  useMemoryCache,
+} from './memoryCache';
 
 const PREFIX = 'rt:auth:verify:';
-const memoryAttempts = new Map<string, { count: number; expiresAt: number }>();
+const memory = createAttemptMemoryStore();
+
+/** Fail closed when Redis is degraded and this process has no seed for the key. */
+const FAIL_CLOSED_COUNT = Number.MAX_SAFE_INTEGER;
 
 export class AuthRateLimitService {
   /** Increment only on failed verify; returns false when over limit. */
@@ -17,17 +24,25 @@ export class AuthRateLimitService {
   }
 
   private static async increment(key: string, ttlSec: number): Promise<number> {
-    if (!config.redisUrl) {
-      const now = Date.now();
-      const entry = memoryAttempts.get(key);
-      const count = (entry && entry.expiresAt > now ? entry.count : 0) + 1;
-      memoryAttempts.set(key, { count, expiresAt: now + ttlSec * 1000 });
+    if (useMemoryCache()) {
+      if (isRedisDegraded()) {
+        if (memory.hasEntry(key)) return memory.record(key, ttlSec);
+        memory.setCount(key, FAIL_CLOSED_COUNT, ttlSec);
+        return FAIL_CLOSED_COUNT;
+      }
+      return memory.record(key, ttlSec);
+    }
+    try {
+      const count = await incrWithExpireOnCreate(key, ttlSec);
+      memory.setCount(key, count, ttlSec);
       return count;
+    } catch (err) {
+      disableRedis(err);
+      if (memory.hasEntry(key)) {
+        return memory.record(key, ttlSec);
+      }
+      memory.setCount(key, FAIL_CLOSED_COUNT, ttlSec);
+      return FAIL_CLOSED_COUNT;
     }
-    const count = await getRedis().incr(key);
-    if (count === 1) {
-      await getRedis().expire(key, ttlSec);
-    }
-    return count;
   }
 }

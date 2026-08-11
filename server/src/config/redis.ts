@@ -72,3 +72,21 @@ export async function disconnectRedis(): Promise<void> {
     redis = null;
   }
 }
+
+/**
+ * Atomic INCR; EXPIRE only when the new count is 1 (fixed window, no orphan keys).
+ * Lua: local c = redis.call('INCR', KEYS[1]); if c == 1 then redis.call('EXPIRE', KEYS[1], ARGV[1]) end; return c
+ */
+const INCR_EXPIRE_ON_CREATE_LUA = `
+local c = redis.call('INCR', KEYS[1])
+if c == 1 then
+  redis.call('EXPIRE', KEYS[1], tonumber(ARGV[1]))
+end
+return c
+`;
+
+export async function incrWithExpireOnCreate(key: string, ttlSec: number): Promise<number> {
+  const result = await getRedis().eval(INCR_EXPIRE_ON_CREATE_LUA, 1, key, String(ttlSec));
+  return typeof result === 'number' ? result : parseInt(String(result), 10);
+}
+

@@ -22,7 +22,10 @@ services:
         value: /var/data/uploads
       - key: DATABASE_URL
         sync: false
+      # Live season: set REDIS_URL. Off-season: unset REDIS_URL and set REDIS_OPTIONAL=1.
       - key: REDIS_URL
+        sync: false
+      - key: REDIS_OPTIONAL
         sync: false
       - key: JWT_SECRET
         sync: false  # Set manually in Render dashboard

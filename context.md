@@ -5,15 +5,16 @@ Hebrew RTL tournament site for כפר כמא / summer 2026 (boys football, girls
 ## Tech stack
 
 - **Client:** React 19, Vite 7, TypeScript, Bootstrap 5, PWA, `react-helmet-async`
-- **Server:** Node/Express, PostgreSQL (Prisma), Redis (ioredis), TypeScript
+- **Server:** Node/Express, PostgreSQL (Prisma), optional Redis (ioredis), TypeScript
 - **Shared:** `@ramadan-tournament/shared` (ID/birth-year, match timing, empty display, etc.)
-- **Host:** Render (API + Postgres + Redis), Vercel (client)
+- **Host:** Render (API + Postgres; Redis recommended live, optional off-season), Vercel (client)
 - **Peripheral Python:** `scripts/` (photo sync, Postgres backup, alarms, analytics dashboard) via repo `.venv` + `scripts/requirements.txt`
 
 ## Architecture
 
 - Monorepo: `client/`, `server/`, `shared/`, `data/`, `docs/`, `.incoming/`
-- Seasons by `division` (boys/girls). Redis `rt:` caches; `TeamDataService` ~120s; `saveTeam` invalidates `rt:doc:{division}:*`
+- Seasons by `division` (boys/girls). Cache via `CacheService` (`rt:` keys; Redis or in-memory); `TeamDataService` ~120s; `saveTeam` invalidates `rt:doc:{division}:*`
+- Off-season: set `REDIS_OPTIONAL=1`, unset `REDIS_URL`, suspend Render Redis; keep API + Postgres (`/archive` needs Postgres until a static CSV/JSON mode exists). Live season: clear `REDIS_OPTIONAL`, recreate Redis, set `REDIS_URL`. Never leave `REDIS_URL` pointing at a dead host.
 - Registration: `RegistrationQueryService` / `RegistrationWorkflowService` / `RegistrationIdentityService`; roster via `TeamRosterService` + soft-delete `PlayerService.deactivateRosterMember`
 - Bootstrap: `db:migrate` + `db:seed`; clean start `db:fresh` (not seed for live schedules)
 - Tests: Vitest `shared/` + `server/`; root `npm run test`; CI `.github/workflows/test.yml`
@@ -23,7 +24,9 @@ Hebrew RTL tournament site for כפר כמא / summer 2026 (boys football, girls
 
 | Variable | Where | Notes |
 |----------|--------|--------|
-| `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `ADMIN_*` | Render | Required API |
+| `DATABASE_URL`, `JWT_SECRET`, `ADMIN_*` | Render | Required API |
+| `REDIS_URL` | Render | Required in production unless `REDIS_OPTIONAL=1` (off-season). `WORLD_CUP_ENABLED` alone does not waive Redis. |
+| `REDIS_OPTIONAL` | Render | `1` only for documented off-season without Redis; set even if WC is enabled |
 | `PERSONAL_ID_KEY` | Render | AES-256-GCM; set `PERSONAL_ID_MIGRATION_DONE=1` after migrate |
 | `UPLOADS_DISK_PATH` | Render | e.g. `/var/data/uploads`; prod 503 if unset |
 | `COOKIE_SAME_SITE` | Render | `lax` when Vercel proxies `/api` |

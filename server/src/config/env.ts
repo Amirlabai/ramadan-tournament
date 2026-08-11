@@ -19,6 +19,9 @@ export const config = {
   port: process.env.PORT || 5000,
   databaseUrl: process.env.DATABASE_URL || '',
   redisUrl: process.env.REDIS_URL || '',
+  /** Documented off-season: allow prod without Redis (process-local cache/counters). */
+  redisOptional:
+    process.env.REDIS_OPTIONAL === '1' || process.env.REDIS_OPTIONAL === 'true',
   jwtSecret: process.env.JWT_SECRET || '',
   adminUsername: process.env.ADMIN_USERNAME || 'admin',
   adminPassword: process.env.ADMIN_PASSWORD || '',
@@ -69,6 +72,15 @@ if (config.mockDevData && config.nodeEnv === 'production') {
   throw new Error('MOCK_DEV_DATA must not be enabled in production');
 }
 
-if (config.nodeEnv === 'production' && !worldCupStandalone && !config.redisUrl && !config.worldCupEnabled) {
-  throw new Error('REDIS_URL is required in production');
+/** Live season: require Redis. Off-season / no Redis: REDIS_OPTIONAL=1 (even if WORLD_CUP_ENABLED). */
+if (config.nodeEnv === 'production' && !worldCupStandalone && !config.redisUrl) {
+  if (config.redisOptional) {
+    console.warn(
+      'REDIS_OPTIONAL=1 and REDIS_URL unset — using in-memory cache and rate-limit counters (process-local; resets on restart)'
+    );
+  } else {
+    throw new Error(
+      'REDIS_URL is required in production (set REDIS_OPTIONAL=1 for documented off-season memory mode)'
+    );
+  }
 }

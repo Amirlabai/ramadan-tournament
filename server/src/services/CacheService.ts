@@ -1,13 +1,10 @@
-import { disableRedis, getRedis, isRedisEnabled } from '../config/redis';
+import { disableRedis, getRedis } from '../config/redis';
+import { useMemoryCache } from './memoryCache';
 
 const PREFIX = 'rt:';
 
 type MemoryEntry = { value: string; expiresAt: number };
 const memoryCache = new Map<string, MemoryEntry>();
-
-function useMemory(): boolean {
-  return !isRedisEnabled();
-}
 
 function memoryGet<T>(key: string): T | null {
   const entry = memoryCache.get(key);
@@ -32,7 +29,7 @@ export class CacheService {
 
   static async get<T>(key: string): Promise<T | null> {
     try {
-      if (useMemory()) {
+      if (useMemoryCache()) {
         return memoryGet<T>(key);
       }
       const raw = await getRedis().get(key);
@@ -46,7 +43,7 @@ export class CacheService {
 
   static async set(key: string, value: unknown, ttlSeconds?: number): Promise<void> {
     try {
-      if (useMemory()) {
+      if (useMemoryCache()) {
         memorySet(key, value, ttlSeconds);
         return;
       }
@@ -65,7 +62,7 @@ export class CacheService {
   static async del(...keys: string[]): Promise<void> {
     if (!keys.length) return;
     try {
-      if (useMemory()) {
+      if (useMemoryCache()) {
         keys.forEach((k) => memoryCache.delete(k));
         return;
       }
@@ -78,7 +75,7 @@ export class CacheService {
 
   static async invalidatePattern(pattern: string): Promise<void> {
     try {
-      if (useMemory()) {
+      if (useMemoryCache()) {
         const prefix = pattern.replace('*', '');
         for (const k of memoryCache.keys()) {
           if (k.startsWith(prefix)) memoryCache.delete(k);

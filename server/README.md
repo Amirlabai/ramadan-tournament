@@ -18,6 +18,8 @@ Uses `env.mock` and `data/*.json`. Admin: `admin` / `admin123`.
 
 **Full stack (Postgres):** set `DATABASE_URL`, `JWT_SECRET`, `ADMIN_USERNAME`, `ADMIN_PASSWORD`, and optionally `REDIS_URL`, `SMTP_*`, `GOOGLE_CLIENT_ID`.
 
+**Redis:** required in production (`REDIS_URL`) unless `REDIS_OPTIONAL=1` (documented off-season; required even when `WORLD_CUP_ENABLED`). Unset `REDIS_URL`, set `REDIS_OPTIONAL=1`, suspend Redis, redeploy. Keep Postgres for `/archive` and tournament data. Before the next live season: clear `REDIS_OPTIONAL`, recreate Redis, set `REDIS_URL`. Never leave `REDIS_URL` pointing at a dead host. If Redis dies while `REDIS_URL` is still set, identity/auth **writes** fail closed when this process has no seed for the key; **reads** stay open; successful identity clear uses `markCleared` (count 0 + `hasEntry`) so the user is not re-locked.
+
 **Uploads (production):** set `UPLOADS_DISK_PATH` to the Render disk mount (see root `render.yaml`). Without it, upload endpoints return 503. Locally leave it unset so files go to `server/uploads/`. Prefer non-empty git copies when serving; never commit empty placeholders under `server/uploads/`. New uploads are compressed (short edge ≤1080) before publish; backfill with `npm run uploads:compress`.
 
 Optional fresh-season overrides:
@@ -127,7 +129,7 @@ Failed personal-ID + birth-year submissions are rate-limited per user and season
 - **Service:** `src/services/IdentityRateLimitService.ts`
 - **Limit:** 3 failed attempts per calendar day (Asia/Jerusalem midnight reset)
 - **Redis key prefix:** `rt:identity:attempts:{userId}:{seasonId}`
-- **Fallback:** in-memory map when `REDIS_URL` is unset (local dev only)
+- **Fallback:** in-memory when `REDIS_URL` is unset (`REDIS_OPTIONAL=1` off-season). Reads never fail-closed. Degraded Redis writes (identity + auth) fail closed when this process has no seed for the key; if seeded or `markCleared`, counters continue in memory. Auth Redis TTL is fixed 15m from first fail (`expire` only when `count === 1`).
 
 `db:fresh` (`prisma/seed-empty.ts`) calls `IdentityRateLimitService.clearAllAttempts()` to wipe counters.
 
@@ -176,7 +178,7 @@ Full route catalog: [`../docs/server/API_REFERENCE.md`](../docs/server/API_REFER
 | `MatchDataService` / `StatsService` / `PlayoffService` | Fixtures, standings, playoffs |
 | `NewsDataService` | Division-scoped news |
 | `PointsStatsService` / `PointEntryService` | Girls points tournament |
-| `CacheService` | Redis read-through cache (`rt:` keys) |
+| `CacheService` | Read-through cache (`rt:` keys; Redis or in-memory) |
 | `AuthRateLimitService` | Login throttles |
 
 Controllers stay thin: validate input, call the owning service, map errors to HTTP.
