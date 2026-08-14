@@ -35191,3 +35191,22 @@ f57b1fcd-a318-4161-b48a-7722459ccb37,2026-08-12 22:42:27.871,nav_click,browse,cl
 ded59ef0-17f1-40a3-aca1-dbc92895fad9,2026-08-12 22:48:01.868,page_view,browse,client,8584e1b0-db51-4023-8a7c-247db1a3acdb,/teams,
 a9b3956b-85ee-4eed-b674-2817dcb88338,2026-08-12 22:48:01.868,page_view,browse,client,8584e1b0-db51-4023-8a7c-247db1a3acdb,/login,
 97c179fe-fbd1-4a7d-ba65-883f629d4912,2026-08-12 22:48:01.868,page_view,browse,client,8584e1b0-db51-4023-8a7c-247db1a3acdb,/teams,
+5ab107aa-6e12-43e8-bd35-f202af4404d5,2026-08-13 07:29:58.401,auth_session_lost,auth,client,bc010dd5-fbe6-4e32-bb89-42a5b592adb8,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+9f835b5c-701b-4815-a9be-e5c482f02e8b,2026-08-13 07:38:48.598,auth_session_lost,auth,client,bc010dd5-fbe6-4e32-bb89-42a5b592adb8,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+373de456-397a-4eda-bf35-8c33f593e251,2026-08-13 08:54:47.418,page_view,browse,client,f0ab1d95-82f6-4eae-8d61-dc0bb0fbc960,/,
+683f60ed-f0cf-4bbf-9912-34505e97e791,2026-08-13 08:54:47.419,albums_discover_show,interaction,client,f0ab1d95-82f6-4eae-8d61-dc0bb0fbc960,/,
+f5cc6bbf-88dd-406b-b862-91ea43c7ef7b,2026-08-13 08:54:49.044,albums_discover_cta,interaction,client,f0ab1d95-82f6-4eae-8d61-dc0bb0fbc960,/,
+e5fc6994-e1af-4bb3-8e91-651a32b9392f,2026-08-13 08:54:49.045,nav_click,browse,client,f0ab1d95-82f6-4eae-8d61-dc0bb0fbc960,/,"{""navTo"": ""https://photos.app.goo.gl/iyK2K7cpWG2dKGTk8""}"
+d37b527f-aa14-46fd-9c0f-7f5375fe60c9,2026-08-13 17:22:35.228,page_view,browse,client,f7c7ec5a-3e70-4b9a-8adc-5ca95a2f0497,/,
+fa6b3630-fc74-446a-b207-8e9aa35e5447,2026-08-13 17:23:49.003,page_view,browse,client,0104ecee-8dc9-4b8d-82a5-e1b67a0c30e3,/stats,
+70e0a648-8305-4829-a366-352a32e62cdf,2026-08-13 17:25:24.359,auth_session_lost,auth,client,a0cbf794-f716-4d0f-a142-f95d27329c50,/,"{""platform"": ""ios"", ""standalone"": false}"
+0b4ccbc2-da27-40a6-9d4d-5c0dd358d8e9,2026-08-13 18:40:52.519,auth_session_lost,auth,client,a48cd187-06ee-426b-a522-475de2f322b0,/schedule,"{""platform"": ""android"", ""standalone"": false}"
+4cdf4880-0ab6-42b4-8b23-6ad574c36a7c,2026-08-13 18:44:18.461,auth_session_lost,auth,client,a48cd187-06ee-426b-a522-475de2f322b0,/stats,"{""platform"": ""android"", ""standalone"": false}"
+80e31b72-9401-4c6b-880b-71704146d4ff,2026-08-13 18:44:26.028,auth_session_lost,auth,client,4e5e50f0-c6a6-4126-9f15-0c16415ed208,/stats,"{""platform"": ""android"", ""standalone"": false}"
+abfdadce-98c3-4dfe-bfac-2e5f6bcdc5d4,2026-08-13 18:44:34.295,auth_session_lost,auth,client,a48cd187-06ee-426b-a522-475de2f322b0,/schedule,"{""platform"": ""android"", ""standalone"": false}"
+7203adda-a760-416f-8ccd-f9703f243efc,2026-08-13 19:04:39.707,page_view,browse,client,be2fb648-a8df-4ac6-ab2f-4b1b2324d443,/schedule,
+03bfbfa2-2ade-402f-bd37-3d70b353119d,2026-08-13 19:04:39.707,auth_session_lost,auth,client,be2fb648-a8df-4ac6-ab2f-4b1b2324d443,/schedule,"{""platform"": ""android"", ""standalone"": false}"
+dde32e5b-e41e-40c4-84cb-24b53b3294c0,2026-08-13 19:04:39.708,albums_discover_show,interaction,client,be2fb648-a8df-4ac6-ab2f-4b1b2324d443,/schedule,
+0ea06b7f-c236-4465-a2b9-0366ede1c0d2,2026-08-13 19:04:41.435,albums_discover_cta,interaction,client,be2fb648-a8df-4ac6-ab2f-4b1b2324d443,/schedule,
+201ffa08-2bfa-4ad6-96d0-361b41d23f37,2026-08-13 19:04:50.634,nav_click,browse,client,be2fb648-a8df-4ac6-ab2f-4b1b2324d443,/schedule,"{""navTo"": ""https://photos.app.goo.gl/iyK2K7cpWG2dKGTk8""}"
+485a4bc0-36fb-4af5-b6d5-c8bdaf834b18,2026-08-13 19:06:39.89,auth_session_lost,auth,client,3fb4f093-0478-41cb-af77-d5d9c329d09c,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
