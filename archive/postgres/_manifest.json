@@ -1,9 +1,7 @@
 {
-  "exported_at": "2026-08-15T05:45:56+03:00",
+  "exported_at": "2026-08-16T05:52:52+03:00",
   "timezone": "Asia/Jerusalem",
-  "changed_files": [
-    "analytics_events.csv"
-  ],
+  "changed_files": [],
   "tables": {
     "seasons": {
       "rows": 1,
