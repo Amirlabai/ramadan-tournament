@@ -35259,3 +35259,11 @@ ce162759-6407-4429-9d4a-d38259cfa48b,2026-08-16 14:48:41.148,auth_session_lost,a
 7a32ddc6-9dba-4801-b040-3d81aaf66f35,2026-08-16 14:48:46.176,albums_discover_cta,interaction,client,c4b60017-105d-47d9-bd49-c0f3601b280a,/teams,
 151a72f1-ee55-40d5-98f5-ff47405e3f39,2026-08-16 14:48:48.192,nav_click,browse,client,c4b60017-105d-47d9-bd49-c0f3601b280a,/teams,"{""navTo"": ""https://photos.app.goo.gl/iyK2K7cpWG2dKGTk8""}"
 95ab02bc-6416-4d59-8e92-a837223a7ebd,2026-08-16 22:59:14.178,auth_session_lost,auth,client,7b3dbc4d-ada0-495c-8961-6d028417b373,/,"{""platform"": ""android"", ""standalone"": false}"
+8ecd3dfc-8c0a-4aeb-a65f-7b8f46d34400,2026-08-17 04:15:06.772,auth_session_lost,auth,client,301c2d57-2143-4041-8408-1617c4f251ad,/teams,"{""platform"": ""android"", ""standalone"": false}"
+024c1d66-dc50-4bf1-a4ec-b921a1957ca9,2026-08-17 05:22:03.425,auth_session_lost,auth,client,58a1ea2d-a69b-44fc-87c5-33a4875e3814,/,"{""platform"": ""android"", ""standalone"": false}"
+5dfcc7b7-4088-4590-b893-0536d57750c1,2026-08-17 20:52:22.694,auth_session_lost,auth,client,8ca70d18-155f-4158-96ac-89d1ba7ab192,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+96857987-97ca-40c6-a8e3-19bfba8f8cb6,2026-08-17 20:52:25.177,auth_session_lost,auth,client,598129bd-0193-4552-bb11-fd0438a94f25,/stats,"{""platform"": ""ios"", ""standalone"": false}"
+386578a1-adbe-4c4d-949d-5de8fa90341e,2026-08-17 20:52:28.773,auth_session_lost,auth,client,f40a10fb-6b3f-42f4-9d13-9838a36645b7,/stats,"{""platform"": ""ios"", ""standalone"": false}"
+a502b603-a4ce-4ae2-bbae-2bd90ff51a7c,2026-08-17 22:55:13.98,page_view,browse,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,
+967a0b6e-303d-4bea-a57d-5a01c7a0750e,2026-08-17 22:55:13.98,albums_discover_show,interaction,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,
+4e7d95d3-9273-4b42-8b25-817340edb7d8,2026-08-17 22:55:13.98,auth_session_lost,auth,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,"{""platform"": ""ios"", ""standalone"": false}"
