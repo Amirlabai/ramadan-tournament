@@ -35267,3 +35267,13 @@ ce162759-6407-4429-9d4a-d38259cfa48b,2026-08-16 14:48:41.148,auth_session_lost,a
 a502b603-a4ce-4ae2-bbae-2bd90ff51a7c,2026-08-17 22:55:13.98,page_view,browse,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,
 967a0b6e-303d-4bea-a57d-5a01c7a0750e,2026-08-17 22:55:13.98,albums_discover_show,interaction,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,
 4e7d95d3-9273-4b42-8b25-817340edb7d8,2026-08-17 22:55:13.98,auth_session_lost,auth,client,24417473-488e-4950-9c9e-7bbf0c318f10,/stats,"{""platform"": ""ios"", ""standalone"": false}"
+f492f2f4-a77c-42ae-a52b-e8942de89c14,2026-08-18 09:41:25.773,page_view,browse,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin,
+70bf70d6-15c7-4c3f-b62e-1f8b5854d65e,2026-08-18 09:41:25.776,albums_discover_show,interaction,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin,
+e91cca1e-701d-4edd-a51a-8091bce1d70b,2026-08-18 09:41:25.776,page_view,browse,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin/login,
+0d6e211d-e934-48da-8999-f22df3d78831,2026-08-18 09:41:25.776,auth_session_lost,auth,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin,"{""platform"": ""desktop"", ""standalone"": false}"
+5352e478-6c29-4338-bafa-32b3aa0e9da1,2026-08-18 09:41:28.358,albums_discover_cta,interaction,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin/login,
+ab335b5f-7b4e-4bb3-8d66-b81f8c6c0bef,2026-08-18 09:41:28.359,nav_click,browse,client,f6b8e63a-a4b3-4e13-9d17-ec98aee168dd,/admin/login,"{""navTo"": ""https://www.dropbox.com/scl/fo/ik6h4ns21d5ku05xecrg4/AKcHoyI4D7G8IchCNlI5BNQ?rlkey=e7i8sakzd5akwptjuxdnt1wau&st=v32ykez6&dl=0""}"
+f87c30b4-7dc8-4c92-99d6-78207a4cc447,2026-08-18 10:30:45.91,auth_session_lost,auth,client,68981dc1-5c10-46a3-a1cc-6f2a4b2196bb,/teams,"{""platform"": ""desktop"", ""standalone"": false}"
+e581533f-c79e-4fd9-b898-25b6397a5b53,2026-08-18 17:11:27.536,page_view,browse,client,524df798-0b81-408d-8990-4d8d6baea319,/admin,
+e43d58fd-8502-4e24-88ef-bab2860efa4c,2026-08-18 21:03:43.812,auth_session_lost,auth,client,06a3e90f-e7b0-435d-b990-bbf8c1dae84a,/teams,"{""platform"": ""android"", ""standalone"": false}"
+9c95158a-e833-47f1-a3d2-c0878fb08eea,2026-08-18 21:25:51.259,auth_session_lost,auth,client,7dfcb094-afa6-4ef4-a689-792300739168,/,"{""platform"": ""android"", ""standalone"": false}"
