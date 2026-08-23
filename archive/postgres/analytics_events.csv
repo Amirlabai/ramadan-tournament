@@ -35287,3 +35287,6 @@ e05d7ec5-0619-432d-b6db-1c5798b6f0d0,2026-08-20 16:17:53.596,auth_session_lost,a
 5681a437-2359-4a48-84a6-e6b70193a2e8,2026-08-20 20:08:18.624,auth_session_lost,auth,client,0b465a4d-e6be-41bb-8181-805bfbd044ee,/,"{""platform"": ""ios"", ""standalone"": false}"
 45ac2e7f-93aa-4fae-b5fc-ec3d1be39f57,2026-08-20 20:08:18.625,albums_discover_show,interaction,client,0b465a4d-e6be-41bb-8181-805bfbd044ee,/,
 d11ba064-54af-4223-b243-28f75e0023ae,2026-08-21 15:36:49.755,auth_session_lost,auth,client,93c0df70-500f-40b5-8e38-209ceabdf5ef,/,"{""platform"": ""ios"", ""standalone"": false}"
+4e7d321e-6754-466e-a6a8-9e3919009f01,2026-08-22 03:04:30.362,auth_session_lost,auth,client,67f6e4ff-1290-4254-b34b-ac11acd7d9b6,/teams,"{""platform"": ""android"", ""standalone"": false}"
+1a6b7064-f89d-4f33-a1a5-ed6ce6d94baf,2026-08-22 20:39:35.758,auth_session_lost,auth,client,9aa47de0-c12b-423d-b6e2-e0d6a1cd3208,/,"{""platform"": ""ios"", ""standalone"": false}"
+2381aa2c-329e-4077-9a92-754b8f019ae7,2026-08-22 20:39:37.37,page_view,browse,client,9aa47de0-c12b-423d-b6e2-e0d6a1cd3208,/,
