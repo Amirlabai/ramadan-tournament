@@ -1,5 +1,5 @@
 {
-  "exported_at": "2026-08-24T05:56:24+03:00",
+  "exported_at": "2026-08-25T05:51:53+03:00",
   "timezone": "Asia/Jerusalem",
   "changed_files": [
     "analytics_events.csv"
@@ -82,7 +82,7 @@
       "file": "banned_words.csv"
     },
     "analytics_events": {
-      "rows": 35295,
+      "rows": 35303,
       "file": "analytics_events.csv"
     }
   },
