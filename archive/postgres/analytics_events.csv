@@ -35338,3 +35338,5 @@ b17474ae-2166-42f1-a24e-e2ecc7d21507,2026-08-27 19:03:02.359,match_expand,browse
 e8c77001-84d9-4352-9dd0-27f99ecac7ff,2026-08-27 19:04:18.262,match_expand,browse,client,71051184-9fe4-4ffe-b14f-83a0921b92ef,/schedule,"{""matchId"": 112, ""surface"": ""schedule""}"
 895088f9-78d2-4494-8559-552faf1d7acf,2026-08-27 19:04:22.405,nav_click,browse,client,71051184-9fe4-4ffe-b14f-83a0921b92ef,/schedule,"{""navTo"": ""/stats""}"
 fd25170c-1356-4385-8765-60733fd9220a,2026-08-27 19:04:22.406,page_view,browse,client,71051184-9fe4-4ffe-b14f-83a0921b92ef,/stats,
+b4cbd66c-286c-41e8-9f4a-dcead1d213af,2026-08-28 14:07:57.531,auth_session_lost,auth,client,d969b4d9-8ba2-443d-bacf-0c2a0251363e,/schedule,"{""platform"": ""android"", ""standalone"": false}"
+5113302e-c08a-4770-ae3a-f81e4524e928,2026-08-28 14:07:58.648,auth_session_lost,auth,client,d969b4d9-8ba2-443d-bacf-0c2a0251363e,/stats,"{""platform"": ""android"", ""standalone"": false}"
