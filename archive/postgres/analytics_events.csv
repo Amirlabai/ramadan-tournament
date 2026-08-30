@@ -35340,3 +35340,11 @@ e8c77001-84d9-4352-9dd0-27f99ecac7ff,2026-08-27 19:04:18.262,match_expand,browse
 fd25170c-1356-4385-8765-60733fd9220a,2026-08-27 19:04:22.406,page_view,browse,client,71051184-9fe4-4ffe-b14f-83a0921b92ef,/stats,
 b4cbd66c-286c-41e8-9f4a-dcead1d213af,2026-08-28 14:07:57.531,auth_session_lost,auth,client,d969b4d9-8ba2-443d-bacf-0c2a0251363e,/schedule,"{""platform"": ""android"", ""standalone"": false}"
 5113302e-c08a-4770-ae3a-f81e4524e928,2026-08-28 14:07:58.648,auth_session_lost,auth,client,d969b4d9-8ba2-443d-bacf-0c2a0251363e,/stats,"{""platform"": ""android"", ""standalone"": false}"
+c1d3ca55-213a-4e09-8035-996da66ddcba,2026-08-29 17:49:33.708,auth_session_lost,auth,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+af5dacc0-4900-49a3-913a-897a3b823c83,2026-08-29 17:49:35.635,page_view,browse,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,
+7d057b24-9a06-48b7-b640-43d55084fca3,2026-08-29 17:49:37.391,donation_popup_dismiss,interaction,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,
+1cfd5cdd-e960-43f1-b4a8-bab4cb810adf,2026-08-29 17:49:37.391,stats_discover_show,interaction,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,
+49979c28-94c2-43f5-9a55-fffdc5ce54f0,2026-08-29 17:49:38.449,stats_discover_dismiss,interaction,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,
+65766d25-e577-42db-a850-4e663212f739,2026-08-29 17:49:44.179,nav_click,browse,client,bf1ba021-6567-488f-937a-d3b0fbe5c1fc,/teams,"{""navTo"": ""https://photos.app.goo.gl/iyK2K7cpWG2dKGTk8""}"
+bbe0e8c3-4c90-42cb-8267-4ee5d1a217bd,2026-08-29 19:28:37.225,auth_session_lost,auth,client,4b36ff4b-fd98-4282-8e85-dd9774097f47,/,"{""platform"": ""android"", ""standalone"": false}"
+563ade00-cd02-4e4a-9072-776ee0210270,2026-08-29 20:00:12.345,auth_session_lost,auth,client,ed2f42fc-e3c4-4ecf-ae4a-b1b1e8c0c4cc,/teams,"{""platform"": ""android"", ""standalone"": false}"
