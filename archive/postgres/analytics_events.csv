@@ -35351,3 +35351,12 @@ bbe0e8c3-4c90-42cb-8267-4ee5d1a217bd,2026-08-29 19:28:37.225,auth_session_lost,a
 83b42c98-b03d-486d-ac56-43c6839df7ad,2026-08-30 12:04:12.464,auth_session_lost,auth,client,1b72de08-faee-4b5f-b9cd-5ac80c782207,/teams,"{""platform"": ""android"", ""standalone"": false}"
 09fa3855-c0ca-457c-8ab4-36918f7bfc8a,2026-08-31 20:54:02.63,auth_session_lost,auth,client,7aff5b9e-73f2-4653-a2c2-29d0e3bca352,/,"{""platform"": ""android"", ""standalone"": false}"
 0a9d5207-d34a-47e7-ab5d-ff9ed527e39d,2026-08-31 22:51:59.518,auth_session_lost,auth,client,4638e910-9785-4303-8c05-1889f8c4fd18,/,"{""platform"": ""android"", ""standalone"": false}"
+2bd64acf-e7c0-4542-9a01-52e94b2b5401,2026-09-01 13:24:17.571,page_view,browse,client,267b03d8-255e-4aa0-8841-2d8db2fa894e,/world-cup,
+f666e199-6fca-49a4-a536-8fd6d3b0b400,2026-09-01 13:24:17.571,page_view,browse,client,267b03d8-255e-4aa0-8841-2d8db2fa894e,/,
+b60781e6-3a75-4c19-9c34-9d251da76dfc,2026-09-01 13:24:17.572,auth_session_lost,auth,client,267b03d8-255e-4aa0-8841-2d8db2fa894e,/world-cup,"{""platform"": ""android"", ""standalone"": false}"
+b870cfe0-282e-4e41-916c-4105c8a73858,2026-09-01 17:54:19.278,auth_session_lost,auth,client,7b667f82-70d4-40f7-9191-e10565ff700d,/teams,"{""platform"": ""desktop"", ""standalone"": false}"
+250287b8-7289-431c-8a4f-eab1936e7466,2026-09-01 21:53:26.683,auth_session_lost,auth,client,c5c0f7de-2e64-4ea4-8805-26e41f10bf0d,/teams,"{""platform"": ""android"", ""standalone"": false}"
+bf765e4d-213d-483d-aea6-81f53117a094,2026-09-01 21:59:33.591,auth_session_lost,auth,client,f0887cc5-89b7-4e43-a708-4e1e41c01328,/teams,"{""platform"": ""android"", ""standalone"": false}"
+9f9c2171-a36c-4407-a59c-0e8d6266ecc5,2026-09-02 06:10:29.349,albums_discover_show,interaction,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,
+f66ed213-5e25-4f85-b102-5f694a8746a1,2026-09-02 06:10:29.349,page_view,browse,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,
+df15b0ef-cba9-4d2d-9dd6-76ededc64890,2026-09-02 06:10:29.35,auth_session_lost,auth,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,"{""platform"": ""ios"", ""standalone"": false}"
