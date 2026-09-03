@@ -35360,3 +35360,12 @@ bf765e4d-213d-483d-aea6-81f53117a094,2026-09-01 21:59:33.591,auth_session_lost,a
 9f9c2171-a36c-4407-a59c-0e8d6266ecc5,2026-09-02 06:10:29.349,albums_discover_show,interaction,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,
 f66ed213-5e25-4f85-b102-5f694a8746a1,2026-09-02 06:10:29.349,page_view,browse,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,
 df15b0ef-cba9-4d2d-9dd6-76ededc64890,2026-09-02 06:10:29.35,auth_session_lost,auth,client,5189ebe7-c835-4681-b37c-d8d4a17ddc8e,/stats,"{""platform"": ""ios"", ""standalone"": false}"
+39dbb42c-f394-48c9-8cf2-f7ec812f374e,2026-09-02 11:19:11.575,auth_session_lost,auth,client,a2d62bec-9715-463e-94d1-2621f95e4723,/teams,"{""platform"": ""desktop"", ""standalone"": false}"
+ee231ec7-0a85-4ef1-984a-a382f17f61dc,2026-09-02 14:59:07.329,auth_session_lost,auth,client,8697afc6-2fad-4375-8a0b-0276c6096a27,/teams,"{""platform"": ""android"", ""standalone"": false}"
+b390c5be-09a1-41f8-b791-361bf71c348c,2026-09-02 16:34:27.947,page_view,browse,client,45b900c4-c8a4-4366-b3d6-d39d362a8fa6,/teams,
+25639f64-0211-4604-b694-d1a14b75b5b7,2026-09-02 16:34:27.948,albums_discover_show,interaction,client,45b900c4-c8a4-4366-b3d6-d39d362a8fa6,/teams,
+bd346293-7ae8-492f-be4a-42b6825181e5,2026-09-02 16:34:27.948,auth_session_lost,auth,client,45b900c4-c8a4-4366-b3d6-d39d362a8fa6,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+d7a7e628-df34-43ed-9525-78dafc0d5418,2026-09-02 16:34:29.966,albums_discover_cta,interaction,client,45b900c4-c8a4-4366-b3d6-d39d362a8fa6,/teams,
+9ca4ffe8-1738-4211-8156-7efd4cd42c9c,2026-09-02 16:34:31.01,nav_click,browse,client,45b900c4-c8a4-4366-b3d6-d39d362a8fa6,/teams,"{""navTo"": ""https://forms.gle/YNVWz5JUF4BrvRyd7""}"
+a8af5178-c93c-4635-88d7-0c10e7e2208f,2026-09-03 01:11:00.181,auth_session_lost,auth,client,55edb176-3944-4995-be31-86a06ba0c5cb,/teams,"{""platform"": ""android"", ""standalone"": false}"
+239cb58b-841b-4961-ba4c-953e828ba116,2026-09-03 06:41:57.986,auth_session_lost,auth,client,913299c8-cf9e-4423-914f-71c06a0386aa,/teams,"{""platform"": ""android"", ""standalone"": false}"
