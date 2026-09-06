@@ -35384,3 +35384,9 @@ de14dd4d-a8a3-484a-a35c-67c22e33eb4c,2026-09-03 12:48:14.192,albums_discover_sho
 af7d6252-fcd0-4419-a0be-bdb2b9299070,2026-09-03 12:48:19.946,albums_discover_dismiss,interaction,client,57205559-ec7c-42cf-9d1f-9d3ea037fdb3,/teams,
 74e8c4b9-1d02-4be6-8945-302c4ff4b837,2026-09-03 12:50:04.546,page_view,browse,client,1def4bfb-38da-4af5-a62f-dfd328ab81b9,/teams,
 0db269d5-90e2-42e5-9e9b-7157ad73810b,2026-09-03 12:50:04.547,auth_session_lost,auth,client,1def4bfb-38da-4af5-a62f-dfd328ab81b9,/teams,"{""platform"": ""ios"", ""standalone"": false}"
+d92f945b-1fb1-45ac-b400-ea3117e5823a,2026-09-05 11:43:18.723,auth_session_lost,auth,client,74e88c3e-578c-424a-a185-7d505a371ccd,/,"{""platform"": ""desktop"", ""standalone"": false}"
+3f1a3c7b-e963-4df8-9bfc-e5abc0195026,2026-09-05 11:43:20.62,auth_session_lost,auth,client,4023387c-8528-4f9a-859d-94d0c0648aba,/,"{""platform"": ""android"", ""standalone"": false}"
+320760db-dca2-4db5-ba9b-b607c1232b7c,2026-09-05 12:32:21.91,auth_session_lost,auth,client,fec77904-e6b3-4163-9a21-062552260459,/,"{""platform"": ""desktop"", ""standalone"": false}"
+e52166a2-a664-412a-8376-bd98362f1f1b,2026-09-05 13:52:46.177,auth_session_lost,auth,client,1da069a3-4129-4966-9cf4-886213426d07,/,"{""platform"": ""desktop"", ""standalone"": false}"
+c70acf85-54bb-4d83-9d0b-4558ee744352,2026-09-05 15:56:32.261,auth_session_lost,auth,client,dbb7988a-5811-49b4-9e35-0ad79525584f,/,"{""platform"": ""android"", ""standalone"": false}"
+d17fe6c4-cde3-493c-b77e-2cce4037f9e9,2026-09-05 22:51:31.713,auth_session_lost,auth,client,6a06fa27-8833-423b-a5d9-946989e1ec56,/teams,"{""platform"": ""android"", ""standalone"": false}"
