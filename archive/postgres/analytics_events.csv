@@ -35398,3 +35398,5 @@ f6c8cfbd-80a8-45d1-a1c9-6cd95c992076,2026-09-06 09:02:33.336,auth_session_lost,a
 ebe359c8-2347-4e6e-882d-4940d2fdeb3a,2026-09-06 13:21:45.332,nav_click,browse,client,c48aa3c3-3517-4474-8efa-4be84472d9b5,/teams,"{""navTo"": ""/schedule""}"
 8e32fe4a-a40e-4092-9afd-37c18436824f,2026-09-06 13:21:45.332,page_view,browse,client,c48aa3c3-3517-4474-8efa-4be84472d9b5,/schedule,
 ff070cc6-d842-4236-8ab5-17d6cd1db022,2026-09-06 13:21:47.923,match_expand,browse,client,c48aa3c3-3517-4474-8efa-4be84472d9b5,/schedule,"{""matchId"": 2002, ""surface"": ""schedule""}"
+b04ec0ee-8b01-43f3-9baf-f11e0c5b482e,2026-09-08 12:43:46.462,albums_discover_show,interaction,client,4297dbc5-3323-47f9-a9c8-308cca4a29e7,/stats,
+d962ef29-73c8-4a09-81d8-a7e50671452b,2026-09-08 12:43:46.462,page_view,browse,client,4297dbc5-3323-47f9-a9c8-308cca4a29e7,/stats,
