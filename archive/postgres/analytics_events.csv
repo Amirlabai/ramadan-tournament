@@ -35400,3 +35400,5 @@ ebe359c8-2347-4e6e-882d-4940d2fdeb3a,2026-09-06 13:21:45.332,nav_click,browse,cl
 ff070cc6-d842-4236-8ab5-17d6cd1db022,2026-09-06 13:21:47.923,match_expand,browse,client,c48aa3c3-3517-4474-8efa-4be84472d9b5,/schedule,"{""matchId"": 2002, ""surface"": ""schedule""}"
 b04ec0ee-8b01-43f3-9baf-f11e0c5b482e,2026-09-08 12:43:46.462,albums_discover_show,interaction,client,4297dbc5-3323-47f9-a9c8-308cca4a29e7,/stats,
 d962ef29-73c8-4a09-81d8-a7e50671452b,2026-09-08 12:43:46.462,page_view,browse,client,4297dbc5-3323-47f9-a9c8-308cca4a29e7,/stats,
+6577ef38-3317-4743-98e0-f18bbc2e0fcc,2026-09-10 03:49:49.384,auth_session_lost,auth,client,c193a9f8-ac10-43b4-9b6c-85ae984f8034,/,"{""platform"": ""desktop"", ""standalone"": false}"
+5ac13b86-dd4a-4f17-90f4-ba5370427fab,2026-09-10 03:50:12.211,auth_session_lost,auth,client,1ae15d94-8791-4708-b4ae-093dffde7123,/,"{""platform"": ""desktop"", ""standalone"": false}"
