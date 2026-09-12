@@ -35408,3 +35408,6 @@ cfe1763b-4cc9-4c11-8706-2e6bf92e7634,2026-09-10 07:27:08.941,albums_discover_sho
 ab127a3b-564e-4ae9-b35b-7d01fdd7beca,2026-09-10 07:27:10.533,albums_discover_cta,interaction,client,894e7741-7aaa-47ae-8d97-2991f06637f6,/schedule,
 d813b2fe-86b5-42ea-9d9c-e907bc730f27,2026-09-10 07:27:16.915,match_expand,browse,client,894e7741-7aaa-47ae-8d97-2991f06637f6,/schedule,"{""matchId"": 2002, ""surface"": ""schedule""}"
 03421329-4b67-45c2-b2e8-156b1f4b6c1a,2026-09-10 07:27:35.079,match_expand,browse,client,894e7741-7aaa-47ae-8d97-2991f06637f6,/schedule,"{""matchId"": 2001, ""surface"": ""schedule""}"
+1b8c4785-3ce6-456d-8929-f4cdfb78ae10,2026-09-11 07:36:04.934,page_view,browse,client,d1a7fa43-babd-421c-8d8d-6cccf735ae71,/stats,
+246df4e8-7c32-4448-85a0-ca45d46a757b,2026-09-11 07:36:04.934,auth_session_lost,auth,client,d1a7fa43-babd-421c-8d8d-6cccf735ae71,/stats,"{""platform"": ""ios"", ""standalone"": false}"
+1da8c1d6-f845-47d3-adc4-2319f9e0ccf9,2026-09-11 11:49:24.261,auth_session_lost,auth,client,5514fe0b-889f-4121-a39c-19b5478c070e,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
