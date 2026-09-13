@@ -35411,3 +35411,4 @@ d813b2fe-86b5-42ea-9d9c-e907bc730f27,2026-09-10 07:27:16.915,match_expand,browse
 1b8c4785-3ce6-456d-8929-f4cdfb78ae10,2026-09-11 07:36:04.934,page_view,browse,client,d1a7fa43-babd-421c-8d8d-6cccf735ae71,/stats,
 246df4e8-7c32-4448-85a0-ca45d46a757b,2026-09-11 07:36:04.934,auth_session_lost,auth,client,d1a7fa43-babd-421c-8d8d-6cccf735ae71,/stats,"{""platform"": ""ios"", ""standalone"": false}"
 1da8c1d6-f845-47d3-adc4-2319f9e0ccf9,2026-09-11 11:49:24.261,auth_session_lost,auth,client,5514fe0b-889f-4121-a39c-19b5478c070e,/schedule,"{""platform"": ""ios"", ""standalone"": false}"
+4075c778-d3fd-44f1-96d6-e6ceaf66f2bf,2026-09-12 07:27:50.672,auth_session_lost,auth,client,cf6ac603-bdcb-484e-907f-0709d6358147,/teams,"{""platform"": ""android"", ""standalone"": false}"
