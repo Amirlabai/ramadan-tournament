@@ -35414,3 +35414,5 @@ d813b2fe-86b5-42ea-9d9c-e907bc730f27,2026-09-10 07:27:16.915,match_expand,browse
 4075c778-d3fd-44f1-96d6-e6ceaf66f2bf,2026-09-12 07:27:50.672,auth_session_lost,auth,client,cf6ac603-bdcb-484e-907f-0709d6358147,/teams,"{""platform"": ""android"", ""standalone"": false}"
 b3026d60-bb50-488d-815a-0bd4da3bc19b,2026-09-13 15:43:41.209,auth_session_lost,auth,client,94ef815f-f3d5-4348-ad35-19b43b0d8535,/,"{""platform"": ""desktop"", ""standalone"": false}"
 7120f9e1-517f-48fb-a349-7c9cfefeb130,2026-09-13 15:44:18.247,auth_session_lost,auth,client,c62c1815-72e2-4f7b-9f47-49aa189dea1c,/,"{""platform"": ""desktop"", ""standalone"": false}"
+c33ee5a2-2036-4282-9d2f-aeada76be94b,2026-09-18 03:21:09.008,auth_session_lost,auth,client,b93ead87-354a-4397-b129-aaa8da64cde8,/,"{""platform"": ""desktop"", ""standalone"": false}"
+8acc8c55-ed71-4a3b-8ac5-7a23f2c1587b,2026-09-18 03:21:22.884,auth_session_lost,auth,client,6d99a8ce-18a3-4191-974b-89c8a90440a4,/,"{""platform"": ""desktop"", ""standalone"": false}"
