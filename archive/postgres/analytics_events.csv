@@ -35416,3 +35416,30 @@ b3026d60-bb50-488d-815a-0bd4da3bc19b,2026-09-13 15:43:41.209,auth_session_lost,a
 7120f9e1-517f-48fb-a349-7c9cfefeb130,2026-09-13 15:44:18.247,auth_session_lost,auth,client,c62c1815-72e2-4f7b-9f47-49aa189dea1c,/,"{""platform"": ""desktop"", ""standalone"": false}"
 c33ee5a2-2036-4282-9d2f-aeada76be94b,2026-09-18 03:21:09.008,auth_session_lost,auth,client,b93ead87-354a-4397-b129-aaa8da64cde8,/,"{""platform"": ""desktop"", ""standalone"": false}"
 8acc8c55-ed71-4a3b-8ac5-7a23f2c1587b,2026-09-18 03:21:22.884,auth_session_lost,auth,client,6d99a8ce-18a3-4191-974b-89c8a90440a4,/,"{""platform"": ""desktop"", ""standalone"": false}"
+ac232ae3-a8f6-49b5-a8ab-5376096370a1,2026-09-18 08:32:16.068,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/schedule,"{""navTo"": ""/teams""}"
+44570691-ee26-400e-a2f6-b7867ff0e350,2026-09-18 08:32:16.069,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,
+8f4fd669-6330-4206-be51-39df18cb09b5,2026-09-18 08:32:16.472,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/,
+d815343f-6909-4f60-870c-85082483338b,2026-09-18 08:32:16.574,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/archive,"{""navTo"": ""/login""}"
+6054e673-b8e5-4e27-a2ae-731365bdd01b,2026-09-18 08:32:16.574,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/stats,"{""navTo"": ""/archive""}"
+de22323d-f3d1-43d2-933f-622619e39d2d,2026-09-18 08:32:16.574,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/stats,
+458f1029-918d-4911-bb96-650fc256cd52,2026-09-18 08:32:16.574,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/login,"{""navTo"": ""/stats""}"
+15bea9a8-4c46-4607-95f0-2bb4e7ad1c4d,2026-09-18 08:32:16.574,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/archive,
+d28d8e0c-1ac9-4f57-8aae-2e7f79b4bb64,2026-09-18 08:32:16.574,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/login,
+b7306569-07e0-4faa-b9ed-b35881e985d7,2026-09-18 08:32:16.578,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,
+7e1bcf19-05b2-4e63-9456-3626026e4214,2026-09-18 08:32:16.578,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/stats,
+e7ea21e2-429b-4576-b56a-7a5d5b8eccd0,2026-09-18 08:32:16.578,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/,"{""navTo"": ""/teams""}"
+2688e53e-92be-44a9-9916-4a25db5a060d,2026-09-18 08:32:16.579,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/schedule,
+41cdac38-a4cc-4967-b460-0f2ff2e5b305,2026-09-18 08:32:16.579,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,"{""navTo"": ""/schedule""}"
+337c92dd-01fa-4082-b621-380b43aeb5ca,2026-09-18 08:32:16.579,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/schedule,"{""navTo"": ""/stats""}"
+90da726e-7af0-4bf7-952f-a9946f3653e5,2026-09-18 08:32:16.675,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/,
+c7527fec-6505-4d91-a35b-1a848f6d8499,2026-09-18 08:32:16.675,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,"{""navTo"": ""/""}"
+ad265671-596c-4866-8d52-e012ed6c00dd,2026-09-18 08:32:16.769,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,
+5aec5ba5-4227-49b7-b040-8d1c8dffbb07,2026-09-18 08:32:16.77,stats_discover_show,interaction,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,
+199e4d35-abd4-4368-947f-f25070e56c71,2026-09-18 08:32:16.974,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,"{""navTo"": ""/teams""}"
+bb3fed6b-9310-4c53-a9c8-b899c174f2dd,2026-09-18 08:32:16.974,stats_discover_dismiss,interaction,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/teams,
+60b2ac61-030f-4217-9baa-d64cb54ae110,2026-09-18 08:32:17.57,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/stats,"{""navTo"": ""/login""}"
+211850e0-6b7e-47c0-b1f4-4c41d58beeee,2026-09-18 08:32:17.667,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/login,"{""navTo"": ""/archive""}"
+0ea8e3dd-788e-4fe3-ad5a-6b569dc62f65,2026-09-18 08:32:17.667,nav_click,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/archive,"{""navTo"": ""/schedule""}"
+783b6d53-21c8-49a9-8bd6-ca3dda4c44f3,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/schedule,
+1a1ee509-06c5-4511-8b5a-b836876d8b42,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/login,
+26e236c2-a002-41e9-833e-eaf62468bb6b,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/archive,
