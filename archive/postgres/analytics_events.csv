@@ -35443,3 +35443,6 @@ bb3fed6b-9310-4c53-a9c8-b899c174f2dd,2026-09-18 08:32:16.974,stats_discover_dism
 783b6d53-21c8-49a9-8bd6-ca3dda4c44f3,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/schedule,
 1a1ee509-06c5-4511-8b5a-b836876d8b42,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/login,
 26e236c2-a002-41e9-833e-eaf62468bb6b,2026-09-18 08:32:17.667,page_view,browse,client,d6f5516d-0a9a-40df-a27e-8d3bcc9029bc,/archive,
+a46b2d1f-c9b4-4360-b5d7-e3dfe20fe0bd,2026-09-19 14:02:41.512,auth_session_lost,auth,client,3919aa40-4964-4c76-b7a6-0fcfe430033d,/,"{""platform"": ""android"", ""standalone"": false}"
+64305065-d8d1-4e94-8b6c-425740f7539e,2026-09-19 14:32:54.958,auth_session_lost,auth,client,52583d96-317f-4afb-bdab-d9722eff88bd,/,"{""platform"": ""desktop"", ""standalone"": false}"
+e174fd73-4070-4f1a-97c8-7f6062c7c2e5,2026-09-19 14:36:09.055,auth_session_lost,auth,client,9d841451-afe6-4cea-8dcf-2d207e6e93c7,/,"{""platform"": ""desktop"", ""standalone"": false}"
