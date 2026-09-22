@@ -35449,3 +35449,6 @@ e174fd73-4070-4f1a-97c8-7f6062c7c2e5,2026-09-19 14:36:09.055,auth_session_lost,a
 29268119-a0a3-4a73-b5b7-4042addb7145,2026-09-20 19:23:16.331,page_view,browse,client,1a338763-9c25-48e9-8569-c69428d25bf7,/teams,
 957d2f35-4739-4d8c-ba84-ac167fd1220c,2026-09-20 19:23:16.342,albums_discover_show,interaction,client,1a338763-9c25-48e9-8569-c69428d25bf7,/teams,
 e9621f65-6828-4a46-aa57-5df764e3ce29,2026-09-20 19:23:16.343,auth_session_lost,auth,client,1a338763-9c25-48e9-8569-c69428d25bf7,/teams,"{""platform"": ""desktop"", ""standalone"": false}"
+335262bb-f1f8-4668-a42d-07073d18363f,2026-09-21 13:02:56.275,auth_session_lost,auth,client,4bcc9cd8-1a3e-4d84-a698-b06064947659,/,"{""platform"": ""android"", ""standalone"": false}"
+30b81336-ad62-4123-865e-f59f49f8ea96,2026-09-21 13:02:56.363,auth_session_lost,auth,client,712be502-7495-48be-8098-75a07f31a18b,/,"{""platform"": ""desktop"", ""standalone"": false}"
+db4aa0b0-d957-4da7-81ef-2ad5641a040e,2026-09-21 19:30:06.706,auth_session_lost,auth,client,19483389-41d2-4fb3-b2f3-d7e0f19d6518,/,"{""platform"": ""android"", ""standalone"": false}"
