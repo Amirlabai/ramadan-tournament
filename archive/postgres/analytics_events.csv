@@ -35454,3 +35454,5 @@ e9621f65-6828-4a46-aa57-5df764e3ce29,2026-09-20 19:23:16.343,auth_session_lost,a
 db4aa0b0-d957-4da7-81ef-2ad5641a040e,2026-09-21 19:30:06.706,auth_session_lost,auth,client,19483389-41d2-4fb3-b2f3-d7e0f19d6518,/,"{""platform"": ""android"", ""standalone"": false}"
 a7664fd2-dfbb-43e4-a225-e6753654d464,2026-09-22 22:46:20.839,auth_session_lost,auth,client,a314cdac-af50-4690-9918-cc2181af15ed,/,"{""platform"": ""desktop"", ""standalone"": false}"
 e9fde1ea-8102-4324-b418-ff454e5bee11,2026-09-22 22:51:10.362,auth_session_lost,auth,client,19ccbee2-be3a-4a82-855e-7568dd56cb40,/,"{""platform"": ""desktop"", ""standalone"": false}"
+3f38d67d-ce05-4053-841c-00049aca0fac,2026-09-26 04:41:08.952,auth_session_lost,auth,client,21cd80f0-8d7d-4906-8df9-1c3fadcceccf,/,"{""platform"": ""desktop"", ""standalone"": false}"
+6110f7e3-77ec-4315-a81d-0bf29dc17c1d,2026-09-26 04:45:41.962,auth_session_lost,auth,client,3874663b-1a2e-4ba4-b7f4-0a5e4f732a4c,/,"{""platform"": ""desktop"", ""standalone"": false}"
